@@ -73,7 +73,7 @@
             margin: 20px;
         }
 
-        .link-container img {
+        img {
             vertical-align: middle;
             margin-right: 10px;
             max-height: 80px;
@@ -98,6 +98,7 @@
             background-color: #4c4c4c;
             border-color: #4c4c4c;
             color: #17202A;
+            transform: translateY(-2px);
         }
 
         .light-mode {
@@ -115,6 +116,33 @@
             background-color: #D5D8DC;
             border-color: #D5D8DC;
             color: white;
+            transform: translateY(-2px);
+        }
+        table {
+	        border-collapse:collapse;
+        }
+        tr {
+        	border:none;
+        }
+        th, td {
+        	border-collapse:collapse;
+        	border: 1px solid black;
+        	padding-top:0;
+        	padding-bottom:0;
+        	text-align: right;
+        }
+        .verticalSplit {
+        	border-top:none;
+        	border-bottom:none;
+        }
+        .verticalSplit:first-of-type {
+        	border-left:none;
+        }
+        .verticalSplit:last-of-type {
+        	border-right:none;
+        }
+        .alignCenter {
+          text-align: center;
         }
     </style>
 </head>
@@ -129,34 +157,81 @@
     </div>
 
     <h1>Stan's Aion Characters</h1>
-    <h2>server: Stormwing (EU)</h2>
-
-    <div class="link-container">
-        <img src="https://static.wikia.nocookie.net/aion/images/4/4c/Elyos_Logo.png" alt="Elyos">
-        <a href="https://myaion.eu/Player/2841" target="_blank"><img src="https://myaion.eu/images/Classes/Aethertech.png" alt="Aethertech" />Idiums</a>
-        <a href="https://myaion.eu/Player/11903" target="_blank"><img src="https://myaion.eu/images/Classes/Gladiator.png" alt="Gladiator" />Jneboon</a>
-        <a href="https://myaion.eu/Player/32895" target="_blank"><img src="https://myaion.eu/images/Classes/Chanter.png" alt="Chanter" />Ysm</a>
-        <a href="https://myaion.eu/Player/3844" target="_blank"><img src="https://myaion.eu/images/Classes/Templar.png" alt="Templar" />Ims</a>
-        <a href="https://myaion.eu/Player/543671" target="_blank"><img src="https://myaion.eu/images/Classes/Assassin.png" alt="Assassin" />Nickflurry</a>
-        <a href="https://myaion.eu/Player/677343" target="_blank"><img src="https://myaion.eu/images/Classes/Ranger.png" alt="Ranger" />Nudau</a>
-        <a href="https://myaion.eu/Player/4136" target="_blank"><img src="https://myaion.eu/images/Classes/Painter.png" alt="Painter" />Msy</a>
-        <a href="https://myaion.eu/Player/1017585" target="_blank"><img src="https://myaion.eu/images/Classes/Spiritmaster.png" alt="Spiritmaster" />Mzj</a>
-        <a href="https://myaion.eu/Player/721605" target="_blank"><img src="https://myaion.eu/images/Classes/Bard.png" alt="Bard" />Izm</a>
-        <a href="https://myaion.eu/Player/5930388" target="_blank"><img src="https://myaion.eu/images/Classes/Gunner.png" alt="Gunner" />Facilis</a>
-        <a href="https://myaion.eu/Player/5947954" target="_blank"><img src="https://myaion.eu/images/Classes/Sorcerer.png" alt="Sorcerer" />Castingcouch</a>
-    </div>
-
-    <div class="link-container">
-        <img src="https://static.wikia.nocookie.net/aion/images/2/2a/Asmodian_Logo.png" alt="Asmodian">
-        <a href="https://myaion.eu/Player/5983937" target="_blank"><img src="https://myaion.eu/images/Classes/Gladiator.png" alt="Gladiator" />Ltp</a>
-        <a href="https://myaion.eu/Player/886316" target="_blank"><img src="https://myaion.eu/images/Classes/Aethertech.png" alt="Aethertech" />Mzy</a>
-    </div>
-    
-    <div></div></div><h2>server: Atreia (EU Classic)</h2>
-    <div class="link-container">
-        <img src="https://static.wikia.nocookie.net/aion/images/4/4c/Elyos_Logo.png" alt="Elyos">
-        <a href="https://myaion.eu/Player/5535300" target="_blank"><img src="https://myaion.eu/images/Classes/Gladiator.png" alt="Gladiator" />Jneboon</a>
+    <h2>server: STORMWING (EU)</h2>
+    <table align="center">
+        <tr>
+            <th class="verticalSplit alignCenter"><img src="https://static.wikia.nocookie.net/aion/images/4/4c/Elyos_Logo.png" alt="Elyos"></th>
+            <th class="verticalSplit alignCenter"><img src="https://static.wikia.nocookie.net/aion/images/2/2a/Asmodian_Logo.png" alt="Asmodian"></th>
+        </tr>
+        <tr>
+            <th class="verticalSplit">
+                <div class="link-container">
+                Warrior<a href="https://myaion.eu/Player/3844" target="_blank"><img src="https://myaion.eu/images/Classes/Templar.png" alt="Templar">Ims</a>
+                    <a href="https://myaion.eu/Player/11903" target="_blank"><img src="https://myaion.eu/images/Classes/Gladiator.png" alt="Gladiator">Jneboon</a>
+                </div>
+            </th>
+            <th class="verticalSplit">
+                <div class="link-container">
+                    <a href="https://myaion.eu/Player/5983937" target="_blank"><img src="https://myaion.eu/images/Classes/Gladiator.png" alt="Gladiator" />Ltp</a>
+                </div>
+            </th>
+        </tr>
+        <tr>
+            <th class="verticalSplit">
+            <div class="link-container">
+                Scout<a href="https://myaion.eu/Player/543671" target="_blank"><img src="https://myaion.eu/images/Classes/Assassin.png" alt="Assassin" />Nickflurry</a>
+                <a href="https://myaion.eu/Player/677343" target="_blank"><img src="https://myaion.eu/images/Classes/Ranger.png" alt="Ranger" />Nudau</a>
+            </div>
+            </th><th class="verticalSplit"></th>
+        </tr>
+        <tr>
+            <th class="verticalSplit">
+            <div class="link-container">
+                Mage<a href="https://myaion.eu/Player/5947954" target="_blank"><img src="https://myaion.eu/images/Classes/Sorcerer.png" alt="Sorcerer" />Castingcouch</a>
+                <a href="https://myaion.eu/Player/1017585" target="_blank"><img src="https://myaion.eu/images/Classes/Spiritmaster.png" alt="Spiritmaster" />Mzj</a>
+            </div>
+            </th><th class="verticalSplit"></th>
+        </tr>
+        <tr>
+            <th class="verticalSplit">
+            <div class="link-container">
+                Priest<a href="https://myaion.eu/Player/32895" target="_blank"><img src="https://myaion.eu/images/Classes/Chanter.png" alt="Chanter" />Ysm</a>
+            </div>
+            </th><th class="verticalSplit"></th>
+        </tr>
+        <tr>
+            <th class="verticalSplit">
+            <div class="link-container">
+                Enginner<a href="https://myaion.eu/Player/2841" target="_blank"><img src="https://myaion.eu/images/Classes/Aethertech.png" alt="Aethertech" />Idiums</a>
+                <a href="https://myaion.eu/Player/5930388" target="_blank"><img src="https://myaion.eu/images/Classes/Gunner.png" alt="Gunner" />Facilis</a>
+            </div>
+            </th>
+            <th class="verticalSplit">
+                <div class="link-container">
+                    <a href="https://myaion.eu/Player/886316" target="_blank"><img src="https://myaion.eu/images/Classes/Aethertech.png" alt="Aethertech" />Mzy</a>
+                </div>
+            </th>
+        </tr>
+        <tr>
+            <th class="verticalSplit">
+            <div class="link-container">
+                Artist<a href="https://myaion.eu/Player/4136" target="_blank"><img src="https://myaion.eu/images/Classes/Painter.png" alt="Painter" />Msy</a>
+                <a href="https://myaion.eu/Player/721605" target="_blank"><img src="https://myaion.eu/images/Classes/Bard.png" alt="Bard" />Izm</a>
+            </div>
+            </th><th class="verticalSplit"></th>
+        </tr>
+        <tr>
+            <th class="verticalSplit"><h2>server: Atreia (EU Classic)</h2></th>
+        </tr>
+        <tr>
+            <th class="verticalSplit">
+            <div class="link-container">
+                Warrior<a href="https://myaion.eu/Player/5535300" target="_blank"><img src="https://myaion.eu/images/Classes/Gladiator.png" alt="Gladiator" />Jneboon</a>
         <a href="https://myaion.eu/Player/5568735" target="_blank"><img src="https://myaion.eu/images/Classes/Templar.png" alt="Templar" />Stanimal</a>
+            </div>
+            </th><th class="verticalSplit"></th>
+        </tr>
+    </table>
 
     <script>
         document.getElementById('modeToggle').addEventListener('change', function() {
