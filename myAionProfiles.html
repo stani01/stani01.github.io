@@ -3,6 +3,8 @@
 <head>
     <title>Stan's Aion Character Links</title>
     <style>
+        textDisplay {
+        }
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -16,7 +18,7 @@
             position: fixed;
             top: 10px;
             left: 10px;
-            text-align: left;
+            text-align: center;
         }
 
         .switch {
@@ -153,9 +155,10 @@
         <label class="switch">
             <input type="checkbox" id="modeToggle">
             <span class="slider round"></span>
+            <br><br><div id="textDisplay">Dark</div>
         </label>
-        <div class="mode-label">Light/Dark</div>
-    </div>
+    </div><br>
+    
 
     <h1>Stan's Aion Characters</h1>
     <h2>server: STORMWING (EU)</h2>
@@ -234,14 +237,29 @@
         </tr>
     </table>
 
+
     <script>
-        document.getElementById('modeToggle').addEventListener('change', function() {
-            if(this.checked) {
-                document.body.classList.add('light-mode');
-            } else {
-                document.body.classList.remove('light-mode');
-            }
-        });
-    </script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modeToggle = document.getElementById('modeToggle');
+        var textDisplay = document.getElementById('textDisplay');
+
+        if (modeToggle) {
+            modeToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    document.body.classList.add('light-mode');
+                    if (textDisplay) {
+                        textDisplay.innerText = 'Light';
+                    }
+                } else {
+                    document.body.classList.remove('light-mode');
+                    if (textDisplay) {
+                        textDisplay.innerText = 'Dark';
+                    }
+                }
+            });
+        }
+    });
+</script>
+
 </body>
 </html>
