@@ -71,7 +71,6 @@ class AionKeySpam:
                 "y_coord": 1410,
                 "window_position": "+0+0"
             }
-
         # Load configurable variables from the configuration file
         self.keys_to_spam = self.config["keys_to_spam"]
         self.minimize_keybind = self.config["minimize_keybind"]
@@ -85,6 +84,10 @@ class AionKeySpam:
         self.config["window_position"] = self.window.geometry()
         with open(self.config_path, 'w') as file:
             json.dump(self.config, file, indent=4)
+
+    def hotkey_listener(self):
+        # Register hotkey for minimize/restore window
+        keyboard.add_hotkey(self.minimize_keybind, self.minimize_restore_window)
 
     def setup_ui(self):
         # Initialize the tkinter window
@@ -135,10 +138,6 @@ class AionKeySpam:
                     self.toggle_start_stop()
                     self.last_toggle_time = current_time
             time.sleep(0.05)  # Adjust the sleep duration as needed
-    
-    def hotkey_listener(self):
-        # Register hotkey for minimize/restore window
-        keyboard.add_hotkey(self.minimize_keybind, self.minimize_restore_window)
 
     def load_image(self, image_name):
         base_path = sys._MEIPASS if getattr(sys, 'frozen', False) else os.path.abspath(".")
@@ -216,6 +215,20 @@ class AionKeySpam:
         self.listener = Listener(on_press=self.on_press, on_release=self.on_release)
         self.listener.start()
 
+    def stop_script(self):
+        self.running_flag = False
+        self.currently_pressed_key = None
+        self.toggle_button.config(image=self.toggle_off_icon)
+        #print("Script stopped...")
+        # Stop the listener
+        self.listener.stop()
+
+    def toggle_start_stop(self):
+        if self.running_flag:
+            self.stop_script()
+        else:
+            self.start_script()
+
     def start_spam(self):
         # If spam is started then start spamming
         if self.running_flag and self.start_spamming and self.currently_pressed_key is not None:
@@ -225,30 +238,12 @@ class AionKeySpam:
         # Call start_spam again after a short delay
         self.window.after(10, self.start_spam)
 
-    def stop_script(self):
-        self.running_flag = False
-        self.currently_pressed_key = None
-        self.toggle_button.config(image=self.toggle_off_icon)
-        #print("Script stopped...")
-        # Stop the listener
-        self.listener.stop()
-
     def send_keyboard_signals(self, hwnd, key):
         virtual_key = self.keys_to_spam.get(key)
         #print("key : %s \n virtual_key: %s" % (key, virtual_key))
         if not self.image_detection or (self.image_detection and not self.detect_chat_window(hwnd)):
             win32api.PostMessage(hwnd, win32con.WM_KEYDOWN, virtual_key, 0)
             win32api.PostMessage(hwnd, win32con.WM_KEYUP, virtual_key, 0)
-
-    def toggle_start_stop(self):
-        if self.running_flag:
-            self.stop_script()
-        else:
-            self.start_script()
-    
-    def run(self):
-        # Start the Tkinter event loop on the main thread
-        self.window.mainloop()
     
     def detect_chat_window(self, hwnd):
         # Define the region to capture (x, y, width, height)
@@ -288,6 +283,10 @@ class AionKeySpam:
             img = np.array(screenshot)
             gray_img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
             return gray_img
+
+    def run(self):
+        # Start the Tkinter event loop on the main thread
+        self.window.mainloop()
     
 if __name__ == "__main__":
     app = AionKeySpam()
