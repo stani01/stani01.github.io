@@ -25,7 +25,7 @@ jobs:
 
     - name: Build executable
       run: |
-        pyinstaller --onefile --windowed --add-data "aionKeySpammer/move.png;." --add-data "aionKeySpammer/close.png;." --add-data "aionKeySpammer/on.png;." --add-data "aionKeySpammer/off.png;." --add-data "aionKeySpammer/chat_box_template.png;." aionKeySpammer/aionKeySpammer.pyaionKeySpammer.py
+        pyinstaller --onefile --windowed --add-data "aionKeySpammer/move.png;." --add-data "aionKeySpammer/close.png;." --add-data "aionKeySpammer/on.png;." --add-data "aionKeySpammer/off.png;." --add-data "aionKeySpammer/chat_box_template.png;." aionKeySpammer/aionKeySpammer.py
 
     - name: Upload executable
       uses: actions/upload-artifact@v2
