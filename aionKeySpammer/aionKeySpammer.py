@@ -163,16 +163,14 @@ class AionKeySpam:
         self.window.destroy()
 
     def minimize_restore_window(self):
+        self.window.overrideredirect(False)
         if self.minimized:
-            self.window.overrideredirect(False)
             self.window.deiconify()
-            self.window.overrideredirect(True)
             self.window.wm_attributes("-topmost", 1)
         else:
-            self.window.overrideredirect(False)
             self.window.wm_attributes("-topmost", 0)
             self.window.iconify()
-            self.window.overrideredirect(True)
+        self.window.overrideredirect(True)
         self.minimized = not self.minimized
 
     def find_aion_windows(self):
