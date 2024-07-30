@@ -75,6 +75,10 @@
         .link-container {
             margin: 20px;
         }
+        
+        .link-container-deleted {
+            margin: 20px;
+        }
 
         img {
             vertical-align: middle;
@@ -106,6 +110,20 @@
             background-color: #3d3d3d;
             border: 1px solid #3d3d3d;
             border-radius: 5px;
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .link-container-deleted a {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 12px;
+            text-decoration: none;
+            color: #dcdcdc;
+            font-size: 15px;
+            background-color: #3d3d3d;
+            border: 1px solid #3d3d3d;
+            border-radius: 3px;
             transition: background-color 0.3s, border-color 0.3s, color 0.3s;
             box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
         }
@@ -214,25 +232,13 @@
         <tr>
             <th class="verticalSplit">
                 <div class="link-container">
-                    <a href="https://myaion.eu/Player/32895" target="_blank"><img src="images/chanter.png" alt="chanter" />Lafesta</a>
-                    <a href="https://myaion.eu/Player/6099279" target="_blank"><img src="images/cleric.png" alt="spiritmaster" />Molekin</a>
+                    <a href="https://myaion.eu/Player/5947954" target="_blank"><img src="images/sorcerer.png" alt="sorcerer" />Castingcouch</a>
+                    <a href="https://myaion.eu/Player/2841" target="_blank"><img src="images/aethertech.png" alt="aethertech" />Critless</a>
                 </div>
             </th>
             <th class="verticalSplit">
                 <div class="link-container" align=left>
                     <a href="https://myaion.eu/Player/5581763" target="_blank"><img src="images/chanter.png" alt="chanter" />Lafesta</a>
-                </div>
-            </th>
-        </tr>
-        <tr>
-            <th class="verticalSplit">
-                <div class="link-container">
-                    <a href="https://myaion.eu/Player/543671" target="_blank"><img src="images/assassin.png" alt="assassin" />Nickflurry</a>
-                    <a href="https://myaion.eu/Player/677343" target="_blank"><img src="images/ranger.png" alt="ranger" /><s>Nudau</s> (Deleted)</a>
-                </div>
-            </th>
-            <th class="verticalSplit">
-                <div class="link-container" align=left>
                     <a href="https://myaion.eu/Player/6110549" target="_blank"><img src="images/revenant.png" alt="revenant" />Lantzik</a>
                 </div>
             </th>
@@ -240,18 +246,16 @@
         <tr>
             <th class="verticalSplit">
                 <div class="link-container">
-                    <a href="https://myaion.eu/Player/5947954" target="_blank"><img src="images/sorcerer.png" alt="sorcerer" />Castingcouch</a>
-                    <a href="https://myaion.eu/Player/1017585" target="_blank"><img src="images/spiritmaster.png" alt="spiritmaster" />Mzj</a>
+                    <a href="https://myaion.eu/Player/32895" target="_blank"><img src="images/chanter.png" alt="chanter" />Lafesta</a>
+                    <a href="https://myaion.eu/Player/6099279" target="_blank"><img src="images/cleric.png" alt="spiritmaster" />Molekin</a>
                 </div>
             </th>
-            <th class="verticalSplit">
-            </th>
+            <th class="verticalSplit"></th>
         </tr>
         <tr>
             <th class="verticalSplit">
             <div class="link-container">
-                <a href="https://myaion.eu/Player/2841" target="_blank"><img src="images/aethertech.png" alt="aethertech" />Critless</a>
-                <a href="https://myaion.eu/Player/5930388" target="_blank"><img src="images/gunner.png" alt="gunner" /><s>Facilis</s> (Deleted)</a>
+                    <a href="https://myaion.eu/Player/543671" target="_blank"><img src="images/assassin.png" alt="assassin" />Nickflurry</a>
             </div>
             </th>
             <th class="verticalSplit">
@@ -298,6 +302,35 @@
                 </div>
             </th>
         </tr>
+        <tr>
+            <td colspan="2" class="newStuff">
+                    <img src="images/deleted.png" alt="deleted">Deleted Characters
+            </td>
+        </tr>
+        <tr>
+            <th class="verticalSplit">
+                <div class="link-container-deleted">
+                    <a href="https://myaion.eu/Player/1017585" target="_blank"><img src="images/spiritmaster.png" alt="spiritmaster" />Mzj</a>
+                </div>
+            </th>
+            <th class="verticalSplit"></th>
+        </tr>
+        <tr>
+            <th class="verticalSplit">
+                <div class="link-container-deleted">
+                    <a href="https://myaion.eu/Player/677343" target="_blank"><img src="images/ranger.png" alt="ranger" />Nudau</a>
+                </div>
+            </th>
+            <th class="verticalSplit"></th>
+        </tr>
+        <tr>
+            <th class="verticalSplit">
+                <div class="link-container-deleted">
+                    <a href="https://myaion.eu/Player/5930388" target="_blank"><img src="images/gunner.png" alt="gunner" />Facilis</a>
+                </div>
+            </th>
+            <th class="verticalSplit"></th>
+        </tr>
     </table>
 
     <script>
@@ -335,6 +368,5 @@
         }
     }
 </script>
-
 </body>
 </html>
