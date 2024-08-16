@@ -125,6 +125,8 @@ class AionKeySpam:
         self.config["keys_to_spam"] = self.keys_to_spam
         with open(self.config_path, 'w') as file:
             json.dump(self.config, file, indent=4)
+        
+        self.load_config()
 
     def hotkey_listener(self):
         # Register hotkey for minimize/restore window
@@ -378,6 +380,7 @@ class AionKeySpam:
             self.window.withdraw()
 
             self.window.overrideredirect(True)
+        time.sleep(0.05)
         self.minimized = not self.minimized
 
     def find_aion_windows(self):
@@ -436,7 +439,7 @@ class AionKeySpam:
             thread_id, pid = win32process.GetWindowThreadProcessId(focused_hwnd)
             process = psutil.Process(pid)
             process_name = process.name()
-            if process_name == "aion.bin":
+            if process_name == "aion.bin" or process_name == "Aion.bin":
                 self.send_keyboard_signals(focused_hwnd, self.currently_pressed_key)
         # Call start_spam again after a short delay
         self.window.after(self.spam_delay, self.start_spam)
@@ -467,10 +470,9 @@ class AionKeySpam:
         process = psutil.Process(pid)
         process_name = process.name()
         
-        
         base_path = sys._MEIPASS if getattr(sys, 'frozen', False) else os.path.abspath(".")
         image_path2 = os.path.join(base_path, "chat_box_template_classic2.png")
-        if "AION Client" in window_title and process_name=="aion.bin":
+        if "AION" in window_title and (process_name=="aion.bin" or process_name == "Aion.bin"):
             image_path = os.path.join(base_path, "chat_box_template_classic.png")
         elif process_name=="aion.bin":
             image_path = os.path.join(base_path, "chat_box_template.png")
