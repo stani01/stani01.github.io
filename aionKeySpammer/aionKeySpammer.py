@@ -472,7 +472,7 @@ class AionKeySpam:
         
         base_path = sys._MEIPASS if getattr(sys, 'frozen', False) else os.path.abspath(".")
         image_path2 = os.path.join(base_path, "chat_box_template_classic2.png")
-        if "AION" in window_title and (process_name=="aion.bin" or process_name == "Aion.bin"):
+        if "AION Game" in window_title and (process_name=="aion.bin" or process_name == "Aion.bin"):
             image_path = os.path.join(base_path, "chat_box_template_classic.png")
         elif process_name=="aion.bin":
             image_path = os.path.join(base_path, "chat_box_template.png")
