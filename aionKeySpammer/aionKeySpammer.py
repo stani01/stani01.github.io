@@ -477,7 +477,7 @@ class AionKeySpam:
         elif process_name=="aion.bin":
             image_path = os.path.join(base_path, "chat_box_template.png")
         else:
-            return True
+            return False
 
         region = (0, 0, 55, 2160)
         screenshot = self.get_screenshot(hwnd, region)
