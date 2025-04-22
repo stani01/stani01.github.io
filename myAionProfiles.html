@@ -74,7 +74,40 @@
     }
 
     .link-container {
-      margin: 20px;
+      margin: 10px; /* Adjusted for better spacing */
+      display: inline-block; /* Ensures the container wraps around the content */
+      text-align: center; /* Centers the text and images */
+      width: auto; /* Automatically adjusts to the content size */
+      padding: 5px 10px; /* Adjust padding for better alignment */
+    }
+
+    .link-container a {
+      display: flex; /* Aligns text and image horizontally */
+      align-items: center; /* Vertically centers the text and image */
+      justify-content: center; /* Centers the content */
+      text-decoration: none; /* Removes underline from links */
+      color: #dcdcdc; /* Text color */
+      font-size: 16px; /* Adjusted font size */
+      background-color: #3d3d3d; /* Background color */
+      border: 1px solid #3d3d3d; /* Border color */
+      border-radius: 5px; /* Rounded corners */
+      padding: 5px 10px; /* Adjust padding for better alignment */
+      transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    }
+
+    .link-container a:hover {
+      background-color: #4c4c4c; /* Hover background color */
+      border-color: #4c4c4c; /* Hover border color */
+      color: #17202A; /* Hover text color */
+      transform: translateY(-2px); /* Slight lift effect */
+    }
+
+    .link-container img {
+      vertical-align: middle; /* Aligns image with text */
+      margin-right: 10px; /* Space between image and text */
+      max-height: 30px; /* Adjusted image height */
+      width: auto; /* Maintains aspect ratio */
     }
 
     img {
@@ -97,28 +130,6 @@
       top: 10px;
       right: 10px;
       font-size: 10px;
-    }
-
-    .link-container a {
-      display: inline-block;
-      margin: 10px;
-      padding: 10px 20px;
-      text-decoration: none;
-      color: #dcdcdc;
-      font-size: 18px;
-      background-color: #3d3d3d;
-      border: 1px solid #3d3d3d;
-      border-radius: 5px;
-      transition: background-color 0.3s, border-color 0.3s, color 0.3s;
-      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-    }
-
-
-    .link-container a:hover {
-      background-color: #4c4c4c;
-      border-color: #4c4c4c;
-      color: #17202A;
-      transform: translateY(-2px);
     }
 
     .light-mode {
@@ -369,9 +380,6 @@
       <th class="verticalSplit"></th>
     </tr>
   </table>
-
-  
-          
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
