@@ -372,7 +372,10 @@
             { name: '50% AP', class: 'ap', days: 7 }
         ];
 
-        const cycleLength = events.reduce((sum, event) => sum + event.days, 0); // 27 days
+        const cycleLength = events.reduce((sum, event) => sum + event.days, 0);
+        
+        
+        const cycleStartDate = new Date(2025, 11, 31);
 
         let currentYear = 2026;
 
@@ -384,10 +387,31 @@
             createCalendar(currentYear);
         }
 
-        function getEventForDay(dayOfYear) {
-            const cycleDay = (dayOfYear - 1) % cycleLength;
-            let dayCount = 0;
+        function getEventForDay(specificDate) {
+            const dayOfWeek = specificDate.getDay();
             
+            let daysToWednesday;
+            if (dayOfWeek === 3) {
+                daysToWednesday = 0;
+            } else if (dayOfWeek > 3) {
+                daysToWednesday = dayOfWeek - 3;
+            } else {
+                daysToWednesday = dayOfWeek + 4;
+            }
+            
+            const wednesdayDate = new Date(specificDate);
+            wednesdayDate.setDate(wednesdayDate.getDate() - daysToWednesday);
+            
+            const cycleStartDate = new Date(2025, 11, 31);
+            const diff = wednesdayDate - cycleStartDate;
+            const weeksElapsed = Math.floor(diff / (1000 * 60 * 60 * 24 * 7));
+            
+            const cycleWeek = weeksElapsed % 4;
+            
+            let dayInCycle = cycleWeek * 7;
+            const cycleDay = dayInCycle % cycleLength;
+            
+            let dayCount = 0;
             for (let event of events) {
                 dayCount += event.days;
                 if (cycleDay < dayCount) {
@@ -436,21 +460,21 @@
                 const daysDiv = document.createElement('div');
                 daysDiv.className = 'days';
                 
-                const firstDay = new Date(year, month, 0).getDay();
+                const firstDayOfMonth = new Date(year, month, 1).getDay();
+                let firstDay = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1;
+                
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
                 
-                // Empty cells before the first day
                 for (let i = 0; i < firstDay; i++) {
                     const emptyDiv = document.createElement('div');
                     emptyDiv.className = 'day empty';
                     daysDiv.appendChild(emptyDiv);
                 }
                 
-                // Days of the month
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dayDiv = document.createElement('div');
-                    const dayOfYear = getDayOfYear(year, month, day);
-                    const event = getEventForDay(dayOfYear);
+                    const specificDate = new Date(year, month, day);
+                    const event = getEventForDay(specificDate);
                     
                     dayDiv.className = `day ${event.class}`;
                     if (isToday(year, month, day)) {
