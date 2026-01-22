@@ -565,57 +565,25 @@
                 position: fixed !important;
                 top: 50% !important;
                 left: 50% !important;
-                bottom: auto !important;
-                
-                transform: translate(-50%, -50%) scale(0.9) !important;
-                
                 width: 85vw !important;
-                max-width: 320px;
-                opacity: 0;
-                visibility: hidden;
-                
+                max-width: 300px;
+                transform: translate(-50%, -50%) scale(0.9) !important;
                 white-space: normal !important;
                 text-align: center;
-                padding: 20px;
-                background: rgba(15, 15, 25, 0.98) !important;
-                border: 2px solid rgba(181, 101, 245, 0.5) !important;
-                box-shadow: 0 0 100px rgba(0,0,0,0.9);
-                z-index: 9999 !important;
-            }
-
-            .day.active .day-tooltip,
-            .legend-item.active .legend-tooltip {
-                opacity: 1 !important;
-                visibility: visible !important;
-                transform: translate(-50%, -50%) scale(1) !important;
-                z-index: 10000 !important;
+                padding: 15px;
+                font-size: 0.9rem;
             }
 
             .day-tooltip::after, .legend-tooltip::after {
                 display: none !important;
             }
-        }
 
-        /* Darkens the background when a tooltip is active */
-        .container::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(4px);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            z-index: 900;
+            .day.active .day-tooltip,
+            .legend-item.active .legend-tooltip {
+                transform: translate(-50%, -50%) scale(1) !important;
+                opacity: 1 !important;
+            }
         }
-        body:has(.day.active) .container::before, 
-        body:has(.legend-item.active) .container::before {
-            opacity: 1;
-        }
-
     </style>
 </head>
 <body>
