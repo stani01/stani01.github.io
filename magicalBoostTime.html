@@ -513,7 +513,7 @@
         @media (max-width: 600px) {
             body { 
                 padding: 15px 10px; 
-                overflow-x: hidden; /* Critical: prevents the 'left-lean' scroll */
+                overflow-x: hidden;
             }
             
             h1 { font-size: 1.8em; margin-bottom: 15px; }
@@ -525,7 +525,7 @@
 
             .calendar-controls { 
                 gap: 10px;
-                flex-direction: column; /* Stack controls for better spacing */
+                flex-direction: column;
                 align-items: center;
             }
 
@@ -533,7 +533,7 @@
                 width: 100%; 
                 font-size: 1.5rem; 
                 margin: 5px 0;
-                order: -1; /* Puts month name above arrows on mobile */
+                order: -1;
             }
 
             .year-btn, .view-toggle-btn { 
@@ -542,21 +542,19 @@
                 flex: 1; 
             }
 
-            /* Centered Tooltip Logic for Mobile */
             .day-tooltip, .legend-tooltip {
-                position: fixed !important; /* Fix to screen instead of day square */
+                position: fixed !important;
                 top: 50% !important;
                 left: 50% !important;
                 bottom: auto !important;
-                width: 85vw !important; /* Takes up most of the screen width */
+                width: 85vw !important;
                 max-width: 350px;
                 transform: translate(-50%, -50%) scale(0.9) !important;
-                white-space: normal !important; /* Allow text wrapping */
+                white-space: normal !important;
                 text-align: center;
                 box-shadow: 0 0 50px rgba(0,0,0,0.9);
             }
 
-            /* Remove the little arrow on mobile as it's now screen-centered */
             .day-tooltip::after, .legend-tooltip::after {
                 display: none !important;
             }
@@ -566,6 +564,7 @@
                 transform: translate(-50%, -50%) scale(1) !important;
             }
         }
+
         /* Mobile Toggle Support */
         .day.active .day-tooltip,
         .legend-item.active .legend-tooltip {
