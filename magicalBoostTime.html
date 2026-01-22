@@ -512,47 +512,55 @@
         /* Mobile Responsive Adjustments */
         @media (max-width: 600px) {
             body { 
-                padding: 15px 10px; 
+                padding: 10px 5px; 
                 overflow-x: hidden;
             }
             
-            h1 { font-size: 1.8em; margin-bottom: 15px; }
-
-            .container {
-                width: 100%;
-                margin: 0 auto;
-            }
+            h1 { font-size: 1.4em; margin-bottom: 10px; }
 
             .calendar-controls { 
-                gap: 10px;
-                flex-direction: column;
-                align-items: center;
+                gap: 8px;
+                margin-bottom: 15px;
             }
 
             .year-display { 
-                width: 100%; 
-                font-size: 1.5rem; 
-                margin: 5px 0;
-                order: -1;
+                font-size: 1.2rem; 
+                width: auto;
+                min-width: 160px;
             }
 
-            .year-btn, .view-toggle-btn { 
-                padding: 10px 15px; 
-                font-size: 0.9em; 
-                flex: 1; 
+            .year-btn { padding: 8px 15px; }
+            .view-toggle-btn { padding: 8px 10px; font-size: 0.8em; }
+
+            .calendar-grid.month-view .day { 
+                font-size: 1.1em !important;
+                min-height: 40px !important;
+                aspect-ratio: 1 / 1;
+                border-radius: 6px;
             }
+
+            .month-container { 
+                padding: 12px; 
+                border-radius: 12px; 
+            }
+
+            .weekdays, .days { 
+                gap: 4px;
+            }
+
+            .weekday { font-size: 0.6em; }
 
             .day-tooltip, .legend-tooltip {
                 position: fixed !important;
                 top: 50% !important;
                 left: 50% !important;
-                bottom: auto !important;
                 width: 85vw !important;
-                max-width: 350px;
+                max-width: 300px;
                 transform: translate(-50%, -50%) scale(0.9) !important;
                 white-space: normal !important;
                 text-align: center;
-                box-shadow: 0 0 50px rgba(0,0,0,0.9);
+                padding: 15px;
+                font-size: 0.9rem;
             }
 
             .day-tooltip::after, .legend-tooltip::after {
@@ -562,6 +570,7 @@
             .day.active .day-tooltip,
             .legend-item.active .legend-tooltip {
                 transform: translate(-50%, -50%) scale(1) !important;
+                opacity: 1 !important;
             }
         }
 
@@ -571,7 +580,7 @@
             opacity: 1 !important;
             transform: translateX(-50%) translateY(0) !important;
             pointer-events: auto !important;
-}
+        }
 
     </style>
 </head>
