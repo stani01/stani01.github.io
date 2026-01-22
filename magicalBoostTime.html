@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f0c29">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title id="page-title">AION - Magical Boost Time Calendar</title>
     <style>
         * {
@@ -11,9 +14,15 @@
             box-sizing: border-box;
         }
 
+        html {
+            background-color: #0f0c29; 
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f0c29; 
             background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            background-attachment: fixed;
             padding: 20px;
             min-height: 100vh;
             color: #d1d1e0;
@@ -512,8 +521,10 @@
         /* Mobile Responsive Adjustments */
         @media (max-width: 600px) {
             body { 
-                padding: 10px 5px; 
-                overflow-x: hidden;
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+                padding-left: 10px;
+                padding-right: 10px;
             }
             
             h1 { font-size: 1.4em; margin-bottom: 10px; }
