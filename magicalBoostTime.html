@@ -515,6 +515,14 @@
             .day-tooltip { font-size: 12px; padding: 4px 8px; }
         }
 
+        /* Mobile Toggle Support */
+        .day.active .day-tooltip,
+        .legend-item.active .legend-tooltip {
+            opacity: 1 !important;
+            transform: translateX(-50%) translateY(0) !important;
+            pointer-events: auto !important;
+}
+
     </style>
 </head>
 <body>
@@ -823,6 +831,32 @@
         hideOtherMonths();
         document.getElementById('calendar-container').classList.add('month-view');
         updateDisplay();
+
+        // Close tooltips when clicking outside
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+            document.addEventListener('click', function(e) {
+                const isClickInside = e.target.closest('.day') || e.target.closest('.legend-item');
+
+                if (!isClickInside) {
+                    document.querySelectorAll('.day.active, .legend-item.active').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    return;
+                }
+
+                // If clicking a day/legend, toggle it and close others
+                const item = e.target.closest('.day') || e.target.closest('.legend-item');
+                
+                if (item.classList.contains('active')) {
+                    item.classList.remove('active');
+                } else {
+                    document.querySelectorAll('.day.active, .legend-item.active').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    item.classList.add('active');
+                }
+            });
+        }
     </script>
 </body>
 </html>
