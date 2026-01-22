@@ -363,7 +363,7 @@
             'July', 'August', 'September', 'October', 'November', 'December'
         ];
 
-        const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
         const events = [
             { name: '100% XP + Drop', class: 'xp-drop', days: 6 },
@@ -436,7 +436,7 @@
                 const daysDiv = document.createElement('div');
                 daysDiv.className = 'days';
                 
-                const firstDay = new Date(year, month, 1).getDay();
+                const firstDay = new Date(year, month, 0).getDay();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
                 
                 // Empty cells before the first day
