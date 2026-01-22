@@ -562,24 +562,25 @@
             .weekday { font-size: 0.6em; }
 
             .day-tooltip, .legend-tooltip {
-                position: fixed !important; 
+                position: fixed !important;
                 top: 50% !important;
                 left: 50% !important;
                 bottom: auto !important;
                 
                 transform: translate(-50%, -50%) scale(0.9) !important;
                 
-                width: 85vw !important; 
+                width: 85vw !important;
                 max-width: 320px;
                 opacity: 0;
                 visibility: hidden;
                 
-                white-space: normal !important; 
+                white-space: normal !important;
                 text-align: center;
                 padding: 20px;
                 background: rgba(15, 15, 25, 0.98) !important;
                 border: 2px solid rgba(181, 101, 245, 0.5) !important;
-                box-shadow: 0 0 100px rgba(0,0,0,0.9), 0 0 20px rgba(181,101,245,0.2);
+                box-shadow: 0 0 100px rgba(0,0,0,0.9);
+                z-index: 9999 !important;
             }
 
             .day.active .day-tooltip,
@@ -587,15 +588,32 @@
                 opacity: 1 !important;
                 visibility: visible !important;
                 transform: translate(-50%, -50%) scale(1) !important;
+                z-index: 10000 !important;
+            }
+
+            .day-tooltip::after, .legend-tooltip::after {
+                display: none !important;
             }
         }
 
-        /* Mobile Toggle Support */
-        .day.active .day-tooltip,
-        .legend-item.active .legend-tooltip {
-            opacity: 1 !important;
-            transform: translateX(-50%) translateY(0) !important;
-            pointer-events: auto !important;
+        /* Darkens the background when a tooltip is active */
+        .container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 900;
+        }
+        body:has(.day.active) .container::before, 
+        body:has(.legend-item.active) .container::before {
+            opacity: 1;
         }
 
     </style>
@@ -680,7 +698,7 @@
                 © <span id="copyright-year"></span> <a href="https://stani01.github.io/myAionProfiles.html" target="_blank"><strong>15TAN</strong></a> - AION Magical Boost Time Calendar<br>
                 Many thanks to <a href="https://myaion.eu/Player/1692" target="_blank"><strong>Horrii</strong></a> for inspiration
             </div>
-            <div class="last-updated">Last Updated: Jan 22, 2026</div>
+            <div class="last-updated">Last Updated: Jan 23, 2026</div>
             <button id="backToTop" onclick="scrollToTop()">↑</button>
         </div>
     </div>
