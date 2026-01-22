@@ -562,26 +562,31 @@
             .weekday { font-size: 0.6em; }
 
             .day-tooltip, .legend-tooltip {
-                position: fixed !important;
+                position: fixed !important; 
                 top: 50% !important;
                 left: 50% !important;
-                width: 85vw !important;
-                max-width: 300px;
+                bottom: auto !important;
+                
                 transform: translate(-50%, -50%) scale(0.9) !important;
-                white-space: normal !important;
+                
+                width: 85vw !important; 
+                max-width: 320px;
+                opacity: 0;
+                visibility: hidden;
+                
+                white-space: normal !important; 
                 text-align: center;
-                padding: 15px;
-                font-size: 0.9rem;
-            }
-
-            .day-tooltip::after, .legend-tooltip::after {
-                display: none !important;
+                padding: 20px;
+                background: rgba(15, 15, 25, 0.98) !important;
+                border: 2px solid rgba(181, 101, 245, 0.5) !important;
+                box-shadow: 0 0 100px rgba(0,0,0,0.9), 0 0 20px rgba(181,101,245,0.2);
             }
 
             .day.active .day-tooltip,
             .legend-item.active .legend-tooltip {
-                transform: translate(-50%, -50%) scale(1) !important;
                 opacity: 1 !important;
+                visibility: visible !important;
+                transform: translate(-50%, -50%) scale(1) !important;
             }
         }
 
