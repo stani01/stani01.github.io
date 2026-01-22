@@ -60,9 +60,10 @@
             font-weight: 700;
             color: #e2e2f0;
             text-shadow: 0 0 15px rgba(181,101,245,0.3);
-            width: 320px; 
+            width: auto;
+            min-width: 200px; 
             text-align: center;
-            flex-shrink: 0;
+            flex: 1;
         }
 
         .legend {
@@ -207,6 +208,7 @@
             gap: 25px;
             margin-bottom: 40px;
             transition: all 0.5s ease;
+            width: 100%;
         }
 
         .calendar-grid.month-view {
@@ -469,6 +471,14 @@
         }
 
         .share-btn:hover { background: rgba(255, 255, 255, 0.2); border-color: #b565f5; }
+        
+        .last-updated {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
         #backToTop {
             position: fixed;
@@ -501,20 +511,61 @@
 
         /* Mobile Responsive Adjustments */
         @media (max-width: 600px) {
-            body { padding: 10px; }
+            body { 
+                padding: 15px 10px; 
+                overflow-x: hidden; /* Critical: prevents the 'left-lean' scroll */
+            }
+            
             h1 { font-size: 1.8em; margin-bottom: 15px; }
-            .year-display { width: 100%; font-size: 1.5rem; margin: 10px 0; }
-            .calendar-controls { gap: 10px; }
-            .year-btn, .view-toggle-btn { padding: 8px 12px; font-size: 0.9em; flex: 1; }
-            .calendar-grid.month-view .day { font-size: 1.5em; min-height: 50px; }
-            .month-container { padding: 15px; border-radius: 12px; }
-            .legend-tooltip { width: 90vw; left: 50%; transform: translateX(-50%); font-size: 0.8em; }
-            .legend-item span { font-size: 0.8em; }
-            .weekdays, .days { gap: 4px; }
-            .weekday { font-size: 0.7em; }
-            .day-tooltip { font-size: 12px; padding: 4px 8px; }
-        }
 
+            .container {
+                width: 100%;
+                margin: 0 auto;
+            }
+
+            .calendar-controls { 
+                gap: 10px;
+                flex-direction: column; /* Stack controls for better spacing */
+                align-items: center;
+            }
+
+            .year-display { 
+                width: 100%; 
+                font-size: 1.5rem; 
+                margin: 5px 0;
+                order: -1; /* Puts month name above arrows on mobile */
+            }
+
+            .year-btn, .view-toggle-btn { 
+                padding: 10px 15px; 
+                font-size: 0.9em; 
+                flex: 1; 
+            }
+
+            /* Centered Tooltip Logic for Mobile */
+            .day-tooltip, .legend-tooltip {
+                position: fixed !important; /* Fix to screen instead of day square */
+                top: 50% !important;
+                left: 50% !important;
+                bottom: auto !important;
+                width: 85vw !important; /* Takes up most of the screen width */
+                max-width: 350px;
+                transform: translate(-50%, -50%) scale(0.9) !important;
+                white-space: normal !important; /* Allow text wrapping */
+                text-align: center;
+                box-shadow: 0 0 50px rgba(0,0,0,0.9);
+            }
+
+            /* Remove the little arrow on mobile as it's now screen-centered */
+            .day-tooltip::after, .legend-tooltip::after {
+                display: none !important;
+            }
+
+            .day.active .day-tooltip,
+            .legend-item.active .legend-tooltip {
+                transform: translate(-50%, -50%) scale(1) !important;
+            }
+        }
         /* Mobile Toggle Support */
         .day.active .day-tooltip,
         .legend-item.active .legend-tooltip {
@@ -605,6 +656,7 @@
                 © <span id="copyright-year"></span> <a href="https://stani01.github.io/myAionProfiles.html" target="_blank"><strong>15TAN</strong></a> - AION Magical Boost Time Calendar<br>
                 Many thanks to <a href="https://myaion.eu/Player/1692" target="_blank"><strong>Horrii</strong></a> for inspiration
             </div>
+            <div class="last-updated">Last Updated: Jan 22, 2026</div>
             <button id="backToTop" onclick="scrollToTop()">↑</button>
         </div>
     </div>
