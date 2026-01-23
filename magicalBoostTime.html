@@ -591,14 +591,18 @@
                 top: 50% !important;
                 left: 50% !important;
                 bottom: auto !important;
-                width: 85vw !important;
-                max-width: 350px;
+                right: auto !important;
+                width: calc(100vw - 30px) !important;
+                max-width: 340px !important;
+                max-height: 80vh !important;
+                overflow-y: auto !important;
                 transform: translate(-50%, -50%) scale(0.9) !important;
                 white-space: normal !important;
                 text-align: center;
-                padding: 15px;
-                font-size: 0.9rem;
+                padding: 15px !important;
+                font-size: 0.85rem !important;
                 margin: 0 !important;
+                box-sizing: border-box !important;
             }
             
             .legend-tooltip::after {
@@ -613,10 +617,20 @@
             
             .legend-tooltip h4 {
                 text-align: center;
+                font-size: 1.2em !important;
+            }
+            
+            .legend-tooltip p {
+                margin: 5px 0 !important;
             }
             
             .legend-tooltip table {
-                margin: 10px auto;
+                margin: 10px auto !important;
+                font-size: 0.9em !important;
+            }
+            
+            .legend-tooltip th, .legend-tooltip td {
+                padding: 4px 6px !important;
             }
         }
     </style>
@@ -929,7 +943,6 @@
         document.getElementById('calendar-container').classList.add('month-view');
         updateDisplay();
 
-        // Close tooltips when clicking outside
         if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
             document.addEventListener('click', function(e) {
                 const isClickInside = e.target.closest('.day') || e.target.closest('.legend-item');
@@ -941,7 +954,6 @@
                     return;
                 }
 
-                // If clicking a day/legend, toggle it and close others
                 const item = e.target.closest('.day') || e.target.closest('.legend-item');
                 
                 if (item.classList.contains('active')) {
