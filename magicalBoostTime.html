@@ -603,10 +603,15 @@
                 font-size: 0.85rem !important;
                 margin: 0 !important;
                 box-sizing: border-box !important;
+                z-index: 9999 !important;
             }
             
             .legend-tooltip::after {
                 display: none !important;
+            }
+            
+            .legend-item:hover .legend-tooltip {
+                opacity: 0 !important;
             }
             
             .legend-item.active .legend-tooltip {
