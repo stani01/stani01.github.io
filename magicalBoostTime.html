@@ -565,6 +565,7 @@
                 position: fixed !important;
                 top: 50% !important;
                 left: 50% !important;
+                bottom: auto !important;
                 width: 85vw !important;
                 max-width: 300px;
                 transform: translate(-50%, -50%) scale(0.9) !important;
@@ -572,6 +573,7 @@
                 text-align: center;
                 padding: 15px;
                 font-size: 0.9rem;
+                margin: 0 !important;
             }
 
             .day-tooltip::after, .legend-tooltip::after {
@@ -582,6 +584,15 @@
             .legend-item.active .legend-tooltip {
                 transform: translate(-50%, -50%) scale(1) !important;
                 opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+            
+            .legend-tooltip h4 {
+                text-align: center;
+            }
+            
+            .legend-tooltip table {
+                margin: 10px auto;
             }
         }
     </style>
