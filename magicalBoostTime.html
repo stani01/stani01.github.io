@@ -561,7 +561,7 @@
 
             .weekday { font-size: 0.6em; }
 
-            .day-tooltip, .legend-tooltip {
+            .day-tooltip {
                 position: fixed !important;
                 top: 50% !important;
                 left: 50% !important;
@@ -576,11 +576,35 @@
                 margin: 0 !important;
             }
 
-            .day-tooltip::after, .legend-tooltip::after {
+            .day-tooltip::after {
                 display: none !important;
             }
 
-            .day.active .day-tooltip,
+            .day.active .day-tooltip {
+                transform: translate(-50%, -50%) scale(1) !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+            
+            .legend-tooltip {
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                bottom: auto !important;
+                width: 85vw !important;
+                max-width: 350px;
+                transform: translate(-50%, -50%) scale(0.9) !important;
+                white-space: normal !important;
+                text-align: center;
+                padding: 15px;
+                font-size: 0.9rem;
+                margin: 0 !important;
+            }
+            
+            .legend-tooltip::after {
+                display: none !important;
+            }
+            
             .legend-item.active .legend-tooltip {
                 transform: translate(-50%, -50%) scale(1) !important;
                 opacity: 1 !important;
