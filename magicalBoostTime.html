@@ -274,6 +274,11 @@
             text-shadow: 0 0 10px rgba(181,101,245,0.6);
         }
 
+        .calendar-grid.year-view .month-container:has(.today) {
+            border: 1px solid rgba(181, 101, 245, 0.4);
+            box-shadow: 0 0 20px rgba(181, 101, 245, 0.15);
+        }
+
         .weekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -1004,11 +1009,17 @@
         }
 
         function copyToClipboard() {
-            navigator.clipboard.writeText(window.location.href).then(() => {
-                const btn = document.getElementById('shareBtn');
-                const old = btn.textContent;
-                btn.textContent = "✅ Link Copied!";
-                setTimeout(() => btn.textContent = old, 2000);
+            const url = window.location.href;
+            const btn = document.getElementById('shareBtn');
+            
+            navigator.clipboard.writeText(url).then(() => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = "✅ Link Copied!";
+                btn.style.borderColor = "#43a047";
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.borderColor = ""; 
+                }, 2000);
             });
         }
 
@@ -1044,6 +1055,12 @@
                         el.classList.remove('active');
                     });
                     item.classList.add('active');
+                }
+
+                if (!e.target.closest('.legend-item') && !e.target.closest('.day')) {
+                    document.querySelectorAll('.legend-item, .day').forEach(el => {
+                        el.classList.remove('active');
+                    });
                 }
             });
         }
