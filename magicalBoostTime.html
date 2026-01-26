@@ -123,7 +123,7 @@
             border-radius: 12px;
             font-size: 0.9em;
             font-weight: normal;
-            width: 380px;
+            width: 450px;
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -171,6 +171,38 @@
 
         .legend-tooltip th {
             color: #d09dfc;
+        }
+
+        .legend-tooltip td:first-child {
+            vertical-align: top;
+            padding-top: 10px;
+            font-weight: bold;
+            color: #b565f5;
+            width: 100px;
+        }
+
+        .loot-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 5px 0;
+        }
+
+        .item-chip {
+            background: rgba(181, 101, 245, 0.15);
+            border: 1px solid rgba(181, 101, 245, 0.3);
+            color: #e2e2f0;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .item-chip:hover {
+            background: rgba(181, 101, 245, 0.3);
+            border-color: #b565f5;
+            transform: translateY(-1px);
         }
 
         .forum-link {
@@ -697,7 +729,7 @@
                 bottom: auto !important;
                 transform: translate(-50%, -50%) !important;
                 width: 85vw !important;
-                max-width: 350px !important;
+                max-width: 450px !important;
                 max-height: 70vh !important;
                 margin: 0 !important;
                 visibility: hidden; 
@@ -742,10 +774,32 @@
                     <h4>🛡️ ARMOR - Possible Loot</h4>
                     <table>
                         <tr><th>Rarity</th><th>Item</th></tr>
-                        <tr><td>Normal</td><td>Normal/Greater Rune Fragments, Normal/Noble Odian Fragments</td></tr>
-                        <tr><td>Rare</td><td>Major Rune Fragment, Glowing Odian Fragments, Ancient Purifier, Ancient Polishing Stone, Daevanion Skills (random and selection), Daevanion Essence, Io, Glittering Caustic, Lodas Greater Golden Star, Glyph Box Shard</td></tr>
-                        <tr><td>Very Rare</td><td>Restoration Stone, DP Daevanion Selection Box, +15 Ultimate Spike Armor & Weapon Box</td></tr>
-                        <tr><td>Extremely Rare</td><td>Daevanion Trait Skill Book Box (10 types), +9 Extreme Armor Box, Ultimate Gold Key, Gold Key (Light & Shadows)</td></tr>
+                        <tr><td>Normal</td><td><div class="loot-container">
+                            <span class="item-chip">Normal/Greater Rune Fragments</span>
+                            <span class="item-chip">Normal/Noble Odian Fragments</span>
+                        </div></td></tr>
+                        <tr><td>Rare</td><td><div class="loot-container">
+                            <span class="item-chip">Major Rune Fragment</span>
+                            <span class="item-chip">Glowing Odian Fragments</span>
+                            <span class="item-chip">Ancient Purifier</span>
+                            <span class="item-chip">Ancient Polishing Stone</span>
+                            <span class="item-chip">Daevanion Skills (random and selection)</span>
+                            <span class="item-chip">Daevanion Essence</span>
+                            <span class="item-chip">Io</span>
+                            <span class="item-chip">Glittering Caustic</span>
+                            <span class="item-chip">Lodas Greater Golden Star</span>
+                            <span class="item-chip">Glyph Box Shard</span></td></tr>
+                        <tr><td>Very Rare</td><td><div class="loot-container">
+                            <span class="item-chip">Restoration Stone</span>
+                            <span class="item-chip">DP Daevanion Selection Box</span>
+                            <span class="item-chip">+15 Ultimate Spike Armor & Weapon Box</span>
+                        </div></td></tr>
+                        <tr><td>Extremely Rare</td><td><div class="loot-container">
+                            <span class="item-chip">Daevanion Trait Skill Book Box (10 types)</span>
+                            <span class="item-chip">+9 Extreme Armor Box</span>
+                            <span class="item-chip">Ultimate Gold Key</span>
+                            <span class="item-chip">Gold Key (Light & Shadows)</span>
+                        </div></td></tr>
                     </table>
                 </div>
             </div>
@@ -756,10 +810,35 @@
                     <h4>⚔️ WEAPON - Possible Loot</h4>
                     <table>
                         <tr><th>Rarity</th><th>Item</th></tr>
-                        <tr><td>Normal</td><td>Sakhril, Legendary Manastone Box, Transformation Transparency Scrolls (10), Class S/A Minionite (15/30)</td></tr>
-                        <tr><td>Rare</td><td>Stigma Stones, Transformation Contracts (68 types + Ancient 18 Types), Ultimate Manastone Selection Box, Level 4 Minion Contracts, Alchemist Glass Bottle, Anima Stones, Master Essence, Lodas Greater Silver Star</td></tr>
-                        <tr><td>Very Rare</td><td>Ultimate Extreme Enchantment Stone, Jorgoth Weapons, Pledge Tablet, Legendary Transformation Contract (10 Types), +9 Stigma Bundle</td></tr>
-                        <tr><td>Extremely Rare</td><td>S-Class Minion, +9 Extreme Weapon Box, Ultimate Contract: Light & Shadow (10 types), Ultimate Re-rollable Chest: Light & Shadows (12 types)</td></tr>
+                        <tr><td>Normal</td><td><div class="loot-container">
+                            <span class="item-chip">Sakhril</span>
+                            <span class="item-chip">Legendary Manastone Box</span>
+                            <span class="item-chip">Transformation Transparency Scrolls (10)</span>
+                            <span class="item-chip">Class S/A Minionite (15/30)</span>
+                        </div></td></tr>
+                        <tr><td>Rare</td><td><div class="loot-container">
+                            <span class="item-chip">Stigma Stones</span>
+                            <span class="item-chip">Transformation Contracts (68 types + Ancient 18 Types)</span>
+                            <span class="item-chip">Ultimate Manastone Selection Box</span>
+                            <span class="item-chip">Level 4 Minion Contracts</span>
+                            <span class="item-chip">Alchemist Glass Bottle</span>
+                            <span class="item-chip">Anima Stones</span>
+                            <span class="item-chip">Master Essence</span>
+                            <span class="item-chip">Lodas Greater Silver Star</span>
+                        </div></td></tr>
+                        <tr><td>Very Rare</td><td><div class="loot-container">
+                            <span class="item-chip">Ultimate Extreme Enchantment Stone</span>
+                            <span class="item-chip">Jorgoth Weapons</span>
+                            <span class="item-chip">Pledge Tablet</span>
+                            <span class="item-chip">Legendary Transformation Contract (10 Types)</span>
+                            <span class="item-chip">+9 Stigma Bundle</span>
+                        </div></td></tr>
+                        <tr><td>Extremely Rare</td><td><div class="loot-container">
+                            <span class="item-chip">S-Class Minion</span>
+                            <span class="item-chip">+9 Extreme Weapon Box</span>
+                            <span class="item-chip">Ultimate Contract: Light & Shadow (10 types)</span>
+                            <span class="item-chip">Ultimate Re-rollable Chest: Light & Shadows (12 types)</span>
+                        </div></td></tr>
                     </table>
                 </div>
             </div>
