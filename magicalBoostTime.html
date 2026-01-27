@@ -636,9 +636,12 @@
             }
 
             .legend-tooltip {
-                width: 320px;
+                width: max-content;
+                min-width: 0;
+                max-width: 430px;
                 font-size: 0.8em;
                 padding: 14px 18px;
+                white-space: nowrap;
             }
 
             .legend-tooltip h4 {
@@ -728,7 +731,7 @@
                 right: auto !important;
                 bottom: auto !important;
                 transform: translate(-50%, -50%) !important;
-                width: 85vw !important;
+                width: max-content;
                 max-width: 450px !important;
                 max-height: 70vh !important;
                 margin: 0 !important;
