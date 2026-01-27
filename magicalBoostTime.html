@@ -1165,7 +1165,7 @@
         function setLastUpdatedDate() {
             const modified = new Date(document.lastModified);
             const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const formatted = `${monthNamesShort[modified.getMonth()]} ${modified.getDate()}, ${modified.getFullYear()}`;
+            const formatted = `${modified.getDate()} ${monthNamesShort[modified.getMonth()]}, ${modified.getFullYear()}`;
             const target = document.getElementById('last-updated-date');
             if (target) {
                 target.textContent = formatted;
