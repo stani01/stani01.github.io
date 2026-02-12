@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aion 8.4: Attack vs Crit Manastone Calculator</title>
+    <meta name="theme-color" content="#0f0f12">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <title id="page-title">AION 8.4 - Attack vs Crit Manastone Calculator</title>
+    <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
     <style>
         :root { --accent: #4db8ff; --warning: #ffcc00; --bg: #0f0f12; --panel: #1a1a1f; --red: #ff4d4d; --green: #4dff4d; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: #e0e0e0; line-height: 1.6; margin: 0; padding: 20px; }
@@ -965,24 +974,23 @@
             const effectiveAtk = Math.max(0, Math.min(20000, attack - defense));
             const critChance = Math.min(1, ((crit * 170) / (24000 + crit)) / 100);
             
-            // Crit damage multiplier
-            const critMult = weaponMult + Math.max(0, (critDmgStat - fortitude)) / 1000;
-            
             let normalDmg, critDmg;
             
             if (classType === 'physical') {
                 // Physical formula: ((F20*100/T60)*(1+(MAX(Q32,0)/1000)))*IF(F5,26/100,2)
                 normalDmg = ((skillDmg * 100 / classKP) * (1 + effectiveAtk / 1000)) * pvpMult;
-                critDmg = normalDmg * critMult;
             } else {
                 // Magical formula: (F20+(F20*100/T60)*(MAX(Q32,0)/1000))*IF(F5,26/100,2)
                 normalDmg = (skillDmg + (skillDmg * 100 / classKP) * (effectiveAtk / 1000)) * pvpMult;
-                critDmg = normalDmg * critMult;
             }
             
             // ROUNDUP base damage (before any buffs)
             normalDmg = Math.ceil(normalDmg);
-            critDmg = Math.ceil(critDmg);
+            
+            // Calculate crit damage: ROUND(normalDmg * (weaponMult * critDmgStat / 1000 + weaponMult))
+            // Excel formula: =ROUND(F27*(W61*D27/1000+W61))
+            const effectiveCritDmgStat = Math.max(0, critDmgStat - fortitude);
+            critDmg = Math.round(normalDmg * (weaponMult * effectiveCritDmgStat / 1000 + weaponMult));
             
             // Apply Shards buff (first)
             if (shards > 0) {
