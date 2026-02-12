@@ -136,7 +136,9 @@
         .buff-name { font-size: 0.8em; color: #e0e0e0; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .buff-value { font-size: 0.75em; color: var(--warning); }
         .buff-checkbox { display: none; } /* Hide checkboxes, visual state handled by .active class */
-        .cube-select { background: #101014; border: 1px solid var(--accent); color: white; padding: 6px; border-radius: 4px; font-size: 0.85em; width: 100%; }
+        .buff-item-cubes { flex-direction: column !important; align-items: flex-start !important; }
+        .buff-item-cubes > div:first-child { display: flex; align-items: center; gap: 8px; width: 100%; }
+        .cube-select { background: #101014; border: 1px solid var(--accent); color: white; padding: 6px; border-radius: 4px; font-size: 0.85em; width: 100%; cursor: pointer; }
         
         .class-preview { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
         .class-preview img { width: 32px; height: 32px; border-radius: 4px; border: 2px solid var(--accent); }
@@ -149,6 +151,12 @@
         input, select { background: #101014; border: 1px solid var(--accent); color: white; padding: 10px; border-radius: 4px; font-size: 0.95em; }
         input[type="number"] { -moz-appearance: textfield; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        /* Stats Container */
+        .stats-container { grid-column: span 3; background: #1a1a25; padding: 20px; border-radius: 8px; border: 2px solid var(--accent); margin-top: 10px; }
+        .stats-container h3 { margin: 0 0 5px 0; color: var(--accent); font-size: 0.95em; }
+        .stats-container-help { font-size: 0.8em; color: #999; margin-bottom: 15px; font-style: italic; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
         
         .result-box { grid-column: span 3; background: #1b2d1b; padding: 25px; border-radius: 8px; text-align: center; border: 2px solid var(--green); margin-top: 15px; }
         .result-val { font-size: 2.2em; color: var(--warning); font-weight: bold; margin: 10px 0; }
@@ -218,52 +226,73 @@
             </div>
         </div>
 
-        <div class="input-group">
+        <!-- Row 1: Weapon (full width) -->
+        <div class="input-group span-3">
             <label>Weapon</label>
             <div class="weapon-grid" id="weaponGrid">
                 <!-- Populated dynamically based on class -->
             </div>
         </div>
 
-        <!-- Stats -->
-        <div class="input-group">
-            <label>Total Attack (current)</label>
-            <input type="number" id="attack" value="30000" oninput="calculate()">
-        </div>
+        <!-- Stats Container with Help -->
+        <div class="stats-container">
+            <h3>⚙️ Character Stats</h3>
+            <div class="stats-container-help">💡 Tip: Text boxes accept math expressions (e.g., <strong>26643+1054</strong> or <strong>30000-500</strong>)</div>
+            <div class="stats-grid">
+                <!-- Column 1: Skill DMG, Cooldown, Manastones -->
+                <div class="input-group">
+                    <label>Skill Base Damage</label>
+                    <input type="number" id="skillDmg" value="1000" oninput="calculate()" min="0" max="10000" style="width: 220px;">
+                </div>
 
-        <div class="input-group">
-            <label>Total Crit Strike (current)</label>
-            <input type="number" id="crit" value="15000" oninput="calculate()">
-        </div>
+                <div class="input-group">
+                    <label id="attackLabel">Base Attack</label>
+                    <input type="text" id="attack" value="30000" oninput="calculate()" onblur="validateInput(this, 0, 50000); calculate()" placeholder="0-50000" style="width: 220px;">
+                </div>
 
-        <div class="input-group">
-            <label>Current Attack Manastones (0-51)</label>
-            <input type="number" id="currentAtkStones" value="0" min="0" max="51" oninput="calculate()">
-        </div>
+                <div class="input-group">
+                    <label>Defense</label>
+                    <input type="text" id="defense" value="22000" oninput="calculate()" onblur="validateInput(this, 0, 40000); calculate()" placeholder="0-40000" style="width: 220px;">
+                </div>
 
-        <div class="input-group">
-            <label>Crit Strike Damage Stat</label>
-            <input type="number" id="critDmgStat" value="420" oninput="calculate()">
-        </div>
+                <!-- Row 2: Cooldown | Crit | Fortitude -->
+                <div class="input-group">
+                    <label>Skill Cooldown (sec)</label>
+                    <input type="number" id="skillCooldown" value="3" min="0.5" step="0.5" oninput="calculate()" style="width: 220px;">
+                </div>
 
-        <div class="input-group">
-            <label>Enemy Defense</label>
-            <input type="number" id="defense" value="22000" oninput="calculate()">
-        </div>
+                <div class="input-group">
+                    <label>Crit</label>
+                    <input type="text" id="crit" value="15000" oninput="calculate()" onblur="validateInput(this, 0, 42000); calculate()" placeholder="0-42000" style="width: 220px;">
+                </div>
 
-        <div class="input-group" id="fortitudeGroup" style="display: none;">
-            <label>Enemy Fortitude</label>
-            <input type="number" id="fortitude" value="350" oninput="calculate()">
-        </div>
+                <div class="input-group" id="fortitudeGroup" style="visibility: hidden;">
+                    <label>Fortitude</label>
+                    <input type="number" id="fortitude" value="350" oninput="calculate()" onblur="validateInput(this, 0, 500); calculate()" min="0" max="500" placeholder="0-500" style="width: 220px;">
+                </div>
 
-        <div class="input-group span-3">
-            <label>Skill Base Damage (tooltip value)</label>
-            <input type="number" id="skillDmg" value="1000" oninput="calculate()">
-        </div>
+                <!-- Row 3: Manastones | Crit Damage | PvP Defense -->
+                <div class="input-group">
+                    <label>Current Attack Manastones (0-51)</label>
+                    <input type="number" id="currentAtkStones" value="0" min="0" max="51" oninput="calculate()" style="width: 220px;">
+                </div>
 
-        <div class="input-group">
-            <label>Skill Cooldown (seconds)</label>
-            <input type="number" id="skillCooldown" value="3" min="0.5" step="0.5" oninput="calculate()">
+                <div class="input-group">
+                    <label>Crit Damage</label>
+                    <input type="text" id="critDmgStat" value="420" oninput="calculate()" onblur="validateInput(this, 0, 420); calculate()" placeholder="0-420" style="width: 220px;">
+                </div>
+
+                <div class="input-group" id="pvpDefenseGroup" style="visibility: hidden;">
+                    <label>PvP Defense</label>
+                    <input type="text" id="pvpDefense" value="1000" oninput="calculate()" onblur="validateInput(this, 0, 10000); calculate()" placeholder="0-10000" style="width: 220px;">
+                </div>
+
+                <!-- Row 4: PvE/PvP Attack Bonus -->
+                <div class="input-group" style="grid-column: 2;">
+                    <label id="attackBonusLabel">PvE Attack Bonus</label>
+                    <input type="text" id="attackBonus" value="0" oninput="calculate()" onblur="validateInput(this, 0, 10000); calculate()" placeholder="0-10000" style="width: 220px;">
+                </div>
+            </div>
         </div>
 
         <!-- Buffs Section -->
@@ -297,8 +326,8 @@
                         </div>
                         <input type="checkbox" class="buff-checkbox" checked id="check-intoBlack" onchange="event.stopPropagation(); calculate()">
                     </div>
-                    <div class="buff-item active" id="buff-cubes" style="flex-direction: column; align-items: flex-start;">
-                        <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+                    <div class="buff-item active buff-item-cubes" id="buff-cubes">
+                        <div>
                             <img src="https://myaion.eu/Images/Database/Items/icon_item_cubic_stat_idcubicidcatacombs_rudra_04.png" class="buff-icon">
                             <div class="buff-info">
                                 <div class="buff-name">Cubes</div>
@@ -788,20 +817,73 @@
 
     function setMode(mode) {
         currentMode = mode;
-        document.getElementById('btn-pve').classList.toggle('active', mode === 'pve');
-        document.getElementById('btn-pvp').classList.toggle('active', mode === 'pvp');
-        document.getElementById('fortitudeGroup').style.display = (mode === 'pvp') ? 'block' : 'none';
         
-        const cubesElement = document.getElementById('buff-cubes');
-        if (mode === 'pvp') {
-            cubesElement.style.display = 'none';
+        // Update visibility for all elements together (synchronously)
+        const isPvP = mode === 'pvp';
+        document.getElementById('fortitudeGroup').style.visibility = isPvP ? 'visible' : 'hidden';
+        document.getElementById('pvpDefenseGroup').style.visibility = isPvP ? 'visible' : 'hidden';
+        document.getElementById('buff-cubes').style.visibility = isPvP ? 'hidden' : 'visible';
+        
+        // Reset PvP-specific values when switching to PvP
+        if (isPvP) {
             document.getElementById('cubeValue').value = '0';
-        } else {
-            cubesElement.style.display = 'flex';
         }
         
+        // Update UI elements
+        document.getElementById('btn-pve').classList.toggle('active', !isPvP);
+        document.getElementById('btn-pvp').classList.toggle('active', isPvP);
+        document.getElementById('attackBonusLabel').textContent = isPvP ? 'PvP Attack Bonus' : 'PvE Attack Bonus';
+        
+        // Recalculate and save
         calculate();
         saveSession();
+    }
+
+    // Math expression parser
+    function parseExpression(expr) {
+        if (!expr || typeof expr !== 'string') return 0;
+        
+        // Remove spaces for cleaner parsing
+        expr = expr.trim().replace(/\s+/g, '');
+        
+        // Check if it's just a number
+        const num = parseFloat(expr);
+        if (!isNaN(num) && expr === num.toString()) return num;
+        
+        try {
+            // Safely evaluate simple math expressions
+            // Only allow numbers, basic operators, and parentheses
+            if (!/^[\d+\-*/(). ]+$/.test(expr)) {
+                console.warn('Invalid expression:', expr);
+                return 0;
+            }
+            
+            // Use Function constructor to safely evaluate (safer than eval)
+            const result = Function('"use strict"; return (' + expr + ')')();
+            
+            if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+                return Math.round(result);
+            }
+            
+            console.warn('Invalid expression result:', expr);
+            return 0;
+        } catch (e) {
+            console.warn('Expression parse error:', expr, e);
+            return 0;
+        }
+    }
+
+    // Input Validation - Clamp values to specified ranges (keep expressions if valid)
+    function validateInput(element, min, max) {
+        const originalValue = element.value.trim();
+        const value = parseExpression(originalValue);
+        
+        if (value < min) {
+            element.value = min;
+        } else if (value > max) {
+            element.value = max;
+        }
+        // If value is within range, keep the original expression text
     }
 
     // Buff Management
@@ -1168,13 +1250,28 @@
         const classType = classInfo.type;
         const classKP = classInfo.kp;
         const weaponMult = classInfo.weapons[selectedWeaponIndex].mult;
-        const totalAtk = parseFloat(document.getElementById('attack').value);
-        const totalCrit = parseFloat(document.getElementById('crit').value);
+        
+        // Parse attack stats: base attack + mode-specific bonus
+        const baseAtkInput = parseExpression(document.getElementById('attack').value);
+        const atkBonusInput = parseExpression(document.getElementById('attackBonus').value);
+        const totalAtk = baseAtkInput + atkBonusInput;
+        
+        const totalCrit = parseExpression(document.getElementById('crit').value);
         const currentAtkStones = Math.max(0, Math.min(51, parseInt(document.getElementById('currentAtkStones').value) || 0));
-        const critDmgStat = parseFloat(document.getElementById('critDmgStat').value);
-        let defense = parseFloat(document.getElementById('defense').value);
-        const fortitude = (currentMode === 'pvp') ? parseFloat(document.getElementById('fortitude').value) : 0;
-        const skillDmg = parseFloat(document.getElementById('skillDmg').value);
+        const critDmgStat = parseExpression(document.getElementById('critDmgStat').value);
+        
+        // Parse defense stats
+        const baseDef = parseExpression(document.getElementById('defense').value);
+        const pvpDefInput = parseExpression(document.getElementById('pvpDefense').value);
+        
+        // Calculate total defense based on mode
+        let defense = baseDef;
+        if (currentMode === 'pvp') {
+            defense = baseDef + pvpDefInput;
+        }
+        
+        const fortitude = (currentMode === 'pvp') ? parseExpression(document.getElementById('fortitude').value) : 0;
+        const skillDmg = parseExpression(document.getElementById('skillDmg').value);
         
         // Get active buffs
         const shards = document.getElementById('check-shards')?.checked ? 25 : 0;
@@ -1379,10 +1476,12 @@
             currentMode,
             selectedBuildIndex,
             attack: document.getElementById('attack').value,
+            attackBonus: document.getElementById('attackBonus').value,
             crit: document.getElementById('crit').value,
             currentAtkStones: document.getElementById('currentAtkStones').value,
             critDmgStat: document.getElementById('critDmgStat').value,
             defense: document.getElementById('defense').value,
+            pvpDefense: document.getElementById('pvpDefense').value,
             skillDmg: document.getElementById('skillDmg').value,
             skillCooldown: document.getElementById('skillCooldown').value,
             fortitude: document.getElementById('fortitude')?.value || 0,
@@ -1423,10 +1522,12 @@
             
             // Restore input values
             document.getElementById('attack').value = session.attack || 20000;
+            document.getElementById('attackBonus').value = session.attackBonus || 0;
             document.getElementById('crit').value = session.crit || 5000;
             document.getElementById('currentAtkStones').value = session.currentAtkStones || 30;
             document.getElementById('critDmgStat').value = session.critDmgStat || 200;
             document.getElementById('defense').value = session.defense || 10000;
+            document.getElementById('pvpDefense').value = session.pvpDefense || 1000;
             document.getElementById('skillDmg').value = session.skillDmg || 5000;
             document.getElementById('skillCooldown').value = session.skillCooldown || 3;
             if (document.getElementById('fortitude')) {
@@ -1437,10 +1538,20 @@
             // Restore build selector
             document.getElementById('buildSelector').value = selectedBuildIndex;
             
-            // Restore mode buttons
-            document.getElementById('btn-pve').classList.toggle('active', currentMode === 'pve');
-            document.getElementById('btn-pvp').classList.toggle('active', currentMode === 'pvp');
-            document.getElementById('fortitudeGroup').style.display = (currentMode === 'pvp') ? 'block' : 'none';
+            // Restore mode buttons and update UI
+            const isPvPMode = currentMode === 'pvp';
+            document.getElementById('btn-pve').classList.toggle('active', !isPvPMode);
+            document.getElementById('btn-pvp').classList.toggle('active', isPvPMode);
+            document.getElementById('attackBonusLabel').textContent = isPvPMode ? 'PvP Attack Bonus' : 'PvE Attack Bonus';
+            
+            // Update all visibility changes together
+            document.getElementById('fortitudeGroup').style.visibility = isPvPMode ? 'visible' : 'hidden';
+            document.getElementById('pvpDefenseGroup').style.visibility = isPvPMode ? 'visible' : 'hidden';
+            document.getElementById('buff-cubes').style.visibility = isPvPMode ? 'hidden' : 'visible';
+            
+            if (isPvPMode) {
+                document.getElementById('cubeValue').value = '0';
+            }
             
             // Restore buffs after grid is initialized and recalculate
             setTimeout(() => {
@@ -1466,7 +1577,7 @@
 
     // Add event listeners to save on change
     document.addEventListener('DOMContentLoaded', () => {
-        const inputs = ['attack', 'crit', 'currentAtkStones', 'critDmgStat', 'defense', 'skillDmg', 'skillCooldown', 'fortitude', 'cubeValue'];
+        const inputs = ['attack', 'attackBonus', 'crit', 'currentAtkStones', 'critDmgStat', 'defense', 'skillDmg', 'skillCooldown', 'fortitude', 'cubeValue'];
         inputs.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.addEventListener('change', saveSession);
