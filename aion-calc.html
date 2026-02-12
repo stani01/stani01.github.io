@@ -304,8 +304,8 @@
                 </div>
 
                 <div class="input-group">
-                    <label data-tooltip="The probability of a critical damage. The higher your crit strike value, the higher the chance to land a critical hit (shown as % in results).">Crit</label>
-                    <input type="text" id="crit" value="15000" oninput="calculate()" onblur="validateInput(this, 0, 42000); calculate()" placeholder="0-42000" style="width: 220px;">
+                    <label id="critLabel" data-tooltip="The probability of a critical damage. The higher your crit strike value, the higher the chance to land a critical hit.">Crit</label>
+                    <input type="text" id="crit" value="15000" oninput="updateCritTooltip(); calculate()" onblur="validateInput(this, 0, 42000); calculate()" placeholder="0-42000" style="width: 220px;">
                 </div>
 
                 <div class="input-group">
@@ -878,6 +878,15 @@
         // Recalculate and save
         calculate();
         saveSession();
+    }
+
+    // Update crit tooltip with calculated crit percentage
+    function updateCritTooltip() {
+        const critInput = document.getElementById('crit');
+        const critValue = parseExpression(critInput.value);
+        const critPercentage = Math.floor((critValue * 170) / (24000 + critValue));
+        const critLabel = document.getElementById('critLabel');
+        critLabel.setAttribute('data-tooltip', `The probability of a critical damage. The higher your crit strike value, the higher the chance to land a critical hit. Current: ${critPercentage}%`);
     }
 
     // Math expression parser
@@ -1655,6 +1664,7 @@
 
     document.getElementById('copyright-year').textContent = new Date().getFullYear();
     loadSession();
+    updateCritTooltip();
     initClassGrid();
     updateWeaponGrid();
     updateBuffVisibility();
