@@ -147,7 +147,35 @@
         .input-group { display: flex; flex-direction: column; gap: 8px; }
         .input-group.span-2 { grid-column: span 2; }
         .input-group.span-3 { grid-column: span 3; }
-        label { font-size: 0.85em; color: var(--accent); font-weight: bold; }
+        label { font-size: 0.85em; color: var(--accent); font-weight: bold; position: relative; cursor: help; }
+        label[data-tooltip]:hover::after { 
+            content: attr(data-tooltip); 
+            position: absolute; 
+            bottom: 125%; 
+            left: 0; 
+            right: 0;
+            background: #000; 
+            color: #e0e0e0; 
+            padding: 8px 10px; 
+            border-radius: 4px; 
+            border: 1px solid var(--accent); 
+            font-size: 0.8em; 
+            font-weight: normal;
+            white-space: normal;
+            word-wrap: break-word;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+        }
+        label[data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 115%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #000;
+            z-index: 1001;
+        }
         input, select { background: #101014; border: 1px solid var(--accent); color: white; padding: 10px; border-radius: 4px; font-size: 0.95em; }
         input[type="number"] { -moz-appearance: textfield; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -156,7 +184,7 @@
         .stats-container { grid-column: span 3; background: #1a1a25; padding: 20px; border-radius: 8px; border: 2px solid var(--accent); margin-top: 10px; }
         .stats-container h3 { margin: 0 0 5px 0; color: var(--accent); font-size: 0.95em; }
         .stats-container-help { font-size: 0.8em; color: #999; margin-bottom: 15px; font-style: italic; }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .stats-grid { display: grid; grid-template-rows: repeat(4, 1fr); grid-auto-flow: column; gap: 15px; }
         
         .result-box { grid-column: span 3; background: #1b2d1b; padding: 25px; border-radius: 8px; text-align: center; border: 2px solid var(--green); margin-top: 15px; }
         .result-val { font-size: 2.2em; color: var(--warning); font-weight: bold; margin: 10px 0; }
@@ -239,58 +267,71 @@
             <h3>⚙️ Character Stats</h3>
             <div class="stats-container-help">💡 Tip: Text boxes accept math expressions (e.g., <strong>26643+1054</strong> or <strong>30000-500</strong>)</div>
             <div class="stats-grid">
-                <!-- Column 1: Skill DMG, Cooldown, Manastones -->
+                <!-- Column 1: Skill DMG, Cooldown, Manastones, Extreme Items -->
                 <div class="input-group">
-                    <label>Skill Base Damage</label>
+                    <label data-tooltip="The base dmg you see on your skill in-game">Skill Base Damage</label>
                     <input type="number" id="skillDmg" value="1000" oninput="calculate()" min="0" max="10000" style="width: 220px;">
                 </div>
 
                 <div class="input-group">
-                    <label id="attackLabel">Base Attack</label>
-                    <input type="text" id="attack" value="30000" oninput="calculate()" onblur="validateInput(this, 0, 50000); calculate()" placeholder="0-50000" style="width: 220px;">
-                </div>
-
-                <div class="input-group">
-                    <label>Defense</label>
-                    <input type="text" id="defense" value="22000" oninput="calculate()" onblur="validateInput(this, 0, 40000); calculate()" placeholder="0-40000" style="width: 220px;">
-                </div>
-
-                <!-- Row 2: Cooldown | Crit | Fortitude -->
-                <div class="input-group">
-                    <label>Skill Cooldown (sec)</label>
+                    <label data-tooltip="Duration between skill casts. Affects how often damage is dealt over time.">Skill Cooldown (sec)</label>
                     <input type="number" id="skillCooldown" value="3" min="0.5" step="0.5" oninput="calculate()" style="width: 220px;">
                 </div>
 
                 <div class="input-group">
-                    <label>Crit</label>
-                    <input type="text" id="crit" value="15000" oninput="calculate()" onblur="validateInput(this, 0, 42000); calculate()" placeholder="0-42000" style="width: 220px;">
-                </div>
-
-                <div class="input-group" id="fortitudeGroup" style="visibility: hidden;">
-                    <label>Fortitude</label>
-                    <input type="number" id="fortitude" value="350" oninput="calculate()" onblur="validateInput(this, 0, 500); calculate()" min="0" max="500" placeholder="0-500" style="width: 220px;">
-                </div>
-
-                <!-- Row 3: Manastones | Crit Damage | PvP Defense -->
-                <div class="input-group">
-                    <label>Current Attack Manastones (0-51)</label>
+                    <label id="maxManastonesLabel" data-tooltip="Number of attack manastones slotted into your items. Non-extreme items socket 3 slots, extreme items socket 1 slot.">Current Attack Manastones (0-51)</label>
                     <input type="number" id="currentAtkStones" value="0" min="0" max="51" oninput="calculate()" style="width: 220px;">
                 </div>
 
                 <div class="input-group">
-                    <label>Crit Damage</label>
+                    <label data-tooltip="Count of extreme-grade items in your equipment. Each extreme item replaces 3 regular manastones (1 slot vs 3 slots per item).">Number of Extreme Items (0-7)</label>
+                    <select id="extremeItems" onchange="updateMaxManastones(); calculate(); saveSession()" style="width: 220px;">
+                        <option value="0" selected>0 - 51 max manastones</option>
+                        <option value="1">1 - 49 max manastones</option>
+                        <option value="2">2 - 47 max manastones</option>
+                        <option value="3">3 - 45 max manastones</option>
+                        <option value="4">4 - 43 max manastones</option>
+                        <option value="5">5 - 41 max manastones</option>
+                        <option value="6">6 - 39 max manastones</option>
+                        <option value="7">7 - 37 max manastones</option>
+                    </select>
+                </div>
+
+                <!-- Column 2: Attack, Crit, Crit Dmg, Attack Bonus -->
+                <div class="input-group">
+                    <label id="attackLabel" data-tooltip="The ability to enhance an attack. The higher the number, the more powerful the attack.">Base Attack</label>
+                    <input type="text" id="attack" value="30000" oninput="calculate()" onblur="validateInput(this, 0, 50000); calculate()" placeholder="0-50000" style="width: 220px;">
+                </div>
+
+                <div class="input-group">
+                    <label data-tooltip="The probability of a critical damage. The higher your crit strike value, the higher the chance to land a critical hit (shown as % in results).">Crit</label>
+                    <input type="text" id="crit" value="15000" oninput="calculate()" onblur="validateInput(this, 0, 42000); calculate()" placeholder="0-42000" style="width: 220px;">
+                </div>
+
+                <div class="input-group">
+                    <label data-tooltip="Stat that increases dmg when a crit occurs. The higher the number, the more powerful the crit dmg.">Crit Damage</label>
                     <input type="text" id="critDmgStat" value="420" oninput="calculate()" onblur="validateInput(this, 0, 420); calculate()" placeholder="0-420" style="width: 220px;">
                 </div>
 
-                <div class="input-group" id="pvpDefenseGroup" style="visibility: hidden;">
-                    <label>PvP Defense</label>
-                    <input type="text" id="pvpDefense" value="1000" oninput="calculate()" onblur="validateInput(this, 0, 10000); calculate()" placeholder="0-10000" style="width: 220px;">
+                <div class="input-group">
+                    <label id="attackBonusLabel" data-tooltip="The ability to enhance an attack on an opponent/a monster. The higher the number, the more powerful the attack.">PvE Attack Bonus</label>
+                    <input type="text" id="attackBonus" value="0" oninput="calculate()" onblur="validateInput(this, 0, 10000); calculate()" placeholder="0-10000" style="width: 220px;">
                 </div>
 
-                <!-- Row 4: PvE/PvP Attack Bonus -->
-                <div class="input-group" style="grid-column: 2;">
-                    <label id="attackBonusLabel">PvE Attack Bonus</label>
-                    <input type="text" id="attackBonus" value="0" oninput="calculate()" onblur="validateInput(this, 0, 10000); calculate()" placeholder="0-10000" style="width: 220px;">
+                <!-- Column 3: Defense, Fortitude, PvP Defense -->
+                <div class="input-group">
+                    <label data-tooltip="Defence against attacks. The higher the number, the lower the damage from incoming attacks.">Defense</label>
+                    <input type="text" id="defense" value="22000" oninput="calculate()" onblur="validateInput(this, 0, 40000); calculate()" placeholder="0-40000" style="width: 220px;">
+                </div>
+
+                <div class="input-group" id="fortitudeGroup" style="visibility: hidden;">
+                    <label data-tooltip="Crit defence. The higher the number, the less powerful the enemy's crit spells and strikes.">Fortitude</label>
+                    <input type="number" id="fortitude" value="350" oninput="calculate()" onblur="validateInput(this, 0, 500); calculate()" min="0" max="500" placeholder="0-500" style="width: 220px;">
+                </div>
+
+                <div class="input-group" id="pvpDefenseGroup" style="visibility: hidden;">
+                    <label data-tooltip="Defence against an enemy attack. The higher the number, the lower the power of an opponent's attack.">PvP Defense</label>
+                    <input type="text" id="pvpDefense" value="1000" oninput="calculate()" onblur="validateInput(this, 0, 10000); calculate()" placeholder="0-10000" style="width: 220px;">
                 </div>
             </div>
         </div>
@@ -886,6 +927,23 @@
         // If value is within range, keep the original expression text
     }
 
+    // Update max manastones based on extreme items
+    function updateMaxManastones() {
+        const extremeItems = parseInt(document.getElementById('extremeItems').value) || 0;
+        const maxManastones = 51 - (extremeItems * 2);
+        const currentAtkStones = document.getElementById('currentAtkStones');
+        const label = document.getElementById('maxManastonesLabel');
+        
+        // Update the max attribute and label
+        currentAtkStones.max = maxManastones;
+        label.textContent = `Current Attack Manastones (0-${maxManastones})`;
+        
+        // Clamp current value if it exceeds new max
+        if (parseInt(currentAtkStones.value) > maxManastones) {
+            currentAtkStones.value = maxManastones;
+        }
+    }
+
     // Buff Management
     function toggleBuff(buffId) {
         const checkbox = document.getElementById('check-' + buffId);
@@ -1251,13 +1309,17 @@
         const classKP = classInfo.kp;
         const weaponMult = classInfo.weapons[selectedWeaponIndex].mult;
         
+        // Calculate max manastones based on extreme items
+        const extremeItems = parseInt(document.getElementById('extremeItems').value) || 0;
+        const totalStones = 51 - (extremeItems * 2);
+        
         // Parse attack stats: base attack + mode-specific bonus
         const baseAtkInput = parseExpression(document.getElementById('attack').value);
         const atkBonusInput = parseExpression(document.getElementById('attackBonus').value);
         const totalAtk = baseAtkInput + atkBonusInput;
         
         const totalCrit = parseExpression(document.getElementById('crit').value);
-        const currentAtkStones = Math.max(0, Math.min(51, parseInt(document.getElementById('currentAtkStones').value) || 0));
+        const currentAtkStones = Math.max(0, Math.min(totalStones, parseInt(document.getElementById('currentAtkStones').value) || 0));
         const critDmgStat = parseExpression(document.getElementById('critDmgStat').value);
         
         // Parse defense stats
@@ -1283,7 +1345,6 @@
         }
         
         const pvpMult = (currentMode === 'pvp') ? 0.26 : 2.0;
-        const totalStones = 51;
         
         // Extract base stats by removing current manastones
         const currentCritStones = totalStones - currentAtkStones;
@@ -1479,6 +1540,7 @@
             attackBonus: document.getElementById('attackBonus').value,
             crit: document.getElementById('crit').value,
             currentAtkStones: document.getElementById('currentAtkStones').value,
+            extremeItems: document.getElementById('extremeItems').value,
             critDmgStat: document.getElementById('critDmgStat').value,
             defense: document.getElementById('defense').value,
             pvpDefense: document.getElementById('pvpDefense').value,
@@ -1525,6 +1587,8 @@
             document.getElementById('attackBonus').value = session.attackBonus || 0;
             document.getElementById('crit').value = session.crit || 5000;
             document.getElementById('currentAtkStones').value = session.currentAtkStones || 30;
+            document.getElementById('extremeItems').value = session.extremeItems || 0;
+            updateMaxManastones(); // Update max manastones based on extreme items
             document.getElementById('critDmgStat').value = session.critDmgStat || 200;
             document.getElementById('defense').value = session.defense || 10000;
             document.getElementById('pvpDefense').value = session.pvpDefense || 1000;
@@ -1577,7 +1641,7 @@
 
     // Add event listeners to save on change
     document.addEventListener('DOMContentLoaded', () => {
-        const inputs = ['attack', 'attackBonus', 'crit', 'currentAtkStones', 'critDmgStat', 'defense', 'skillDmg', 'skillCooldown', 'fortitude', 'cubeValue'];
+        const inputs = ['attack', 'attackBonus', 'crit', 'currentAtkStones', 'extremeItems', 'critDmgStat', 'defense', 'skillDmg', 'skillCooldown', 'fortitude', 'cubeValue'];
         inputs.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.addEventListener('change', saveSession);
