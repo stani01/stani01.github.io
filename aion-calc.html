@@ -285,13 +285,13 @@
                             </div>
                         </div>
                         <select class="cube-select" id="cubeValue" onchange="toggleCubes(); calculate()">
-                            <option value="0">None</option>
+                            <option value="0" selected>None</option>
                             <option value="15">+15%</option>
                             <option value="19">+19%</option>
                             <option value="25">+25%</option>
                             <option value="32">+32%</option>
                             <option value="40">+40%</option>
-                            <option value="50" selected>+50%</option>
+                            <option value="50">+50%</option>
                         </select>
                     </div>
                 </div>
@@ -677,6 +677,15 @@
         document.getElementById('btn-pve').classList.toggle('active', mode === 'pve');
         document.getElementById('btn-pvp').classList.toggle('active', mode === 'pvp');
         document.getElementById('fortitudeGroup').style.display = (mode === 'pvp') ? 'block' : 'none';
+        
+        const cubesElement = document.getElementById('buff-cubes');
+        if (mode === 'pvp') {
+            cubesElement.style.display = 'none';
+            document.getElementById('cubeValue').value = '0';
+        } else {
+            cubesElement.style.display = 'flex';
+        }
+        
         calculate();
         saveSession();
     }
@@ -896,7 +905,8 @@
         // Universal buffs
         const movingForward = document.getElementById('check-movingForward')?.checked ? 10 : 0;
         const intoBlack = document.getElementById('check-intoBlack')?.checked ? 30 : 0;
-        const cubes = parseFloat(document.getElementById('cubeValue')?.value || 0);
+        // Cubes disabled in PvP mode
+        const cubes = (currentMode === 'pve') ? parseFloat(document.getElementById('cubeValue')?.value || 0) : 0;
         
         normalBuffs += movingForward + intoBlack + cubes;
         
