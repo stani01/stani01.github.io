@@ -175,6 +175,21 @@
         .bar-val { width: 70px; font-size: 0.85em; color: var(--warning); text-align: right; font-weight: bold; }
 
         /* Copyright Footer */
+        /* Duration Stats */
+        .duration-stats { background: #1a1a25; padding: 20px; border-radius: 8px; border: 1px solid #3d3d45; }
+        .duration-stats h3 { margin: 0 0 15px 0; }
+        .duration-stats table { border-collapse: collapse; table-layout: auto; }
+        .duration-stats table td { padding: 6px 8px; text-align: center; border-bottom: 1px solid #333; font-size: 0.8em; }
+        .duration-stats table tr:hover { background: #202028; }
+        .stability-excellent { color: var(--green); font-weight: bold; }
+        .stability-good { color: #8eff4d; font-weight: bold; }
+        .stability-fair { color: var(--warning); font-weight: bold; }
+        .stability-poor { color: var(--red); font-weight: bold; }
+        .duration-legend { background: #15151a; border-left: 4px solid var(--accent); padding: 15px; border-radius: 4px; font-size: 0.9em; }
+        .duration-legend summary { color: var(--accent); font-weight: bold; user-select: none; cursor: pointer; }
+        .duration-legend summary::-webkit-details-marker { color: var(--accent); }
+        .duration-legend details[open] summary { margin-bottom: 15px; }
+
         .copyright { font-size: 0.9em; color: #777; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #333; }
         .copyright a { color: #b565f5; text-decoration: none; transition: color 0.3s; }
         .copyright a:hover { color: #dcb0ff; text-decoration: underline; }
@@ -244,6 +259,11 @@
         <div class="input-group span-3">
             <label>Skill Base Damage (tooltip value)</label>
             <input type="number" id="skillDmg" value="1000" oninput="calculate()">
+        </div>
+
+        <div class="input-group">
+            <label>Skill Cooldown (seconds)</label>
+            <input type="number" id="skillCooldown" value="3" min="0.5" step="0.5" oninput="calculate()">
         </div>
 
         <!-- Buffs Section -->
@@ -388,6 +408,96 @@
                 <tbody id="comparisonBody">
                 </tbody>
             </table>
+        </div>
+
+        <!-- Duration-Based Statistics -->
+        <div class="duration-stats" style="grid-column: span 3; margin-top: 20px;">
+            <h3 style="color: var(--accent); margin: 0 0 15px 0; font-size: 1em;">⏱️ Duration-Based Performance Analysis</h3>
+            <p style="font-size: 0.85em; color: #999; margin: 0 0 10px 0;">Shows how manastone build performs across different combat durations with varying crit variance.</p>
+            
+            <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                <label style="font-size: 0.85em; color: var(--accent); font-weight: bold;">Select Build:</label>
+                <select id="buildSelector" onchange="updateDurationStats()" style="background: #101014; border: 1px solid var(--accent); color: white; padding: 8px; border-radius: 4px; font-size: 0.9em; flex: 1; max-width: 300px;">
+                    <option value="0">-- Current Build --</option>
+                    <option value="1">-- Optimal Build ⭐ --</option>
+                    <option value="2">-- All Crit --</option>
+                    <option value="3">-- All Attack --</option>
+                    <option value="4">-- 50/50 Mix --</option>
+                </select>
+            </div>
+
+            <table id="durationStatsTable" style="width: 100%; background: #1a1a1f; border-radius: 8px; overflow: hidden; border: 1px solid #3d3d45;">
+                <thead>
+                    <tr style="background: #2a2a35;">
+                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;">Duration</th>
+                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;">Casts</th>
+                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;" title="Expected crits">E. Crits</th>
+                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;">Min</th>
+                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45; color: var(--warning);">Expected</th>
+                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;" title="vs Optimal build">vs Opt. %</th>
+                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;">Max</th>
+                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;" title="Max - Min">Range</th>
+                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;" title="Standard Deviation">σ</th>
+                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;" title="Coefficient of Variation">CV%</th>
+                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;" title="Damage per second">DPS</th>
+                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;">Stability</th>
+                    </tr>
+                </thead>
+                <tbody id="durationBody">
+                    <tr style="background: #1a1a1f;"><td colspan="12" style="text-align: center; padding: 20px; color: #666;">Calculating...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Duration Analysis Legend -->
+        <div class="duration-legend" style="grid-column: span 3; margin-top: 20px; background: #15151a; border-left: 4px solid var(--accent); padding: 15px; border-radius: 4px; font-size: 0.9em;">
+            <details style="cursor: pointer;">
+                <summary style="color: var(--accent); font-weight: bold; user-select: none; margin-bottom: 10px;">🔬 Statistical Formulas & Stability Metrics</summary>
+                <div style="margin-top: 15px; color: #d0d0d0; line-height: 1.8;">
+                    <div style="margin-bottom: 15px;">
+                        <strong style="color: var(--warning);">Skill Casts:</strong> ⌊Duration (sec) / Cooldown (sec)⌋
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong style="color: var(--warning);">Expected Crits:</strong> Casts × Crit Chance %<br>
+                        <span style="color: #999; font-size: 0.85em;">Expected number of critical hits in the duration</span>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong style="color: var(--warning);">Damage Range:</strong> Max Dmg - Min Dmg<br>
+                        <span style="color: #999; font-size: 0.85em;">Spread between best and worst case scenarios</span>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong style="color: var(--warning);">Std Deviation (σ):</strong> √[n × p × (1-p) × (CritDmg - NormalDmg)²]<br>
+                        <span style="color: #999; font-size: 0.85em;">Where n=casts, p=crit chance. Measures variability in damage outcomes.</span>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong style="color: var(--warning);">Coefficient of Variation (CoV):</strong> (Std Dev / Expected Dmg) × 100%<br>
+                        <span style="color: #999; font-size: 0.85em;">Normalized measure of consistency: lower = more predictable</span>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong style="color: var(--warning);">Expected DPS:</strong> Expected Damage / Duration (sec)<br>
+                        <span style="color: #999; font-size: 0.85em;">Average damage output per second over the encounter</span>
+                    </div>
+                    <div style="margin-bottom: 15px; padding-top: 10px; border-top: 1px solid #3d3d45;">
+                        <strong style="color: var(--accent);">Build Stability Ratings (based on CoV):</strong>
+                    </div>
+                    <div style="margin-left: 10px; margin-bottom: 8px;">
+                        <span class="stability-excellent" style="color: var(--green);">★★★★★ Excellent</span> (CoV &lt; 5%)<br>
+                        <span style="color: #999; font-size: 0.85em;">Very predictable regardless of RNG. Attack-heavy builds excel here.</span>
+                    </div>
+                    <div style="margin-left: 10px; margin-bottom: 8px;">
+                        <span class="stability-good" style="color: #8eff4d;">★★★★☆ Good</span> (5% ≤ CoV &lt; 10%)<br>
+                        <span style="color: #999; font-size: 0.85em;">Reliable with minor variance. Balanced stat builds perform well.</span>
+                    </div>
+                    <div style="margin-left: 10px; margin-bottom: 8px;">
+                        <span class="stability-fair" style="color: var(--warning);">★★★☆☆ Fair</span> (10% ≤ CoV &lt; 20%)<br>
+                        <span style="color: #999; font-size: 0.85em;">Noticeable variance but acceptable. Crit-heavy builds start showing RNG.</span>
+                    </div>
+                    <div style="margin-left: 10px;">
+                        <span class="stability-poor" style="color: var(--red);">★★☆☆☆ Poor</span> (CoV ≥ 20%)<br>
+                        <span style="color: #999; font-size: 0.85em;">High RNG dependency. Pure crit builds unreliable in short encounters.</span>
+                    </div>
+                </div>
+            </details>
         </div>
     </div>
 
@@ -602,6 +712,10 @@
     let currentMode = 'pve';
     let selectedClass = 'gladiator';
     let selectedWeaponIndex = 0;
+    let allBuilds = []; // Store the 5 display builds for duration analysis
+    let allBuildStats = {}; // Store duration stats for each build
+    let selectedBuildIndex = 0; // Currently selected build (0=current, 1=optimal, etc)
+    let optimalBuildIndex = 1; // Index of optimal build for comparison
 
     function initClassGrid() {
         const grid = document.getElementById('classGrid');
@@ -952,6 +1066,102 @@
         return { normalBuffs, extraBuffs };
     }
 
+    // Duration-based statistics calculation
+    function calculateDurationStats(damage, critChance, normalDmg, critDmg, skillCooldown) {
+        const durations = [
+            { label: '< 1 min', seconds: 45 },
+            { label: '1-5 min', seconds: 180 },
+            { label: '> 5 min', seconds: 360 }
+        ];
+
+        return durations.map(duration => {
+            const numCasts = Math.max(1, Math.floor(duration.seconds / skillCooldown));
+            const expectedTotalDmg = damage * numCasts;
+            const minDmg = normalDmg * numCasts; // Worst case: zero crits
+            const maxDmg = critDmg * numCasts; // Best case: all crits
+            
+            // Binomial distribution: variance = n * p * (1-p) * (critDmg - normalDmg)^2
+            const variance = numCasts * critChance * (1 - critChance) * Math.pow(critDmg - normalDmg, 2);
+            const stdDev = Math.sqrt(variance);
+            
+            // Stability metric: coefficient of variation (lower = more stable)
+            const coeffVar = expectedTotalDmg > 0 ? (stdDev / expectedTotalDmg) : 0;
+            
+            // Stability rating
+            let stability = 'Poor';
+            if (coeffVar < 0.05) stability = 'Excellent';
+            else if (coeffVar < 0.10) stability = 'Good';
+            else if (coeffVar < 0.20) stability = 'Fair';
+            
+            return {
+                label: duration.label,
+                numCasts: numCasts,
+                minDmg: minDmg,
+                maxDmg: maxDmg,
+                expectedDmg: expectedTotalDmg,
+                stdDev: stdDev,
+                coeffVar: coeffVar,
+                stability: stability
+            };
+        });
+    }
+
+    function renderDurationStats(statsArray, critChance, normalDmg, critDmg, optimalStatsArray) {
+        const tbody = document.getElementById('durationBody');
+        tbody.innerHTML = '';
+        
+        statsArray.forEach((stat, index) => {
+            const stabilityClass = `stability-${stat.stability.toLowerCase()}`;
+            const expectedCrits = (stat.numCasts * critChance).toFixed(2);
+            const damageRange = Math.round(stat.maxDmg - stat.minDmg);
+            const rangePercent = ((damageRange / stat.expectedDmg) * 100).toFixed(1);
+            const expectedDps = (stat.expectedDmg / Math.max(1, stat.label === '< 1 min' ? 45 : stat.label === '1-5 min' ? 180 : 360)).toFixed(2);
+            
+            // Calculate difference vs optimal build
+            const optimalStat = optimalStatsArray[index];
+            const diffPercent = ((stat.expectedDmg - optimalStat.expectedDmg) / optimalStat.expectedDmg * 100).toFixed(2);
+            const diffColor = diffPercent > 0 ? 'var(--green)' : diffPercent < 0 ? 'var(--red)' : '#888';
+            const diffSign = diffPercent > 0 ? '+' : '';
+            
+            const row = `
+                <tr style="background: #1a1a1f;">
+                    <td><strong>${stat.label}</strong></td>
+                    <td>${stat.numCasts}</td>
+                    <td>${expectedCrits} (${(critChance * 100).toFixed(1)}%)</td>
+                    <td>${Math.round(stat.minDmg).toLocaleString()}</td>
+                    <td style="color: var(--warning); font-weight: bold;">${Math.round(stat.expectedDmg).toLocaleString()}</td>
+                    <td style="color: ${diffColor}; font-weight: bold;">${diffSign}${diffPercent}%</td>
+                    <td>${Math.round(stat.maxDmg).toLocaleString()}</td>
+                    <td>${damageRange.toLocaleString()} (${rangePercent}%)</td>
+                    <td>${Math.round(stat.stdDev).toLocaleString()}</td>
+                    <td style="color: ${stat.coeffVar < 5 ? 'var(--green)' : stat.coeffVar < 10 ? '#8eff4d' : stat.coeffVar < 20 ? 'var(--warning)' : 'var(--red)'}; font-weight: bold;">${stat.coeffVar.toFixed(2)}%</td>
+                    <td>${expectedDps}</td>
+                    <td><span class="${stabilityClass}">${stat.stability}</span></td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function updateDurationStats() {
+        const selectedIndex = parseInt(document.getElementById('buildSelector').value);
+        selectedBuildIndex = selectedIndex;
+        
+        if (allBuildStats[selectedIndex]) {
+            const selectedStats = allBuildStats[selectedIndex];
+            const optimalStats = allBuildStats[optimalBuildIndex];
+            
+            const selectedBuild = allBuilds[selectedIndex];
+            renderDurationStats(
+                selectedStats.durationStats,
+                selectedBuild.critChance,
+                selectedBuild.normalDmg,
+                selectedBuild.critDmg,
+                optimalStats.durationStats
+            );
+        }
+    }
+
     function calculate() {
         // Get input values
         const classInfo = CLASS_DATA[selectedClass];
@@ -972,7 +1182,7 @@
         
         // Apply Glad -8% def to enemy defense
         if (document.getElementById('check-glad8')?.checked && classType === 'physical') {
-            defense = defense * 0.92; // Reduce by 8%
+            defense = Math.ceil(defense * 0.92); // Reduce by 8%
         }
         
         const pvpMult = (currentMode === 'pvp') ? 0.26 : 2.0;
@@ -1098,6 +1308,19 @@
             allResults[Math.floor(totalStones / 2)]  // 50/50
         ].filter((r, i, arr) => arr.findIndex(x => x.atkStones === r.atkStones) === i); // Remove duplicates
         
+        // Store builds for duration analysis before sorting
+        allBuilds = displayResults.map((r, idx) => ({
+            atkStones: r.atkStones,
+            critStones: r.critStones,
+            damage: r.damage,
+            attack: r.attack,
+            crit: r.crit,
+            critChance: r.critChance,
+            normalDmg: r.normalDmg,
+            critDmg: r.critDmg,
+            effectiveAtk: r.effectiveAtk
+        }));
+        
         displayResults.sort((a, b) => b.damage - a.damage);
         
         displayResults.forEach(r => {
@@ -1119,6 +1342,33 @@
             `;
             comparisonBody.innerHTML += row;
         });
+        
+        // Calculate and render duration-based statistics for all builds
+        const skillCooldown = parseFloat(document.getElementById('skillCooldown').value) || 3;
+        
+        // Calculate duration stats for each build
+        allBuildStats = {};
+        allBuilds.forEach((build, idx) => {
+            const durationStats = calculateDurationStats(
+                build.damage,
+                build.critChance,
+                build.normalDmg,
+                build.critDmg,
+                skillCooldown
+            );
+            allBuildStats[idx] = {
+                durationStats: durationStats,
+                build: build
+            };
+        });
+        
+        // Set optimal build index (always index 1)
+        optimalBuildIndex = 1;
+        
+        // Update duration stats display (show current by default, but optimal is for comparison)
+        selectedBuildIndex = 1; // Start with optimal
+        document.getElementById('buildSelector').value = '1';
+        updateDurationStats();
     }
 
     // Session save/load functionality
@@ -1127,12 +1377,14 @@
             selectedClass,
             selectedWeaponIndex,
             currentMode,
+            selectedBuildIndex,
             attack: document.getElementById('attack').value,
             crit: document.getElementById('crit').value,
             currentAtkStones: document.getElementById('currentAtkStones').value,
             critDmgStat: document.getElementById('critDmgStat').value,
             defense: document.getElementById('defense').value,
             skillDmg: document.getElementById('skillDmg').value,
+            skillCooldown: document.getElementById('skillCooldown').value,
             fortitude: document.getElementById('fortitude')?.value || 0,
             cubeValue: document.getElementById('cubeValue').value,
             buffs: {
@@ -1167,6 +1419,7 @@
             selectedClass = session.selectedClass || 'gladiator';
             selectedWeaponIndex = session.selectedWeaponIndex || 0;
             currentMode = session.currentMode || 'pve';
+            selectedBuildIndex = session.selectedBuildIndex || 1;
             
             // Restore input values
             document.getElementById('attack').value = session.attack || 20000;
@@ -1175,10 +1428,14 @@
             document.getElementById('critDmgStat').value = session.critDmgStat || 200;
             document.getElementById('defense').value = session.defense || 10000;
             document.getElementById('skillDmg').value = session.skillDmg || 5000;
+            document.getElementById('skillCooldown').value = session.skillCooldown || 3;
             if (document.getElementById('fortitude')) {
                 document.getElementById('fortitude').value = session.fortitude || 0;
             }
             document.getElementById('cubeValue').value = session.cubeValue || 50;
+            
+            // Restore build selector
+            document.getElementById('buildSelector').value = selectedBuildIndex;
             
             // Restore mode buttons
             document.getElementById('btn-pve').classList.toggle('active', currentMode === 'pve');
@@ -1209,7 +1466,7 @@
 
     // Add event listeners to save on change
     document.addEventListener('DOMContentLoaded', () => {
-        const inputs = ['attack', 'crit', 'currentAtkStones', 'critDmgStat', 'defense', 'skillDmg', 'fortitude', 'cubeValue'];
+        const inputs = ['attack', 'crit', 'currentAtkStones', 'critDmgStat', 'defense', 'skillDmg', 'skillCooldown', 'fortitude', 'cubeValue'];
         inputs.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.addEventListener('change', saveSession);
