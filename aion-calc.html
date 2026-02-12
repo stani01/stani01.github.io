@@ -279,7 +279,7 @@
                     </div>
                     <div class="buff-item active" id="buff-cubes" style="flex-direction: column; align-items: flex-start;">
                         <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
-                            <img src="https://myaion.eu/Images/Database/Items/icon_item_treasurebm_dice.png" class="buff-icon">
+                            <img src="https://myaion.eu/Images/Database/Items/icon_item_cubic_stat_idcubicidcatacombs_rudra_04.png" class="buff-icon">
                             <div class="buff-info">
                                 <div class="buff-name">Cubes</div>
                             </div>
@@ -346,7 +346,7 @@
             <div id="physicalBuffs" style="display: none; margin-bottom: 15px;">
                 <strong style="color: var(--red); font-size: 0.9em;">Physical Buffs</strong>
                 <div class="buffs-grid" style="margin-top: 8px;">
-                    <div class="buff-item" onclick="toggleBuff('glad8')" id="buff-glad8">
+                    <div class="buff-item active" onclick="toggleBuff('glad8')" id="buff-glad8">
                         <img src="https://myaion.eu/Images/Database/Skills/FI_ShockBurst_Custom_B_up.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Glad -8% Def</div>
@@ -1185,7 +1185,7 @@
             document.getElementById('btn-pvp').classList.toggle('active', currentMode === 'pvp');
             document.getElementById('fortitudeGroup').style.display = (currentMode === 'pvp') ? 'block' : 'none';
             
-            // Restore buffs after grid is initialized
+            // Restore buffs after grid is initialized and recalculate
             setTimeout(() => {
                 if (session.buffs) {
                     Object.keys(session.buffs).forEach(key => {
@@ -1200,6 +1200,7 @@
                     });
                     toggleCubes(); // Update cube visual state
                 }
+                calculate(); // Recalculate after buffs are restored
             }, 100);
         } catch (e) {
             console.error('Failed to load session:', e);
