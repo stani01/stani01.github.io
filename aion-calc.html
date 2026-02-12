@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aion 8.4: Attack vs Crit Manastone Calculator</title>
+    <style>
+        :root { --accent: #4db8ff; --warning: #ffcc00; --bg: #0f0f12; --panel: #1a1a1f; --red: #ff4d4d; --green: #4dff4d; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: #e0e0e0; line-height: 1.6; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--panel); padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        h1 { color: var(--warning); text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #999; font-size: 0.9em; margin-bottom: 30px; }
+        h2 { color: var(--accent); margin-top: 40px; border-left: 5px solid var(--accent); padding-left: 15px; }
+
+        /* Calculator UI */
+        .calculator { background: #25252b; padding: 25px; border-radius: 8px; margin: 20px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; border: 1px solid #3d3d45; }
+        .mode-selector { grid-column: span 3; display: flex; background: #101014; border-radius: 6px; padding: 5px; margin-bottom: 10px; }
+        .mode-btn { flex: 1; padding: 10px; text-align: center; cursor: pointer; border-radius: 4px; transition: 0.3s; font-weight: bold; }
+        .mode-btn.active { background: var(--accent); color: #000; }
+        
+        .class-option { display: flex; align-items: center; gap: 8px; }
+        .class-icon { width: 20px; height: 20px; vertical-align: middle; }
+        
+        /* Class Grid Selector */
+        .class-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; margin-top: 10px; }
+        .class-btn { 
+            background: #101014; 
+            border: 2px solid #3d3d45; 
+            border-radius: 6px; 
+            padding: 6px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            position: relative;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .class-btn img { width: 100%; height: 100%; object-fit: contain; }
+        .class-btn:hover { 
+            border-color: var(--accent); 
+            background: #1a1a20;
+            transform: scale(1.1);
+            z-index: 100;
+        }
+        .class-btn.selected { 
+            border-color: var(--warning); 
+            background: #2a2520;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+        }
+        .class-btn .class-tooltip {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            color: var(--warning);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            border: 1px solid var(--accent);
+        }
+        .class-btn:hover .class-tooltip { opacity: 1; }
+        
+        /* Weapon Grid Selector */
+        .weapon-grid { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .weapon-btn { 
+            background: #101014; 
+            border: 2px solid #3d3d45; 
+            border-radius: 6px; 
+            padding: 8px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            position: relative;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .weapon-btn img { width: 100%; height: 100%; object-fit: contain; }
+        .weapon-btn:hover { 
+            border-color: var(--accent); 
+            background: #1a1a20;
+            transform: scale(1.1);
+            z-index: 100;
+        }
+        .weapon-btn.selected { 
+            border-color: var(--warning); 
+            background: #2a2520;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+        }
+        .weapon-btn .weapon-tooltip {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            color: var(--warning);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            border: 1px solid var(--accent);
+        }
+        .weapon-btn:hover .weapon-tooltip { opacity: 1; }
+        
+        /* Buff System */
+        .buffs-section { grid-column: span 3; background: #1a1a25; padding: 20px; border-radius: 8px; border: 1px solid #3d3d45; margin-top: 10px; }
+        .buffs-section h3 { color: var(--accent); margin: 0 0 15px 0; font-size: 1em; }
+        .buffs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+        .buff-item { display: flex; align-items: center; gap: 8px; background: #101014; padding: 8px; border-radius: 6px; border: 1px solid #3d3d45; cursor: pointer; transition: all 0.3s; }
+        .buff-item:hover { border-color: var(--accent); background: #1a1a20; }
+        .buff-item.active { border-color: var(--warning); background: #2a2520; }
+        .buff-icon { width: 32px; height: 32px; border-radius: 4px; flex-shrink: 0; }
+        .buff-info { flex: 1; min-width: 0; }
+        .buff-name { font-size: 0.8em; color: #e0e0e0; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .buff-value { font-size: 0.75em; color: var(--warning); }
+        .buff-checkbox { display: none; } /* Hide checkboxes, visual state handled by .active class */
+        .cube-select { background: #101014; border: 1px solid var(--accent); color: white; padding: 6px; border-radius: 4px; font-size: 0.85em; width: 100%; }
+        
+        .class-preview { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
+        .class-preview img { width: 32px; height: 32px; border-radius: 4px; border: 2px solid var(--accent); }
+        .class-preview span { color: var(--warning); font-weight: bold; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group.span-2 { grid-column: span 2; }
+        .input-group.span-3 { grid-column: span 3; }
+        label { font-size: 0.85em; color: var(--accent); font-weight: bold; }
+        input, select { background: #101014; border: 1px solid var(--accent); color: white; padding: 10px; border-radius: 4px; font-size: 0.95em; }
+        input[type="number"] { -moz-appearance: textfield; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        .result-box { grid-column: span 3; background: #1b2d1b; padding: 25px; border-radius: 8px; text-align: center; border: 2px solid var(--green); margin-top: 15px; }
+        .result-val { font-size: 2.2em; color: var(--warning); font-weight: bold; margin: 10px 0; }
+        .result-details { font-size: 0.9em; color: #a0a0a0; line-height: 1.8; margin-top: 15px; text-align: left; }
+        
+        /* Comparison Table */
+        .comparison { grid-column: span 3; margin-top: 20px; }
+        .comparison table { width: 100%; background: #1a1a1f; border-radius: 8px; overflow: hidden; }
+        .comparison th { background: #2a2a35; color: var(--accent); padding: 12px; text-align: center; font-size: 0.9em; }
+        .comparison td { padding: 12px; text-align: center; border-bottom: 1px solid #333; font-size: 0.9em; }
+        .comparison .best { color: var(--green); font-weight: bold; }
+        .comparison .current { background: #2a2520; }
+
+        /* Info boxes */
+        .info-box { background: #15151a; border-left: 4px solid var(--accent); padding: 15px; margin: 20px 0; border-radius: 4px; font-size: 0.9em; }
+        .warning-box { background: #2a1a1a; border-left: 4px solid var(--warning); padding: 15px; margin: 20px 0; border-radius: 4px; font-size: 0.85em; line-height: 1.6; }
+
+        /* Attack Efficiency Chart */
+        .chart-container { background: #25252b; padding: 25px; border-radius: 8px; margin: 20px 0; border: 1px solid #3d3d45; }
+        .bar-wrapper { display: flex; align-items: center; margin-bottom: 12px; }
+        .bar-label { width: 180px; font-size: 0.85em; font-weight: bold; }
+        .bar-bg { background: #111; flex-grow: 1; height: 14px; border-radius: 7px; margin: 0 15px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 7px; background: linear-gradient(90deg, var(--accent), var(--warning)); }
+        .bar-val { width: 70px; font-size: 0.85em; color: var(--warning); text-align: right; font-weight: bold; }
+
+        /* Copyright Footer */
+        .copyright { font-size: 0.9em; color: #777; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #333; }
+        .copyright a { color: #b565f5; text-decoration: none; transition: color 0.3s; }
+        .copyright a:hover { color: #dcb0ff; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Aion 8.4: Attack vs Crit Manastone Optimizer</h1>
+    <div class="subtitle">Break-even calculator using official damage formulas | 51 Manastones distribution</div>
+
+    <h2>Manastone Distribution Calculator</h2>
+    <div class="calculator">
+        <div class="mode-selector">
+            <div id="btn-pve" class="mode-btn active" onclick="setMode('pve')">PvE Mode</div>
+            <div id="btn-pvp" class="mode-btn" onclick="setMode('pvp')">PvP Mode</div>
+        </div>
+
+        <!-- Class Selection -->
+        <div class="input-group span-3">
+            <label>Select Your Class</label>
+            <div class="class-grid" id="classGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Weapon</label>
+            <div class="weapon-grid" id="weaponGrid">
+                <!-- Populated dynamically based on class -->
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="input-group">
+            <label>Total Attack (current)</label>
+            <input type="number" id="attack" value="30000" oninput="calculate()">
+        </div>
+
+        <div class="input-group">
+            <label>Total Crit Strike (current)</label>
+            <input type="number" id="crit" value="15000" oninput="calculate()">
+        </div>
+
+        <div class="input-group">
+            <label>Current Attack Manastones (0-51)</label>
+            <input type="number" id="currentAtkStones" value="0" min="0" max="51" oninput="calculate()">
+        </div>
+
+        <div class="input-group">
+            <label>Crit Strike Damage Stat</label>
+            <input type="number" id="critDmgStat" value="420" oninput="calculate()">
+        </div>
+
+        <div class="input-group">
+            <label>Enemy Defense</label>
+            <input type="number" id="defense" value="22000" oninput="calculate()">
+        </div>
+
+        <div class="input-group" id="fortitudeGroup" style="display: none;">
+            <label>Enemy Fortitude</label>
+            <input type="number" id="fortitude" value="350" oninput="calculate()">
+        </div>
+
+        <div class="input-group span-3">
+            <label>Skill Base Damage (tooltip value)</label>
+            <input type="number" id="skillDmg" value="1000" oninput="calculate()">
+        </div>
+
+        <!-- Buffs Section -->
+        <div class="buffs-section">
+            <h3>⚡ Active Buffs</h3>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: var(--green); font-size: 0.9em;">Universal Buffs (All Classes)</strong>
+                <div class="buffs-grid" style="margin-top: 8px;">
+                    <div class="buff-item active" onclick="toggleBuff('shards')" id="buff-shards">
+                        <img src="https://myaion.eu/Images/Database/Items/Icon_Item_nBattery01.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Shards</div>
+                            <div class="buff-value">+25%</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" checked id="check-shards" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('movingForward')" id="buff-movingForward">
+                        <img src="https://myaion.eu/Images/Database/Skills/icon_action_runmode.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Moving Forward</div>
+                            <div class="buff-value">+10%</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-movingForward" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item active" onclick="toggleBuff('intoBlack')" id="buff-intoBlack">
+                        <img src="https://myaion.eu/Images/Database/Skills/PA_A_TargetSelecting_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Into the Black</div>
+                            <div class="buff-value">+30%</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" checked id="check-intoBlack" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item active" id="buff-cubes" style="flex-direction: column; align-items: flex-start;">
+                        <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+                            <img src="https://myaion.eu/Images/Database/Items/icon_item_treasurebm_dice.png" class="buff-icon">
+                            <div class="buff-info">
+                                <div class="buff-name">Cubes</div>
+                            </div>
+                        </div>
+                        <select class="cube-select" id="cubeValue" onchange="toggleCubes(); calculate()">
+                            <option value="0">None</option>
+                            <option value="15">+15%</option>
+                            <option value="19">+19%</option>
+                            <option value="25">+25%</option>
+                            <option value="32">+32%</option>
+                            <option value="40">+40%</option>
+                            <option value="50" selected>+50%</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="magicalBuffs" style="display: none; margin-bottom: 15px;">
+                <strong style="color: var(--accent); font-size: 0.9em;">Magical Buffs</strong>
+                <div class="buffs-grid" style="margin-top: 8px;">
+                    <div class="buff-item" onclick="toggleBuff('windHarmony')" id="buff-windHarmony">
+                        <img src="https://myaion.eu/Images/Database/Skills/LIVE_Ba_SongofWind_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Wind Harmony</div>
+                            <div class="buff-value">+15%</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-windHarmony" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" id="buff-weda9" onclick="document.getElementById('check-weda9').click();">
+                        <img src="https://myaion.eu/Images/Database/Skills/WedS_buff_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Weda's Splendour</div>
+                            <div class="buff-value">+9%</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-weda9" onclick="event.stopPropagation();" onchange="toggleWeda(9); calculate()">
+                    </div>
+                    <div class="buff-item" id="buff-weda17" onclick="document.getElementById('check-weda17').click();">
+                        <img src="https://myaion.eu/Images/Database/Skills/WedS_buff_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Weda's Splendour</div>
+                            <div class="buff-value">+17%</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-weda17" onclick="event.stopPropagation();" onchange="toggleWeda(17); calculate()">
+                    </div>
+                    <div class="buff-item" id="buff-templar8" onclick="document.getElementById('check-templar8').click();">
+                        <img src="https://myaion.eu/Images/Database/Skills/kn_grandprotection_custom_a.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Comrade's Aegis</div>
+                            <div class="buff-value">+8%</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-templar8" onclick="event.stopPropagation();" onchange="toggleTemplar(8); calculate()">
+                    </div>
+                    <div class="buff-item" id="buff-templar10" onclick="document.getElementById('check-templar10').click();">
+                        <img src="https://myaion.eu/Images/Database/Skills/KN_GrandProtection_Custom_A_up.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">(Improved) Comrade's Aegis</div>
+                            <div class="buff-value">+10%</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-templar10" onclick="event.stopPropagation();" onchange="toggleTemplar(10); calculate()">
+                    </div>
+                </div>
+            </div>
+
+            <div id="physicalBuffs" style="display: none; margin-bottom: 15px;">
+                <strong style="color: var(--red); font-size: 0.9em;">Physical Buffs</strong>
+                <div class="buffs-grid" style="margin-top: 8px;">
+                    <div class="buff-item" onclick="toggleBuff('glad8')" id="buff-glad8">
+                        <img src="https://myaion.eu/Images/Database/Skills/FI_ShockBurst_Custom_B_up.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Glad -8% Def</div>
+                            <div class="buff-value">Enemy -8% Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-glad8" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                </div>
+            </div>
+
+            <div id="classSpecificBuffs" style="display: none;">
+                <strong style="color: var(--warning); font-size: 0.9em;">Class-Specific Buffs</strong>
+                <div class="buffs-grid" style="margin-top: 8px;" id="classBuffsGrid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="result-box">
+            <div><strong>OPTIMAL MANASTONE DISTRIBUTION</strong></div>
+            <div class="result-val" id="optimalResult">Calculating...</div>
+            <div class="result-details" id="detailsResult"></div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="comparison">
+            <table id="comparisonTable">
+                <thead>
+                    <tr>
+                        <th>Distribution</th>
+                        <th>Attack</th>
+                        <th>Crit Strike</th>
+                        <th>Crit Chance</th>
+                        <th>Total Damage</th>
+                        <th>% vs Current</th>
+                    </tr>
+                </thead>
+                <tbody id="comparisonBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <strong>How it works:</strong> This calculator uses the official Aion 8.4 damage formulas to find the optimal distribution of your 51 manastones between Attack (+23 each) and Crit Strike (+86 each). It accounts for attack dilution, crit chance curves, weapon multipliers, and fortitude in PvP.
+    </div>
+
+    <div class="warning-box">
+        <strong>Formulas used:</strong><br>
+        <strong style="color: var(--accent);">Base Damage Calculation:</strong><br>
+        • <strong>Physical:</strong> <code>((SkillDmg * 100 / Power) * (1 + EffAtk/1000)) * PvPMult</code><br>
+        • <strong>Magical:</strong> <code>(SkillDmg + (SkillDmg * 100 / Knowledge) * (EffAtk/1000)) * PvPMult</code><br>
+        • <strong>Crit Chance:</strong> <code>(CritStat * 170) / (24000 + CritStat) / 100</code><br>
+        • <strong>Effective Attack:</strong> <code>MIN(20000, Attack - Defense)</code><br>
+        • <strong>Crit Multiplier:</strong> <code>WeaponBase + (CritDmgStat - Fortitude) / 1000</code><br>
+        • <strong>Expected Damage:</strong> <code>(1 - CritChance) * NormalHit + CritChance * CritHit</code><br>
+        <br>
+        <strong style="color: var(--warning);">Buff Application (Applied in order):</strong><br>
+        <strong>1. Shards (+25%):</strong> <code>BaseDmg = BaseDmg * 1.25</code> (applied first, always active by default)<br>
+        <strong>2. Normal Buffs:</strong> <code>Dmg = BaseDmg * (1 + NormalBuffs%)</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• Moving Forward (+10%), Into the Black (+30%), Cubes (+0 to 50%)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <em>Magical:</em> Wind Harmony (+15%)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <em>Physical:</em> Glad -8% reduces enemy defense by 8%<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <em>Ranger:</em> Focused Shots (+30%)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <em>Assassin:</em> Mist (+100%) or Eye (+60%) - mutual exclusive<br>
+        <strong>3. Extra Buffs:</strong> <code>FinalDmg = Dmg * (1 + ExtraBuffs%)</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <em>Magical:</em> Weda's Splendour (+9% or +17%), Comrade's Aegis (+8% or +10%)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <em>Sorcerer:</em> Boon of Flame (+18%)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <em>Spiritmaster:</em> Spirit Bundling (+12%)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <em>Gunner:</em> Gift of Magic Power (+20%)
+    </div>
+
+    <h2>Attack Gain Analysis (Dilution Effect)</h2>
+    <p>As your <strong>Effective Attack</strong> (Total Attack - Enemy Defense) increases, the percentage gain from each additional 1,000 points drops significantly.</p>
+    
+    <div class="chart-container">
+        <div class="bar-wrapper">
+            <div class="bar-label">2,000 Effective Attack</div>
+            <div class="bar-bg"><div class="bar-fill" style="width: 50%;"></div></div>
+            <div class="bar-val">50.00%</div>
+        </div>
+        <div class="bar-wrapper">
+            <div class="bar-label">4,000 Effective Attack</div>
+            <div class="bar-bg"><div class="bar-fill" style="width: 25%;"></div></div>
+            <div class="bar-val">25.00%</div>
+        </div>
+        <div class="bar-wrapper">
+            <div class="bar-label">8,000 Effective Attack</div>
+            <div class="bar-bg"><div class="bar-fill" style="width: 12.5%;"></div></div>
+            <div class="bar-val">12.50%</div>
+        </div>
+        <div class="bar-wrapper">
+            <div class="bar-label">10,000 Effective Attack</div>
+            <div class="bar-bg"><div class="bar-fill" style="width: 10%;"></div></div>
+            <div class="bar-val">10.00%</div>
+        </div>
+        <div class="bar-wrapper">
+            <div class="bar-label">15,000 Effective Attack</div>
+            <div class="bar-bg"><div class="bar-fill" style="width: 6.67%;"></div></div>
+            <div class="bar-val">6.67%</div>
+        </div>
+        <div class="bar-wrapper">
+            <div class="bar-label">20,000 Effective Attack (CAP)</div>
+            <div class="bar-bg"><div class="bar-fill" style="width: 5%;"></div></div>
+            <div class="bar-val">5.00%</div>
+        </div>
+    </div>
+
+    <div class="copyright">
+        © <span id="copyright-year"></span> <a href="https://stani01.github.io/myAionProfiles.html" target="_blank"><strong>15TAN</strong></a> - AION Retail DPS Optimization<br>
+        Based on official 8.4 damage formulas
+    </div>
+</div>
+
+<script>
+    // Weapon definitions (shared across classes)
+    const WEAPONS = {
+        dagger: { name: 'Dagger', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_dagger_F01.png' },
+        sword: { name: 'Sword', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_sword_F01.png' },
+        mace: { name: 'Mace', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_mace_F01.png' },
+        polearm: { name: 'Polearm', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_polearm_F01.png' },
+        greatsword: { name: 'Greatsword', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_2hsword_F01.png' },
+        bow: { name: 'Bow', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_bow_F01.png' },
+        staff: { name: 'Staff', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_staff_F01.png' },
+        paintRings: { name: 'Paint Rings', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_spray_F01.png' },
+        orb: { name: 'Orb', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_orb_F01.png' },
+        spellbook: { name: 'Spellbook', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_book_F01.png' },
+        aetherKey: { name: 'Aether Key', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_keyblade_F01.png' },
+        cannon: { name: 'Cannon', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_cannon_F01.png' },
+        pistol: { name: 'Pistol', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_gun_F01.png' },
+        harp: { name: 'Harp', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_harp_F01.png' }
+    };
+
+    const CLASS_DATA = {
+        'gladiator': { 
+            kp: 115, 
+            type: 'physical', 
+            icon: 'https://myaion.eu/images/Classes/Gladiator.png',
+            weapons: [
+                { ...WEAPONS.dagger, mult: 2.3 },
+                { ...WEAPONS.sword, mult: 2.2 },
+                { ...WEAPONS.polearm, mult: 1.8 },
+                { ...WEAPONS.greatsword, mult: 1.8 }
+            ]
+        },
+        'templar': { 
+            kp: 115, 
+            type: 'physical', 
+            icon: 'https://myaion.eu/images/Classes/Templar.png',
+            weapons: [
+                { ...WEAPONS.sword, mult: 2.2 },
+                { ...WEAPONS.greatsword, mult: 1.8 }
+            ]
+        },
+        'assassin': { 
+            kp: 110, 
+            type: 'physical', 
+            icon: 'https://myaion.eu/images/Classes/Assassin.png',
+            weapons: [
+                { ...WEAPONS.dagger, mult: 2.3 },
+                { ...WEAPONS.sword, mult: 2.2 }
+            ]
+        },
+        'ranger': { 
+            kp: 100, 
+            type: 'physical', 
+            icon: 'https://myaion.eu/images/Classes/Ranger.png',
+            weapons: [
+                { ...WEAPONS.bow, mult: 1.7 },
+                { ...WEAPONS.dagger, mult: 2.3 },
+                { ...WEAPONS.sword, mult: 2.2 }
+            ]
+        },
+        'chanter': { 
+            kp: 110, 
+            type: 'physical', 
+            icon: 'https://myaion.eu/images/Classes/Chanter.png',
+            weapons: [
+                { ...WEAPONS.staff, mult: 1.7 },
+                { ...WEAPONS.mace, mult: 2.0 }
+            ]
+        },
+        'painter': { 
+            kp: 100, 
+            type: 'physical', 
+            icon: 'https://myaion.eu/images/Classes/Painter.png',
+            weapons: [
+                { ...WEAPONS.paintRings, mult: 1.7 }
+            ]
+        },
+        'sorcerer': { 
+            kp: 120, 
+            type: 'magical', 
+            icon: 'https://myaion.eu/images/Classes/Sorcerer.png',
+            weapons: [
+                { ...WEAPONS.orb, mult: 1.5 },
+                { ...WEAPONS.spellbook, mult: 1.5 }
+            ]
+        },
+        'spiritmaster': { 
+            kp: 115, 
+            type: 'magical', 
+            icon: 'https://myaion.eu/images/Classes/Spiritmaster.png',
+            weapons: [
+                { ...WEAPONS.orb, mult: 1.5 },
+                { ...WEAPONS.spellbook, mult: 1.5 }
+            ]
+        },
+        'cleric': { 
+            kp: 105, 
+            type: 'magical', 
+            icon: 'https://myaion.eu/images/Classes/Cleric.png',
+            weapons: [
+                { ...WEAPONS.mace, mult: 1.5 }
+            ]
+        },
+        'aethertech': { 
+            kp: 105, 
+            type: 'magical', 
+            icon: 'https://myaion.eu/images/Classes/Aethertech.png',
+            weapons: [
+                { ...WEAPONS.aetherKey, mult: 1.5 }
+            ]
+        },
+        'gunner': { 
+            kp: 100, 
+            type: 'magical', 
+            icon: 'https://myaion.eu/images/Classes/Gunner.png',
+            weapons: [
+                { ...WEAPONS.cannon, mult: 1.5 },
+                { ...WEAPONS.pistol, mult: 1.5 }
+            ]
+        },
+        'bard': { 
+            kp: 110, 
+            type: 'magical', 
+            icon: 'https://myaion.eu/images/Classes/Bard.png',
+            weapons: [
+                { ...WEAPONS.harp, mult: 1.5 }
+            ]
+        }
+    };
+
+    // Class order for UI display
+    const CLASS_ORDER = ['gladiator', 'templar', 'assassin', 'ranger', 'sorcerer', 'spiritmaster', 
+                         'cleric', 'chanter', 'aethertech', 'gunner', 'bard', 'painter'];
+
+    let currentMode = 'pve';
+    let selectedClass = 'gladiator';
+    let selectedWeaponIndex = 0;
+
+    function initClassGrid() {
+        const grid = document.getElementById('classGrid');
+        
+        CLASS_ORDER.forEach(className => {
+            const classInfo = CLASS_DATA[className];
+            const displayName = className.charAt(0).toUpperCase() + className.slice(1);
+            
+            const btn = document.createElement('div');
+            btn.className = 'class-btn';
+            if (className === selectedClass) btn.classList.add('selected');
+            btn.onclick = () => selectClass(className);
+            
+            btn.innerHTML = `
+                <img src="${classInfo.icon}" alt="${displayName}">
+                <div class="class-tooltip">${displayName}</div>
+            `;
+            
+            grid.appendChild(btn);
+        });
+    }
+
+    function selectClass(className) {
+        selectedClass = className;
+        selectedWeaponIndex = 0;
+        
+        document.querySelectorAll('.class-btn').forEach(btn => btn.classList.remove('selected'));
+        document.querySelectorAll('.class-btn')[CLASS_ORDER.indexOf(className)].classList.add('selected');
+        
+        updateWeaponGrid();
+        updateBuffVisibility();
+        calculate();
+        saveSession();
+    }
+
+    function getClassIndex(className) {
+        return CLASS_ORDER.indexOf(className);
+    }
+
+    function updateWeaponGrid() {
+        const classInfo = CLASS_DATA[selectedClass];
+        const weaponGrid = document.getElementById('weaponGrid');
+        weaponGrid.innerHTML = '';
+        
+        classInfo.weapons.forEach((weapon, index) => {
+            const btn = document.createElement('div');
+            btn.className = 'weapon-btn';
+            if (index === selectedWeaponIndex) btn.classList.add('selected');
+            btn.onclick = () => selectWeapon(index);
+            
+            btn.innerHTML = `
+                <img src="${weapon.icon}" alt="${weapon.name}">
+                <div class="weapon-tooltip">${weapon.name} (${weapon.mult}x)</div>
+            `;
+            
+            weaponGrid.appendChild(btn);
+        });
+    }
+
+    function selectWeapon(index) {
+        selectedWeaponIndex = index;
+        
+        // Update visual selection
+        document.querySelectorAll('.weapon-btn').forEach(btn => btn.classList.remove('selected'));
+        document.querySelectorAll('.weapon-btn')[index].classList.add('selected');
+        
+        calculate();
+        saveSession();
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('btn-pve').classList.toggle('active', mode === 'pve');
+        document.getElementById('btn-pvp').classList.toggle('active', mode === 'pvp');
+        document.getElementById('fortitudeGroup').style.display = (mode === 'pvp') ? 'block' : 'none';
+        calculate();
+        saveSession();
+    }
+
+    // Buff Management
+    function toggleBuff(buffId) {
+        const checkbox = document.getElementById('check-' + buffId);
+        const buffItem = document.getElementById('buff-' + buffId);
+        checkbox.checked = !checkbox.checked;
+        buffItem.classList.toggle('active', checkbox.checked);
+        calculate();
+        saveSession();
+    }
+
+    function toggleWeda(value) {
+        const weda9 = document.getElementById('check-weda9');
+        const weda17 = document.getElementById('check-weda17');
+        const buffWeda9 = document.getElementById('buff-weda9');
+        const buffWeda17 = document.getElementById('buff-weda17');
+        
+        if (value === 9 && weda9.checked) {
+            // Trying to activate 9%, check if 17% is active
+            if (weda17.checked) {
+                // 17% is active, don't allow 9% to be checked
+                weda9.checked = false;
+                buffWeda9.classList.remove('active');
+                return;
+            }
+            // 17% not active, allow 9%
+            buffWeda9.classList.add('active');
+        } else if (value === 17 && weda17.checked) {
+            // Activating 17%, uncheck 9% if it's checked
+            weda9.checked = false;
+            buffWeda9.classList.remove('active');
+            buffWeda17.classList.add('active');
+        } else {
+            // Unchecking, update visual state
+            buffWeda9.classList.toggle('active', weda9.checked);
+            buffWeda17.classList.toggle('active', weda17.checked);
+        }
+        saveSession();
+    }
+
+    function toggleTemplar(value) {
+        const templar8 = document.getElementById('check-templar8');
+        const templar10 = document.getElementById('check-templar10');
+        const buffTemplar8 = document.getElementById('buff-templar8');
+        const buffTemplar10 = document.getElementById('buff-templar10');
+        
+        if (value === 8 && templar8.checked) {
+            // Trying to activate 8%, check if 10% is active
+            if (templar10.checked) {
+                // 10% is active, don't allow 8% to be checked
+                templar8.checked = false;
+                buffTemplar8.classList.remove('active');
+                return;
+            }
+            // 10% not active, allow 8%
+            buffTemplar8.classList.add('active');
+        } else if (value === 10 && templar10.checked) {
+            // Activating 10%, uncheck 8% if it's checked
+            templar8.checked = false;
+            buffTemplar8.classList.remove('active');
+            buffTemplar10.classList.add('active');
+        } else {
+            // Unchecking, update visual state
+            buffTemplar8.classList.toggle('active', templar8.checked);
+            buffTemplar10.classList.toggle('active', templar10.checked);
+        }
+        saveSession();
+    }
+
+    function toggleCubes() {
+        const cubeValue = parseInt(document.getElementById('cubeValue').value);
+        const buffCubes = document.getElementById('buff-cubes');
+        
+        if (cubeValue > 0) {
+            buffCubes.classList.add('active');
+        } else {
+            buffCubes.classList.remove('active');
+        }
+        saveSession();
+    }
+
+    function updateBuffVisibility() {
+        const classInfo = CLASS_DATA[selectedClass];
+        const isMagical = classInfo.type === 'magical';
+        const isPhysical = classInfo.type === 'physical';
+        
+        // Show/hide magical and physical buffs
+        document.getElementById('magicalBuffs').style.display = isMagical ? 'block' : 'none';
+        document.getElementById('physicalBuffs').style.display = isPhysical ? 'block' : 'none';
+        
+        // Class-specific buffs
+        const classBuffsGrid = document.getElementById('classBuffsGrid');
+        classBuffsGrid.innerHTML = '';
+        
+        let hasClassSpecific = false;
+        
+        if (selectedClass === 'sorcerer') {
+            hasClassSpecific = true;
+            classBuffsGrid.innerHTML += `
+                <div class="buff-item" onclick="toggleBuff('boonFlame')" id="buff-boonFlame">
+                    <img src="https://myaion.eu/Images/Database/Skills/Wi_A_FireShield_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Boon of Flame</div>
+                        <div class="buff-value">+18%</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-boonFlame" onchange="event.stopPropagation(); calculate()">
+                </div>
+            `;
+        }
+        
+        if (selectedClass === 'spiritmaster') {
+            hasClassSpecific = true;
+            classBuffsGrid.innerHTML += `
+                <div class="buff-item" onclick="toggleBuff('spiritBundle')" id="buff-spiritBundle">
+                    <img src="https://myaion.eu/Images/Database/Skills/EL_A_SoulKing_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Spirit Bundling</div>
+                        <div class="buff-value">+12%</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-spiritBundle" onchange="event.stopPropagation(); calculate()">
+                </div>
+            `;
+        }
+        
+        if (selectedClass === 'gunner') {
+            hasClassSpecific = true;
+            classBuffsGrid.innerHTML += `
+                <div class="buff-item" onclick="toggleBuff('giftMagic')" id="buff-giftMagic">
+                    <img src="https://myaion.eu/Images/Database/Skills/Live_GU_A_EmpowerMagic_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Gift of Magic Power</div>
+                        <div class="buff-value">+20%</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-giftMagic" onchange="event.stopPropagation(); calculate()">
+                </div>
+            `;
+        }
+        
+        if (selectedClass === 'ranger') {
+            hasClassSpecific = true;
+            classBuffsGrid.innerHTML += `
+                <div class="buff-item" onclick="toggleBuff('focusedShots')" id="buff-focusedShots">
+                    <img src="https://myaion.eu/Images/Database/Skills/CBT_SC_A_TrueShotMind_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Focused Shots</div>
+                        <div class="buff-value">+30%</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-focusedShots" onchange="event.stopPropagation(); calculate()">
+                </div>
+            `;
+        }
+        
+        if (selectedClass === 'assassin') {
+            hasClassSpecific = true;
+            classBuffsGrid.innerHTML += `
+                <div class="buff-item" id="buff-mist" onclick="document.getElementById('check-mist').click();">
+                    <img src="https://myaion.eu/Images/Database/Skills/LIVE_AS_Light_DefendRoar_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Mist</div>
+                        <div class="buff-value">+100%</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-mist" onclick="event.stopPropagation();" onchange="toggleSinBuffs('mist'); calculate()">
+                </div>
+                <div class="buff-item" id="buff-eye" onclick="document.getElementById('check-eye').click();">
+                    <img src="https://myaion.eu/Images/Database/Skills/CBT_AS_A_VisiousEye_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Eye</div>
+                        <div class="buff-value">+60%</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-eye" onclick="event.stopPropagation();" onchange="toggleSinBuffs('eye'); calculate()">
+                </div>
+            `;
+        }
+        
+        document.getElementById('classSpecificBuffs').style.display = hasClassSpecific ? 'block' : 'none';
+    }
+
+    function toggleSinBuffs(active) {
+        const mist = document.getElementById('check-mist');
+        const eye = document.getElementById('check-eye');
+        const buffMist = document.getElementById('buff-mist');
+        const buffEye = document.getElementById('buff-eye');
+        
+        if (active === 'eye' && eye.checked) {
+            // Trying to activate Eye (60%), check if Mist (100%) is active
+            if (mist.checked) {
+                // Mist is active, don't allow Eye to be checked
+                eye.checked = false;
+                buffEye.classList.remove('active');
+                return;
+            }
+            // Mist not active, allow Eye
+            buffEye.classList.add('active');
+        } else if (active === 'mist' && mist.checked) {
+            // Activating Mist (100%), uncheck Eye if it's checked
+            eye.checked = false;
+            buffEye.classList.remove('active');
+            buffMist.classList.add('active');
+        } else {
+            // Unchecking, update visual state
+            buffMist.classList.toggle('active', mist.checked);
+            buffEye.classList.toggle('active', eye.checked);
+        }
+        saveSession();
+    }
+
+    function getActiveBuffs() {
+        const classInfo = CLASS_DATA[selectedClass];
+        const isMagical = classInfo.type === 'magical';
+        
+        let normalBuffs = 0;
+        let extraBuffs = 0;
+        
+        // Universal buffs
+        const movingForward = document.getElementById('check-movingForward')?.checked ? 10 : 0;
+        const intoBlack = document.getElementById('check-intoBlack')?.checked ? 30 : 0;
+        const cubes = parseFloat(document.getElementById('cubeValue')?.value || 0);
+        
+        normalBuffs += movingForward + intoBlack + cubes;
+        
+        // Magical buffs
+        if (isMagical) {
+            const windHarmony = document.getElementById('check-windHarmony')?.checked ? 15 : 0;
+            normalBuffs += windHarmony;
+            
+            // Extra buffs for magical
+            const weda9 = document.getElementById('check-weda9')?.checked ? 9 : 0;
+            const weda17 = document.getElementById('check-weda17')?.checked ? 17 : 0;
+            const templar8 = document.getElementById('check-templar8')?.checked ? 8 : 0;
+            const templar10 = document.getElementById('check-templar10')?.checked ? 10 : 0;
+            
+            extraBuffs += (weda9 || weda17) + (templar8 || templar10);
+        }
+        
+        // Physical buffs (Glad 8% is handled separately as defense reduction, not damage buff)
+        
+        // Class-specific buffs
+        if (selectedClass === 'sorcerer') {
+            const boonFlame = document.getElementById('check-boonFlame')?.checked ? 18 : 0;
+            extraBuffs += boonFlame;
+        }
+        if (selectedClass === 'spiritmaster') {
+            const spiritBundle = document.getElementById('check-spiritBundle')?.checked ? 12 : 0;
+            extraBuffs += spiritBundle;
+        }
+        if (selectedClass === 'gunner') {
+            const giftMagic = document.getElementById('check-giftMagic')?.checked ? 20 : 0;
+            extraBuffs += giftMagic;
+        }
+        if (selectedClass === 'ranger') {
+            const focusedShots = document.getElementById('check-focusedShots')?.checked ? 30 : 0;
+            normalBuffs += focusedShots;
+        }
+        if (selectedClass === 'assassin') {
+            const mist = document.getElementById('check-mist')?.checked ? 100 : 0;
+            const eye = document.getElementById('check-eye')?.checked ? 60 : 0;
+            normalBuffs += mist || eye;
+        }
+        
+        return { normalBuffs, extraBuffs };
+    }
+
+    function calculate() {
+        // Get input values
+        const classInfo = CLASS_DATA[selectedClass];
+        const classType = classInfo.type;
+        const classKP = classInfo.kp;
+        const weaponMult = classInfo.weapons[selectedWeaponIndex].mult;
+        const totalAtk = parseFloat(document.getElementById('attack').value);
+        const totalCrit = parseFloat(document.getElementById('crit').value);
+        const currentAtkStones = Math.max(0, Math.min(51, parseInt(document.getElementById('currentAtkStones').value) || 0));
+        const critDmgStat = parseFloat(document.getElementById('critDmgStat').value);
+        let defense = parseFloat(document.getElementById('defense').value);
+        const fortitude = (currentMode === 'pvp') ? parseFloat(document.getElementById('fortitude').value) : 0;
+        const skillDmg = parseFloat(document.getElementById('skillDmg').value);
+        
+        // Get active buffs
+        const shards = document.getElementById('check-shards')?.checked ? 25 : 0;
+        const { normalBuffs, extraBuffs } = getActiveBuffs();
+        
+        // Apply Glad -8% def to enemy defense
+        if (document.getElementById('check-glad8')?.checked && classType === 'physical') {
+            defense = defense * 0.92; // Reduce by 8%
+        }
+        
+        const pvpMult = (currentMode === 'pvp') ? 0.26 : 2.0;
+        const totalStones = 51;
+        
+        // Extract base stats by removing current manastones
+        const currentCritStones = totalStones - currentAtkStones;
+        const baseAtk = totalAtk - (currentAtkStones * 23);
+        const baseCrit = totalCrit - (currentCritStones * 86);
+        
+        // Damage calculation function
+        function calculateDamage(atkStones, critStones) {
+            const attack = baseAtk + (atkStones * 23);
+            const crit = baseCrit + (critStones * 86);
+            const effectiveAtk = Math.max(0, Math.min(20000, attack - defense));
+            const critChance = Math.min(1, ((crit * 170) / (24000 + crit)) / 100);
+            
+            // Crit damage multiplier
+            const critMult = weaponMult + Math.max(0, (critDmgStat - fortitude)) / 1000;
+            
+            let normalDmg, critDmg;
+            
+            if (classType === 'physical') {
+                // Physical formula: ((F20*100/T60)*(1+(MAX(Q32,0)/1000)))*IF(F5,26/100,2)
+                normalDmg = ((skillDmg * 100 / classKP) * (1 + effectiveAtk / 1000)) * pvpMult;
+                critDmg = normalDmg * critMult;
+            } else {
+                // Magical formula: (F20+(F20*100/T60)*(MAX(Q32,0)/1000))*IF(F5,26/100,2)
+                normalDmg = (skillDmg + (skillDmg * 100 / classKP) * (effectiveAtk / 1000)) * pvpMult;
+                critDmg = normalDmg * critMult;
+            }
+            
+            // ROUNDUP base damage (before any buffs)
+            normalDmg = Math.ceil(normalDmg);
+            critDmg = Math.ceil(critDmg);
+            
+            // Apply Shards buff (first)
+            if (shards > 0) {
+                normalDmg = normalDmg * (1 + shards / 100);
+                critDmg = critDmg * (1 + shards / 100);
+            }
+            
+            // Apply Normal Buffs
+            if (normalBuffs > 0) {
+                normalDmg = normalDmg * (1 + normalBuffs / 100);
+                critDmg = critDmg * (1 + normalBuffs / 100);
+            }
+            
+            // ROUND before applying extra buffs
+            normalDmg = Math.round(normalDmg);
+            critDmg = Math.round(critDmg);
+            
+            // Apply Extra Buffs and ROUND final damage
+            if (extraBuffs > 0) {
+                normalDmg = Math.round(normalDmg * (1 + extraBuffs / 100));
+                critDmg = Math.round(critDmg * (1 + extraBuffs / 100));
+            }
+            
+            // Expected damage = (1 - critChance) * normalDmg + critChance * critDmg
+            const expectedDmg = Math.round((1 - critChance) * normalDmg + critChance * critDmg);
+            
+            return {
+                damage: expectedDmg,
+                attack: attack,
+                crit: crit,
+                critChance: critChance,
+                normalDmg: normalDmg,
+                critDmg: critDmg,
+                effectiveAtk: effectiveAtk
+            };
+        }
+        
+        // Find optimal distribution
+        let bestDamage = 0;
+        let optimalAtkStones = 0;
+        let optimalCritStones = 0;
+        let allResults = [];
+        
+        for (let atkStones = 0; atkStones <= totalStones; atkStones++) {
+            const critStones = totalStones - atkStones;
+            const result = calculateDamage(atkStones, critStones);
+            
+            allResults.push({
+                atkStones: atkStones,
+                critStones: critStones,
+                ...result
+            });
+            
+            if (result.damage > bestDamage) {
+                bestDamage = result.damage;
+                optimalAtkStones = atkStones;
+                optimalCritStones = critStones;
+            }
+        }
+        
+        const optimal = calculateDamage(optimalAtkStones, optimalCritStones);
+        const current = calculateDamage(currentAtkStones, currentCritStones);
+        
+        // Display optimal result
+        document.getElementById('optimalResult').textContent = 
+            `${optimalAtkStones} Attack / ${optimalCritStones} Crit`;
+        
+        document.getElementById('detailsResult').innerHTML = 
+            `<strong>Attack:</strong> ${optimal.attack.toLocaleString()} (+${optimalAtkStones * 23}) | ` +
+            `<strong>Crit Strike:</strong> ${optimal.crit.toLocaleString()} (+${optimalCritStones * 86})<br>` +
+            `<strong>Crit Chance:</strong> ${(optimal.critChance * 100).toFixed(2)}% | ` +
+            `<strong>Effective Attack:</strong> ${optimal.effectiveAtk.toLocaleString()}<br>` +
+            `<strong>Expected Damage:</strong> <span style="color: var(--warning)">${Math.round(optimal.damage).toLocaleString()}</span> | ` +
+            `<strong>Normal Hit:</strong> ${Math.round(optimal.normalDmg).toLocaleString()} | ` +
+            `<strong>Crit Hit:</strong> ${Math.round(optimal.critDmg).toLocaleString()}<br>` +
+            `<strong>Current Damage:</strong> <span style="color: var(--accent)">${Math.round(current.damage).toLocaleString()}</span> | ` +
+            `<strong>Normal Hit:</strong> ${Math.round(current.normalDmg).toLocaleString()} | ` +
+            `<strong>Crit Hit:</strong> ${Math.round(current.critDmg).toLocaleString()}`;
+        
+        // Build comparison table (show current, optimal, and a few others)
+        const comparisonBody = document.getElementById('comparisonBody');
+        comparisonBody.innerHTML = '';
+        
+        const displayResults = [
+            allResults[currentAtkStones],  // Current
+            allResults[optimalAtkStones],  // Optimal
+            allResults[0],                  // All Crit
+            allResults[totalStones],        // All Attack
+            allResults[Math.floor(totalStones / 2)]  // 50/50
+        ].filter((r, i, arr) => arr.findIndex(x => x.atkStones === r.atkStones) === i); // Remove duplicates
+        
+        displayResults.sort((a, b) => b.damage - a.damage);
+        
+        displayResults.forEach(r => {
+            const isCurrent = r.atkStones === currentAtkStones;
+            const isBest = r.atkStones === optimalAtkStones;
+            const gainPct = ((r.damage - current.damage) / current.damage * 100).toFixed(2);
+            
+            const row = `
+                <tr class="${isCurrent ? 'current' : ''}">
+                    <td>${r.atkStones} Atk / ${r.critStones} Crit ${isCurrent ? '(Current)' : ''} ${isBest ? '⭐' : ''}</td>
+                    <td>${r.attack.toLocaleString()}</td>
+                    <td>${r.crit.toLocaleString()}</td>
+                    <td>${(r.critChance * 100).toFixed(2)}%</td>
+                    <td class="${isBest ? 'best' : ''}">${Math.round(r.damage).toLocaleString()}</td>
+                    <td style="color: ${gainPct >= 0 ? 'var(--green)' : 'var(--red)'}">
+                        ${gainPct >= 0 ? '+' : ''}${gainPct}%
+                    </td>
+                </tr>
+            `;
+            comparisonBody.innerHTML += row;
+        });
+    }
+
+    // Session save/load functionality
+    function saveSession() {
+        const session = {
+            selectedClass,
+            selectedWeaponIndex,
+            currentMode,
+            attack: document.getElementById('attack').value,
+            crit: document.getElementById('crit').value,
+            currentAtkStones: document.getElementById('currentAtkStones').value,
+            critDmgStat: document.getElementById('critDmgStat').value,
+            defense: document.getElementById('defense').value,
+            skillDmg: document.getElementById('skillDmg').value,
+            fortitude: document.getElementById('fortitude')?.value || 0,
+            cubeValue: document.getElementById('cubeValue').value,
+            buffs: {
+                shards: document.getElementById('check-shards')?.checked,
+                movingForward: document.getElementById('check-movingForward')?.checked,
+                intoBlack: document.getElementById('check-intoBlack')?.checked,
+                windHarmony: document.getElementById('check-windHarmony')?.checked,
+                glad8: document.getElementById('check-glad8')?.checked,
+                weda9: document.getElementById('check-weda9')?.checked,
+                weda17: document.getElementById('check-weda17')?.checked,
+                templar8: document.getElementById('check-templar8')?.checked,
+                templar10: document.getElementById('check-templar10')?.checked,
+                boonFlame: document.getElementById('check-boonFlame')?.checked,
+                spiritBundle: document.getElementById('check-spiritBundle')?.checked,
+                giftMagic: document.getElementById('check-giftMagic')?.checked,
+                focusedShots: document.getElementById('check-focusedShots')?.checked,
+                mist: document.getElementById('check-mist')?.checked,
+                eye: document.getElementById('check-eye')?.checked
+            }
+        };
+        localStorage.setItem('manastoneSession', JSON.stringify(session));
+    }
+
+    function loadSession() {
+        const saved = localStorage.getItem('manastoneSession');
+        if (!saved) return;
+        
+        try {
+            const session = JSON.parse(saved);
+            
+            // Restore class and weapon
+            selectedClass = session.selectedClass || 'gladiator';
+            selectedWeaponIndex = session.selectedWeaponIndex || 0;
+            currentMode = session.currentMode || 'pve';
+            
+            // Restore input values
+            document.getElementById('attack').value = session.attack || 20000;
+            document.getElementById('crit').value = session.crit || 5000;
+            document.getElementById('currentAtkStones').value = session.currentAtkStones || 30;
+            document.getElementById('critDmgStat').value = session.critDmgStat || 200;
+            document.getElementById('defense').value = session.defense || 10000;
+            document.getElementById('skillDmg').value = session.skillDmg || 5000;
+            if (document.getElementById('fortitude')) {
+                document.getElementById('fortitude').value = session.fortitude || 0;
+            }
+            document.getElementById('cubeValue').value = session.cubeValue || 50;
+            
+            // Restore mode buttons
+            document.getElementById('btn-pve').classList.toggle('active', currentMode === 'pve');
+            document.getElementById('btn-pvp').classList.toggle('active', currentMode === 'pvp');
+            document.getElementById('fortitudeGroup').style.display = (currentMode === 'pvp') ? 'block' : 'none';
+            
+            // Restore buffs after grid is initialized
+            setTimeout(() => {
+                if (session.buffs) {
+                    Object.keys(session.buffs).forEach(key => {
+                        const checkbox = document.getElementById(`check-${key}`);
+                        const buffItem = document.getElementById(`buff-${key}`);
+                        if (checkbox) {
+                            checkbox.checked = session.buffs[key] || false;
+                            if (buffItem) {
+                                buffItem.classList.toggle('active', session.buffs[key] || false);
+                            }
+                        }
+                    });
+                    toggleCubes(); // Update cube visual state
+                }
+            }, 100);
+        } catch (e) {
+            console.error('Failed to load session:', e);
+        }
+    }
+
+    // Add event listeners to save on change
+    document.addEventListener('DOMContentLoaded', () => {
+        const inputs = ['attack', 'crit', 'currentAtkStones', 'critDmgStat', 'defense', 'skillDmg', 'fortitude', 'cubeValue'];
+        inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('change', saveSession);
+        });
+        
+        // Save on checkbox change
+        document.querySelectorAll('.buff-checkbox').forEach(cb => {
+            cb.addEventListener('change', saveSession);
+        });
+    });
+
+    document.getElementById('copyright-year').textContent = new Date().getFullYear();
+    loadSession();
+    initClassGrid();
+    updateWeaponGrid();
+    updateBuffVisibility();
+    calculate();
+</script>
+
+</body>
+</html>
