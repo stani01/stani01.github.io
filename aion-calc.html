@@ -127,18 +127,18 @@
         /* Buff System */
         .buffs-section { grid-column: span 3; background: #1a1a25; padding: 20px; border-radius: 8px; border: 1px solid #3d3d45; margin-top: 10px; }
         .buffs-section h3 { color: var(--accent); margin: 0 0 15px 0; font-size: 1em; }
-        .buffs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
-        .buff-item { display: flex; align-items: center; gap: 8px; background: #101014; padding: 8px; border-radius: 6px; border: 1px solid #3d3d45; cursor: pointer; transition: all 0.3s; }
+        .buffs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+        .buff-item { display: flex; align-items: center; gap: 10px; background: #101014; padding: 10px; border-radius: 6px; border: 1px solid #3d3d45; cursor: pointer; transition: all 0.3s; }
         .buff-item:hover { border-color: var(--accent); background: #1a1a20; }
         .buff-item.active { border-color: var(--warning); background: #2a2520; }
-        .buff-icon { width: 32px; height: 32px; border-radius: 4px; flex-shrink: 0; }
+        .buff-icon { width: 45px; height: 45px; border-radius: 4px; flex-shrink: 0; }
         .buff-info { flex: 1; min-width: 0; }
         .buff-name { font-size: 0.8em; color: #e0e0e0; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .buff-value { font-size: 0.75em; color: var(--warning); }
         .buff-checkbox { display: none; } /* Hide checkboxes, visual state handled by .active class */
-        .buff-item-cubes { flex-direction: column !important; align-items: flex-start !important; }
-        .buff-item-cubes > div:first-child { display: flex; align-items: center; gap: 8px; width: 100%; }
-        .cube-select { background: #101014; border: 1px solid var(--accent); color: white; padding: 6px; border-radius: 4px; font-size: 0.85em; width: 100%; cursor: pointer; }
+        .buff-item-cubes { flex-direction: row !important; align-items: center !important; gap: 8px !important; }
+        .buff-item-cubes > div:first-child { display: flex; align-items: center; gap: 6px; }
+        .cube-select { background: #101014; border: 1px solid var(--accent); color: white; padding: 4px 6px; border-radius: 4px; font-size: 0.75em; cursor: pointer; width: auto; min-width: 60px; }
         
         .class-preview { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
         .class-preview img { width: 32px; height: 32px; border-radius: 4px; border: 2px solid var(--accent); }
@@ -398,14 +398,6 @@
                         </div>
                         <input type="checkbox" class="buff-checkbox" id="check-windHarmony" onchange="event.stopPropagation(); calculate()">
                     </div>
-                    <div class="buff-item" id="buff-weda9" onclick="document.getElementById('check-weda9').click();">
-                        <img src="https://myaion.eu/Images/Database/Skills/WedS_buff_G1.png" class="buff-icon">
-                        <div class="buff-info">
-                            <div class="buff-name">Weda's Splendour</div>
-                            <div class="buff-value">+9%</div>
-                        </div>
-                        <input type="checkbox" class="buff-checkbox" id="check-weda9" onclick="event.stopPropagation();" onchange="toggleWeda(9); calculate()">
-                    </div>
                     <div class="buff-item" id="buff-weda17" onclick="document.getElementById('check-weda17').click();">
                         <img src="https://myaion.eu/Images/Database/Skills/WedS_buff_G1.png" class="buff-icon">
                         <div class="buff-info">
@@ -413,14 +405,6 @@
                             <div class="buff-value">+17%</div>
                         </div>
                         <input type="checkbox" class="buff-checkbox" id="check-weda17" onclick="event.stopPropagation();" onchange="toggleWeda(17); calculate()">
-                    </div>
-                    <div class="buff-item" id="buff-templar8" onclick="document.getElementById('check-templar8').click();">
-                        <img src="https://myaion.eu/Images/Database/Skills/kn_grandprotection_custom_a.png" class="buff-icon">
-                        <div class="buff-info">
-                            <div class="buff-name">Comrade's Aegis</div>
-                            <div class="buff-value">+8%</div>
-                        </div>
-                        <input type="checkbox" class="buff-checkbox" id="check-templar8" onclick="event.stopPropagation();" onchange="toggleTemplar(8); calculate()">
                     </div>
                     <div class="buff-item" id="buff-templar10" onclick="document.getElementById('check-templar10').click();">
                         <img src="https://myaion.eu/Images/Database/Skills/KN_GrandProtection_Custom_A_up.png" class="buff-icon">
@@ -439,10 +423,18 @@
                     <div class="buff-item active" onclick="toggleBuff('glad8')" id="buff-glad8">
                         <img src="https://myaion.eu/Images/Database/Skills/FI_ShockBurst_Custom_B_up.png" class="buff-icon">
                         <div class="buff-info">
-                            <div class="buff-name">Glad -8% Def</div>
+                            <div class="buff-name">Bloodlust Explosion</div>
                             <div class="buff-value">Enemy -8% Def</div>
                         </div>
                         <input type="checkbox" class="buff-checkbox" id="check-glad8" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item active" onclick="toggleBuff('chant3')" id="buff-chant3">
+                        <img src="https://myaion.eu/Images/Database/Skills/CBT_CH_SonicSwing_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Booming Strike</div>
+                            <div class="buff-value">Enemy -3% Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-chant3" onchange="event.stopPropagation(); calculate()">
                     </div>
                 </div>
             </div>
@@ -964,60 +956,18 @@
     }
 
     function toggleWeda(value) {
-        const weda9 = document.getElementById('check-weda9');
+        // Simple toggle for Weda's Splendour 17%
         const weda17 = document.getElementById('check-weda17');
-        const buffWeda9 = document.getElementById('buff-weda9');
         const buffWeda17 = document.getElementById('buff-weda17');
-        
-        if (value === 9 && weda9.checked) {
-            // Trying to activate 9%, check if 17% is active
-            if (weda17.checked) {
-                // 17% is active, don't allow 9% to be checked
-                weda9.checked = false;
-                buffWeda9.classList.remove('active');
-                return;
-            }
-            // 17% not active, allow 9%
-            buffWeda9.classList.add('active');
-        } else if (value === 17 && weda17.checked) {
-            // Activating 17%, uncheck 9% if it's checked
-            weda9.checked = false;
-            buffWeda9.classList.remove('active');
-            buffWeda17.classList.add('active');
-        } else {
-            // Unchecking, update visual state
-            buffWeda9.classList.toggle('active', weda9.checked);
-            buffWeda17.classList.toggle('active', weda17.checked);
-        }
+        buffWeda17.classList.toggle('active', weda17.checked);
         saveSession();
     }
 
     function toggleTemplar(value) {
-        const templar8 = document.getElementById('check-templar8');
+        // Simple toggle for Comrade's Aegis +10%
         const templar10 = document.getElementById('check-templar10');
-        const buffTemplar8 = document.getElementById('buff-templar8');
         const buffTemplar10 = document.getElementById('buff-templar10');
-        
-        if (value === 8 && templar8.checked) {
-            // Trying to activate 8%, check if 10% is active
-            if (templar10.checked) {
-                // 10% is active, don't allow 8% to be checked
-                templar8.checked = false;
-                buffTemplar8.classList.remove('active');
-                return;
-            }
-            // 10% not active, allow 8%
-            buffTemplar8.classList.add('active');
-        } else if (value === 10 && templar10.checked) {
-            // Activating 10%, uncheck 8% if it's checked
-            templar8.checked = false;
-            buffTemplar8.classList.remove('active');
-            buffTemplar10.classList.add('active');
-        } else {
-            // Unchecking, update visual state
-            buffTemplar8.classList.toggle('active', templar8.checked);
-            buffTemplar10.classList.toggle('active', templar10.checked);
-        }
+        buffTemplar10.classList.toggle('active', templar10.checked);
         saveSession();
     }
 
@@ -1179,12 +1129,10 @@
             normalBuffs += windHarmony;
             
             // Extra buffs for magical
-            const weda9 = document.getElementById('check-weda9')?.checked ? 9 : 0;
             const weda17 = document.getElementById('check-weda17')?.checked ? 17 : 0;
-            const templar8 = document.getElementById('check-templar8')?.checked ? 8 : 0;
             const templar10 = document.getElementById('check-templar10')?.checked ? 10 : 0;
             
-            extraBuffs += (weda9 || weda17) + (templar8 || templar10);
+            extraBuffs += weda17 + templar10;
         }
         
         // Physical buffs (Glad 8% is handled separately as defense reduction, not damage buff)
@@ -1351,6 +1299,11 @@
         // Apply Glad -8% def to enemy defense
         if (document.getElementById('check-glad8')?.checked && classType === 'physical') {
             defense = Math.ceil(defense * 0.92); // Reduce by 8%
+        }
+
+        // Apply Chant -3% def to enemy defense
+        if (document.getElementById('check-chant3')?.checked && classType === 'physical') {
+            defense = Math.ceil(defense * 0.97); // Reduce by 3%
         }
         
         const pvpMult = (currentMode === 'pvp') ? 0.26 : 2.0;
@@ -1563,9 +1516,8 @@
                 intoBlack: document.getElementById('check-intoBlack')?.checked,
                 windHarmony: document.getElementById('check-windHarmony')?.checked,
                 glad8: document.getElementById('check-glad8')?.checked,
-                weda9: document.getElementById('check-weda9')?.checked,
+                chant3: document.getElementById('check-chant3')?.checked,
                 weda17: document.getElementById('check-weda17')?.checked,
-                templar8: document.getElementById('check-templar8')?.checked,
                 templar10: document.getElementById('check-templar10')?.checked,
                 boonFlame: document.getElementById('check-boonFlame')?.checked,
                 spiritBundle: document.getElementById('check-spiritBundle')?.checked,
