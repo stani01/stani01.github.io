@@ -333,6 +333,38 @@
                         </div>
                         <input type="checkbox" class="buff-checkbox" id="check-wallProtection" onchange="event.stopPropagation(); calculate()">
                     </div>
+                    <div class="buff-item" onclick="toggleMagicIncitement()" id="buff-magicIncitement">
+                        <img src="https://myaion.eu/Images/Database/Skills/CH_A_PhysicalEnhancement_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">(Improved) Magic of Incitement</div>
+                            <div class="buff-value">+600 Atk / +800 Crit</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-magicIncitement" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('meteorStrike')" id="buff-meteorStrike">
+                        <img src="https://myaion.eu/Images/Database/Skills/CBT_CH_ViolentSwing_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Meteor Strike</div>
+                            <div class="buff-value">Enemy -160 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-meteorStrike" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('incandescentBlow')" id="buff-incandescentBlow">
+                        <img src="https://myaion.eu/Images/Database/Skills/CBT_CH_TriangleShock_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Incandescent Blow</div>
+                            <div class="buff-value">Enemy -52 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-incandescentBlow" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('mountainCrash')" id="buff-mountainCrash">
+                        <img src="https://myaion.eu/Images/Database/Skills/LIVE_CH_A_MountainCrash_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">(Improved) Mountain Crash</div>
+                            <div class="buff-value">Enemy -350 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-mountainCrash" onchange="event.stopPropagation(); calculate()">
+                    </div>
                 </div>
             </div>
 
@@ -597,8 +629,7 @@
             type: 'physical', 
             icon: 'https://myaion.eu/images/Classes/Chanter.png',
             weapons: [
-                { ...WEAPONS.staff, mult: 1.7 },
-                { ...WEAPONS.mace, mult: 2.0 }
+                { ...WEAPONS.staff, mult: 1.7 }
             ]
         },
         'painter': { 
@@ -698,6 +729,26 @@
     function selectClass(className) {
         selectedClass = className;
         selectedWeaponIndex = 0;
+        
+        // Reset Chanter-specific inspiration when switching away from Chanter
+        const wordInspirationCheck = document.getElementById('check-wordInspiration');
+        const buffWordInspiration = document.getElementById('buff-wordInspiration');
+        const magicIncitementCheck = document.getElementById('check-magicIncitement');
+        const buffMagicIncitement = document.getElementById('buff-magicIncitement');
+        
+        if (selectedClass !== 'chanter') {
+            // Switching away from Chanter: deactivate Inspiration if it's checked
+            if (wordInspirationCheck?.checked) {
+                wordInspirationCheck.checked = false;
+                if (buffWordInspiration) buffWordInspiration.classList.remove('active');
+            }
+        } else {
+            // Switching TO Chanter: deactivate Incitement if it's checked (mutual exclusivity)
+            if (magicIncitementCheck?.checked) {
+                magicIncitementCheck.checked = false;
+                if (buffMagicIncitement) buffMagicIncitement.classList.remove('active');
+            }
+        }
         
         document.querySelectorAll('.class-btn').forEach(btn => btn.classList.remove('selected'));
         document.querySelectorAll('.class-btn')[CLASS_ORDER.indexOf(className)].classList.add('selected');
@@ -942,6 +993,42 @@
         saveSession();
     }
 
+    function toggleWordInspiration() {
+        const wordInspiration = document.getElementById('check-wordInspiration');
+        const magicIncitement = document.getElementById('check-magicIncitement');
+        const buffWordInspiration = document.getElementById('buff-wordInspiration');
+        const buffMagicIncitement = document.getElementById('buff-magicIncitement');
+        
+        // Toggle Word of Inspiration
+        wordInspiration.checked = !wordInspiration.checked;
+        buffWordInspiration.classList.toggle('active', wordInspiration.checked);
+        
+        // Two-way mutual exclusivity: if activating Word of Inspiration, deactivate Magic of Incitement
+        if (wordInspiration.checked && magicIncitement?.checked) {
+            magicIncitement.checked = false;
+            if (buffMagicIncitement) buffMagicIncitement.classList.remove('active');
+        }
+        
+        calculate();
+        saveSession();
+    }
+
+    function toggleMagicIncitement() {
+        const magicIncitement = document.getElementById('check-magicIncitement');
+        const wordInspiration = document.getElementById('check-wordInspiration');
+        const buffMagicIncitement = document.getElementById('buff-magicIncitement');
+        const buffWordInspiration = document.getElementById('buff-wordInspiration');
+        
+        // Toggle Magic of Incitement if inspiration doesn't exist on this class OR is not checked
+        if (!wordInspiration || !wordInspiration.checked) {
+            magicIncitement.checked = !magicIncitement.checked;
+            buffMagicIncitement.classList.toggle('active', magicIncitement.checked);
+            
+            calculate();
+            saveSession();
+        }
+    }
+
     function updateVaizlGiftValue() {
         const vaizlGiftCheckbox = document.getElementById('check-vaizlGift');
         const vaizlGiftLevel = parseInt(document.getElementById('vaizlGiftLevel').value) || 0;
@@ -1096,6 +1183,36 @@
                             <option value="26">+26</option>
                         </select>
                     </div>
+                </div>
+            `;
+        }
+
+        if (selectedClass === 'chanter') {
+            hasClassSpecific = true;
+            classBuffsGrid.innerHTML += `
+                <div class="buff-item" id="buff-blessingWind">
+                    <img src="https://myaion.eu/Images/Database/Skills/LIVE_CH_A_ImbuePower_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">(Improved) Blessing of Wind</div>
+                        <div class="buff-value">+800 Attack</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-blessingWind" onchange="event.stopPropagation(); calculate()">
+                </div>
+                <div class="buff-item" id="buff-divineProtection">
+                    <img src="https://myaion.eu/Images/Database/Skills/CBT_CH_AbyssGloria_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Divine Protection</div>
+                        <div class="buff-value">+2000 Attack</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-divineProtection" onchange="event.stopPropagation(); calculate()">
+                </div>
+                <div class="buff-item" id="buff-wordInspiration" onclick="event.stopPropagation(); toggleWordInspiration();">
+                    <img src="https://myaion.eu/Images/Database/Skills/cbt_ch_a_improvedallattack_g1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">(Improved) Word of Inspiration</div>
+                        <div class="buff-value">+750 Atk / +600 Crit / +500 PvE</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-wordInspiration" onchange="event.stopPropagation(); calculate()">
                 </div>
             `;
         }
@@ -1326,6 +1443,9 @@
         const classBuffItems = document.querySelectorAll('#classBuffsGrid .buff-item');
         
         classBuffItems.forEach(buffItem => {
+            // Skip buffs with custom toggle functions (those with onclick handlers)
+            if (buffItem.getAttribute('onclick')) return;
+            
             buffItem.addEventListener('click', function(e) {
                 // Don't trigger if clicking the checkbox directly (let its onchange handle it)
                 if (e.target.type === 'checkbox') return;
@@ -1476,6 +1596,19 @@
         if (document.getElementById('check-wallProtection')?.checked) {
             attackBonus += 360;
         }
+        if (document.getElementById('check-magicIncitement')?.checked) {
+            attackBonus += 600;
+            critBonus += 800;
+        }
+        if (document.getElementById('check-meteorStrike')?.checked) {
+            defenseReduction += 160;
+        }
+        if (document.getElementById('check-incandescentBlow')?.checked) {
+            defenseReduction += 52;
+        }
+        if (document.getElementById('check-mountainCrash')?.checked) {
+            defenseReduction += 350;
+        }
         
         // Universal buffs for all classes
         if (document.getElementById('check-hex')?.checked) {
@@ -1594,6 +1727,23 @@
                 critBonus += 650;
                 if (currentMode === 'pve') {
                     pveAttackBonus += 650;
+                }
+            }
+        }
+        
+        // Chanter buffs
+        if (selectedClass === 'chanter') {
+            if (document.getElementById('check-blessingWind')?.checked) {
+                attackBonus += 800;
+            }
+            if (document.getElementById('check-divineProtection')?.checked) {
+                attackBonus += 2000;
+            }
+            if (document.getElementById('check-wordInspiration')?.checked) {
+                attackBonus += 750;
+                critBonus += 600;
+                if (currentMode === 'pve') {
+                    pveAttackBonus += 500;
                 }
             }
         }
@@ -2037,6 +2187,13 @@
                 curseMagicPower: document.getElementById('check-curseMagicPower')?.checked,
                 arcaneCombustion: document.getElementById('check-arcaneCombustion')?.checked,
                 arcaneGrowth: document.getElementById('check-arcaneGrowth')?.checked,
+                magicIncitement: document.getElementById('check-magicIncitement')?.checked,
+                meteorStrike: document.getElementById('check-meteorStrike')?.checked,
+                incandescentBlow: document.getElementById('check-incandescentBlow')?.checked,
+                mountainCrash: document.getElementById('check-mountainCrash')?.checked,
+                blessingWind: document.getElementById('check-blessingWind')?.checked,
+                divineProtection: document.getElementById('check-divineProtection')?.checked,
+                wordInspiration: document.getElementById('check-wordInspiration')?.checked,
                 devotionLevel: document.getElementById('devotionLevel')?.value || '0',
                 hexLevel: document.getElementById('hexLevel')?.value || '20',
                 amplificationLevel: document.getElementById('amplificationLevel')?.value || '20',
