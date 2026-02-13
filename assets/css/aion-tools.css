@@ -193,7 +193,6 @@ a:hover {
 }
 
 .discord-button,
-.profile-button,
 .share-btn {
     display: inline-flex;
     align-items: center;
@@ -211,18 +210,12 @@ a:hover {
     font-size: 1em;
 }
 
-.profile-button {
-    background: rgba(181, 101, 245, 0.2);
-    border-color: rgba(181, 101, 245, 0.4);
-}
-
 .share-btn {
     background: rgba(181, 101, 245, 0.15);
     border-color: rgba(181, 101, 245, 0.3);
 }
 
 .discord-button:hover,
-.profile-button:hover,
 .share-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5), 0 0 20px rgba(181, 101, 245, 0.3);
