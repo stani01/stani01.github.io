@@ -1,477 +1,391 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <title>Stan's Aion Character Links</title>
-  <style>
-    textDisplay {}
-
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 40px;
-      background-color: #333;
-      color: #c6c6c6;
-      text-align: center;
-    }
-
-    .mode-toggle {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      text-align: center;
-    }
-
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #4c4c4c;
-      transition: .4s;
-    }
-
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 26px;
-      left: 4px;
-      bottom: 4px;
-      background-color: #ccc;
-      transition: .4s;
-    }
-
-    input:checked+.slider {
-      background-color: white;
-    }
-
-    input:checked+.slider:before {
-      transform: translateX(26px);
-    }
-
-    .slider.round {
-      border-radius: 100px;
-    }
-
-    .slider.round:before {
-      border-radius: 100%;
-    }
-
-    .link-container {
-      margin: 10px;
-      /* Adjusted for better spacing */
-      display: inline-block;
-      /* Ensures the container wraps around the content */
-      text-align: center;
-      /* Centers the text and images */
-      width: auto;
-      /* Automatically adjusts to the content size */
-      padding: 5px 10px;
-      /* Adjust padding for better alignment */
-    }
-
-    .link-container a {
-      display: inline-flex;
-      /* Ensures links are displayed inline */
-      align-items: center;
-      /* Vertically centers the text and image */
-      justify-content: center;
-      /* Centers the content */
-      text-decoration: none;
-      /* Removes underline from links */
-      color: #dcdcdc;
-      /* Text color */
-      font-size: 16px;
-      /* Adjusted font size */
-      background-color: #3d3d3d;
-      /* Background color */
-      border: 1px solid #3d3d3d;
-      /* Border color */
-      border-radius: 5px;
-      /* Rounded corners */
-      padding: 5px 10px;
-      /* Adjust padding for better alignment */
-      margin-right: 10px;
-      /* Adds spacing between links */
-      transition: background-color 0.3s, border-color 0.3s, color 0.3s;
-      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-      /* Subtle shadow */
-    }
-
-    .link-container a:last-child {
-      margin-right: 0;
-      /* Removes margin for the last link */
-    }
-
-    .link-container a:hover {
-      background-color: #4c4c4c;
-      /* Hover background color */
-      border-color: #4c4c4c;
-      /* Hover border color */
-      color: #17202A;
-      /* Hover text color */
-      transform: translateY(-2px);
-      /* Slight lift effect */
-    }
-
-    .link-container img {
-      vertical-align: middle;
-      /* Aligns image with text */
-      margin-right: 10px;
-      /* Space between image and text */
-      max-height: 30px;
-      /* Adjusted image height */
-      width: auto;
-      /* Maintains aspect ratio */
-    }
-
-    img {
-      vertical-align: middle;
-      margin-right: 10px;
-      max-height: 50px;
-      width: auto;
-    }
-
-    .discordPic {
-      vertical-align: middle;
-      margin-right: 10px;
-      max-height: 40px;
-      width: auto;
-    }
-
-    .discordDiv {
-      position: fixed;
-      text-align: center;
-      top: 10px;
-      right: 10px;
-      font-size: 10px;
-    }
-
-    .light-mode {
-      background-color: #f4f4f4;
-      color: black;
-    }
-
-    .light-mode .tableCategory {
-      background-color: #f4f4f4;
-      color: black;
-    }
-
-    .light-mode .link-container a {
-      background-color: #EBEDEF;
-      border-color: #EBEDEF;
-      color: #17202A;
-    }
-
-    .light-mode .link-container a:hover {
-      background-color: #D5D8DC;
-      border-color: #D5D8DC;
-      color: white;
-      transform: translateY(-2px);
-    }
-
-    table {
-      border-collapse: collapse;
-    }
-
-    tr {
-      border: none;
-    }
-
-    th,
-    td {
-      border-collapse: collapse;
-      border: 1px solid black;
-      padding-top: 0;
-      padding-bottom: 0;
-      text-align: right;
-    }
-
-    th.text-align-left {
-      border-collapse: collapse;
-      border-left: 1px solid black;
-      padding-top: 0;
-      padding-bottom: 0;
-      text-align: left;
-    }
-
-    .verticalSplit {
-      border-top: none;
-      border-bottom: none;
-    }
-
-    .verticalSplit:first-of-type {
-      border-left: none;
-    }
-
-    .verticalSplit:last-of-type {
-      border-right: none;
-    }
-
-    .alignCenter {
-      text-align: center;
-    }
-
-    .tableCategory {
-      border-top: none;
-      border-bottom: none;
-      border-left: none;
-      border-right: none;
-      text-align: center;
-      margin: 10px;
-      padding: 10px 20px;
-      color: #dcdcdc;
-      font-size: 18px;
-      border-radius: 5px;
-
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f0c29">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Stan's AION Characters - 15TAN</title>
+    <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
+    <link rel="stylesheet" href="assets/css/aion-tools.css">
+    <style>
+        body { padding: 20px; }
+        .profiles-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        .profiles-subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            color: #a8a8c0;
+            margin-bottom: 40px;
+        }
+        .server-section {
+            background: rgba(25, 25, 35, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(181, 101, 245, 0.3);
+        }
+        .server-title {
+            font-size: 2em;
+            color: #b565f5;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 2px 8px rgba(181, 101, 245, 0.4);
+        }
+        .faction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+        }
+        .faction-section {
+            background: rgba(30, 30, 40, 0.5);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(100, 100, 120, 0.3);
+        }
+        .faction-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(181, 101, 245, 0.3);
+        }
+        .faction-header img {
+            width: 40px;
+            height: 40px;
+        }
+        .faction-header h3 {
+            font-size: 1.4em;
+            color: #e0e0f0;
+            margin: 0;
+        }
+        .legion-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(181, 101, 245, 0.15);
+            border: 1px solid rgba(181, 101, 245, 0.3);
+            padding: 8px 15px;
+            border-radius: 8px;
+            color: #e0e0f0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: inline-flex;
+        }
+        .legion-link:hover {
+            background: rgba(181, 101, 245, 0.3);
+            border-color: #b565f5;
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+        .legion-link img {
+            width: 24px;
+            height: 24px;
+        }
+        .character-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .character-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(20, 20, 30, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(100, 100, 120, 0.2);
+            transition: all 0.3s ease;
+        }
+        .character-card:hover {
+            background: rgba(40, 40, 60, 0.8);
+            border-color: rgba(181, 101, 245, 0.5);
+            transform: translateX(5px);
+        }
+        .character-card a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #e0e0f0;
+            flex: 1;
+        }
+        .character-card img {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            border: 2px solid rgba(181, 101, 245, 0.3);
+        }
+        .character-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #e0e0f0;
+        }
+        .character-card a:hover .character-name {
+            color: #b565f5;
+        }
+        .deleted-section {
+            opacity: 0.6;
+        }
+        .deleted-section .server-title {
+            color: #999;
+        }
+        @media (max-width: 768px) {
+            .faction-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
 </head>
+<body class="page-profiles">
+    <a href="aion.html" class="home-button">🏠 Tools Hub</a>
+    
+    <div class="profiles-container">
+        <h1>⚔️ Stan's AION Characters ⚔️</h1>
+        <p class="profiles-subtitle">Character profiles across AION servers</p>
 
-<body>
-  <div class="mode-toggle">
-    <label class="switch">
-      <input type="checkbox" id="modeToggle">
-      <span class="slider round"></span>
-      <br><br>
-      <div id="textDisplay">Dark</div>
-    </label>
-  </div>
-  <div class="discordDiv" align=left>
-    <a href="https://discordapp.com/users/158658357606088704" target="_blank" align="left"><img src="images/discord.png"
-        alt="discord"></a><br>Discord profile
-  </div>
-  <h1>Stan's Aion Characters </h1>
-  <table align="center">
-    <tr>
-      <td colspan="2" class="tableCategory">
-        STORMWING (EU - Retail)
-      </td>
-    </tr>
-    <tr>
-      <th class="verticalSplit alignCenter">
-        <img src="images/elyos.png" alt="elyos">ELYOS
-      </th>
-      <th class="verticalSplit alignCenter">
-        <img src="images/asmodian.png" alt="asmodian">ASMODIANS
-      </th>
-    </tr>
-    <tr>
-      <th class="verticalSplit alignCenter">
-        <div class="link-container">
-          <a href="https://www.myaion.xyz/legions/esuoheraw-39141" target="_blank">
-            <img src="images/legion.png" alt="legion" />esuoheraW
-          </a>
-        </div>
-      </th>
-      <th class="verticalSplit alignCenter">
-        <div class="link-container">
-          <a href="https://www.myaion.xyz/legions/legion-wh-75384" target="_blank">
-            <img src="images/legion.png" alt="legion" />Legion WH
-          </a>
-        </div>
-      </th>
-    </tr>
-    <tr>
-      <th class="verticalSplit">
-        <div class="link-container">
-          <a href="https://myaion.eu/Player/3844" target="_blank"><img src="images/templar.png"
-              alt="templar">Stunifer</a>
-          <a href="https://myaion.eu/Player/11903" target="_blank"><img src="images/gladiator.png"
-              alt="gladiator">Stanbledore</a>
-        </div>
-      </th>
-      <th class="verticalSplit text-align-left">
-        <div class="link-container" align=left>
-          <a href="https://myaion.eu/Player/6441264" target="_blank">
-            <img src="images/templar.png" alt="templar" />
-            Pulling
-          </a>
-          <a href="https://myaion.eu/Player/5983937" target="_blank"><img src="images/gladiator.png"
-              alt="gladiator" />Ltp</a>
-        </div>
-      </th>
-    </tr>
-    <tr>
-      <th class="verticalSplit">
-        <div class="link-container">
-          <a href="https://myaion.eu/Player/543671" target="_blank"><img src="images/assassin.png"
-              alt="assassin" />Nickflurry</a>
-          <a href="https://myaion.eu/Player/2841" target="_blank"><img src="images/aethertech.png"
-              alt="aethertech" />Tinlicker</a>
-        </div>
-      </th>
-      <th class="verticalSplit text-align-left">
-        <div class="link-container" align=left>
-          <a href="https://myaion.eu/Player/6327506" target="_blank"><img src="images/aethertech.png"
-              alt="aethertech" />Hawktuah</a>
-        </div>
-      </th>
-    </tr>
-    <tr>
-      <th class="verticalSplit">
-        <div class="link-container">
+        <!-- Stormwing Retail -->
+        <div class="server-section">
+            <h2 class="server-title">STORMWING (EU - Retail)</h2>
+            <div class="faction-grid">
+                <!-- Elyos -->
+                <div class="faction-section">
+                    <div class="faction-header">
+                        <img src="images/elyos.png" alt="Elyos">
+                        <h3>ELYOS</h3>
+                    </div>
+                    <a href="https://www.myaion.xyz/legions/esuoheraw-39141" target="_blank" class="legion-link">
+                        <img src="images/legion.png" alt="Legion">
+                        esuoheraW
+                    </a>
+                    <div class="character-grid">
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/3844" target="_blank">
+                                <img src="images/templar.png" alt="Templar">
+                                <span class="character-name">Stunifer</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/11903" target="_blank">
+                                <img src="images/gladiator.png" alt="Gladiator">
+                                <span class="character-name">Stanbledore</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/543671" target="_blank">
+                                <img src="images/assassin.png" alt="Assassin">
+                                <span class="character-name">Nickflurry</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/2841" target="_blank">
+                                <img src="images/aethertech.png" alt="Aethertech">
+                                <span class="character-name">Tinlicker</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/5947954" target="_blank">
+                                <img src="images/sorcerer.png" alt="Sorcerer">
+                                <span class="character-name">Castingcouch</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/7272547" target="_blank">
+                                <img src="images/spiritmaster.png" alt="Spiritmaster">
+                                <span class="character-name">Qmark</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/32895" target="_blank">
+                                <img src="images/chanter.png" alt="Chanter">
+                                <span class="character-name">Lafesta</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/4136" target="_blank">
+                                <img src="images/painter.png" alt="Painter">
+                                <span class="character-name">Stainley</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/721605" target="_blank">
+                                <img src="images/bard.png" alt="Bard">
+                                <span class="character-name">Harpsody</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
-          <a href="https://myaion.eu/Player/5947954" target="_blank"><img src="images/sorcerer.png"
-              alt="sorcerer" />Castingcouch</a>
-          <a href="https://myaion.eu/Player/7272547" target="_blank"><img src="images/spiritmaster.png"
-              alt="spiritmaster" />Qmark</a>
+                <!-- Asmodian -->
+                <div class="faction-section">
+                    <div class="faction-header">
+                        <img src="images/asmodian.png" alt="Asmodian">
+                        <h3>ASMODIANS</h3>
+                    </div>
+                    <a href="https://www.myaion.xyz/legions/legion-wh-75384" target="_blank" class="legion-link">
+                        <img src="images/legion.png" alt="Legion">
+                        Legion WH
+                    </a>
+                    <div class="character-grid">
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/6441264" target="_blank">
+                                <img src="images/templar.png" alt="Templar">
+                                <span class="character-name">Pulling</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/5983937" target="_blank">
+                                <img src="images/gladiator.png" alt="Gladiator">
+                                <span class="character-name">Ltp</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/6327506" target="_blank">
+                                <img src="images/aethertech.png" alt="Aethertech">
+                                <span class="character-name">Hawktuah</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/6438108" target="_blank">
+                                <img src="images/chanter.png" alt="Chanter">
+                                <span class="character-name">Rokushakubo</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </th>
-      <th class="verticalSplit"></th>
-    </tr>
-    <tr>
-      <th class="verticalSplit">
-        <div class="link-container">
-          <a href="https://myaion.eu/Player/32895" target="_blank"><img src="images/chanter.png"
-              alt="chanter" />Lafesta</a>
-        </div>
-      </th>
-      <th class="verticalSplit text-align-left">
-        <div class="link-container">
-          <a href="https://myaion.eu/Player/6438108" target="_blank">
-            <img src="images/chanter.png" alt="chanter" />
-            Rokushakubo
-          </a>
-        </div>
-      </th>
-    </tr>
-    <tr>
-      <th class="verticalSplit">
-        <div class="link-container">
-          <a href="https://myaion.eu/Player/4136" target="_blank"><img src="images/painter.png"
-              alt="painter" />Stainley</a>
-          <a href="https://myaion.eu/Player/721605" target="_blank"><img src="images/bard.png"
-              alt="bard" />Harpsody</a>
-        </div>
-      </th>
-      <th class="verticalSplit"></th>
-    </tr>
-    <tr>
-      <td colspan="2" class="tableCategory">
-        Atreia (EU - Classic)
-      </td>
-    </tr>
-    <tr>
-      <th class="verticalSplit">
-        <div class="link-container">
-          <a href="https://myaion.eu/Player/7283822" target="_blank"><img src="images/gladiator.png"
-              alt="gladiator" />Bruisewayne</a>
-          <a href="https://myaion.eu/Player/7284086" target="_blank"><img src="images/templar.png"
-              alt="templar" />Stanimal</a>
-        </div>
-      </th>
-      <th class="verticalSplit text-align-left">
-        <div class="link-container" align=left>
-          <a href="https://myaion.eu/Player/6325482" target="_blank"><img src="images/gladiator.png"
-              alt="gladiator" />Qmark</a>
-        </div>
-      </th>
-    </tr>
-    <tr>
-      <th class="verticalSplit">
-        <div class="link-container">
-          <a href="https://myaion.eu/Player/7284062" target="_blank"><img src="images/chanter.png"
-              alt="chanter" />Lafesta</a>
-          <a href="https://myaion.eu/Player/7283877" target="_blank"><img src="images/revenant.png"
-              alt="revenant" />Lantzik</a>
-        </div>
-      </th>
-      <th class="verticalSplit">
-        <div class="link-container" align=left>
-        </div>
-      </th>
-    </tr>
-    <tr>
-      <td colspan="2" class="tableCategory">
-        <img src="images/deleted.png" alt="deleted">Deleted Characters
-      </td>
-    </tr>
-    <tr>
-      <th class="verticalSplit">
-        <div class="link-container">
-          <a href="https://myaion.eu/Player/1017585" target="_blank"><img src="images/spiritmaster.png"
-              alt="spiritmaster" />Mzj</a>
-        </div>
-      </th>
-      <th class="verticalSplit"></th>
-    </tr>
-    <tr>
-      <th class="verticalSplit">
-        <div class="link-container">
-          <a href="https://myaion.eu/Player/677343" target="_blank"><img src="images/ranger.png"
-              alt="ranger" />Nudau</a>
-        </div>
-      </th>
-      <th class="verticalSplit"></th>
-    </tr>
-    <tr>
-      <th class="verticalSplit">
-        <div class="link-container">
-          <a href="https://myaion.eu/Player/5930388" target="_blank"><img src="images/gunner.png"
-              alt="gunner" />Facilis</a>
-        </div>
-      </th>
-      <th class="verticalSplit"></th>
-    </tr>
-    <tr>
-      <th class="verticalSplit">
-        <div class="link-container">
-          <a href="https://myaion.eu/Player/6099279" target="_blank"><img src="images/cleric.png"
-              alt="spiritmaster" />Molekin</a>
-        </div>
-      </th>
-      <th class="verticalSplit"></th>
-    </tr>
-  </table>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var modeToggle = document.getElementById('modeToggle');
-      var textDisplay = document.getElementById('textDisplay');
 
-      if (modeToggle) {
-        modeToggle.addEventListener('change', function () {
-          if (this.checked) {
-            document.body.classList.add('light-mode');
-            if (textDisplay) {
-              textDisplay.innerText = 'Light';
-            }
-          } else {
-            document.body.classList.remove('light-mode');
-            if (textDisplay) {
-              textDisplay.innerText = 'Dark';
-            }
-          }
-        });
-      }
-    });
-    // Select all images
-    var images = document.getElementsByTagName('img');
-    // Iterate through the images
-    for (var i = 0; i < images.length; i++) {
-      var img = images[i];
-      // Check if the src attribute contains a specific string
-      if (img.src.includes("clyde")) {
-        // Apply a new style or class
-        img.classList.add("discordPic");
-      }
-    }
-  </script>
+        <!-- Atreia Classic -->
+        <div class="server-section">
+            <h2 class="server-title">ATREIA (EU - Classic)</h2>
+            <div class="faction-grid">
+                <!-- Elyos -->
+                <div class="faction-section">
+                    <div class="faction-header">
+                        <img src="images/elyos.png" alt="Elyos">
+                        <h3>ELYOS</h3>
+                    </div>
+                    <div class="character-grid">
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/7283822" target="_blank">
+                                <img src="images/gladiator.png" alt="Gladiator">
+                                <span class="character-name">Bruisewayne</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/7284086" target="_blank">
+                                <img src="images/templar.png" alt="Templar">
+                                <span class="character-name">Stanimal</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/7284062" target="_blank">
+                                <img src="images/chanter.png" alt="Chanter">
+                                <span class="character-name">Lafesta</span>
+                            </a>
+                        </div>
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/7283877" target="_blank">
+                                <img src="images/revenant.png" alt="Revenant">
+                                <span class="character-name">Lantzik</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asmodian -->
+                <div class="faction-section">
+                    <div class="faction-header">
+                        <img src="images/asmodian.png" alt="Asmodian">
+                        <h3>ASMODIANS</h3>
+                    </div>
+                    <div class="character-grid">
+                        <div class="character-card">
+                            <a href="https://myaion.eu/Player/6325482" target="_blank">
+                                <img src="images/gladiator.png" alt="Gladiator">
+                                <span class="character-name">Qmark</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deleted Characters -->
+        <div class="server-section deleted-section">
+            <h2 class="server-title">
+                <img src="images/deleted.png" alt="Deleted" style="width: 40px; height: 40px; vertical-align: middle; margin-right: 10px;">
+                Deleted Characters
+            </h2>
+            <div class="character-grid" style="max-width: 600px; margin: 0 auto;">
+                <div class="character-card">
+                    <a href="https://myaion.eu/Player/1017585" target="_blank">
+                        <img src="images/spiritmaster.png" alt="Spiritmaster">
+                        <span class="character-name">Mzj</span>
+                    </a>
+                </div>
+                <div class="character-card">
+                    <a href="https://myaion.eu/Player/677343" target="_blank">
+                        <img src="images/ranger.png" alt="Ranger">
+                        <span class="character-name">Nudau</span>
+                    </a>
+                </div>
+                <div class="character-card">
+                    <a href="https://myaion.eu/Player/5930388" target="_blank">
+                        <img src="images/gunner.png" alt="Gunner">
+                        <span class="character-name">Facilis</span>
+                    </a>
+                </div>
+                <div class="character-card">
+                    <a href="https://myaion.eu/Player/6099279" target="_blank">
+                        <img src="images/cleric.png" alt="Cleric">
+                        <span class="character-name">Molekin</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-actions">
+                <a href="https://discordapp.com/users/158658357606088704" target="_blank" class="discord-button">
+                    <svg class="discord-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                    </svg>
+                    Discord Profile
+                </a>
+            </div>
+
+            <div class="copyright">
+                © <span id="copyright-year"></span> <a href="https://stani01.github.io/myAionProfiles.html" target="_blank"><strong>15TAN</strong></a> - AION Character Profiles
+            </div>
+
+            <div class="disclaimer">
+                This website is a non-commercial fan project. AION and all related images/assets are trademarks or registered trademarks of NCSoft Corporation and Gameforge. All rights reserved.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('copyright-year').textContent = new Date().getFullYear();
+    </script>
 </body>
 </html>
