@@ -167,6 +167,48 @@
                             <option value="50">+50%</option>
                         </select>
                     </div>
+                    <div class="buff-item" id="buff-hex" onclick="event.stopPropagation(); const cb = document.getElementById('check-hex'); cb.checked = !cb.checked; document.getElementById('buff-hex').classList.toggle('active', cb.checked); updateHexValue(); calculate(); saveSession();">
+                        <img src="https://myaion.eu/Images/Database/Skills/Odi_MagicalBreakdown.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Hex</div>
+                            <div class="buff-value" id="hexValue">Enemy -650 Def</div>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="checkbox" class="buff-checkbox" id="check-hex" onclick="event.stopPropagation();" onchange="event.stopPropagation(); updateHexValue(); calculate()">
+                            <select id="hexLevel" style="padding: 4px 8px; background: #2a2a2f; color: #fff; border: 1px solid #444; border-radius: 4px; cursor: pointer;" onchange="updateHexValue(); saveSession(); calculate();" onclick="event.stopPropagation();">
+                                <option value="0">+0</option>
+                                <option value="5">+5</option>
+                                <option value="8">+8</option>
+                                <option value="10">+10</option>
+                                <option value="12" selected>+12</option>
+                                <option value="14">+14</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('enhancedErosion')" id="buff-enhancedErosion">
+                        <img src="https://myaion.eu/Images/Database/Skills/CBT_EL_AreaCage_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Enhanced Major Erosion</div>
+                            <div class="buff-value">Enemy -400 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-enhancedErosion" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('infernalBlight')" id="buff-infernalBlight">
+                        <img src="https://myaion.eu/Images/Database/Skills/LIVE_EL_A_HellCurse_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">(Improved) Infernal Blight</div>
+                            <div class="buff-value">Enemy -900 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-infernalBlight" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('sealJudgement')" id="buff-sealJudgement">
+                        <img src="https://myaion.eu/Images/Database/Skills/PR_A_PunishingLight_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">(Improved) Seal of Judgement</div>
+                            <div class="buff-value">Enemy -500 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-sealJudgement" onchange="event.stopPropagation(); calculate()">
+                    </div>
                 </div>
             </div>
 
@@ -229,6 +271,14 @@
                         </div>
                         <input type="checkbox" class="buff-checkbox" id="check-windCutDown" onchange="event.stopPropagation(); calculate()">
                     </div>
+                    <div class="buff-item" onclick="toggleBuff('curseMagicPower')" id="buff-curseMagicPower">
+                        <img src="https://myaion.eu/Images/Database/Skills/EL_A_MagicalBreakdown_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">(Improved) Curse of Magic Power</div>
+                            <div class="buff-value">Enemy -600 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-curseMagicPower" onchange="event.stopPropagation(); calculate()">
+                    </div>
                 </div>
             </div>
 
@@ -274,6 +324,14 @@
                             <div class="buff-value">Enemy -1000 Def</div>
                         </div>
                         <input type="checkbox" class="buff-checkbox" id="check-lightningSlash" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('wallProtection')" id="buff-wallProtection">
+                        <img src="https://myaion.eu/Images/Database/Skills/cbt_el_a_order_elementalfield_g1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">(Improved) Wall of Protection</div>
+                            <div class="buff-value">+360 Attack</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-wallProtection" onchange="event.stopPropagation(); calculate()">
                     </div>
                 </div>
             </div>
@@ -900,6 +958,38 @@
         }
     }
 
+    function updateHexValue() {
+        const hexCheckbox = document.getElementById('check-hex');
+        const hexLevel = parseInt(document.getElementById('hexLevel').value) || 0;
+        const hexValue = document.getElementById('hexValue');
+        const buffHexItem = document.getElementById('buff-hex');
+        
+        // Calculate defense reduction: -650 at +0, each level = +46 more reduction
+        const defenseReduction = 650 + (hexLevel * 46);
+        hexValue.textContent = `Enemy -${defenseReduction} Def`;
+        
+        // Update visual state
+        if (hexCheckbox) {
+            buffHexItem.classList.toggle('active', hexCheckbox.checked);
+        }
+    }
+
+    function updateAmplificationValue() {
+        const amplificationCheckbox = document.getElementById('check-amplification');
+        const amplificationLevel = parseInt(document.getElementById('amplificationLevel').value) || 0;
+        const amplificationValue = document.getElementById('amplificationValue');
+        const buffAmplificationItem = document.getElementById('buff-amplification');
+        
+        // Calculate attack bonus: +700 at +0, each level = +14 more attack
+        const attackBonus = 700 + (amplificationLevel * 14);
+        amplificationValue.textContent = `+${attackBonus} Atk`;
+        
+        // Update visual state
+        if (amplificationCheckbox) {
+            buffAmplificationItem.classList.toggle('active', amplificationCheckbox.checked);
+        }
+    }
+
     function updateBuffVisibility() {
         const classInfo = CLASS_DATA[selectedClass];
         const isMagical = classInfo.type === 'magical';
@@ -977,6 +1067,39 @@
             `;
         }
 
+        if (selectedClass === 'cleric') {
+            hasClassSpecific = true;
+            classBuffsGrid.innerHTML += `
+                <div class="buff-item" id="buff-sacrificialPower">
+                    <img src="https://myaion.eu/Images/Database/Skills/live_pr_a_offensivemode_g1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">(Improved) Sacrificial Power</div>
+                        <div class="buff-value">+1000 Atk / +500 PvE / +1000 Crit</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-sacrificialPower" onchange="event.stopPropagation(); calculate()">
+                </div>
+                <div class="buff-item" id="buff-amplification">
+                    <img src="https://myaion.eu/Images/Database/Skills/LIVE_PR_PrepareHolywar_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Amplification</div>
+                        <div class="buff-value" id="amplificationValue">+700 Atk</div>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="checkbox" class="buff-checkbox" id="check-amplification" onchange="event.stopPropagation(); updateAmplificationValue(); calculate()">
+                        <select id="amplificationLevel" style="padding: 4px 8px; background: #2a2a2f; color: #fff; border: 1px solid #444; border-radius: 4px; cursor: pointer;" onchange="updateAmplificationValue(); saveSession(); calculate();" onclick="event.stopPropagation();">
+                            <option value="0">+0</option>
+                            <option value="10">+10</option>
+                            <option value="12">+12</option>
+                            <option value="14">+14</option>
+                            <option value="17">+17</option>
+                            <option value="20" selected>+20</option>
+                            <option value="26">+26</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+        }
+
         if (selectedClass === 'sorcerer') {
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
@@ -1019,7 +1142,7 @@
                     <img src="https://myaion.eu/Images/Database/Skills/Wi_A_FireShield_G1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Boon of Flame</div>
-                        <div class="buff-value">+18%</div>
+                        <div class="buff-value">+18% / +1000 Crit Spell</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-boonFlame" onchange="event.stopPropagation(); calculate()">
                 </div>
@@ -1033,7 +1156,7 @@
                     <img src="https://myaion.eu/Images/Database/Skills/EL_A_SoulKing_G1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Spirit Bundling</div>
-                        <div class="buff-value">+12%</div>
+                        <div class="buff-value">+12% / +1000 Attack / +500 Crit Spell</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-spiritBundle" onchange="event.stopPropagation(); calculate()">
                 </div>
@@ -1350,6 +1473,25 @@
         if (document.getElementById('check-lightningSlash')?.checked) {
             defenseReduction += 1000;
         }
+        if (document.getElementById('check-wallProtection')?.checked) {
+            attackBonus += 360;
+        }
+        
+        // Universal buffs for all classes
+        if (document.getElementById('check-hex')?.checked) {
+            const hexLevel = parseInt(document.getElementById('hexLevel')?.value || 0);
+            const hexDefReduction = 650 + (hexLevel * 46);
+            defenseReduction += hexDefReduction;
+        }
+        if (document.getElementById('check-enhancedErosion')?.checked) {
+            defenseReduction += 400;
+        }
+        if (document.getElementById('check-infernalBlight')?.checked) {
+            defenseReduction += 900;
+        }
+        if (document.getElementById('check-sealJudgement')?.checked) {
+            defenseReduction += 500;
+        }
         
         // Universal magical buffs (defense reductions)
         if (document.getElementById('check-swiftSpear')?.checked) {
@@ -1363,6 +1505,9 @@
         }
         if (document.getElementById('check-windCutDown')?.checked) {
             defenseReduction += 350;
+        }
+        if (document.getElementById('check-curseMagicPower')?.checked) {
+            defenseReduction += 600;
         }
         
         // Gladiator buffs
@@ -1396,6 +1541,22 @@
                 if (currentMode === 'pve') {
                     pveAttackBonus += 1500;
                 }
+            }
+        }
+        
+        // Cleric buffs
+        if (selectedClass === 'cleric') {
+            if (document.getElementById('check-sacrificialPower')?.checked) {
+                attackBonus += 1000;
+                critBonus += 1000;
+                if (currentMode === 'pve') {
+                    pveAttackBonus += 500;
+                }
+            }
+            if (document.getElementById('check-amplification')?.checked) {
+                const amplificationLevel = parseInt(document.getElementById('amplificationLevel')?.value || 0);
+                const amplificationBonus = 700 + (amplificationLevel * 14);
+                attackBonus += amplificationBonus;
             }
         }
         
@@ -1452,6 +1613,17 @@
             if (document.getElementById('check-arcaneGrowth')?.checked) {
                 attackBonus += 1500;
                 critBonus += 1500;
+            }
+            if (document.getElementById('check-boonFlame')?.checked) {
+                critBonus += 1000;
+            }
+        }
+
+        // Spiritmaster buffs
+        if (selectedClass === 'spiritmaster') {
+            if (document.getElementById('check-spiritBundle')?.checked) {
+                attackBonus += 1000;
+                critBonus += 500;
             }
         }
         
@@ -1821,12 +1993,17 @@
                 shards: document.getElementById('check-shards')?.checked,
                 movingForward: document.getElementById('check-movingForward')?.checked,
                 intoBlack: document.getElementById('check-intoBlack')?.checked,
+                hex: document.getElementById('check-hex')?.checked,
+                enhancedErosion: document.getElementById('check-enhancedErosion')?.checked,
+                infernalBlight: document.getElementById('check-infernalBlight')?.checked,
+                sealJudgement: document.getElementById('check-sealJudgement')?.checked,
                 windHarmony: document.getElementById('check-windHarmony')?.checked,
                 glad8: document.getElementById('check-glad8')?.checked,
                 chant3: document.getElementById('check-chant3')?.checked,
                 weakBlow: document.getElementById('check-weakBlow')?.checked,
                 comradePhys: document.getElementById('check-comradePhys')?.checked,
                 lightningSlash: document.getElementById('check-lightningSlash')?.checked,
+                wallProtection: document.getElementById('check-wallProtection')?.checked,
                 weda17: document.getElementById('check-weda17')?.checked,
                 templar10: document.getElementById('check-templar10')?.checked,
                 boonFlame: document.getElementById('check-boonFlame')?.checked,
@@ -1841,6 +2018,8 @@
                 divFury: document.getElementById('check-divFury')?.checked,
                 empFury: document.getElementById('check-empFury')?.checked,
                 menanPos: document.getElementById('check-menanPos')?.checked,
+                sacrificialPower: document.getElementById('check-sacrificialPower')?.checked,
+                amplification: document.getElementById('check-amplification')?.checked,
                 deadlyFocus: document.getElementById('check-deadlyFocus')?.checked,
                 devotion: document.getElementById('check-devotion')?.checked,
                 deadlyAbandon: document.getElementById('check-deadlyAbandon')?.checked,
@@ -1855,9 +2034,12 @@
                 vaizlGift: document.getElementById('check-vaizlGift')?.checked,
                 flameFusion: document.getElementById('check-flameFusion')?.checked,
                 windCutDown: document.getElementById('check-windCutDown')?.checked,
+                curseMagicPower: document.getElementById('check-curseMagicPower')?.checked,
                 arcaneCombustion: document.getElementById('check-arcaneCombustion')?.checked,
                 arcaneGrowth: document.getElementById('check-arcaneGrowth')?.checked,
                 devotionLevel: document.getElementById('devotionLevel')?.value || '0',
+                hexLevel: document.getElementById('hexLevel')?.value || '20',
+                amplificationLevel: document.getElementById('amplificationLevel')?.value || '20',
                 vaizlGiftLevel: document.getElementById('vaizlGiftLevel')?.value || '20'
             }
         };
@@ -1923,6 +2105,20 @@
                             devotionSelect.value = session.buffs.devotionLevel;
                         }
                     }
+                    // Restore Hex level
+                    if (session.buffs.hexLevel !== undefined && session.buffs.hexLevel !== null) {
+                        const hexSelect = document.getElementById('hexLevel');
+                        if (hexSelect) {
+                            hexSelect.value = session.buffs.hexLevel;
+                        }
+                    }
+                    // Restore Amplification level
+                    if (session.buffs.amplificationLevel !== undefined && session.buffs.amplificationLevel !== null) {
+                        const amplificationSelect = document.getElementById('amplificationLevel');
+                        if (amplificationSelect) {
+                            amplificationSelect.value = session.buffs.amplificationLevel;
+                        }
+                    }
                     // Restore Vaizel Gift level
                     if (session.buffs.vaizlGiftLevel !== undefined && session.buffs.vaizlGiftLevel !== null) {
                         const vaizlGiftSelect = document.getElementById('vaizlGiftLevel');
@@ -1932,7 +2128,7 @@
                     }
                     
                     Object.keys(session.buffs).forEach(key => {
-                        if (key === 'devotionLevel' || key === 'vaizlGiftLevel') return; // Skip non-checkbox properties
+                        if (key === 'devotionLevel' || key === 'hexLevel' || key === 'amplificationLevel' || key === 'vaizlGiftLevel') return; // Skip non-checkbox properties
                         const checkbox = document.getElementById(`check-${key}`);
                         const buffItem = document.getElementById(`buff-${key}`);
                         if (checkbox) {
@@ -1944,6 +2140,8 @@
                     });
                     toggleCubes(); // Update cube visual state
                     updateDevotionValue(); // Update Devotion display value
+                    updateHexValue(); // Update Hex display value
+                    updateAmplificationValue(); // Update Amplification display value
                     updateVaizlGiftValue(); // Update Vaizel Gift display value
                     // Trigger mutual exclusivity functions after restoring
                     if ((selectedClass === 'ranger') && (session.buffs.mauGlory || session.buffs.mauHonour)) {
