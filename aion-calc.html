@@ -197,6 +197,38 @@
                         </div>
                         <input type="checkbox" class="buff-checkbox" id="check-templar10" onclick="event.stopPropagation();" onchange="toggleTemplar(10); calculate()">
                     </div>
+                    <div class="buff-item" onclick="toggleBuff('swiftSpear')" id="buff-swiftSpear">
+                        <img src="https://myaion.eu/Images/Database/Skills/WI_WindSpear_Custom_A_up.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">(Improved) Swift Spear</div>
+                            <div class="buff-value">Enemy -600 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-swiftSpear" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('blaze')" id="buff-blaze">
+                        <img src="https://myaion.eu/Images/Database/Skills/CBT_MA_IgnicBurn_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Blaze</div>
+                            <div class="buff-value">Enemy -250 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-blaze" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('flameFusion')" id="buff-flameFusion">
+                        <img src="https://myaion.eu/Images/Database/Skills/CBT_WI_MeltDown_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Flame Fusion</div>
+                            <div class="buff-value">Enemy -700 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-flameFusion" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('windCutDown')" id="buff-windCutDown">
+                        <img src="https://myaion.eu/Images/Database/Skills/Live_WI_A_WindCutter_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">(Improved) Wind Cut Down</div>
+                            <div class="buff-value">Enemy -350 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-windCutDown" onchange="event.stopPropagation(); calculate()">
+                    </div>
                 </div>
             </div>
 
@@ -218,6 +250,30 @@
                             <div class="buff-value">Enemy -3% Def</div>
                         </div>
                         <input type="checkbox" class="buff-checkbox" id="check-chant3" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('weakBlow')" id="buff-weakBlow">
+                        <img src="https://myaion.eu/Images/Database/Skills/live_fi_enfeeblehit_g1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Weakening Blow</div>
+                            <div class="buff-value">Enemy -200 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-weakBlow" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('comradePhys')" id="buff-comradePhys">
+                        <img src="https://myaion.eu/Images/Database/Skills/KN_GrandProtection_Custom_A_up.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">(Improved) Comrade's Aegis</div>
+                            <div class="buff-value">+550 Attack</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-comradePhys" onchange="event.stopPropagation(); calculate()">
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('lightningSlash')" id="buff-lightningSlash">
+                        <img src="https://myaion.eu/Images/Database/Skills/LIVE_AS_A_FlashSlash_G1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">(Improved) Lightning Slash</div>
+                            <div class="buff-value">Enemy -1000 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-lightningSlash" onchange="event.stopPropagation(); calculate()">
                     </div>
                 </div>
             </div>
@@ -475,9 +531,7 @@
             type: 'physical', 
             icon: 'https://myaion.eu/images/Classes/Ranger.png',
             weapons: [
-                { ...WEAPONS.bow, mult: 1.7 },
-                { ...WEAPONS.dagger, mult: 2.3 },
-                { ...WEAPONS.sword, mult: 2.2 }
+                { ...WEAPONS.bow, mult: 1.7 }
             ]
         },
         'chanter': { 
@@ -766,6 +820,86 @@
         saveSession();
     }
 
+    function updateDevotionValue() {
+        const devotionCheckbox = document.getElementById('check-devotion');
+        const devotionLevel = parseInt(document.getElementById('devotionLevel').value) || 0;
+        const devotionValue = document.getElementById('devotionValue');
+        const buffDevotionItem = document.getElementById('buff-devotion');
+        
+        // Calculate attack bonus: +450 at +0, +710 at +26, each level = +10
+        const attackBonus = 450 + (devotionLevel * 10);
+        devotionValue.textContent = `+${attackBonus} Atk`;
+        
+        // Update visual state
+        if (devotionCheckbox) {
+            buffDevotionItem.classList.toggle('active', devotionCheckbox.checked);
+        }
+    }
+
+    function toggleMauBuffs(bufferType) {
+        const mauGlory = document.getElementById('check-mauGlory');
+        const mauHonour = document.getElementById('check-mauHonour');
+        const buffMauGlory = document.getElementById('buff-mauGlory');
+        const buffMauHonour = document.getElementById('buff-mauHonour');
+        
+        if (bufferType === 'glory' && mauGlory.checked) {
+            // Activating Mau's Glory, deactivate Mau's Honour
+            mauHonour.checked = false;
+            buffMauHonour.classList.remove('active');
+            buffMauGlory.classList.add('active');
+        } else if (bufferType === 'honour' && mauHonour.checked) {
+            // Activating Mau's Honour, deactivate Mau's Glory
+            mauGlory.checked = false;
+            buffMauGlory.classList.remove('active');
+            buffMauHonour.classList.add('active');
+        } else {
+            // Unchecking, update visual state
+            buffMauGlory.classList.toggle('active', mauGlory.checked);
+            buffMauHonour.classList.toggle('active', mauHonour.checked);
+        }
+        saveSession();
+    }
+
+    function toggleArcaneBuffs(bufferType) {
+        const arcaneCombustion = document.getElementById('check-arcaneCombustion');
+        const arcaneGrowth = document.getElementById('check-arcaneGrowth');
+        const buffArcaneCombustion = document.getElementById('buff-arcaneCombustion');
+        const buffArcaneGrowth = document.getElementById('buff-arcaneGrowth');
+        
+        if (bufferType === 'combustion' && arcaneCombustion.checked) {
+            // Activating Arcane Combustion, deactivate Arcane Growth
+            arcaneGrowth.checked = false;
+            buffArcaneGrowth.classList.remove('active');
+            buffArcaneCombustion.classList.add('active');
+        } else if (bufferType === 'growth' && arcaneGrowth.checked) {
+            // Activating Arcane Growth, deactivate Arcane Combustion
+            arcaneCombustion.checked = false;
+            buffArcaneCombustion.classList.remove('active');
+            buffArcaneGrowth.classList.add('active');
+        } else {
+            // Unchecking, update visual state
+            buffArcaneCombustion.classList.toggle('active', arcaneCombustion.checked);
+            buffArcaneGrowth.classList.toggle('active', arcaneGrowth.checked);
+        }
+        saveSession();
+    }
+
+    function updateVaizlGiftValue() {
+        const vaizlGiftCheckbox = document.getElementById('check-vaizlGift');
+        const vaizlGiftLevel = parseInt(document.getElementById('vaizlGiftLevel').value) || 0;
+        const vaizlGiftValue = document.getElementById('vaizlGiftValue');
+        const buffVaizlGiftItem = document.getElementById('buff-vaizlGift');
+        
+        // Calculate PvE attack bonus: +500 at +0, +760 at +26, each level = +10
+        const pveAttackBonus = 500 + (vaizlGiftLevel * 10);
+        vaizlGiftValue.textContent = `+${pveAttackBonus} PvE Atk`;
+        
+        // Update visual state
+        if (vaizlGiftCheckbox) {
+            buffVaizlGiftItem.classList.toggle('active', vaizlGiftCheckbox.checked);
+        }
+    }
+
     function updateBuffVisibility() {
         const classInfo = CLASS_DATA[selectedClass];
         const isMagical = classInfo.type === 'magical';
@@ -781,10 +915,107 @@
         
         let hasClassSpecific = false;
         
+        // Gladiator specific buffs
+        if (selectedClass === 'gladiator') {
+            hasClassSpecific = true;
+            classBuffsGrid.innerHTML += `
+                <div class="buff-item" id="buff-atkPos">
+                    <img src="https://myaion.eu/Images/Database/Skills/fi_berserkstance_custom_b_up.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Attack Position</div>
+                        <div class="buff-value">+1800 Atk / +1200 Crit</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-atkPos" onchange="event.stopPropagation(); calculate()">
+                </div>
+                <div class="buff-item" id="buff-defPrep">
+                    <img src="https://myaion.eu/Images/Database/Skills/cbt_fi_defensemode_g1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Defence Preparation</div>
+                        <div class="buff-value">-600 PvP Atk</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-defPrep" onclick="event.stopPropagation();" onchange="toggleGladatorBuffs('defPrep'); calculate()">
+                </div>
+                <div class="buff-item" id="buff-combPrep">
+                    <img src="https://myaion.eu/Images/Database/Skills/cbt_fi_blademode_g1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Combat Preparation</div>
+                        <div class="buff-value">+800 Atk / +800 PvP</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-combPrep" onclick="event.stopPropagation();" onchange="toggleGladatorBuffs('combPrep'); calculate()">
+                </div>
+            `;
+        }
+        
+        // Templar specific buffs
+        if (selectedClass === 'templar') {
+            hasClassSpecific = true;
+            classBuffsGrid.innerHTML += `
+                <div class="buff-item" id="buff-divFury">
+                    <img src="https://myaion.eu/Images/Database/Skills/cbt_kn_a_divinepower_g1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Divine Fury</div>
+                        <div class="buff-value">+550 Attack</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-divFury" onchange="event.stopPropagation(); calculate()">
+                </div>
+                <div class="buff-item" id="buff-empFury">
+                    <img src="https://myaion.eu/Images/Database/Skills/live_kn_destructwish_g1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Empyrean Fury</div>
+                        <div class="buff-value">+900 Atk / +1000 Crit</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-empFury" onchange="event.stopPropagation(); calculate()">
+                </div>
+                <div class="buff-item" id="buff-menanPos">
+                    <img src="https://myaion.eu/Images/Database/Skills/cbt_fi_defensemode_g1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Menacing Posture</div>
+                        <div class="buff-value">+1500 PvE Atk / -1000 Atk</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-menanPos" onchange="event.stopPropagation(); calculate()">
+                </div>
+            `;
+        }
+
         if (selectedClass === 'sorcerer') {
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
-                <div class="buff-item" onclick="toggleBuff('boonFlame')" id="buff-boonFlame">
+                <div class="buff-item" id="buff-vaizlGift">
+                    <img src="https://myaion.eu/Images/Database/Skills/CBT_WI_ArcaneBoost_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Vaizel Gift</div>
+                        <div class="buff-value" id="vaizlGiftValue">+500 PvE Atk</div>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="checkbox" class="buff-checkbox" id="check-vaizlGift" onchange="event.stopPropagation(); updateVaizlGiftValue(); calculate()">
+                        <select id="vaizlGiftLevel" style="padding: 4px 8px; background: #2a2a2f; color: #fff; border: 1px solid #444; border-radius: 4px; cursor: pointer;" onchange="updateVaizlGiftValue(); saveSession(); calculate();" onclick="event.stopPropagation();">
+                            <option value="0">+0</option>
+                            <option value="10">+10</option>
+                            <option value="12">+12</option>
+                            <option value="14">+14</option>
+                            <option value="17">+17</option>
+                            <option value="20" selected>+20</option>
+                            <option value="26">+26</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="buff-item" id="buff-arcaneCombustion">
+                    <img src="https://myaion.eu/Images/Database/Skills/WI_ManaBoost_Custom_B_up.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">(Improved) Arcane Combustion</div>
+                        <div class="buff-value">+700 Atk</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-arcaneCombustion" onclick="event.stopPropagation();" onchange="toggleArcaneBuffs('combustion'); calculate()">
+                </div>
+                <div class="buff-item" id="buff-arcaneGrowth">
+                    <img src="https://myaion.eu/Images/Database/Skills/WI_ManaBoost_Custom_A_up.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">(Improved) Arcane Growth</div>
+                        <div class="buff-value">+1500 Atk / +1500 Crit</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-arcaneGrowth" onclick="event.stopPropagation();" onchange="toggleArcaneBuffs('growth'); calculate()">
+                </div>
+                <div class="buff-item" id="buff-boonFlame">
                     <img src="https://myaion.eu/Images/Database/Skills/Wi_A_FireShield_G1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Boon of Flame</div>
@@ -798,7 +1029,7 @@
         if (selectedClass === 'spiritmaster') {
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
-                <div class="buff-item" onclick="toggleBuff('spiritBundle')" id="buff-spiritBundle">
+                <div class="buff-item" id="buff-spiritBundle">
                     <img src="https://myaion.eu/Images/Database/Skills/EL_A_SoulKing_G1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Spirit Bundling</div>
@@ -812,7 +1043,7 @@
         if (selectedClass === 'gunner') {
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
-                <div class="buff-item" onclick="toggleBuff('giftMagic')" id="buff-giftMagic">
+                <div class="buff-item" id="buff-giftMagic">
                     <img src="https://myaion.eu/Images/Database/Skills/Live_GU_A_EmpowerMagic_G1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Gift of Magic Power</div>
@@ -826,7 +1057,66 @@
         if (selectedClass === 'ranger') {
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
-                <div class="buff-item" onclick="toggleBuff('focusedShots')" id="buff-focusedShots">
+                <div class="buff-item" id="buff-bowBlessing">
+                    <img src="https://myaion.eu/Images/Database/Skills/live_ra_a_enchantbow_g1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">(Improved) Bow of Blessing</div>
+                        <div class="buff-value">+480 Atk / +1200 Crit</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-bowBlessing" onchange="event.stopPropagation(); calculate()">
+                </div>
+                <div class="buff-item" id="buff-strengtheningEye">
+                    <img src="https://myaion.eu/Images/Database/Skills/cbt_ra_snakeeye_g1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Strengthening Eye</div>
+                        <div class="buff-value">+200 Atk</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-strengtheningEye" onchange="event.stopPropagation(); calculate()">
+                </div>
+                <div class="buff-item" id="buff-mauGlory">
+                    <img src="https://myaion.eu/Images/Database/Skills/ev_ra_sabageroar_custom_b_up.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">(Improved) Mau's Glory</div>
+                        <div class="buff-value">+4000 Atk / +4000 Crit</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-mauGlory" onclick="event.stopPropagation();" onchange="toggleMauBuffs('glory'); calculate()">
+                </div>
+                <div class="buff-item" id="buff-mauHonour">
+                    <img src="https://myaion.eu/Images/Database/Skills/ev_ra_sabageroar_custom_a_up.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">(Improved) Mau's Honour</div>
+                        <div class="buff-value">+800 Atk</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-mauHonour" onclick="event.stopPropagation();" onchange="toggleMauBuffs('honour'); calculate()">
+                </div>
+                <div class="buff-item" id="buff-sharpenArrows">
+                    <img src="https://myaion.eu/Images/Database/Skills/live_ra_a_trackermind_g1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">(Improved) Sharpen Arrows</div>
+                        <div class="buff-value">+500 Atk / +650 Crit / +650 PvE Atk</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-sharpenArrows" onchange="event.stopPropagation(); calculate()">
+                </div>
+                <div class="buff-item" id="buff-devotion">
+                    <img src="https://myaion.eu/Images/Database/Skills/CBT_SC_InvokePower_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Devotion</div>
+                        <div class="buff-value" id="devotionValue">+450 Atk</div>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="checkbox" class="buff-checkbox" id="check-devotion" onchange="event.stopPropagation(); updateDevotionValue(); calculate()">
+                        <select id="devotionLevel" style="padding: 4px 8px; background: #2a2a2f; color: #fff; border: 1px solid #444; border-radius: 4px; cursor: pointer;" onchange="updateDevotionValue(); saveSession(); calculate();" onclick="event.stopPropagation();">
+                            <option value="0">+0</option>
+                            <option value="10">+10</option>
+                            <option value="12">+12</option>
+                            <option value="14">+14</option>
+                            <option value="17">+17</option>
+                            <option value="20" selected>+20</option>
+                            <option value="26">+26</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="buff-item" id="buff-focusedShots">
                     <img src="https://myaion.eu/Images/Database/Skills/CBT_SC_A_TrueShotMind_G1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Focused Shots</div>
@@ -840,7 +1130,50 @@
         if (selectedClass === 'assassin') {
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
-                <div class="buff-item" id="buff-mist" onclick="document.getElementById('check-mist').click();">
+                <div class="buff-item" id="buff-deadlyFocus">
+                    <img src="https://myaion.eu/Images/Database/Skills/LIVE_AS_RaidStance_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Deadly Focus</div>
+                        <div class="buff-value">+2000 Atk</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-deadlyFocus" onchange="event.stopPropagation(); calculate()">
+                </div>
+                <div class="buff-item" id="buff-devotion">
+                    <img src="https://myaion.eu/Images/Database/Skills/CBT_SC_InvokePower_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Devotion</div>
+                        <div class="buff-value" id="devotionValue">+450 Atk</div>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="checkbox" class="buff-checkbox" id="check-devotion" onchange="event.stopPropagation(); updateDevotionValue(); calculate()">
+                        <select id="devotionLevel" style="padding: 4px 8px; background: #2a2a2f; color: #fff; border: 1px solid #444; border-radius: 4px; cursor: pointer;" onchange="updateDevotionValue(); saveSession(); calculate();" onclick="event.stopPropagation();">
+                            <option value="0">+0</option>
+                            <option value="10">+10</option>
+                            <option value="12">+12</option>
+                            <option value="14">+14</option>
+                            <option value="17">+17</option>
+                            <option value="20" selected>+20</option>
+                            <option value="26">+26</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="buff-item" id="buff-deadlyAbandon">
+                    <img src="https://myaion.eu/Images/Database/Skills/live_as_a_stabstance_g1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">(Improved) Deadly Abandon</div>
+                        <div class="buff-value">+350 Atk</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-deadlyAbandon" onchange="event.stopPropagation(); calculate()">
+                </div>
+                <div class="buff-item" id="buff-flurry">
+                    <img src="https://myaion.eu/Images/Database/Skills/CBT_AS_QuickMove_G1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Flurry</div>
+                        <div class="buff-value">+1500 Crit</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-flurry" onchange="event.stopPropagation(); calculate()">
+                </div>
+                <div class="buff-item" id="buff-mist">
                     <img src="https://myaion.eu/Images/Database/Skills/LIVE_AS_Light_DefendRoar_G1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Mist</div>
@@ -848,7 +1181,7 @@
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-mist" onclick="event.stopPropagation();" onchange="toggleSinBuffs('mist'); calculate()">
                 </div>
-                <div class="buff-item" id="buff-eye" onclick="document.getElementById('check-eye').click();">
+                <div class="buff-item" id="buff-eye">
                     <img src="https://myaion.eu/Images/Database/Skills/CBT_AS_A_VisiousEye_G1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Eye</div>
@@ -860,6 +1193,58 @@
         }
         
         document.getElementById('classSpecificBuffs').style.display = hasClassSpecific ? 'block' : 'none';
+        
+        // Attach event listeners to dynamically created buff items
+        setupClassBuffListeners();
+    }
+
+    function setupClassBuffListeners() {
+        // Get all buff items in class-specific buffs grid
+        const classBuffItems = document.querySelectorAll('#classBuffsGrid .buff-item');
+        
+        classBuffItems.forEach(buffItem => {
+            buffItem.addEventListener('click', function(e) {
+                // Don't trigger if clicking the checkbox directly (let its onchange handle it)
+                if (e.target.type === 'checkbox') return;
+                
+                // Get the checkbox for this buff
+                const checkbox = this.querySelector('.buff-checkbox');
+                if (checkbox) {
+                    // Toggle the checkbox (this will trigger its onchange event automatically)
+                    checkbox.checked = !checkbox.checked;
+                    
+                    // Update visual state immediately
+                    this.classList.toggle('active', checkbox.checked);
+                    
+                    // Dispatch change event to ensure handlers fire
+                    checkbox.dispatchEvent(new Event('change', { bubbles: false }));
+                }
+            });
+        });
+    }
+
+    function toggleGladatorBuffs(bufferType) {
+        const defPrep = document.getElementById('check-defPrep');
+        const combPrep = document.getElementById('check-combPrep');
+        const buffDefPrep = document.getElementById('buff-defPrep');
+        const buffCombPrep = document.getElementById('buff-combPrep');
+        
+        if (bufferType === 'defPrep' && defPrep.checked) {
+            // Activating Defence Preparation, deactivate Combat Preparation
+            combPrep.checked = false;
+            buffCombPrep.classList.remove('active');
+            buffDefPrep.classList.add('active');
+        } else if (bufferType === 'combPrep' && combPrep.checked) {
+            // Activating Combat Preparation, deactivate Defence Preparation
+            defPrep.checked = false;
+            buffDefPrep.classList.remove('active');
+            buffCombPrep.classList.add('active');
+        } else {
+            // Unchecking, update visual state
+            buffDefPrep.classList.toggle('active', defPrep.checked);
+            buffCombPrep.classList.toggle('active', combPrep.checked);
+        }
+        saveSession();
     }
 
     function toggleSinBuffs(active) {
@@ -944,6 +1329,140 @@
         }
         
         return { normalBuffs, extraBuffs };
+    }
+
+    // Get static attack/defense buffs
+    function getStaticBuffs() {
+        let attackBonus = 0;
+        let critBonus = 0;
+        let defenseReduction = 0;
+        let pvpDefenseBonus = 0;
+        let pvpAttackBonus = 0;
+        let pveAttackBonus = 0;
+        
+        // Universal physical buffs
+        if (document.getElementById('check-weakBlow')?.checked) {
+            defenseReduction += 200;
+        }
+        if (document.getElementById('check-comradePhys')?.checked) {
+            attackBonus += 550;
+        }
+        if (document.getElementById('check-lightningSlash')?.checked) {
+            defenseReduction += 1000;
+        }
+        
+        // Universal magical buffs (defense reductions)
+        if (document.getElementById('check-swiftSpear')?.checked) {
+            defenseReduction += 600;
+        }
+        if (document.getElementById('check-blaze')?.checked) {
+            defenseReduction += 250;
+        }
+        if (document.getElementById('check-flameFusion')?.checked) {
+            defenseReduction += 700;
+        }
+        if (document.getElementById('check-windCutDown')?.checked) {
+            defenseReduction += 350;
+        }
+        
+        // Gladiator buffs
+        if (selectedClass === 'gladiator') {
+            if (document.getElementById('check-atkPos')?.checked) {
+                attackBonus += 1800;
+                critBonus += 1200;
+            }
+            if (document.getElementById('check-defPrep')?.checked) {
+                pvpAttackBonus -= 600;
+            }
+            if (document.getElementById('check-combPrep')?.checked) {
+                attackBonus += 800;
+                if (currentMode === 'pvp') {
+                    pvpAttackBonus += 800;
+                }
+            }
+        }
+        
+        // Templar buffs
+        if (selectedClass === 'templar') {
+            if (document.getElementById('check-divFury')?.checked) {
+                attackBonus += 550;
+            }
+            if (document.getElementById('check-empFury')?.checked) {
+                attackBonus += 900;
+                critBonus += 1000;
+            }
+            if (document.getElementById('check-menanPos')?.checked) {
+                attackBonus -= 1000;
+                if (currentMode === 'pve') {
+                    pveAttackBonus += 1500;
+                }
+            }
+        }
+        
+        // Assassin buffs
+        if (selectedClass === 'assassin') {
+            if (document.getElementById('check-deadlyFocus')?.checked) {
+                attackBonus += 2000;
+            }
+            if (document.getElementById('check-deadlyAbandon')?.checked) {
+                attackBonus += 350;
+            }
+            if (document.getElementById('check-flurry')?.checked) {
+                critBonus += 1500;
+            }
+        }
+        
+        // Ranger buffs
+        if (selectedClass === 'ranger') {
+            if (document.getElementById('check-bowBlessing')?.checked) {
+                attackBonus += 480;
+                critBonus += 1200;
+            }
+            if (document.getElementById('check-strengtheningEye')?.checked) {
+                attackBonus += 200;
+            }
+            if (document.getElementById('check-mauGlory')?.checked) {
+                attackBonus += 4000;
+                critBonus += 4000;
+            }
+            if (document.getElementById('check-mauHonour')?.checked) {
+                attackBonus += 800;
+            }
+            if (document.getElementById('check-sharpenArrows')?.checked) {
+                attackBonus += 500;
+                critBonus += 650;
+                if (currentMode === 'pve') {
+                    pveAttackBonus += 650;
+                }
+            }
+        }
+        
+        // Sorcerer buffs
+        if (selectedClass === 'sorcerer') {
+            if (document.getElementById('check-vaizlGift')?.checked) {
+                const vaizlGiftLevel = parseInt(document.getElementById('vaizlGiftLevel')?.value || 0);
+                const vaizlGiftBonus = 500 + (vaizlGiftLevel * 10);
+                if (currentMode === 'pve') {
+                    pveAttackBonus += vaizlGiftBonus;
+                }
+            }
+            if (document.getElementById('check-arcaneCombustion')?.checked) {
+                attackBonus += 700;
+            }
+            if (document.getElementById('check-arcaneGrowth')?.checked) {
+                attackBonus += 1500;
+                critBonus += 1500;
+            }
+        }
+        
+        // Shared buffs: Devotion (Assassin & Ranger)
+        if ((selectedClass === 'assassin' || selectedClass === 'ranger') && document.getElementById('check-devotion')?.checked) {
+            const devotionLevel = parseInt(document.getElementById('devotionLevel')?.value || 0);
+            const devotionBonus = 450 + (devotionLevel * 10);
+            attackBonus += devotionBonus;
+        }
+        
+        return { attackBonus, critBonus, defenseReduction, pvpDefenseBonus, pvpAttackBonus, pveAttackBonus };
     }
 
     // Duration-based statistics calculation
@@ -1053,12 +1572,16 @@
         const extremeItems = parseInt(document.getElementById('extremeItems').value) || 0;
         const totalStones = 51 - (extremeItems * 2);
         
-        // Parse attack stats: base attack + mode-specific bonus
+        // Parse attack stats: base attack + mode-specific bonus + static buffs
         const baseAtkInput = parseExpression(document.getElementById('attack').value);
         const atkBonusInput = parseExpression(document.getElementById('attackBonus').value);
-        const totalAtk = baseAtkInput + atkBonusInput;
+        const { attackBonus, critBonus, defenseReduction, pvpDefenseBonus, pvpAttackBonus, pveAttackBonus} = getStaticBuffs();
+        // Only add mode-appropriate attack bonuses
+        const modeAttackBonus = (currentMode === 'pvp') ? pvpAttackBonus : pveAttackBonus;
+        const totalAtk = baseAtkInput + atkBonusInput + attackBonus + modeAttackBonus;
         
-        const totalCrit = parseExpression(document.getElementById('crit').value);
+        const baseCritInput = parseExpression(document.getElementById('crit').value);
+        const totalCrit = baseCritInput + critBonus;
         const currentAtkStones = Math.max(0, Math.min(totalStones, parseInt(document.getElementById('currentAtkStones').value) || 0));
         const critDmgStat = parseExpression(document.getElementById('critDmgStat').value);
         
@@ -1066,10 +1589,10 @@
         const baseDef = parseExpression(document.getElementById('defense').value);
         const pvpDefInput = parseExpression(document.getElementById('pvpDefense').value);
         
-        // Calculate total defense based on mode
-        let defense = baseDef;
+        // Calculate total defense based on mode (subtract defense reduction debuffs)
+        let defense = baseDef - defenseReduction;
         if (currentMode === 'pvp') {
-            defense = baseDef + pvpDefInput;
+            defense = baseDef + pvpDefInput + pvpDefenseBonus - defenseReduction;
         }
         
         const fortitude = (currentMode === 'pvp') ? parseExpression(document.getElementById('fortitude').value) : 0;
@@ -1293,6 +1816,7 @@
             skillCooldown: document.getElementById('skillCooldown').value,
             fortitude: document.getElementById('fortitude')?.value || 0,
             cubeValue: document.getElementById('cubeValue').value,
+            devotionLevel: document.getElementById('devotionLevel')?.value || '20',
             buffs: {
                 shards: document.getElementById('check-shards')?.checked,
                 movingForward: document.getElementById('check-movingForward')?.checked,
@@ -1300,6 +1824,9 @@
                 windHarmony: document.getElementById('check-windHarmony')?.checked,
                 glad8: document.getElementById('check-glad8')?.checked,
                 chant3: document.getElementById('check-chant3')?.checked,
+                weakBlow: document.getElementById('check-weakBlow')?.checked,
+                comradePhys: document.getElementById('check-comradePhys')?.checked,
+                lightningSlash: document.getElementById('check-lightningSlash')?.checked,
                 weda17: document.getElementById('check-weda17')?.checked,
                 templar10: document.getElementById('check-templar10')?.checked,
                 boonFlame: document.getElementById('check-boonFlame')?.checked,
@@ -1307,7 +1834,31 @@
                 giftMagic: document.getElementById('check-giftMagic')?.checked,
                 focusedShots: document.getElementById('check-focusedShots')?.checked,
                 mist: document.getElementById('check-mist')?.checked,
-                eye: document.getElementById('check-eye')?.checked
+                eye: document.getElementById('check-eye')?.checked,
+                atkPos: document.getElementById('check-atkPos')?.checked,
+                defPrep: document.getElementById('check-defPrep')?.checked,
+                combPrep: document.getElementById('check-combPrep')?.checked,
+                divFury: document.getElementById('check-divFury')?.checked,
+                empFury: document.getElementById('check-empFury')?.checked,
+                menanPos: document.getElementById('check-menanPos')?.checked,
+                deadlyFocus: document.getElementById('check-deadlyFocus')?.checked,
+                devotion: document.getElementById('check-devotion')?.checked,
+                deadlyAbandon: document.getElementById('check-deadlyAbandon')?.checked,
+                flurry: document.getElementById('check-flurry')?.checked,
+                bowBlessing: document.getElementById('check-bowBlessing')?.checked,
+                strengtheningEye: document.getElementById('check-strengtheningEye')?.checked,
+                mauGlory: document.getElementById('check-mauGlory')?.checked,
+                mauHonour: document.getElementById('check-mauHonour')?.checked,
+                sharpenArrows: document.getElementById('check-sharpenArrows')?.checked,
+                swiftSpear: document.getElementById('check-swiftSpear')?.checked,
+                blaze: document.getElementById('check-blaze')?.checked,
+                vaizlGift: document.getElementById('check-vaizlGift')?.checked,
+                flameFusion: document.getElementById('check-flameFusion')?.checked,
+                windCutDown: document.getElementById('check-windCutDown')?.checked,
+                arcaneCombustion: document.getElementById('check-arcaneCombustion')?.checked,
+                arcaneGrowth: document.getElementById('check-arcaneGrowth')?.checked,
+                devotionLevel: document.getElementById('devotionLevel')?.value || '0',
+                vaizlGiftLevel: document.getElementById('vaizlGiftLevel')?.value || '20'
             }
         };
         localStorage.setItem('manastoneSession', JSON.stringify(session));
@@ -1363,8 +1914,25 @@
             
             // Restore buffs after grid is initialized and recalculate
             setTimeout(() => {
+                updateBuffVisibility(); // Regenerate class-specific buffs before restoring
                 if (session.buffs) {
+                    // Restore devotion level first if it exists (handle '0' as valid value)
+                    if (session.buffs.devotionLevel !== undefined && session.buffs.devotionLevel !== null) {
+                        const devotionSelect = document.getElementById('devotionLevel');
+                        if (devotionSelect) {
+                            devotionSelect.value = session.buffs.devotionLevel;
+                        }
+                    }
+                    // Restore Vaizel Gift level
+                    if (session.buffs.vaizlGiftLevel !== undefined && session.buffs.vaizlGiftLevel !== null) {
+                        const vaizlGiftSelect = document.getElementById('vaizlGiftLevel');
+                        if (vaizlGiftSelect) {
+                            vaizlGiftSelect.value = session.buffs.vaizlGiftLevel;
+                        }
+                    }
+                    
                     Object.keys(session.buffs).forEach(key => {
+                        if (key === 'devotionLevel' || key === 'vaizlGiftLevel') return; // Skip non-checkbox properties
                         const checkbox = document.getElementById(`check-${key}`);
                         const buffItem = document.getElementById(`buff-${key}`);
                         if (checkbox) {
@@ -1375,6 +1943,17 @@
                         }
                     });
                     toggleCubes(); // Update cube visual state
+                    updateDevotionValue(); // Update Devotion display value
+                    updateVaizlGiftValue(); // Update Vaizel Gift display value
+                    // Trigger mutual exclusivity functions after restoring
+                    if ((selectedClass === 'ranger') && (session.buffs.mauGlory || session.buffs.mauHonour)) {
+                        if (session.buffs.mauGlory) toggleMauBuffs('glory');
+                        else if (session.buffs.mauHonour) toggleMauBuffs('honour');
+                    }
+                    if ((selectedClass === 'sorcerer') && (session.buffs.arcaneCombustion || session.buffs.arcaneGrowth)) {
+                        if (session.buffs.arcaneCombustion) toggleArcaneBuffs('combustion');
+                        else if (session.buffs.arcaneGrowth) toggleArcaneBuffs('growth');
+                    }
                 }
                 calculate(); // Recalculate after buffs are restored
             }, 100);
@@ -1393,7 +1972,10 @@
         
         // Save on checkbox change
         document.querySelectorAll('.buff-checkbox').forEach(cb => {
-            cb.addEventListener('change', saveSession);
+            cb.addEventListener('change', () => {
+                saveSession();
+                calculate();
+            });
         });
     });
 
@@ -1403,6 +1985,7 @@
     initClassGrid();
     updateWeaponGrid();
     updateBuffVisibility();
+    updateMaxManastones();
     calculate();
 </script>
 
