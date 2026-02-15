@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f0f12">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <title id="page-title">AION 8.x - Enchanting Simulator</title>
+    <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
+    <link rel="stylesheet" href="assets/css/aion-tools.css">
+</head>
+<body class="page-calculator">
+    <a href="aion.html" class="home-button">🏠 Tools Hub</a>
+
+    <div class="container">
+        <h1>AION Enchanting Simulator</h1>
+        <div class="subtitle">Single-run simulator for Ultimate and Extreme gear enchanting</div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs-container">
+            <button class="tab-btn" onclick="switchTab('ultimate')">🗡️ Ultimate Gear</button>
+            <button class="tab-btn" onclick="switchTab('extreme')">⚔️ Extreme Gear</button>
+            <button class="tab-btn" onclick="switchTab('rune')">💎 Rune/Odian</button>
+        </div>
+
+        <!-- EXTREME GEAR TAB -->
+        <div id="extreme" class="tab-content active">
+            <div class="simulator-panel">
+                <div class="simulator-info">
+                    📊 <strong>Extreme Gear Enchanting</strong><br>
+                    Simulate a single enchantment attempt from start to end level. Results show total stones, items used, and items destroyed.
+                </div>
+
+                <div class="items-display">
+                    <div class="items-grid">
+                        <div class="item-card">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_infinite_n_01.png" alt="Ultimate Extreme Enchantment Stone">
+                            <span>Ultimate Extreme Enchantment Stone</span>
+                        </div>
+                        <div class="item-card">
+                            <img src="https://aioncodex.com/items/icon_item_equip_pl_torso_f01.png" alt="Extreme Armor">
+                            <span>Extreme Gear</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label for="extreme-start">📍 Start Level</label>
+                        <select id="extreme-start" onchange="updateExtremeEnd()">
+                            <option value="5" selected>Level 5</option>
+                            <option value="6">Level 6</option>
+                            <option value="7">Level 7</option>
+                            <option value="8">Level 8</option>
+                            <option value="9">Level 9</option>
+                            <option value="10">Level 10</option>
+                            <option value="11">Level 11</option>
+                            <option value="12">Level 12</option>
+                            <option value="13">Level 13</option>
+                            <option value="14">Level 14</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="extreme-end">🎯 End Level</label>
+                        <select id="extreme-end" id="extreme-end">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="sim-button" onclick="runExtremeSimulation()">▶️ Run Simulation</button>
+                    <button class="clear-button" onclick="clearExtremeOutput()">Clear Output</button>
+                </div>
+
+                <div class="output-container" id="extreme-output">
+                    <div class="output-line header">Output will appear here...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RUNE/ODIAN TAB -->
+        <div id="rune" class="tab-content">
+            <div class="simulator-panel">
+                <div class="simulator-info">
+                    💎 <strong>Rune/Odian Enchanting (0-10)</strong><br>
+                    Enchanting with risk of contamination requiring purifiers. After 5 cleans, item is wasted and resets to level 0.
+                </div>
+
+                <div class="items-display">
+                    <div class="items-grid">
+                        <div class="item-card">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_grind_item_01.png" alt="Ancient Polishing Stone">
+                            <span>Ancient Polishing Stone</span>
+                        </div>
+                        <div class="item-card">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_purifier_01.png" alt="Ancient Purifier">
+                            <span>Ancient Purifier</span>
+                        </div>
+                        <div class="item-card">
+                            <img src="https://aioncodex.com/items/icon_item_equip_rune_att_01.png" alt="Attack Rune">
+                            <span>Attack Rune</span>
+                        </div>
+                        <div class="item-card">
+                            <img src="https://aioncodex.com/items/icon_item_equip_rune_def_01.png" alt="Enhancement Rune">
+                            <span>Enhancement Rune</span>
+                        </div>
+                        <div class="item-card">
+                            <img src="https://aioncodex.com/items/icon_item_equip_rune_alw_01.png" alt="Support Rune">
+                            <span>Support Rune</span>
+                        </div>
+                        <div class="item-card odian-item">
+                            <div class="odian-frame">
+                                <img src="https://aioncodex.com/items/icon_item_equip_odian_red_03.png" alt="Carmine Odian">
+                            </div>
+                            <span>Carmine Odian</span>
+                        </div>
+                        <div class="item-card odian-item">
+                            <div class="odian-frame">
+                                <img src="https://aioncodex.com/items/icon_item_equip_odian_blue_03.png" alt="Azure Odian">
+                            </div>
+                            <span>Azure Odian</span>
+                        </div>
+                        <div class="item-card odian-item">
+                            <div class="odian-frame">
+                                <img src="https://aioncodex.com/items/icon_item_equip_odian_green_03.png" alt="Jade Odian">
+                            </div>
+                            <span>Jade Odian</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="sim-button" onclick="runRuneSimulation()">▶️ Run Simulation</button>
+                    <button class="clear-button" onclick="clearRuneOutput()">Clear Output</button>
+                </div>
+
+                <div class="output-container" id="rune-output">
+                    <div class="output-line header">Output will appear here...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ULTIMATE GEAR TAB -->
+        <div id="ultimate" class="tab-content">
+            <div class="simulator-panel">
+                <div class="items-display">
+                    <div class="items-grid">
+                        <div class="item-card stone-button" id="stone-ancient" onclick="selectUltimateStone('ancient')">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" alt="Ancient Enchantment Stone">
+                        </div>
+                        <div class="item-card stone-button" id="stone-legendary" onclick="selectUltimateStone('legendary')">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" alt="Legendary Enchantment Stone">
+                        </div>
+                        <div class="item-card stone-button active" id="stone-ultimate" onclick="selectUltimateStone('ultimate')">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" alt="Ultimate Enchantment Stone">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ultimate-chance-box">
+                    <div class="chance-header">Chance</div>
+                    <div class="level-transition">
+                        <span id="current-level-display">0</span>
+                        <span class="arrow">→</span>
+                        <span id="next-level-display">1</span>
+                    </div>
+                    <div class="chance-percentage">
+                        Enchantment success chance: <span id="success-chance-display">100</span>%
+                    </div>
+                    <div class="critical-info">
+                        Critical probability for +2: 10%
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="sim-button" onclick="runUltimateEnchant()">Enchant</button>
+                    <button class="clear-button" onclick="resetUltimateGear()">Reset</button>
+                </div>
+
+                <div class="enchant-loading-bar" id="enchant-loading"></div>
+
+                <div class="ultimate-attempts">
+                    Enchantment attempts: <span id="attempt-counter">0</span>
+                </div>
+
+                <div class="output-container" id="ultimate-output">
+                    <div class="output-line header">Select a stone and click Enchant to begin...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-actions">
+                <a href="https://discordapp.com/users/158658357606088704" target="_blank" class="discord-button">
+                    <svg class="discord-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                    </svg>
+                    Support & Feedback
+                </a>
+            </div>
+
+            <div class="copyright">
+                © <span id="copyright-year"></span> <a href="myAionProfiles.html"><strong>15TAN</strong></a> - AION Tools Hub<br>
+                Tools and calculators for AION Retail 8.x
+            </div>
+
+            <div class="disclaimer">
+                This website is a non-commercial fan project. AION and all related images/assets are trademarks or registered trademarks of NCSoft Corporation and Gameforge. All rights reserved.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Extreme Gear Enchanting Data
+        const EXTREME_SUCCESS = [450, 420, 195, 175, 107, 93, 56, 43, 26, 15, 4, 4, 4, 4, 4];
+        const EXTREME_DESTROY = [91, 138, 68, 91, 71, 85, 68, 80, 76, 86, 96, 96, 96, 96, 96];
+        const EXTREME_MIN_LEVEL = 5;
+        const EXTREME_MAX_LEVEL = 15;
+
+        // Rune/Odian Enchanting Data
+        const RUNE_FAIL = [0, 20, 20, 20, 50, 57, 57, 57, 57, 57];
+        const RUNE_CONTAMINATION = [0, 0, 0, 0, 10, 10, 10, 10, 10, 10];
+        const RUNE_MAX_LEVEL = 10;
+        const RUNE_MAX_CLEANS = 5;
+
+        // Ultimate Gear Enchanting Data
+        const ULTIMATE_ANCIENT = [0, 52, 52, 52, 32, 32, 32, 12, 12, 12, 5, 5, 5, 5, 5, 5];
+        const ULTIMATE_LEGENDARY = [0, 100, 100, 100, 82, 82, 82, 62, 62, 62, 42, 42, 42, 42, 42, 42];
+        const ULTIMATE_ULTIMATE = [0, 100, 100, 100, 92, 92, 92, 72, 72, 72, 52, 52, 52, 52, 52, 52];
+        const ULTIMATE_CRITICAL = 10;
+        const ULTIMATE_MAX_LEVEL = 15;
+        let selectedUltimateStone = localStorage.getItem('ultimateStone') || 'ultimate';
+        let currentUltimateLevel = parseInt(localStorage.getItem('ultimateLevel')) || 0;
+        let ultimateAttempts = parseInt(localStorage.getItem('ultimateAttempts')) || 0;
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Mark button as active and save to localStorage
+            event.target.classList.add('active');
+            localStorage.setItem('activeTab', tabName);
+        }
+
+        // Update end level based on start level
+        function updateExtremeEnd() {
+            const startLevel = parseInt(document.getElementById('extreme-start').value);
+            const endSelect = document.getElementById('extreme-end');
+            const currentEnd = parseInt(endSelect.value) || startLevel + 1;
+            
+            // Clear current options
+            endSelect.innerHTML = '';
+
+            // Add options from startLevel + 1 to EXTREME_MAX_LEVEL
+            for (let i = startLevel + 1; i <= EXTREME_MAX_LEVEL; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Level ${i}`;
+                // Select the first option or keep previous selection if valid
+                if (i === startLevel + 1 || i === currentEnd) {
+                    option.selected = true;
+                }
+                endSelect.appendChild(option);
+            }
+        }
+
+        // Run Extreme Gear Simulation
+        function runExtremeSimulation() {
+            const startLevel = parseInt(document.getElementById('extreme-start').value);
+            const endLevel = parseInt(document.getElementById('extreme-end').value);
+
+            const output = document.getElementById('extreme-output');
+            output.innerHTML = '';
+
+            // Run single simulation
+            const result = simulateExtremeEnchanting(startLevel, endLevel);
+
+            // Display summary
+            appendExtremeOutput(`<div class="output-line summary">
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                💎 ENCHANTMENT COMPLETE
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                Target: Level ${endLevel}
+                <br><br>📊 FINAL RESULTS:
+                <br><strong>✓ Total Enchantment Stones Used:</strong> ${result.totalStones}
+                <br><strong>✓ Items Used:</strong> ${result.itemsUsed}
+                <br><strong>✗ Items Destroyed:</strong> ${result.itemsDestroyed}
+                <br><strong>◈ Stones for Last Item:</strong> ${result.lastItemStones}
+                <br>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            </div>`);
+        }
+
+        // Single Extreme Enchanting Simulation (Version 2 logic)
+        function simulateExtremeEnchanting(startLevel, endLevel) {
+            let enchantLevel = startLevel;
+            let itemsWasted = 0;
+            let totalStones = 0;
+            let lastItemStones = 0;
+            let details = [];
+
+            while (enchantLevel < endLevel) {
+                totalStones++;
+                lastItemStones++;
+
+                // Get array index (level 5 = index 0, level 19 = index 14)
+                const levelIndex = enchantLevel - 5;
+
+                // Random number 0-999 (represents 1000 possible outcomes)
+                const random = Math.floor(Math.random() * 1000);
+                const destroyThreshold = EXTREME_DESTROY[levelIndex];
+                const successThreshold = destroyThreshold + EXTREME_SUCCESS[levelIndex];
+
+                const message = `Roll: ${random} `;
+
+                if (random < destroyThreshold) {
+                    // Destroyed
+                    enchantLevel = startLevel;
+                    lastItemStones = 0;
+                    itemsWasted++;
+                    details.push({
+                        type: 'destroy',
+                        message: message + `— Enchantment failed and item destroyed! Items wasted: ${itemsWasted}`
+                    });
+                } else if (random < successThreshold) {
+                    // Success
+                    enchantLevel++;
+                    details.push({
+                        type: 'success',
+                        message: message + `— Success! Enchantment level: ${enchantLevel}`
+                    });
+                } else {
+                    // Failed (no change)
+                    details.push({
+                        type: 'fail',
+                        message: message + `— Failed. Enchantment level: ${enchantLevel}`
+                    });
+                }
+            }
+
+            return {
+                totalStones: totalStones,
+                itemsWasted: itemsWasted,
+                itemsDestroyed: itemsWasted,
+                itemsUsed: 1 + itemsWasted,
+                lastItemStones: lastItemStones,
+                details: details
+            };
+        }
+
+        // Append to output container
+        function appendExtremeOutput(html) {
+            const output = document.getElementById('extreme-output');
+            const line = document.createElement('div');
+            line.innerHTML = html;
+            output.appendChild(line);
+        }
+
+        // Clear output
+        function clearExtremeOutput() {
+            const output = document.getElementById('extreme-output');
+            output.innerHTML = '<div class="output-line header">Output cleared. Run a simulation to see results.</div>';
+        }
+
+        // Run Rune/Odian Simulation
+        function runRuneSimulation() {
+            const output = document.getElementById('rune-output');
+            output.innerHTML = '';
+
+            // Run single simulation
+            const result = simulateRuneEnchanting();
+
+            // Display summary
+            appendRuneOutput(`<div class="output-line summary">
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                💎 ENCHANTMENT COMPLETE
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                Target: Level 10
+                <br><br>📊 FINAL RESULTS:
+                <br><strong>✓ Total Polishing Stones Used:</strong> ${result.totalPolishings}
+                <br><strong>✓ Polishings for Last Item:</strong> ${result.lastItemPolishings}
+                <br><strong>✗ Items Wasted:</strong> ${result.itemsWasted}
+                <br><br>🧹 CONTAMINATION DETAILS:
+                <br><strong>Total Cleans:</strong> ${result.totalCleans}
+                <br><strong>Total Purifiers Used:</strong> ${result.totalPurifiers}
+                <br><strong>Purifiers for Current Item:</strong> ${result.currentItemPurifiers}
+                <br>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            </div>`);
+        }
+
+        // Single Rune/Odian Enchanting Simulation
+        function simulateRuneEnchanting() {
+            let enchantLevel = 0;
+            let polishings = 0;
+            let lastItemPolishings = 0;
+            let cleans = 0;
+            let itemsWasted = 0;
+            let totalCleans = 0;
+            let totalPurifiers = 0;
+            let currentItemPurifiers = 0;
+
+            while (enchantLevel < RUNE_MAX_LEVEL) {
+                polishings++;
+                lastItemPolishings++;
+
+                // Random number 0-99 (represents 100 possible outcomes)
+                const random = Math.floor(Math.random() * 100);
+                const contaminationThreshold = RUNE_CONTAMINATION[enchantLevel];
+                const failThreshold = RUNE_FAIL[enchantLevel];
+
+                if (random <= contaminationThreshold && contaminationThreshold > 0) {
+                    // Contamination
+                    cleans++;
+                    totalCleans++;
+                    const purifiersUsed = cleans * enchantLevel;
+                    totalPurifiers += purifiersUsed;
+                    currentItemPurifiers += purifiersUsed;
+
+                    if (cleans === RUNE_MAX_CLEANS) {
+                        // Item wasted
+                        enchantLevel = 0;
+                        cleans = 0;
+                        itemsWasted++;
+                        currentItemPurifiers = 0;
+                        lastItemPolishings = 0;
+                    }
+                } else if((random > contaminationThreshold) && (random < failThreshold) && (failThreshold > 0)) {
+                    // Failed (level decreases)
+                    enchantLevel--;
+                } else {
+                    // Success (level increases)
+                    enchantLevel++;
+                }
+            }
+
+            return {
+                totalPolishings: polishings,
+                lastItemPolishings: lastItemPolishings,
+                itemsWasted: itemsWasted,
+                totalCleans: totalCleans,
+                totalPurifiers: totalPurifiers,
+                currentItemPurifiers: currentItemPurifiers
+            };
+        }
+
+        // Append to output container
+        function appendRuneOutput(html) {
+            const output = document.getElementById('rune-output');
+            const line = document.createElement('div');
+            line.innerHTML = html;
+            output.appendChild(line);
+        }
+
+        // Clear output
+        function clearRuneOutput() {
+            const output = document.getElementById('rune-output');
+            output.innerHTML = '<div class="output-line header">Output cleared. Run a simulation to see results.</div>';
+        }
+
+        // Run Ultimate Gear Enchantment
+        function runUltimateEnchant() {
+            const targetLevel = currentUltimateLevel + 1;
+            
+            if (currentUltimateLevel >= ULTIMATE_MAX_LEVEL) {
+                alert('Maximum level reached!');
+                return;
+            }
+
+            // Get button and loading bar
+            const enchantBtn = document.querySelector('button[onclick="runUltimateEnchant()"]');
+            const loadingBar = document.getElementById('enchant-loading');
+            
+            // Disable button and show loading animation
+            enchantBtn.disabled = true;
+            loadingBar.classList.add('active');
+
+            // Perform enchantment after animation completes
+            setTimeout(() => {
+                ultimateAttempts++;
+                
+                // Run enchantment for next level
+                const result = performUltimateEnchant(currentUltimateLevel, targetLevel, selectedUltimateStone);
+                
+                // Update current level
+                currentUltimateLevel = result.newLevel;
+                
+                // Save state to localStorage
+                localStorage.setItem('ultimateLevel', currentUltimateLevel);
+                localStorage.setItem('ultimateAttempts', ultimateAttempts);
+
+                // Update UI
+                document.getElementById('attempt-counter').textContent = ultimateAttempts;
+                updateUltimateChanceDisplay();
+
+                // Remove loading animation
+                loadingBar.classList.remove('active');
+
+                // Disable button if max level reached
+                if (currentUltimateLevel >= ULTIMATE_MAX_LEVEL) {
+                    enchantBtn.disabled = true;
+                } else {
+                    enchantBtn.disabled = false;
+                }
+
+                // Display result
+                if (result.outcome.includes('Success')) {
+                    appendUltimateOutput(`<div class="output-line success">✓ ${result.outcome}</div>`);
+                } else if (result.outcome.includes('CRITICAL')) {
+                    appendUltimateOutput(`<div class="output-line success">⭐ ${result.outcome}</div>`);
+                } else {
+                    appendUltimateOutput(`<div class="output-line fail">✗ ${result.outcome}</div>`);
+                }
+            }, 250);
+        }
+
+        // Select Ultimate Stone
+        function selectUltimateStone(stoneType) {
+            selectedUltimateStone = stoneType;
+            localStorage.setItem('ultimateStone', stoneType);
+
+            // Update active button styling
+            document.querySelectorAll('.stone-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('stone-' + stoneType).classList.add('active');
+            
+            // Update chance display
+            updateUltimateChanceDisplay();
+        }
+
+        // Update chance display
+        function updateUltimateChanceDisplay() {
+            const levelTransitionElement = document.querySelector('.level-transition');
+            
+            if (currentUltimateLevel >= ULTIMATE_MAX_LEVEL) {
+                // Show only current level at max
+                levelTransitionElement.innerHTML = `<span id="current-level-display">${currentUltimateLevel}</span>`;
+                document.getElementById('success-chance-display').textContent = '0';
+                return;
+            }
+            
+            const nextLevel = currentUltimateLevel + 1;
+            let successRates;
+
+            if (selectedUltimateStone === 'ancient') {
+                successRates = ULTIMATE_ANCIENT;
+            } else if (selectedUltimateStone === 'legendary') {
+                successRates = ULTIMATE_LEGENDARY;
+            } else {
+                successRates = ULTIMATE_ULTIMATE;
+            }
+
+            const chance = nextLevel <= ULTIMATE_MAX_LEVEL ? successRates[nextLevel] : 0;
+            levelTransitionElement.innerHTML = `<span id="current-level-display">${currentUltimateLevel}</span><span class="arrow">→</span><span id="next-level-display">${nextLevel}</span>`;
+            document.getElementById('success-chance-display').textContent = chance;
+        }
+
+        // Perform single Ultimate Enchantment
+        function performUltimateEnchant(currentLevel, targetLevel, stoneType) {
+            let successRates;
+
+            if (stoneType === 'ancient') {
+                successRates = ULTIMATE_ANCIENT;
+            } else if (stoneType === 'legendary') {
+                successRates = ULTIMATE_LEGENDARY;
+            } else {
+                successRates = ULTIMATE_ULTIMATE;
+            }
+
+            const successRate = successRates[targetLevel];
+            const random = Math.floor(Math.random() * 100);
+            const criticalRoll = Math.floor(Math.random() * 100);
+            const isCritical = criticalRoll < ULTIMATE_CRITICAL;
+
+            let newLevel = currentLevel;
+            let outcome = '';
+
+            if (random < successRate) {
+                // Success
+                if (isCritical) {
+                    newLevel = Math.min(targetLevel + 1, ULTIMATE_MAX_LEVEL);
+                    outcome = `CRITICAL SUCCESS! Level +${currentLevel} → +${newLevel}`;
+                } else {
+                    newLevel = targetLevel;
+                    outcome = `Success! Level +${currentLevel} → +${newLevel}`;
+                }
+            } else {
+                // Failure
+                if (stoneType === 'ultimate') {
+                    // Ultimate stone: nothing happens
+                    newLevel = currentLevel;
+                    outcome = `Failed - No penalty (Ultimate Stone)`;
+                } else {
+                    // Ancient/Legendary: -1 if below 10, reset to 10 if at/above 10
+                    if (currentLevel >= 10) {
+                        newLevel = 10;
+                        outcome = `Failed - Reset to +10 (Safe zone)`;
+                    } else {
+                        newLevel = currentLevel - 1;
+                        outcome = `Failed - Level +${currentLevel} → +${newLevel}`;
+                    }
+                }
+            }
+
+            return {
+                currentLevel: currentLevel,
+                newLevel: newLevel,
+                successRate: successRate,
+                outcome: outcome
+            };
+        }
+
+        // Display latest Ultimate output only
+        function appendUltimateOutput(html) {
+            const output = document.getElementById('ultimate-output');
+            output.innerHTML = html;
+        }
+
+        // Reset Ultimate Gear
+        function resetUltimateGear() {
+            currentUltimateLevel = 0;
+            ultimateAttempts = 0;
+            
+            // Clear localStorage
+            localStorage.removeItem('ultimateLevel');
+            localStorage.removeItem('ultimateAttempts');
+            
+            document.getElementById('attempt-counter').textContent = 0;
+            document.querySelector('.level-transition').innerHTML = `<span id="current-level-display">0</span><span class="arrow">→</span><span id="next-level-display">1</span>`;
+            document.getElementById('ultimate-output').innerHTML = '<div class="output-line header">Gear reset to level 0. Ready for new attempt!</div>';
+            document.getElementById('enchant-loading').classList.remove('active');
+            
+            // Re-enable enchant button
+            const enchantBtn = document.querySelector('button[onclick="runUltimateEnchant()"]');
+            enchantBtn.disabled = false;
+            
+            updateUltimateChanceDisplay();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('copyright-year').textContent = new Date().getFullYear();
+            updateExtremeEnd();
+            
+            // Restore last active tab
+            const savedTab = localStorage.getItem('activeTab') || 'extreme';
+            const tabBtn = document.querySelector(`button[onclick="switchTab('${savedTab}')"]`);
+            if (tabBtn) {
+                // Hide all tabs first
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                // Show saved tab
+                document.getElementById(savedTab).classList.add('active');
+                tabBtn.classList.add('active');
+            }
+            
+            // Restore Ultimate Gear UI from localStorage
+            restoreUltimateGearState();
+        });
+
+        // Restore Ultimate Gear session state
+        function restoreUltimateGearState() {
+            // Update attempt counter
+            document.getElementById('attempt-counter').textContent = ultimateAttempts;
+            
+            // Update stone selection UI
+            document.querySelectorAll('.stone-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('stone-' + selectedUltimateStone).classList.add('active');
+            
+            // Update level display and chance
+            updateUltimateChanceDisplay();
+            
+            // Disable button if at max level
+            if (currentUltimateLevel >= ULTIMATE_MAX_LEVEL) {
+                document.querySelector('button[onclick="runUltimateEnchant()"]').disabled = true;
+            }
+        }
+    </script>
+</body>
+</html>
