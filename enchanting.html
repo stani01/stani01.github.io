@@ -205,8 +205,21 @@
 
                 <div class="enchant-loading-bar" id="enchant-loading"></div>
 
-                <div class="ultimate-attempts">
-                    Enchantment attempts: <span id="attempt-counter">0</span>
+                <div class="ultimate-gear-attempts">
+                    <div style="display: flex; gap: 20px; align-items: center; margin-top: 10px;">Stones Used:
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" alt="Ancient" style="width: 24px; height: 24px;">
+                            <span id="ancient-counter">0</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" alt="Legendary" style="width: 24px; height: 24px;">
+                            <span id="legendary-counter">0</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" alt="Ultimate" style="width: 24px; height: 24px;">
+                            <span id="ultimate-counter">0</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="output-container" id="ultimate-output">
@@ -256,7 +269,9 @@
         const ULTIMATE_MAX_LEVEL = 15;
         let selectedUltimateStone = localStorage.getItem('ultimateStone') || 'ultimate';
         let currentUltimateLevel = parseInt(localStorage.getItem('ultimateLevel')) || 0;
-        let ultimateAttempts = parseInt(localStorage.getItem('ultimateAttempts')) || 0;
+        let ultimateAncientUsed = parseInt(localStorage.getItem('ultimateAncientUsed')) || 0;
+        let ultimateLegendaryUsed = parseInt(localStorage.getItem('ultimateLegendaryUsed')) || 0;
+        let ultimateUltimateUsed = parseInt(localStorage.getItem('ultimateUltimateUsed')) || 0;
 
         // Tab switching
         function switchTab(tabName) {
@@ -596,7 +611,17 @@
 
             // Perform enchantment after animation completes
             setTimeout(() => {
-                ultimateAttempts++;
+                // Increment the counter for the selected stone
+                if (selectedUltimateStone === 'ancient') {
+                    ultimateAncientUsed++;
+                    localStorage.setItem('ultimateAncientUsed', ultimateAncientUsed);
+                } else if (selectedUltimateStone === 'legendary') {
+                    ultimateLegendaryUsed++;
+                    localStorage.setItem('ultimateLegendaryUsed', ultimateLegendaryUsed);
+                } else {
+                    ultimateUltimateUsed++;
+                    localStorage.setItem('ultimateUltimateUsed', ultimateUltimateUsed);
+                }
                 
                 // Run enchantment for next level
                 const result = performUltimateEnchant(currentUltimateLevel, targetLevel, selectedUltimateStone);
@@ -606,10 +631,11 @@
                 
                 // Save state to localStorage
                 localStorage.setItem('ultimateLevel', currentUltimateLevel);
-                localStorage.setItem('ultimateAttempts', ultimateAttempts);
 
                 // Update UI
-                document.getElementById('attempt-counter').textContent = ultimateAttempts;
+                document.getElementById('ancient-counter').textContent = ultimateAncientUsed;
+                document.getElementById('legendary-counter').textContent = ultimateLegendaryUsed;
+                document.getElementById('ultimate-counter').textContent = ultimateUltimateUsed;
                 updateUltimateChanceDisplay();
 
                 // Remove loading animation
@@ -739,13 +765,19 @@
         // Reset Ultimate Gear
         function resetUltimateGear() {
             currentUltimateLevel = 0;
-            ultimateAttempts = 0;
+            ultimateAncientUsed = 0;
+            ultimateLegendaryUsed = 0;
+            ultimateUltimateUsed = 0;
             
             // Clear localStorage
             localStorage.removeItem('ultimateLevel');
-            localStorage.removeItem('ultimateAttempts');
+            localStorage.removeItem('ultimateAncientUsed');
+            localStorage.removeItem('ultimateLegendaryUsed');
+            localStorage.removeItem('ultimateUltimateUsed');
             
-            document.getElementById('attempt-counter').textContent = 0;
+            document.getElementById('ancient-counter').textContent = 0;
+            document.getElementById('legendary-counter').textContent = 0;
+            document.getElementById('ultimate-counter').textContent = 0;
             document.querySelector('.level-transition').innerHTML = `<span id="current-level-display">0</span><span class="arrow">→</span><span id="next-level-display">1</span>`;
             document.getElementById('ultimate-output').innerHTML = '<div class="output-line header">Gear reset to level 0. Ready for new attempt!</div>';
             document.getElementById('enchant-loading').classList.remove('active');
@@ -800,8 +832,10 @@
 
         // Restore Ultimate Gear session state
         function restoreUltimateGearState() {
-            // Update attempt counter
-            document.getElementById('attempt-counter').textContent = ultimateAttempts;
+            // Update stone counters
+            document.getElementById('ancient-counter').textContent = ultimateAncientUsed;
+            document.getElementById('legendary-counter').textContent = ultimateLegendaryUsed;
+            document.getElementById('ultimate-counter').textContent = ultimateUltimateUsed;
             
             // Update stone selection UI
             document.querySelectorAll('.stone-button').forEach(btn => {

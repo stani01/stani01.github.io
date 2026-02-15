@@ -2321,15 +2321,14 @@ flex: 1;
 }
 
 /* Ultimate Attempts Counter */
-.ultimate-attempts {
-    text-align: center;
+.ultimate-gear-attempts {
     font-size: 0.95em;
     color: var(--text-muted);
     margin: 15px 0;
     font-family: 'Courier New', monospace;
 }
 
-.ultimate-attempts span {
+.ultimate-gear-attempts span {
     color: var(--accent-purple);
     font-weight: bold;
     font-size: 1.1em;
