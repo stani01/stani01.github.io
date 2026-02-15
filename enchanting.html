@@ -72,7 +72,7 @@
 
                     <div class="setting-group">
                         <label for="extreme-end">🎯 End Level</label>
-                        <select id="extreme-end" id="extreme-end">
+                        <select id="extreme-end" onchange="saveExtremeEnd()">
                             <!-- Populated dynamically -->
                         </select>
                     </div>
@@ -238,6 +238,8 @@
         // Update end level based on start level
         function updateExtremeEnd() {
             const startLevel = parseInt(document.getElementById('extreme-start').value);
+            // persist start level selection
+            try { localStorage.setItem('extremeStart', startLevel); } catch(e){}
             const endSelect = document.getElementById('extreme-end');
             const currentEnd = parseInt(endSelect.value) || startLevel + 1;
             
@@ -255,6 +257,20 @@
                 }
                 endSelect.appendChild(option);
             }
+            // If we have a saved end level, try to restore it
+            try {
+                const savedEnd = parseInt(localStorage.getItem('extremeEnd'));
+                if (savedEnd && savedEnd > startLevel && savedEnd <= EXTREME_MAX_LEVEL) {
+                    endSelect.value = savedEnd;
+                }
+            } catch(e) {}
+        }
+
+        // Save extreme end selection when user changes it
+        function saveExtremeEnd() {
+            const endSelect = document.getElementById('extreme-end');
+            if (!endSelect) return;
+            try { localStorage.setItem('extremeEnd', endSelect.value); } catch(e){}
         }
 
         // Run Extreme Gear Simulation
@@ -268,18 +284,18 @@
             // Run single simulation
             const result = simulateExtremeEnchanting(startLevel, endLevel);
 
+            // persist last-used start/end
+            try { localStorage.setItem('extremeStart', startLevel); localStorage.setItem('extremeEnd', endLevel); } catch(e){}
+
             // Display summary
             appendExtremeOutput(`<div class="output-line summary">
-                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                💎 ENCHANTMENT COMPLETE
-                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                Target: Level ${endLevel}
+                ENCHANTMENT COMPLETE<br>
+                <br>Target: Level ${endLevel}
                 <br><br>📊 FINAL RESULTS:
                 <br><strong>✓ Total Enchantment Stones Used:</strong> ${result.totalStones}
                 <br><strong>✓ Items Used:</strong> ${result.itemsUsed}
                 <br><strong>✗ Items Destroyed:</strong> ${result.itemsDestroyed}
                 <br><strong>◈ Stones for Last Item:</strong> ${result.lastItemStones}
-                <br>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             </div>`);
         }
 
@@ -295,37 +311,36 @@
                 totalStones++;
                 lastItemStones++;
 
-                // Get array index (level 5 = index 0, level 19 = index 14)
                 const levelIndex = enchantLevel - 5;
-
-                // Random number 0-999 (represents 1000 possible outcomes)
                 const random = Math.floor(Math.random() * 1000);
-                const destroyThreshold = EXTREME_DESTROY[levelIndex];
-                const successThreshold = destroyThreshold + EXTREME_SUCCESS[levelIndex];
+                
+                const successChance = EXTREME_SUCCESS[levelIndex];
+                const destroyChance = EXTREME_DESTROY[levelIndex];
 
-                const message = `Roll: ${random} `;
-
-                if (random < destroyThreshold) {
-                    // Destroyed
+                // 1. Check for Success first
+                if (random < successChance) {
+                    enchantLevel++;
+                    details.push({
+                        type: 'success',
+                        message: `Roll: ${random} — Success! Level: ${enchantLevel}`
+                    });
+                } 
+                // 2. If not success, check if it falls within the Destroy range
+                // We check if the roll is between the Success threshold and the Destroy threshold
+                else if (random < (successChance + destroyChance)) {
                     enchantLevel = startLevel;
                     lastItemStones = 0;
                     itemsWasted++;
                     details.push({
                         type: 'destroy',
-                        message: message + `— Enchantment failed and item destroyed! Items wasted: ${itemsWasted}`
+                        message: `Roll: ${random} — CRITICAL FAILURE: Item Destroyed! Total wasted: ${itemsWasted}`
                     });
-                } else if (random < successThreshold) {
-                    // Success
-                    enchantLevel++;
-                    details.push({
-                        type: 'success',
-                        message: message + `— Success! Enchantment level: ${enchantLevel}`
-                    });
-                } else {
-                    // Failed (no change)
+                } 
+                // 3. If it's outside both ranges, it's a simple fail (Stone lost, no level change)
+                else {
                     details.push({
                         type: 'fail',
-                        message: message + `— Failed. Enchantment level: ${enchantLevel}`
+                        message: `Roll: ${random} — Failed. No change. Level: ${enchantLevel}`
                     });
                 }
             }
@@ -364,10 +379,8 @@
 
             // Display summary
             appendRuneOutput(`<div class="output-line summary">
-                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                💎 ENCHANTMENT COMPLETE
-                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                Target: Level 10
+                ENCHANTMENT COMPLETE
+                <br><br>Target: Level 10
                 <br><br>📊 FINAL RESULTS:
                 <br><strong>✓ Total Polishing Stones Used:</strong> ${result.totalPolishings}
                 <br><strong>✓ Polishings for Last Item:</strong> ${result.lastItemPolishings}
@@ -376,7 +389,6 @@
                 <br><strong>Total Cleans:</strong> ${result.totalCleans}
                 <br><strong>Total Purifiers Used:</strong> ${result.totalPurifiers}
                 <br><strong>Purifiers for Current Item:</strong> ${result.currentItemPurifiers}
-                <br>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             </div>`);
         }
 
@@ -632,6 +644,13 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('copyright-year').textContent = new Date().getFullYear();
+            // Restore saved extreme start if present, then populate end options
+            try {
+                const savedStart = parseInt(localStorage.getItem('extremeStart'));
+                if (!isNaN(savedStart) && document.getElementById('extreme-start')) {
+                    document.getElementById('extreme-start').value = savedStart;
+                }
+            } catch(e) {}
             updateExtremeEnd();
             
             // Restore last active tab
@@ -673,6 +692,88 @@
                 document.querySelector('button[onclick="runUltimateEnchant()"]').disabled = true;
             }
         }
+
+        // --- Extreme session persistence ---
+        const EXTREME_SESSION_KEY = 'aion_enchant_extreme_session';
+
+        function saveExtremeSession(state) {
+            // state should be { currentLevel, startLevel, endLevel, itemsWasted, totalStones, ... }
+            try {
+                localStorage.setItem(EXTREME_SESSION_KEY, JSON.stringify(state));
+            } catch (e) {
+                console.warn('Failed to save extreme session', e);
+            }
+        }
+
+        function loadExtremeSession() {
+            try {
+                const raw = localStorage.getItem(EXTREME_SESSION_KEY);
+                if (!raw) return null;
+                return JSON.parse(raw);
+            } catch (e) {
+                console.warn('Failed to load extreme session', e);
+                return null;
+            }
+        }
+
+        // Call this on page load to restore UI/state
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = loadExtremeSession();
+            if (session) {
+                // Example: restore values to your UI. Adjust IDs/vars to match your actual HTML/JS.
+                if (typeof session.currentLevel !== 'undefined') {
+                    // update global / UI (replace with your actual variable / element)
+                    window.extremeCurrentLevel = session.currentLevel;
+                    const el = document.getElementById('extreme-current-level');
+                    if (el) el.textContent = session.currentLevel;
+                }
+                if (typeof session.startLevel !== 'undefined') {
+                    const s = document.getElementById('extreme-start-level');
+                    if (s) s.value = session.startLevel;
+                }
+                if (typeof session.endLevel !== 'undefined') {
+                    const e = document.getElementById('extreme-end-level');
+                    if (e) e.value = session.endLevel;
+                }
+                if (typeof session.itemsWasted !== 'undefined') {
+                    const iw = document.getElementById('extreme-items-wasted');
+                    if (iw) iw.textContent = session.itemsWasted;
+                }
+                if (typeof session.totalStones !== 'undefined') {
+                    const ts = document.getElementById('extreme-total-stones');
+                    if (ts) ts.textContent = session.totalStones;
+                }
+            }
+        });
+
+        // Example helper to be called whenever the extreme enchant level or related state changes.
+        function persistExtremeState() {
+            const state = {
+                currentLevel: window.extremeCurrentLevel ?? null,
+                startLevel: document.getElementById('extreme-start-level')?.value ?? null,
+                endLevel: document.getElementById('extreme-end-level')?.value ?? null,
+                itemsWasted: document.getElementById('extreme-items-wasted')?.textContent ?? 0,
+                totalStones: document.getElementById('extreme-total-stones')?.textContent ?? 0
+            };
+            saveExtremeSession(state);
+        }
+
+        // Use persistExtremeState() in your existing extreme logic:
+        // - after each enchant roll that changes current level
+        // - when an item is destroyed (itemsWasted changes)
+        // - when user adjusts start/end levels
+        //
+        // Example (insert into your simulate function where enchant level increments/decrements):
+        //    window.extremeCurrentLevel = enchantLevel;
+        //    document.getElementById('extreme-current-level').textContent = enchantLevel;
+        //    persistExtremeState();
+
+        // Provide a clear function on reset
+        function clearExtremeSession() {
+            localStorage.removeItem(EXTREME_SESSION_KEY);
+        }
+        // Call clearExtremeSession() on user Reset button action.
+        // ...existing code...
     </script>
 </body>
 </html>
