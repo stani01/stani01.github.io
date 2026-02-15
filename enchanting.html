@@ -20,7 +20,6 @@
 
     <div class="container">
         <h1>AION Enchanting Simulator</h1>
-        <div class="subtitle">Single-run simulator for Ultimate and Extreme gear enchanting</div>
 
         <!-- Tab Navigation -->
         <div class="tabs-container">
@@ -40,7 +39,7 @@
         <div id="extreme" class="tab-content active">
             <div class="simulator-panel">
                 <div class="simulator-info">
-                    📊 <strong>Extreme Gear Enchanting</strong><br>
+                    <strong>Extreme Gear Enchanting</strong><br>
                     Simulate a single enchantment attempt from start to end level. Results show total stones, items used, and items destroyed.
                 </div>
 
@@ -71,7 +70,7 @@
                     </div>
 
                     <div class="setting-group">
-                        <label for="extreme-end">🎯 End Level</label>
+                        <label for="extreme-end">🏁 End Level</label>
                         <select id="extreme-end" onchange="saveExtremeEnd()">
                             <!-- Populated dynamically -->
                         </select>
@@ -95,8 +94,8 @@
         <div id="rune" class="tab-content">
             <div class="simulator-panel">
                 <div class="simulator-info">
-                    💎 <strong>Rune/Odian Enchanting (0-10)</strong><br>
-                    Enchanting with risk of contamination requiring purifiers. After 5 cleans, item is wasted and resets to level 0.
+                    <strong>Rune/Odian Enchanting</strong><br>
+                    Enchanting with risk of contamination requiring purifiers. After reaching the maximum number of contaminations, the item is wasted and resets to level 0.
                 </div>
 
                 <div class="items-display">
@@ -135,9 +134,21 @@
                     </div>
 
                     <div class="setting-group">
-                        <label for="rune-end">🎯 End Level</label>
+                        <label for="rune-end">🏁 End Level</label>
                         <select id="rune-end" onchange="saveRuneEnd()">
                             <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="rune-contamination">☢️ Maximum contaminations</label>
+                        <select id="rune-contamination">
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
                         </select>
                     </div>
                 </div>
@@ -457,6 +468,7 @@
         function runRuneSimulation() {
             const startLevel = parseInt(document.getElementById('rune-start').value);
             const endLevel = parseInt(document.getElementById('rune-end').value);
+            const maxContamination = parseInt(document.getElementById('rune-contamination').value);
 
             const panel = document.getElementById('rune');
             const output = document.getElementById('rune-output');
@@ -471,7 +483,7 @@
 
             setTimeout(() => {
                 // Run single simulation
-                const result = simulateRuneEnchanting(startLevel, endLevel);
+                const result = simulateRuneEnchanting(startLevel, endLevel, maxContamination);
 
                 // persist last-used start/end
                 try { localStorage.setItem('runeStart', startLevel); localStorage.setItem('runeEnd', endLevel); } catch(e){}
@@ -497,7 +509,7 @@
         }
 
         // Single Rune/Odian Enchanting Simulation
-        function simulateRuneEnchanting(startLevel, endLevel) {
+        function simulateRuneEnchanting(startLevel, endLevel, maxContamination) {
             let enchantLevel = startLevel;
             let polishings = 0;
             let lastItemPolishings = 0;
@@ -524,8 +536,8 @@
                     totalPurifiers += purifiersUsed;
                     currentItemPurifiers += purifiersUsed;
 
-                    if (cleans === 5) {
-                        // Item wasted (max 5 cleans per item)
+                    if (cleans === maxContamination) {
+                        // Item wasted
                         enchantLevel = startLevel;
                         cleans = 0;
                         itemsWasted++;
@@ -810,7 +822,6 @@
         const EXTREME_SESSION_KEY = 'aion_enchant_extreme_session';
 
         function saveExtremeSession(state) {
-            // state should be { currentLevel, startLevel, endLevel, itemsWasted, totalStones, ... }
             try {
                 localStorage.setItem(EXTREME_SESSION_KEY, JSON.stringify(state));
             } catch (e) {
@@ -833,9 +844,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const session = loadExtremeSession();
             if (session) {
-                // Example: restore values to your UI. Adjust IDs/vars to match your actual HTML/JS.
                 if (typeof session.currentLevel !== 'undefined') {
-                    // update global / UI (replace with your actual variable / element)
                     window.extremeCurrentLevel = session.currentLevel;
                     const el = document.getElementById('extreme-current-level');
                     if (el) el.textContent = session.currentLevel;
@@ -871,22 +880,10 @@
             saveExtremeSession(state);
         }
 
-        // Use persistExtremeState() in your existing extreme logic:
-        // - after each enchant roll that changes current level
-        // - when an item is destroyed (itemsWasted changes)
-        // - when user adjusts start/end levels
-        //
-        // Example (insert into your simulate function where enchant level increments/decrements):
-        //    window.extremeCurrentLevel = enchantLevel;
-        //    document.getElementById('extreme-current-level').textContent = enchantLevel;
-        //    persistExtremeState();
-
         // Provide a clear function on reset
         function clearExtremeSession() {
             localStorage.removeItem(EXTREME_SESSION_KEY);
         }
-        // Call clearExtremeSession() on user Reset button action.
-        // ...existing code...
     </script>
 </body>
 </html>
