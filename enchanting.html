@@ -83,6 +83,8 @@
                     <button class="clear-button" onclick="clearExtremeOutput()">Clear Output</button>
                 </div>
 
+                <div class="enchant-loading-bar" id="extreme-loading"></div>
+
                 <div class="output-container" id="extreme-output">
                     <div class="output-line header">Output will appear here...</div>
                 </div>
@@ -114,6 +116,8 @@
                     <button class="sim-button" onclick="runRuneSimulation()">▶️ Run Simulation</button>
                     <button class="clear-button" onclick="clearRuneOutput()">Clear Output</button>
                 </div>
+
+                <div class="enchant-loading-bar" id="rune-loading"></div>
 
                 <div class="output-container" id="rune-output">
                     <div class="output-line header">Output will appear here...</div>
@@ -273,31 +277,45 @@
             try { localStorage.setItem('extremeEnd', endSelect.value); } catch(e){}
         }
 
-        // Run Extreme Gear Simulation
-        function runExtremeSimulation() {
-            const startLevel = parseInt(document.getElementById('extreme-start').value);
-            const endLevel = parseInt(document.getElementById('extreme-end').value);
+            // Run Extreme Gear Simulation (with loading animation)
+            function runExtremeSimulation() {
+                const startLevel = parseInt(document.getElementById('extreme-start').value);
+                const endLevel = parseInt(document.getElementById('extreme-end').value);
 
-            const output = document.getElementById('extreme-output');
-            output.innerHTML = '';
+                const panel = document.getElementById('extreme');
+                const output = document.getElementById('extreme-output');
 
-            // Run single simulation
-            const result = simulateExtremeEnchanting(startLevel, endLevel);
+                const simBtn = panel.querySelector('button.sim-button');
+                const clearBtn = panel.querySelector('button.clear-button');
+                const loadingBar = document.getElementById('extreme-loading');
 
-            // persist last-used start/end
-            try { localStorage.setItem('extremeStart', startLevel); localStorage.setItem('extremeEnd', endLevel); } catch(e){}
+                if (simBtn) simBtn.disabled = true;
+                if (clearBtn) clearBtn.disabled = true;
+                if (loadingBar) loadingBar.classList.add('active');
 
-            // Display summary
-            appendExtremeOutput(`<div class="output-line summary">
-                ENCHANTMENT COMPLETE<br>
-                <br>Target: Level ${endLevel}
-                <br><br>📊 FINAL RESULTS:
-                <br><strong>✓ Total Enchantment Stones Used:</strong> ${result.totalStones}
-                <br><strong>✓ Items Used:</strong> ${result.itemsUsed}
-                <br><strong>✗ Items Destroyed:</strong> ${result.itemsDestroyed}
-                <br><strong>◈ Stones for Last Item:</strong> ${result.lastItemStones}
-            </div>`);
-        }
+                setTimeout(() => {
+                    // Run single simulation
+                    const result = simulateExtremeEnchanting(startLevel, endLevel);
+
+                    // persist last-used start/end
+                    try { localStorage.setItem('extremeStart', startLevel); localStorage.setItem('extremeEnd', endLevel); } catch(e){}
+
+                    // Display latest-only summary (replace previous output)
+                    output.innerHTML = `<div class="output-line summary extreme-summary">
+                        <strong>ENCHANTMENT COMPLETE</strong>
+                        <div style="margin-top:8px">Target: <strong>Level ${endLevel}</strong></div>
+                        <div style="margin-top:8px">📊 FINAL RESULTS</div>
+                        <div style="margin-top:6px"><strong>✓ Total Enchantment Stones Used:</strong> ${result.totalStones}</div>
+                        <div><strong>✓ Items Used:</strong> ${result.itemsUsed}</div>
+                        <div><strong>✗ Items Destroyed:</strong> ${result.itemsDestroyed}</div>
+                        <div><strong>◈ Stones for Last Item:</strong> ${result.lastItemStones}</div>
+                    </div>`;
+
+                    if (loadingBar) loadingBar.classList.remove('active');
+                    if (simBtn) simBtn.disabled = false;
+                    if (clearBtn) clearBtn.disabled = false;
+                }, 250);
+            }
 
         // Single Extreme Enchanting Simulation (Version 2 logic)
         function simulateExtremeEnchanting(startLevel, endLevel) {
@@ -369,27 +387,41 @@
             output.innerHTML = '<div class="output-line header">Output cleared. Run a simulation to see results.</div>';
         }
 
-        // Run Rune/Odian Simulation
+        // Run Rune/Odian Simulation (with loading animation)
         function runRuneSimulation() {
+            const panel = document.getElementById('rune');
             const output = document.getElementById('rune-output');
-            output.innerHTML = '';
 
-            // Run single simulation
-            const result = simulateRuneEnchanting();
+            const simBtn = panel.querySelector('button.sim-button');
+            const clearBtn = panel.querySelector('button.clear-button');
+            const loadingBar = document.getElementById('rune-loading');
 
-            // Display summary
-            appendRuneOutput(`<div class="output-line summary">
-                ENCHANTMENT COMPLETE
-                <br><br>Target: Level 10
-                <br><br>📊 FINAL RESULTS:
-                <br><strong>✓ Total Polishing Stones Used:</strong> ${result.totalPolishings}
-                <br><strong>✓ Polishings for Last Item:</strong> ${result.lastItemPolishings}
-                <br><strong>✗ Items Wasted:</strong> ${result.itemsWasted}
-                <br><br>🧹 CONTAMINATION DETAILS:
-                <br><strong>Total Cleans:</strong> ${result.totalCleans}
-                <br><strong>Total Purifiers Used:</strong> ${result.totalPurifiers}
-                <br><strong>Purifiers for Current Item:</strong> ${result.currentItemPurifiers}
-            </div>`);
+            if (simBtn) simBtn.disabled = true;
+            if (clearBtn) clearBtn.disabled = true;
+            if (loadingBar) loadingBar.classList.add('active');
+
+            setTimeout(() => {
+                // Run single simulation
+                const result = simulateRuneEnchanting();
+
+                // Display latest-only summary (replace previous output)
+                output.innerHTML = `<div class="output-line summary rune-summary">
+                    <strong>ENCHANTMENT COMPLETE</strong>
+                    <div style="margin-top:8px">Target: <strong>Level 10</strong></div>
+                    <div style="margin-top:8px">📊 FINAL RESULTS</div>
+                    <div style="margin-top:6px"><strong>✓ Total Polishing Stones Used:</strong> ${result.totalPolishings}</div>
+                    <div><strong>✓ Polishings for Last Item:</strong> ${result.lastItemPolishings}</div>
+                    <div><strong>✗ Items Wasted:</strong> ${result.itemsWasted}</div>
+                    <div style="margin-top:8px">CONTAMINATION DETAILS</div>
+                    <div><strong>Total Cleans:</strong> ${result.totalCleans}</div>
+                    <div><strong>Total Purifiers Used:</strong> ${result.totalPurifiers}</div>
+                    <div><strong>Purifiers for Current Item:</strong> ${result.currentItemPurifiers}</div>
+                </div>`;
+
+                if (loadingBar) loadingBar.classList.remove('active');
+                if (simBtn) simBtn.disabled = false;
+                if (clearBtn) clearBtn.disabled = false;
+            }, 250);
         }
 
         // Single Rune/Odian Enchanting Simulation
