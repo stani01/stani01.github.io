@@ -38,9 +38,11 @@
         <!-- EXTREME GEAR TAB -->
         <div id="extreme" class="tab-content active">
             <div class="simulator-panel">
-                <div class="simulator-info">
-                    <strong>Extreme Gear Enchanting</strong><br>
-                    Simulate a single enchantment attempt from start to end level. Results show total stones, items used, and items destroyed.
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div class="simulator-info">
+                        <strong>Extreme Gear Enchanting</strong><br>
+                        Simulate a single enchantment attempt from start to end level. Results show total stones, items used, and items destroyed.
+                    </div>
                 </div>
 
                 <div class="items-display">
@@ -80,6 +82,7 @@
                 <div class="button-group">
                     <button class="sim-button" onclick="runExtremeSimulation()">▶️ Run Simulation</button>
                     <button class="clear-button" onclick="clearExtremeOutput()">Clear Output</button>
+                    <button class="info-button" onclick="toggleRates('extreme')" title="Show success and destruction rates">ℹ️ Rates</button>
                 </div>
 
                 <div class="enchant-loading-bar" id="extreme-loading"></div>
@@ -93,9 +96,11 @@
         <!-- RUNE/ODIAN TAB -->
         <div id="rune" class="tab-content">
             <div class="simulator-panel">
-                <div class="simulator-info">
-                    <strong>Rune/Odian Enchanting</strong><br>
-                    Enchanting with risk of contamination requiring purifiers. After reaching the maximum number of contaminations, the item is wasted and resets to level 0.
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div class="simulator-info">
+                        <strong>Rune/Odian Enchanting</strong><br>
+                        Enchanting with risk of contamination requiring purifiers. After reaching the maximum number of contaminations, the item is wasted and resets to level 0.
+                    </div>
                 </div>
 
                 <div class="items-display">
@@ -156,6 +161,7 @@
                 <div class="button-group">
                     <button class="sim-button" onclick="runRuneSimulation()">▶️ Run Simulation</button>
                     <button class="clear-button" onclick="clearRuneOutput()">Clear Output</button>
+                    <button class="info-button" onclick="toggleRates('rune')" title="Show contamination and failure rates">ℹ️ Rates</button>
                 </div>
 
                 <div class="enchant-loading-bar" id="rune-loading"></div>
@@ -169,6 +175,12 @@
         <!-- ULTIMATE GEAR TAB -->
         <div id="ultimate" class="tab-content">
             <div class="simulator-panel">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div class="simulator-info">
+                        <strong>Ultimate Gear Enchanting</strong><br>
+                        Interactive single-attempt enchanting. Select a stone and click Enchant for each attempt. Success rates and critical chance displayed above.
+                    </div>
+                </div>
                 <div class="items-display">
                     <div class="items-grid">
                         <div class="item-card stone-button" id="stone-ancient" onclick="selectUltimateStone('ancient')">
@@ -201,6 +213,7 @@
                 <div class="button-group">
                     <button class="sim-button" onclick="runUltimateEnchant()">Enchant</button>
                     <button class="clear-button" onclick="resetUltimateGear()">Reset</button>
+                    <button class="info-button" onclick="toggleRates('ultimate')" title="Show success rates by stone type">ℹ️ Rates</button>
                 </div>
 
                 <div class="enchant-loading-bar" id="enchant-loading"></div>
@@ -224,6 +237,135 @@
 
                 <div class="output-container" id="ultimate-output">
                     <div class="output-line header">Select a stone and click Enchant to begin...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rate Modals -->
+        <div id="extreme-rates-modal" class="rates-modal" onclick="if(event.target === this) this.style.display='none'">
+            <div class="rates-modal-content" style="max-width: 600px; border: 1px solid #444; background: #1a1a24;">
+                <span class="close" onclick="toggleRates('extreme')">&times;</span><br>
+                
+                <h3 style="color: #ff4d4d; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                    Extreme Gear Enchantment Rates
+                </h3>
+
+                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.95em;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #333; color: #aaa;">
+                            <th style="padding: 10px;">Level</th>
+                            <th style="padding: 10px; color: #4dfb4d;">Success</th>
+                            <th style="padding: 10px; color: #ff3333;">Destroy</th>
+                            <th style="padding: 10px;">Fail (Safe)</th>
+                        </tr>
+                    </thead>
+                    <tbody style="font-weight: bold;">
+                        <tr style="border-bottom: 1px solid #2a2a35;"><td>1</td><td>45%</td><td style="color: #ff3333;">9,1%</td><td style="color: #888;">55%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);"><td>2</td><td>42%</td><td style="color: #ff3333;">13,8%</td><td style="color: #888;">58%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35;"><td>3</td><td>19,5%</td><td style="color: #ff3333;">6,8%</td><td style="color: #888;">80,5%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);"><td>4</td><td>17,5%</td><td style="color: #ff3333;">9,1%</td><td style="color: #888;">82,5%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35;"><td>5</td><td>10,7%</td><td style="color: #ff3333;">7,1%</td><td style="color: #888;">89,3%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);"><td>6</td><td>9,3%</td><td style="color: #ff3333;">8,5%</td><td style="color: #888;">90,7%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35;"><td>7</td><td>5,6%</td><td style="color: #ff3333;">6,8%</td><td style="color: #888;">94,4%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);"><td>8</td><td>4,3%</td><td style="color: #ff3333;">8,0%</td><td style="color: #888;">95,7%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35;"><td>9</td><td>2,6%</td><td style="color: #ff3333;">7,6%</td><td style="color: #888;">97,4%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);"><td>10</td><td>1,5%</td><td style="color: #ff3333;">8,6%</td><td style="color: #888;">98,5%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,77,77,0.05);"><td>11-15</td><td>0,4%</td><td style="color: #ff3333;">9,6%</td><td style="color: #888;">99,6%</td></tr>
+                    </tbody>
+                </table>
+                <div style="margin-top: 15px; font-size: 0.85em; color: #888; text-align: left; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 5px;">
+                    <strong>Note:</strong> Failure to reach success or destroy threshold results in a simple <strong>Fail</strong> (item is kept, stone is lost).
+                </div>
+            </div>
+        </div>
+
+        <div id="rune-rates-modal" class="rates-modal" onclick="if(event.target === this) this.style.display='none'">
+            <div class="rates-modal-content" style="max-width: 600px; border: 1px solid #444; background: #1a1a24;">
+                <span class="close" onclick="toggleRates('rune')">&times;</span><br>
+                
+                <h3 style="color: #b565f5; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                    Rune & Odian Enchantment Rates
+                </h3>
+
+                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.95em;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #333; color: #aaa;">
+                            <th style="padding: 10px;">Level</th>
+                            <th style="padding: 10px; color: #ffa500;">Contamination</th>
+                            <th style="padding: 10px; color: #ff4d4d;">Fail</th>
+                            <th style="padding: 10px; color: #4dfb4d;">Success</th>
+                        </tr>
+                    </thead>
+                    <tbody style="font-weight: bold;">
+                        <tr style="border-bottom: 1px solid #2a2a35;"><td>0</td><td>0%</td><td>0%</td><td style="color: #4dfb4d;">100%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35;"><td>1</td><td>0%</td><td style="color: #888;">20%</td><td style="color: #4dfb4d;">80%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35;"><td>2</td><td>0%</td><td style="color: #888;">20%</td><td style="color: #4dfb4d;">80%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35;"><td>3</td><td>0%</td><td style="color: #888;">20%</td><td style="color: #4dfb4d;">80%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35;"><td>4</td><td style="color: #ffa500;">10%</td><td style="color: #ff4d4d;">50%</td><td>40%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35;"><td>5-9</td><td style="color: #ffa500;">10%</td><td style="color: #ff4d4d;">57%</td><td>33%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35;"><td>10</td><td style="color: #ffa500;">10%</td><td style="color: #ff4d4d;">90%</td><td>10%</td></tr>
+                        <tr style="border-bottom: 1px solid #2a2a35;"><td>11+</td><td style="color: #ffa500;">10%</td><td style="color: #ff4d4d;">99%</td><td>1%</td></tr>
+                    </tbody>
+                </table>
+                <div style="margin-top: 15px; font-size: 0.85em; color: #888; text-align: left; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 5px;">
+                    <p style="margin: 0;"><strong>☣️ Contamination:</strong> Item breaks and resets to 0 if "Cleans" are exhausted.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="ultimate-rates-modal" class="rates-modal" onclick="if(event.target === this) this.style.display='none'">
+            <div class="rates-modal-content" style="max-width: 90%; border: 1px solid #444; background: #1a1a24;">
+                <span class="close" onclick="toggleRates('ultimate')">&times;</span><br>
+                
+                <h3 style="color: #4da3ff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                    Ultimate Gear Enchantment Rates
+                </h3>
+
+                <table class="rates-table" style="width: 100%; border-collapse: collapse; text-align: center;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #333;">
+                            <th style="padding: 10px; color: #aaa;">Level</th>
+                            <th style="padding: 10px;"><img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" width="24"><br><small style="color: #cd7f32;">Ancient</small></th>
+                            <th style="padding: 10px;"><img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" width="24"><br><small style="color: #a335ee;">Legendary</small></th>
+                            <th style="padding: 10px;"><img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" width="24"><br><small style="color: #ff4d4d;">Ultimate</small></th>
+                        </tr>
+                    </thead>
+                    <tbody style="font-weight: bold;">
+                        <tr style="border-bottom: 1px solid #2a2a35;">
+                            <td style="padding: 12px; color: #888;">1 - 3</td>
+                            <td style="color: #fff;">52%</td>
+                            <td style="color: #4dfb4d;">100%</td>
+                            <td style="color: #4dfb4d;">100%</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);">
+                            <td style="padding: 12px; color: #888;">4 - 6</td>
+                            <td style="color: #fff;">32%</td>
+                            <td style="color: #fff;">82%</td>
+                            <td style="color: #fff;">92%</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a2a35;">
+                            <td style="padding: 12px; color: #888;">7 - 9</td>
+                            <td style="color: #fff;">12%</td>
+                            <td style="color: #fff;">62%</td>
+                            <td style="color: #fff;">72%</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);">
+                            <td style="padding: 12px; color: #888;">10 - 15</td>
+                            <td style="color: #fff;">5%</td>
+                            <td style="color: #fff;">42%</td>
+                            <td style="color: #fff;">52%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.85em; text-align: left;">
+                    <p style="margin: 0 0 8px 0;"><strong style="color: #ffd700;">✨ Critical:</strong> 10% chance for +2 on success</p>
+                    <p style="margin: 0; line-height: 1.4;">
+                        <strong style="color: #ff4d4d;">⚠️ Penalty:</strong> 
+                        <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" width="14"> / 
+                        <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" width="14"> : -1 or reset to +10. <br>
+                        <span style="margin-left: 65px;"><img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" width="14"> : No penalty.</span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -788,6 +930,20 @@
             
             updateUltimateChanceDisplay();
         }
+
+        // Toggle rate display modal
+        function toggleRates(tabName) {
+            const modal = document.getElementById(tabName + '-rates-modal');
+            if (!modal) return;
+            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('rates-modal')) {
+                event.target.style.display = 'none';
+            }
+        });
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
