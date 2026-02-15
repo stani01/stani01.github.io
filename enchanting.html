@@ -112,6 +112,36 @@
                     </div>
                 </div>
 
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label for="rune-start">📍 Start Level</label>
+                        <select id="rune-start" onchange="updateRuneEnd()">
+                            <option value="0" selected>Level 0</option>
+                            <option value="1">Level 1</option>
+                            <option value="2">Level 2</option>
+                            <option value="3">Level 3</option>
+                            <option value="4">Level 4</option>
+                            <option value="5">Level 5</option>
+                            <option value="6">Level 6</option>
+                            <option value="7">Level 7</option>
+                            <option value="8">Level 8</option>
+                            <option value="9">Level 9</option>
+                            <option value="10">Level 10</option>
+                            <option value="11">Level 11</option>
+                            <option value="12">Level 12</option>
+                            <option value="13">Level 13</option>
+                            <option value="14">Level 14</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="rune-end">🎯 End Level</label>
+                        <select id="rune-end" onchange="saveRuneEnd()">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
                 <div class="button-group">
                     <button class="sim-button" onclick="runRuneSimulation()">▶️ Run Simulation</button>
                     <button class="clear-button" onclick="clearRuneOutput()">Clear Output</button>
@@ -204,10 +234,8 @@
         const EXTREME_MAX_LEVEL = 15;
 
         // Rune/Odian Enchanting Data
-        const RUNE_FAIL = [0, 20, 20, 20, 50, 57, 57, 57, 57, 57];
-        const RUNE_CONTAMINATION = [0, 0, 0, 0, 10, 10, 10, 10, 10, 10];
-        const RUNE_MAX_LEVEL = 10;
-        const RUNE_MAX_CLEANS = 5;
+        const RUNE_FAIL = [0, 20, 20, 20, 50, 57, 57, 57, 57, 57, 90, 99, 99, 99, 99];
+        const RUNE_CONTAMINATION = [0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 
         // Ultimate Gear Enchanting Data
         const ULTIMATE_ANCIENT = [0, 52, 52, 52, 32, 32, 32, 12, 12, 12, 5, 5, 5, 5, 5, 5];
@@ -275,6 +303,44 @@
             const endSelect = document.getElementById('extreme-end');
             if (!endSelect) return;
             try { localStorage.setItem('extremeEnd', endSelect.value); } catch(e){}
+        }
+
+        // Update end level based on start level (Rune)
+        function updateRuneEnd() {
+            const startLevel = parseInt(document.getElementById('rune-start').value);
+            // persist start level selection
+            try { localStorage.setItem('runeStart', startLevel); } catch(e){}
+            const endSelect = document.getElementById('rune-end');
+            const currentEnd = parseInt(endSelect.value) || startLevel + 1;
+            
+            // Clear current options
+            endSelect.innerHTML = '';
+
+            // Add options from startLevel + 1 to 15
+            for (let i = startLevel + 1; i <= 15; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Level ${i}`;
+                // Select the first option or keep previous selection if valid
+                if (i === startLevel + 1 || i === currentEnd) {
+                    option.selected = true;
+                }
+                endSelect.appendChild(option);
+            }
+            // If we have a saved end level, try to restore it
+            try {
+                const savedEnd = parseInt(localStorage.getItem('runeEnd'));
+                if (savedEnd && savedEnd > startLevel && savedEnd <= 15) {
+                    endSelect.value = savedEnd;
+                }
+            } catch(e) {}
+        }
+
+        // Save rune end selection when user changes it
+        function saveRuneEnd() {
+            const endSelect = document.getElementById('rune-end');
+            if (!endSelect) return;
+            try { localStorage.setItem('runeEnd', endSelect.value); } catch(e){}
         }
 
             // Run Extreme Gear Simulation (with loading animation)
@@ -389,6 +455,9 @@
 
         // Run Rune/Odian Simulation (with loading animation)
         function runRuneSimulation() {
+            const startLevel = parseInt(document.getElementById('rune-start').value);
+            const endLevel = parseInt(document.getElementById('rune-end').value);
+
             const panel = document.getElementById('rune');
             const output = document.getElementById('rune-output');
 
@@ -402,17 +471,20 @@
 
             setTimeout(() => {
                 // Run single simulation
-                const result = simulateRuneEnchanting();
+                const result = simulateRuneEnchanting(startLevel, endLevel);
+
+                // persist last-used start/end
+                try { localStorage.setItem('runeStart', startLevel); localStorage.setItem('runeEnd', endLevel); } catch(e){}
 
                 // Display latest-only summary (replace previous output)
                 output.innerHTML = `<div class="output-line summary rune-summary">
                     <strong>ENCHANTMENT COMPLETE</strong>
-                    <div style="margin-top:8px">Target: <strong>Level 10</strong></div>
+                    <div style="margin-top:8px">Target: <strong>Level ${endLevel}</strong></div>
                     <div style="margin-top:8px">📊 FINAL RESULTS</div>
                     <div style="margin-top:6px"><strong>✓ Total Polishing Stones Used:</strong> ${result.totalPolishings}</div>
                     <div><strong>✓ Polishings for Last Item:</strong> ${result.lastItemPolishings}</div>
                     <div><strong>✗ Items Wasted:</strong> ${result.itemsWasted}</div>
-                    <div style="margin-top:8px">CONTAMINATION DETAILS</div>
+                    <div style="margin-top:8px">🧹 CONTAMINATION DETAILS</div>
                     <div><strong>Total Cleans:</strong> ${result.totalCleans}</div>
                     <div><strong>Total Purifiers Used:</strong> ${result.totalPurifiers}</div>
                     <div><strong>Purifiers for Current Item:</strong> ${result.currentItemPurifiers}</div>
@@ -421,12 +493,12 @@
                 if (loadingBar) loadingBar.classList.remove('active');
                 if (simBtn) simBtn.disabled = false;
                 if (clearBtn) clearBtn.disabled = false;
-            }, 250);
+            }, 320);
         }
 
         // Single Rune/Odian Enchanting Simulation
-        function simulateRuneEnchanting() {
-            let enchantLevel = 0;
+        function simulateRuneEnchanting(startLevel, endLevel) {
+            let enchantLevel = startLevel;
             let polishings = 0;
             let lastItemPolishings = 0;
             let cleans = 0;
@@ -435,7 +507,7 @@
             let totalPurifiers = 0;
             let currentItemPurifiers = 0;
 
-            while (enchantLevel < RUNE_MAX_LEVEL) {
+            while (enchantLevel < endLevel) {
                 polishings++;
                 lastItemPolishings++;
 
@@ -452,9 +524,9 @@
                     totalPurifiers += purifiersUsed;
                     currentItemPurifiers += purifiersUsed;
 
-                    if (cleans === RUNE_MAX_CLEANS) {
-                        // Item wasted
-                        enchantLevel = 0;
+                    if (cleans === 5) {
+                        // Item wasted (max 5 cleans per item)
+                        enchantLevel = startLevel;
                         cleans = 0;
                         itemsWasted++;
                         currentItemPurifiers = 0;
@@ -684,6 +756,15 @@
                 }
             } catch(e) {}
             updateExtremeEnd();
+            
+            // Restore saved rune start if present, then populate end options
+            try {
+                const savedStart = parseInt(localStorage.getItem('runeStart'));
+                if (!isNaN(savedStart) && document.getElementById('rune-start')) {
+                    document.getElementById('rune-start').value = savedStart;
+                }
+            } catch(e) {}
+            updateRuneEnd();
             
             // Restore last active tab
             const savedTab = localStorage.getItem('activeTab') || 'extreme';
