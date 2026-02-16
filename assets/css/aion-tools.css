@@ -1644,6 +1644,25 @@ a:hover {
     height: 26px;
     border-radius: 4px;
     object-fit: cover;
+    vertical-align: middle;
+}
+
+.skill-info-class-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.skill-info-class-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.skill-info-class-text {
+    color: #e0e0e0;
+    font-size: 0.95em;
 }
 
 .skill-info-description {

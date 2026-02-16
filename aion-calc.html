@@ -807,7 +807,7 @@
             id: '4252',
             class: 'Bard',
             category: 'Active',
-            usageCost: 'Odella Powder',
+            usageCost: '591 MP',
             castTime: 'Cast Instantly',
             cooldown: '30s',
             description: 'Deals 3054 magical wind damage.<br> Increases magic damage by 15% for 30s.<br>Increases magical accuracy by 270.<br>Increases physical attack by 121.'
@@ -818,7 +818,7 @@
             id: '5926',
             class: '-',
             category: 'Special Skill',
-            usageCost: '-',
+            usageCost: '0 MP',
             castTime: 'Cast Instantly',
             cooldown: '5m',
             description: 'Increases magical damage by +17% for 30 seconds.<br>Increases attack speed by 25%.<br>Increases casting speed by 25%.<br>Increases maximum HP by 6000.<br>Group members receeive 50% of the effect.'
@@ -1060,11 +1060,451 @@
             id: '5462',
             class: 'Painter',
             category: 'Active',
-            usageCost: '-',
+            usageCost: '0 MP',
             castTime: 'Cast Instantly',
             cooldown: '2s',
             description: 'Deals 1622 physical damage.<br>Reduces Physical Defense by 200 for 7s.'
-        }
+        },
+        'attackPosition': {
+            name: '(Improved) Attack Position',
+            icon: 'https://myaion.eu/Images/Database/Skills/fi_berserkstance_custom_b_up.png',
+            id: '5723',
+            class: 'Gladiator',
+            category: 'Active',
+            usageCost: '0 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '2m',
+            description: 'Increases Physical Attack by 1800 for 1m.<br>Increases Speed by 10%.<br>Increases Attack Speed by 10%.<br>Increases Accuracy by 1200.<br>Increases Crit Strike by 1200.'
+        },
+        'defencePrep': {
+            name: 'Defence Preparation',
+            icon: 'https://myaion.eu/Images/Database/Skills/cbt_fi_defensemode_g1.png',
+            id: '619',
+            class: 'Gladiator',
+            category: 'Active',
+            usageCost: '0 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '7s',
+            description: 'Increases Magic and Physical Defence by 800.<br>Increases Additional PvP Defence by 800.<br>Reduces Additional PvP Attack by 600.<br>Active Skill.'
+        },
+        'combatPrep': {
+            name: 'Combat Preparation',
+            icon: 'https://myaion.eu/Images/Database/Skills/cbt_fi_blademode_g1.png',
+            id: '697',
+            class: 'Gladiator',
+            category: 'Active',
+            usageCost: '0 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '7s',
+            description: 'Increases Physical Attack by 800.<br>Increases Additional PvP Attack by 800.<br>Reduces Additional PvP Defence by 600.<br>Active Skill.'
+        },
+        'divineFury': {
+            name: '(Improved) Divine Fury',
+            icon: 'https://myaion.eu/Images/Database/Skills/cbt_kn_a_divinepower_g1.png',
+            id: '6055',
+            class: 'Templar',
+            category: 'Active',
+            usageCost: '144 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '48s',
+            description: 'Increases Physical Attack by 550 for 30s.'
+        },
+        'empyreanFury': {
+            name: 'Empyrean Fury',
+            icon: 'https://myaion.eu/Images/Database/Skills/live_kn_destructwish_g1.png',
+            id: '2933',
+            class: 'Templar',
+            category: 'Active',
+            usageCost: '1000 DP',
+            castTime: 'Cast Instantly',
+            cooldown: '1m30s',
+            description: 'Increases Physical Attack by 900 for 30s.<br>Increases Crit Strike by 1000.<br>Increases Accuracy by 1000.<br>Increases Magical Accuracy by 1000.'
+        },
+        'menacingPosture': {
+            name: 'Menacing Posture',
+            icon: 'https://myaion.eu/Images/Database/Skills/cbt_fi_defensemode_g1.png',
+            id: '3048',
+            class: 'Templar',
+            category: 'Active',
+            usageCost: '0 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '5s',
+            description: 'The Enmity caused by your attack is increased.<br>Increases Additional PvE Defence by 2500.<br>Increases Additional PvE Attack by 1500.<br>Reduces Physical Attack by 1000.<br>Active Skill.'
+        },
+        'deadlyFocus': {
+            name: 'Deadly Focus',
+            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_AS_RaidStance_G1.png',
+            id: '3469',
+            class: 'Assassin',
+            category: 'Active',
+            usageCost: '1018 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '2m',
+            description: 'Increases Physical Attack by 2000 for 15s.<br>Increases Accuracy by 200.<br>Increases Magical Accuracy by 200.<br>Increases Aether\'s Hold Resistance Penetration by 200.<br>Increases Spin Resistance Penetration by 200.<br>Increases Stun Resistance Penetration by 200.'
+        },
+        'devotion': {
+            name: 'Devotion',
+            icon: 'https://myaion.eu/Images/Database/Skills/CBT_SC_InvokePower_G1.png',
+            id: '3235',
+            class: 'Assassin+Ranger',
+            category: 'Active',
+            usageCost: '144 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '28s',
+            description: 'Increases Physical Attack by 450 (+10 per enchantment) for 10s.<br>Increases Weapon Attack by 1500.'
+        },
+        'deadlyAbandon': {
+            name: '(Improved) Deadly Abandon',
+            icon: 'https://myaion.eu/Images/Database/Skills/live_as_a_stabstance_g1.png',
+            id: '6074',
+            class: 'Assassin',
+            category: 'Normal Stigma',
+            usageCost: '0 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '10s',
+            description: 'Increases Physical Attack by 350.<br>Reduces Evasion by 800.<br>Active Skill.'
+        },
+        'flurry': {
+            name: 'Flurry',
+            icon: 'https://myaion.eu/Images/Database/Skills/CBT_AS_QuickMove_G1.png',
+            id: '3355',
+            class: 'Assassin',
+            category: 'Active',
+            usageCost: '193 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '2m',
+            description: 'Increases Attack Speed by 20% for 30s.<br>Increases Crit Strike by 1500.<br>Increases Weapon Attack by 1500.'
+        },
+        'mistButcher': {
+            name: 'Mist Butcher',
+            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_AS_Light_DefendRoar_G1.png',
+            id: '4878',
+            class: 'Assassin',
+            category: 'Active',
+            usageCost: '183 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '2m',
+            description: 'Increases Attack Speed by 20% for 1m.<br>Increases Magical Accuracy by 2000.<br>Increases HP by 5000.<br>Increases MP regeneration.<br>Increases your weapon range by 2m.<br>Increases Physical Attack skills 1 time by 100% for 15 seconds.'
+        },
+        'eyeOfWrath': {
+            name: '(Improved) Eye of Wrath',
+            icon: 'https://myaion.eu/Images/Database/Skills/CBT_AS_A_VisiousEye_G1.png',
+            id: '6079',
+            class: 'Assassin',
+            category: 'Normal Stigma',
+            usageCost: '99 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '37.8s',
+            description: 'Boosts the effect of Physical Attack skill by 60% 2 times for 15s.<br>Reduces Crit Strike by 700.'
+        },
+        'bowOfBlessing': {
+            name: '(Improved) Bow of Blessing',
+            icon: 'https://myaion.eu/Images/Database/Skills/live_ra_a_enchantbow_g1.png',
+            id: '6103',
+            class: 'Ranger',
+            category: 'Normal Stigma',
+            usageCost: '216 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '43.2s',
+            description: 'Increases Physical Attack by 480 for 40s.<br>Increases Crit Strike by 1200.'
+        },
+        'strengtheningEye': {
+            name: 'Strengthening Eye',
+            icon: 'https://myaion.eu/Images/Database/Skills/cbt_ra_snakeeye_g1.png',
+            id: '796',
+            class: 'Ranger',
+            category: 'Active',
+            usageCost: '163 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '1s',
+            description: 'Increases Physical Attack by 200 for 1m.'
+        },
+        'mauGlory': {
+            name: '(Improved) Mau\'s Glory',
+            icon: 'https://myaion.eu/Images/Database/Skills/ev_ra_sabageroar_custom_b_up.png',
+            id: '5984',
+            class: 'Ranger',
+            category: 'Active',
+            usageCost: '1000 DP every 3s',
+            castTime: 'Cast Instantly',
+            cooldown: '30s',
+            description: 'Removes immobilisation.<br>You are immobilised and cannot cause immobilisation.<br>Increases Physical Attack by 4000.<br>Increases Crit Strike by 4000.<br>Increases Resistance to Pull by 1000.<br>Reduces Attack range of Bow by 5m.<br>1000 DP are used every 3 seconds.<br>Active Skill.'
+        },
+        'mauHonour': {
+            name: '(Improved) Mau\'s Honour',
+            icon: 'https://myaion.eu/Images/Database/Skills/ev_ra_sabageroar_custom_a_up.png',
+            id: '5983',
+            class: 'Ranger',
+            category: 'Active',
+            usageCost: '500 DP every 3s',
+            castTime: 'Cast Instantly',
+            cooldown: '8s',
+            description: 'Increases Physical Attack by 800.<br>Incrases Accuracy by 2000.<br>Increases Evasion by 800.<br>Increases Attack Speed by 30%.<br>Increases Speed by 40%.<br>500 DP are used every 3 seconds.<br>Active Skill.'
+        },
+        'sharpenArrows': {
+            name: '(Improved) Sharpen Arrows',
+            icon: 'https://myaion.eu/Images/Database/Skills/live_ra_a_trackermind_g1.png',
+            id: '6093',
+            class: 'Ranger',
+            category: 'Greater Stigma',
+            usageCost: '99 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '1s',
+            description: 'Increases Physical Attack of Bow by 500.<br>Increases Crit Strike by 650.<br>Increases Additional PvE Attack by 650.<br>Active Skill.'
+        },
+        'focusedShots': {
+            name: '(Improved) Focused Shots',
+            icon: 'https://myaion.eu/Images/Database/Skills/CBT_SC_A_TrueShotMind_G1.png',
+            id: '6094',
+            class: 'Ranger',
+            category: 'Normal Stigma',
+            usageCost: '342 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '1s',
+            description: 'Increases the effect of Physical Attack Skill by 33% 5 times for 1m.<br>Increases Accuracy by 2600.<br>Increases Magical Accuracy by 2600.<br>Reduces Physical Defence by 6%.'
+        },
+        'sacrificialPower': {
+            name: '(Improved) Sacrificial Power',
+            icon: 'https://myaion.eu/Images/Database/Skills/live_pr_a_offensivemode_g1.png',
+            id: '6178',
+            class: 'Cleric',
+            category: 'Greater Stigma',
+            usageCost: '0 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '30s',
+            description: 'Increases Magical Accuracy by 1800.<br>Increases Additional PvE Attack by 600.<br>Increases Magic Attack by 1600.<br>Increases Crit Spell by 1250.<br>Reduces Healing Boost by 1500.<br>Active Skill.'
+        },
+        'amplification': {
+            name: 'Amplification',
+            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_PR_PrepareHolywar_G1.png',
+            id: '3895',
+            class: 'Cleric',
+            category: 'Active',
+            usageCost: '697 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '1m',
+            description: 'Increases Magic Attack by 700 (+14 per enchant level) for 10s.<br>Increases Healing Boost by 1100.<br>Restores 5628 MP.'
+        },
+        'blessingWind': {
+            name: '(Improved) Blessing of Wind',
+            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_CH_A_ImbuePower_G1.png',
+            id: '6157',
+            class: 'Chanter',
+            category: 'Greater Stigma',
+            usageCost: '857 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '1m3s',
+            description: 'Increases Physical Attack by 800 for 30s.<br>Also deals 2619 additional damage for each attack.'
+        },
+        'divineProtection': {
+            name: 'Divine Protection',
+            icon: 'https://myaion.eu/Images/Database/Skills/CBT_CH_AbyssGloria_G1.png',
+            id: '1638',
+            class: 'Chanter',
+            category: 'Active',
+            usageCost: '3000 DP',
+            castTime: 'Cast Instantly',
+            cooldown: '2m',
+            description: 'Increases Physical Attack by 2000 for 30s.<br>Increases Speed by 20%.<br>Increases Attack Speed by 20%.'
+        },
+        'wordInspiration': {
+            name: '(Improved) Word of Inspiration',
+            icon: 'https://myaion.eu/Images/Database/Skills/cbt_ch_a_improvedallattack_g1.png',
+            id: '6163',
+            class: 'Chanter',
+            category: 'Normal Stigma',
+            usageCost: '504 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '30s',
+            description: 'Increases Physical Attack by 750.<br>Increases Accuracy by 600.<br>Increases Crit Strike by 600.<br>Increases Additional PvE Attack by 500.<br>Reduces Healing Boost by 1000.<br>Active Skill.'
+        },
+        'vaizlGift': {
+            name: 'Vaizel Gift',
+            icon: 'https://myaion.eu/Images/Database/Skills/CBT_WI_ArcaneBoost_G1.png',
+            id: '5155',
+            class: 'Sorcerer',
+            category: 'Active',
+            usageCost: '481 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '30s',
+            description: 'Increases the target\'s casting time for all magical skills by 25% for 20s.<br>Also reduces MP consumption by 20%.<br>Increases Additional PvE Attack by 500 (+10 per enchant level).'
+        },
+        'arcaneCombustion': {
+            name: '(Improved) Arcane Combustion',
+            icon: 'https://myaion.eu/Images/Database/Skills/WI_ManaBoost_Custom_B_up.png',
+            id: '5781',
+            class: 'Sorcerer',
+            category: 'Active',
+            usageCost: '1060 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '2m',
+            description: 'Reduces spell casting time by 30% for 1m.<br>Increases Magic Attack by 700.<br>Increases Magical Accuracy by 4500.<br>During an attack, there is a chance that the cooldowns for some skills will be reduced by 7%.<br>(Hell Flame of Wrath, Glacial Shard, Cyclone Strike, Flame Spray).'
+        },
+        'arcaneGrowth': {
+            name: '(Improved) Arcane Growth',
+            icon: 'https://myaion.eu/Images/Database/Skills/WI_ManaBoost_Custom_A_up.png',
+            id: '5780',
+            class: 'Sorcerer',
+            category: 'Active',
+            usageCost: '1060 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '1m12s',
+            description: 'Reduces spell casting time by 10% for 30s.<br>Increases Magic Attack by 1500.<br>Increases Crit Spell by 1500.<br>When attacked, there is a chance the casting time will be reduced by 50%.'
+        },
+        'boonFlame': {
+            name: '(Improved) Boon of Flame',
+            icon: 'https://myaion.eu/Images/Database/Skills/Wi_A_FireShield_G1.png',
+            id: '6107',
+            class: 'Sorcerer',
+            category: 'Vision Stigma',
+            usageCost: '0 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '1s',
+            description: 'Increases magic damage by 18% for 30s.<br>Also reduces MP consumption by 50%.<br>Increases Crit Spell by 1000.'
+        },
+        'spiritBundle': {
+            name: '(Improved) Spirit Bundling',
+            icon: 'https://myaion.eu/Images/Database/Skills/EL_A_SoulKing_G1.png',
+            id: '6129',
+            class: 'Spiritmaster',
+            category: 'Vision Stigma',
+            usageCost: '1199 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '1m12s',
+            description: 'Increases Magical Accuracy by 1000 for 3m.<br>Increases Magic Attack by 1000.<br>Increases Crit Spell by 500.<br>Increases HP by 12000.<br>Increases Speed by 10%.<br>Increases magic damage by 12%.<br>If you summon a spirit, the skill effect disappears.'
+        },
+        'limitlessPower': {
+            name: '(Improved) Limitless Power',
+            icon: 'https://myaion.eu/Images/Database/Skills/EV_RI_HighEndOverDrive_Custom_B_up.png',
+            id: '6020',
+            class: 'Aethertech',
+            category: 'Active',
+            usageCost: '1000 DP every 3s',
+            castTime: 'Cast Instantly',
+            cooldown: '30s',
+            description: 'Removes immobilisation.<br>You are immobilised and cannot cause immobilisation.<br>Increases Attack Speed by 25%.<br>Increases Magic Attack by 5000.<br>Increases Magical Accuracy by 3000.<br>Increases Resistance to Pull by 1000.<br>Each time you attack, you have a 10% chance of stunning the target.<br>1000 DP are used every 3 seconds.<br>Active Skill.'
+        },
+        'combatPowerMax': {
+            name: 'Combat Power Maximisation',
+            icon: 'https://myaion.eu/Images/Database/Skills/RI_PowerOverDrive_G1.png',
+            id: '4794',
+            class: 'Aethertech',
+            category: 'Active',
+            usageCost: '2% MP every 4 seconds',
+            castTime: 'Cast Instantly',
+            cooldown: '30s',
+            description: 'Increases Magic Attack by 800 for a maximum of 30s.<br>Increases Additional PvP Attack by 550.<br>Increases Attack Speed by 10%.<br>Active Skill.'
+        },
+        'powerIncrease': {
+            name: '(Improved) Power Increase',
+            icon: 'https://myaion.eu/Images/Database/Skills/RI_A_OverCharge_G1.png',
+            id: '6258',
+            class: 'Aethertech',
+            category: 'Greater Stigma',
+            usageCost: '399 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '56.7s',
+            description: 'Increases Attack Speed by 10% for 12s.<br>Increases Magic Attack by 900<br>Increases Additional PvP Attack by 300.'
+        },
+        'extremeEffort': {
+            name: '(Improved) Extreme Effort',
+            icon: 'https://myaion.eu/Images/Database/Skills/EV_RI_HighEndOverDrive_Custom_A_up.png',
+            id: '6019',
+            class: 'Aethertech',
+            category: 'Active',
+            usageCost: '500 DP every 3 seconds',
+            castTime: 'Cast Instantly',
+            cooldown: '8s',
+            description: 'Increases movement and flight speed by 25%.<br>Increases Attack Speed by 25%.<br>Increases Magic Attack by 900<br>Increases Magical Accuracy by 1200.<br>500 DP are used every 3 seconds.<br>Active Skill.'
+        },
+        'focusedMagic': {
+            name: '(Improved) Focused Magic',
+            icon: 'https://myaion.eu/Images/Database/Skills/gu_magicalstrength_custom_b_up.png',
+            id: '6016',
+            class: 'Gunner',
+            category: 'Active',
+            usageCost: '3000 DP',
+            castTime: 'Cast Instantly',
+            cooldown: '2m',
+            description: 'Increases Magic Attack by 1200 for 15s.<br>Increases Attack Speed by 15%.'
+        },
+        'magicsBlessing': {
+            name: '(Improved) Magic\'s Blessing',
+            icon: 'https://myaion.eu/Images/Database/Skills/gu_magicalstrength_custom_a_up.png',
+            id: '6015',
+            class: 'Gunner',
+            category: 'Active',
+            usageCost: '3000 DP',
+            castTime: 'Cast Instantly',
+            cooldown: '2m',
+            description: 'Increases Magic Attack by 700 for 2m.<br>Increases Attack Speed by 15%.<br>Increases Magical Accuracy by 800.'
+        },
+        'enhanceMagicProjectile': {
+            name: '(Improved) Enhance Magic Projectile',
+            icon: 'https://myaion.eu/Images/Database/Skills/Live_GU_A_EmpowerAmmo_G1.png',
+            id: '6206',
+            class: 'Gunner',
+            category: 'Greater Stigma',
+            usageCost: '249 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '21s',
+            description: 'Deals 10s additional damage with each attack for 1689.<br>Increases Additional PvP Attack by 500.<br>Increases Additional PvE Attack by 500.<br>TODO: find out duration, databases are not showing it.'
+        },
+        'giftMagic': {
+            name: 'Gift of Magic Power',
+            icon: 'https://myaion.eu/Images/Database/Skills/Live_GU_A_EmpowerMagic_G1.png',
+            id: '6207',
+            class: 'Gunner',
+            category: 'Greater Stigma',
+            usageCost: '128 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '37.8s',
+            description: 'Boosts the effect of Magical Attack Skill by 20% 6 times for 30s.'
+        },
+        'cheeryMelody': {
+            name: 'Cheery Melody',
+            icon: 'https://myaion.eu/Images/Database/Skills/BA_ExcitingMelody_G1.png',
+            id: '4793',
+            class: 'Bard',
+            category: 'Active',
+            usageCost: '303 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '30s',
+            description: 'Increases Attack Speed by 20% for 15s.<br>Reduces the casting time by 20%.<br>Increases Additional PvE Attack by 1000 (+20 per enchant level).<br>Reduces the MP consumption of your skills by 20%.'
+        },
+        'magicBoostMode': {
+            name: '(Improved) Magic Boost Mode',
+            icon: 'https://myaion.eu/Images/Database/Skills/live_ba_a_playingstyleschangeb_g1.png',
+            id: '6237',
+            class: 'Bard',
+            category: 'Greater Stigma',
+            usageCost: '0 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '30s',
+            description: 'Increases Magic Attack by 1150.<br>Increases Magical Accuracy by 2800.<br>Reduces Healing Boost by 800.<br>Active Skill.'
+        },
+        'precisionColourBoost': {
+            name: '(Improved) Precision Colour Boost',
+            icon: 'https://myaion.eu/Images/Database/Skills/PA_PaintShower_Custom_A_up.png',
+            id: '6007',
+            class: 'Painter',
+            category: 'Active',
+            usageCost: '3000 DP',
+            castTime: 'Cast Instantly',
+            cooldown: '2m',
+            description: 'Increases Physical Attack by 700 for 30s.<br>Increases Attack Speed by 30%.<br>Increases Crit Strike by 2000.<br>Increases Accuracy by 1000.'
+        },
+        'attackColourBoost': {
+            name: '(Improved) Attack Colour Boost',
+            icon: 'https://myaion.eu/Images/Database/Skills/PA_PaintShower_Custom_B_up.png',
+            id: '6008',
+            class: 'Painter',
+            category: 'Active',
+            usageCost: '3000 DP',
+            castTime: 'Cast Instantly',
+            cooldown: '2m',
+            description: 'Increases Physical Attack by 2000 for 10s.<br>Increases Attack Speed by 30%.<br>Increases Crit Strike by 2000.'
+        },
     };
 
     // Show skill information modal
@@ -1073,9 +1513,22 @@
         const skill = skillDatabase[skillKey];
         if (!skill) return;
         
-        // Get class icon from CLASS_DATA
-        const classKey = skill.class.toLowerCase();
-        const classIcon = CLASS_DATA[classKey]?.icon || '';
+        // Handle multiple classes (split by '+')
+        const classes = skill.class.split('+').map(c => c.trim());
+        let classDisplay = '';
+        
+        if (classes.length > 0 && classes[0] !== '-' && classes[0] !== 'TBD') {
+            classDisplay = classes.map(className => {
+                const classKey = className.toLowerCase();
+                const classIcon = CLASS_DATA[classKey]?.icon;
+                if (classIcon) {
+                    return `<span class="skill-info-class-item"><img src="${classIcon}" class="skill-info-class-icon" alt="${className}" title="${className}"><span class="skill-info-class-text">${className}</span></span>`;
+                }
+                return className;
+            }).join('');
+        } else {
+            classDisplay = skill.class;
+        }
         
         const modal = document.getElementById('skillInfoModal');
         const content = `
@@ -1090,8 +1543,8 @@
             <div class="skill-info-body">
                 <div class="skill-info-row">
                     <div class="skill-info-label">Class:</div>
-                    <div class="skill-info-value">
-                        ${classIcon ? `<img src="${classIcon}" class="skill-info-class-icon" alt="${skill.class}" title="${skill.class}">` : skill.class}
+                    <div class="skill-info-value skill-info-class-container">
+                        ${classDisplay}
                     </div>
                 </div>
                 <div class="skill-info-row">
@@ -1553,7 +2006,7 @@
     let amplificationLevelValue = 20;
     let vaizlGiftLevelValue = 20;
     let devotionLevelValue = 20;
-    let cheerfulMelodyLevelValue = 20;
+    let cheeryMelodyLevelValue = 20;
 
     function updateCollapsingSmashValue() {
         const collapsingSmashCheckbox = document.getElementById('check-collapsingSmash');
@@ -1770,28 +2223,28 @@
         }
     }
 
-    function updateCheerfulMelodyValue() {
-        const cheerfulMelodyCheckbox = document.getElementById('check-cheerfulMelody');
-        const cheerfulMelodySelect = document.getElementById('cheerfulMelodyLevel');
-        const cheerfulMelodyValue = document.getElementById('cheerfulMelodyValue');
-        const buffCheerfulMelodyItem = document.getElementById('buff-cheerfulMelody');
+    function updatecheeryMelodyValue() {
+        const cheeryMelodyCheckbox = document.getElementById('check-cheeryMelody');
+        const cheeryMelodySelect = document.getElementById('cheeryMelodyLevel');
+        const cheeryMelodyValue = document.getElementById('cheeryMelodyValue');
+        const buffcheeryMelodyItem = document.getElementById('buff-cheeryMelody');
         
         // Only proceed if elements exist
-        if (!cheerfulMelodyValue || !buffCheerfulMelodyItem) return;
+        if (!cheeryMelodyValue || !buffcheeryMelodyItem) return;
         
         // Use variable as primary source, fall back to select value
-        let cheerfulMelodyLevel = cheerfulMelodyLevelValue;
-        if (cheerfulMelodySelect && cheerfulMelodySelect.value) {
-            cheerfulMelodyLevel = parseInt(cheerfulMelodySelect.value) || cheerfulMelodyLevelValue;
+        let cheeryMelodyLevel = cheeryMelodyLevelValue;
+        if (cheeryMelodySelect && cheeryMelodySelect.value) {
+            cheeryMelodyLevel = parseInt(cheeryMelodySelect.value) || cheeryMelodyLevelValue;
         }
         
         // Calculate PvE attack bonus: +1000 at +0, +1520 at +26, each level = +20
-        const pveAttackBonus = 1000 + (cheerfulMelodyLevel * 20);
-        cheerfulMelodyValue.textContent = `+${pveAttackBonus} PvE Atk`;
+        const pveAttackBonus = 1000 + (cheeryMelodyLevel * 20);
+        cheeryMelodyValue.textContent = `+${pveAttackBonus} PvE Atk`;
         
         // Update visual state
-        if (cheerfulMelodyCheckbox) {
-            buffCheerfulMelodyItem.classList.toggle('active', cheerfulMelodyCheckbox.checked);
+        if (cheeryMelodyCheckbox) {
+            buffcheeryMelodyItem.classList.toggle('active', cheeryMelodyCheckbox.checked);
         }
     }
 
@@ -1865,28 +2318,31 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-atkPos">
-                    <img src="https://myaion.eu/Images/Database/Skills/fi_berserkstance_custom_b_up.png" class="buff-icon">
+                    <img src="${skillDatabase.attackPosition.icon}" class="buff-icon">
                     <div class="buff-info">
-                        <div class="buff-name">Attack Position</div>
+                        <div class="buff-name">(Improved) Attack Position</div>
                         <div class="buff-value">+1800 Atk / +1200 Crit</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-atkPos" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'attackPosition')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-defPrep">
-                    <img src="https://myaion.eu/Images/Database/Skills/cbt_fi_defensemode_g1.png" class="buff-icon">
+                    <img src="${skillDatabase.defencePrep.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Defence Preparation</div>
                         <div class="buff-value">-600 PvP Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-defPrep" onclick="event.stopPropagation();" onchange="toggleGladatorBuffs('defPrep'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'defencePrep')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-combPrep">
-                    <img src="https://myaion.eu/Images/Database/Skills/cbt_fi_blademode_g1.png" class="buff-icon">
+                    <img src="${skillDatabase.combatPrep.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Combat Preparation</div>
                         <div class="buff-value">+800 Atk / +800 PvP</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-combPrep" onclick="event.stopPropagation();" onchange="toggleGladatorBuffs('combPrep'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'combatPrep')" title="Skill Information">i</button>
                 </div>
             `;
         }
@@ -1896,28 +2352,31 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-divFury">
-                    <img src="https://myaion.eu/Images/Database/Skills/cbt_kn_a_divinepower_g1.png" class="buff-icon">
+                    <img src="${skillDatabase.divineFury.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Divine Fury</div>
                         <div class="buff-value">+550 Attack</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-divFury" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'divineFury')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-empFury">
-                    <img src="https://myaion.eu/Images/Database/Skills/live_kn_destructwish_g1.png" class="buff-icon">
+                    <img src="${skillDatabase.empyreanFury.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Empyrean Fury</div>
                         <div class="buff-value">+900 Atk / +1000 Crit</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-empFury" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'empyreanFury')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-menanPos">
-                    <img src="https://myaion.eu/Images/Database/Skills/cbt_fi_defensemode_g1.png" class="buff-icon">
+                    <img src="${skillDatabase.menacingPosture.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Menacing Posture</div>
                         <div class="buff-value">+1500 PvE Atk / -1000 Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-menanPos" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'menacingPosture')" title="Skill Information">i</button>
                 </div>
             `;
         }
@@ -1926,15 +2385,16 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-sacrificialPower">
-                    <img src="https://myaion.eu/Images/Database/Skills/live_pr_a_offensivemode_g1.png" class="buff-icon">
+                    <img src="${skillDatabase.sacrificialPower?.icon || 'https://myaion.eu/Images/Database/Skills/live_pr_a_offensivemode_g1.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Sacrificial Power</div>
                         <div class="buff-value">+1000 Atk / +500 PvE / +1000 Crit</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-sacrificialPower" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'sacrificialPower')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-amplification">
-                    <img src="https://myaion.eu/Images/Database/Skills/LIVE_PR_PrepareHolywar_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.amplification?.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Amplification</div>
                         <div class="buff-value" id="amplificationValue">+700 Atk</div>
@@ -1951,6 +2411,7 @@
                             <option value="26">+26</option>
                         </select>
                     </div>
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'amplification')" title="Skill Information">i</button>
                 </div>
             `;
         }
@@ -1959,28 +2420,31 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-blessingWind">
-                    <img src="https://myaion.eu/Images/Database/Skills/LIVE_CH_A_ImbuePower_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.blessingWind?.icon || 'https://myaion.eu/Images/Database/Skills/LIVE_CH_A_ImbuePower_G1.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Blessing of Wind</div>
                         <div class="buff-value">+800 Attack</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-blessingWind" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'blessingWind')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-divineProtection">
-                    <img src="https://myaion.eu/Images/Database/Skills/CBT_CH_AbyssGloria_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.divineProtection?.icon || 'https://myaion.eu/Images/Database/Skills/CBT_CH_AbyssGloria_G1.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Divine Protection</div>
                         <div class="buff-value">+2000 Attack</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-divineProtection" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'divineProtection')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-wordInspiration" onclick="event.stopPropagation(); toggleWordInspiration();">
-                    <img src="https://myaion.eu/Images/Database/Skills/cbt_ch_a_improvedallattack_g1.png" class="buff-icon">
+                    <img src="${skillDatabase.wordInspiration?.icon || 'https://myaion.eu/Images/Database/Skills/cbt_ch_a_improvedallattack_g1.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Word of Inspiration</div>
                         <div class="buff-value">+750 Atk / +600 Crit / +500 PvE</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-wordInspiration" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'wordInspiration')" title="Skill Information">i</button>
                 </div>
             `;
         }
@@ -1989,7 +2453,7 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-vaizlGift">
-                    <img src="https://myaion.eu/Images/Database/Skills/CBT_WI_ArcaneBoost_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.vaizlGift?.icon || 'https://myaion.eu/Images/Database/Skills/CBT_WI_ArcaneBoost_G1.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Vaizel Gift</div>
                         <div class="buff-value" id="vaizlGiftValue">+500 PvE Atk</div>
@@ -2006,30 +2470,34 @@
                             <option value="26">+26</option>
                         </select>
                     </div>
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'vaizlGift')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-arcaneCombustion">
-                    <img src="https://myaion.eu/Images/Database/Skills/WI_ManaBoost_Custom_B_up.png" class="buff-icon">
+                    <img src="${skillDatabase.arcaneCombustion?.icon || 'https://myaion.eu/Images/Database/Skills/WI_ManaBoost_Custom_B_up.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Arcane Combustion</div>
                         <div class="buff-value">+700 Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-arcaneCombustion" onclick="event.stopPropagation();" onchange="toggleArcaneBuffs('combustion'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'arcaneCombustion')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-arcaneGrowth">
-                    <img src="https://myaion.eu/Images/Database/Skills/WI_ManaBoost_Custom_A_up.png" class="buff-icon">
+                    <img src="${skillDatabase.arcaneGrowth?.icon || 'https://myaion.eu/Images/Database/Skills/WI_ManaBoost_Custom_A_up.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Arcane Growth</div>
                         <div class="buff-value">+1500 Atk / +1500 Crit</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-arcaneGrowth" onclick="event.stopPropagation();" onchange="toggleArcaneBuffs('growth'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'arcaneGrowth')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-boonFlame">
-                    <img src="https://myaion.eu/Images/Database/Skills/Wi_A_FireShield_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.boonFlame?.icon || 'https://myaion.eu/Images/Database/Skills/Wi_A_FireShield_G1.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Boon of Flame</div>
                         <div class="buff-value">+18% / +1000 Crit Spell</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-boonFlame" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'boonFlame')" title="Skill Information">i</button>
                 </div>
             `;
         }
@@ -2038,12 +2506,13 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-spiritBundle">
-                    <img src="https://myaion.eu/Images/Database/Skills/EL_A_SoulKing_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.spiritBundle?.icon || 'https://myaion.eu/Images/Database/Skills/EL_A_SoulKing_G1.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Spirit Bundling</div>
                         <div class="buff-value">+12% / +1000 Attack / +500 Crit Spell</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-spiritBundle" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'spiritBundle')" title="Skill Information">i</button>
                 </div>
             `;
         }
@@ -2052,36 +2521,40 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-limitlessPower">
-                    <img src="https://myaion.eu/Images/Database/Skills/EV_RI_HighEndOverDrive_Custom_B_up.png" class="buff-icon">
+                    <img src="${skillDatabase.limitlessPower?.icon || 'https://myaion.eu/Images/Database/Skills/EV_RI_HighEndOverDrive_Custom_B_up.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Limitless Power</div>
                         <div class="buff-value">+5000 Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-limitlessPower" onclick="event.stopPropagation();" onchange="toggleAethertechBuffs('limitless'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'limitlessPower')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-combatPowerMax">
-                    <img src="https://myaion.eu/Images/Database/Skills/RI_PowerOverDrive_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.combatPowerMax?.icon || 'https://myaion.eu/Images/Database/Skills/RI_PowerOverDrive_G1.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Combat Power Maximisation</div>
                         <div class="buff-value">+800 Atk / +550 PvP</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-combatPowerMax" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'combatPowerMax')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-powerIncrease">
-                    <img src="https://myaion.eu/Images/Database/Skills/RI_A_OverCharge_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.powerIncrease?.icon || 'https://myaion.eu/Images/Database/Skills/RI_A_OverCharge_G1.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Power Increase</div>
                         <div class="buff-value">+900 Atk / +300 PvP</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-powerIncrease" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'powerIncrease')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-extremeEffort">
-                    <img src="https://myaion.eu/Images/Database/Skills/EV_RI_HighEndOverDrive_Custom_A_up.png" class="buff-icon">
+                    <img src="${skillDatabase.extremeEffort?.icon || 'https://myaion.eu/Images/Database/Skills/EV_RI_HighEndOverDrive_Custom_A_up.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Extreme Effort</div>
                         <div class="buff-value">+900 Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-extremeEffort" onclick="event.stopPropagation();" onchange="toggleAethertechBuffs('effort'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'extremeEffort')" title="Skill Information">i</button>
                 </div>
             `;
         }
@@ -2090,36 +2563,40 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-focusedMagic">
-                    <img src="https://myaion.eu/Images/Database/Skills/gu_magicalstrength_custom_b_up.png" class="buff-icon">
+                    <img src="${skillDatabase.focusedMagic?.icon || 'https://myaion.eu/Images/Database/Skills/gu_magicalstrength_custom_b_up.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Focused Magic</div>
                         <div class="buff-value">+1200 Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-focusedMagic" onclick="event.stopPropagation();" onchange="toggleGunnerBuffs('focused'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'focusedMagic')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-magicsBlessing">
-                    <img src="https://myaion.eu/Images/Database/Skills/gu_magicalstrength_custom_a_up.png" class="buff-icon">
+                    <img src="${skillDatabase.magicsBlessing?.icon || 'https://myaion.eu/Images/Database/Skills/gu_magicalstrength_custom_a_up.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Magic's Blessing</div>
                         <div class="buff-value">+700 Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-magicsBlessing" onclick="event.stopPropagation();" onchange="toggleGunnerBuffs('blessing'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'magicsBlessing')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-enhanceMagicProjectile">
-                    <img src="https://myaion.eu/Images/Database/Skills/Live_GU_A_EmpowerAmmo_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.enhanceMagicProjectile?.icon || 'https://myaion.eu/Images/Database/Skills/Live_GU_A_EmpowerAmmo_G1.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Enhance Magic Projectile</div>
                         <div class="buff-value">+500 PvP / +500 PvE</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-enhanceMagicProjectile" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'enhanceMagicProjectile')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-giftMagic">
-                    <img src="https://myaion.eu/Images/Database/Skills/Live_GU_A_EmpowerMagic_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.giftMagic?.icon || 'https://myaion.eu/Images/Database/Skills/Live_GU_A_EmpowerMagic_G1.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Gift of Magic Power</div>
                         <div class="buff-value">+20%</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-giftMagic" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'giftMagic')" title="Skill Information">i</button>
                 </div>
             `;
         }
@@ -2127,15 +2604,15 @@
         if (selectedClass === 'bard') {
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
-                <div class="buff-item" id="buff-cheerfulMelody">
-                    <img src="https://myaion.eu/Images/Database/Skills/BA_ExcitingMelody_G1.png" class="buff-icon">
+                <div class="buff-item" id="buff-cheeryMelody">
+                    <img src="${skillDatabase.cheeryMelody?.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Cheery Melody</div>
-                        <div class="buff-value" id="cheerfulMelodyValue">+1000 PvE Atk</div>
+                        <div class="buff-value" id="cheeryMelodyValue">+1000 PvE Atk</div>
                     </div>
                     <div style="display: flex; gap: 8px; align-items: center;">
-                        <input type="checkbox" class="buff-checkbox" id="check-cheerfulMelody" onchange="event.stopPropagation(); updateCheerfulMelodyValue(); calculate()">
-                        <select id="cheerfulMelodyLevel" style="padding: 4px 8px; background: #2a2a2f; color: #fff; border: 1px solid #444; border-radius: 4px; cursor: pointer;" onchange="cheerfulMelodyLevelValue = parseInt(this.value) || 20; updateCheerfulMelodyValue(); saveSession(); calculate();" onclick="event.stopPropagation();">
+                        <input type="checkbox" class="buff-checkbox" id="check-cheeryMelody" onchange="event.stopPropagation(); updatecheeryMelodyValue(); calculate()">
+                        <select id="cheeryMelodyLevel" style="padding: 4px 8px; background: #2a2a2f; color: #fff; border: 1px solid #444; border-radius: 4px; cursor: pointer;" onchange="cheeryMelodyLevelValue = parseInt(this.value) || 20; updatecheeryMelodyValue(); saveSession(); calculate();" onclick="event.stopPropagation();">
                             <option value="0">+0</option>
                             <option value="10">+10</option>
                             <option value="12">+12</option>
@@ -2145,14 +2622,16 @@
                             <option value="26">+26</option>
                         </select>
                     </div>
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'cheeryMelody')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-magicBoostMode">
-                    <img src="https://myaion.eu/Images/Database/Skills/live_ba_a_playingstyleschangeb_g1.png" class="buff-icon">
+                    <img src="${skillDatabase.magicBoostMode?.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Magic boost Mode</div>
                         <div class="buff-value">+1150 Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-magicBoostMode" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'magicBoostMode')" title="Skill Information">i</button>
                 </div>
             `;
         }
@@ -2161,44 +2640,49 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-bowBlessing">
-                    <img src="https://myaion.eu/Images/Database/Skills/live_ra_a_enchantbow_g1.png" class="buff-icon">
+                    <img src="${skillDatabase.bowOfBlessing.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Bow of Blessing</div>
                         <div class="buff-value">+480 Atk / +1200 Crit</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-bowBlessing" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'bowOfBlessing')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-strengtheningEye">
-                    <img src="https://myaion.eu/Images/Database/Skills/cbt_ra_snakeeye_g1.png" class="buff-icon">
+                    <img src="${skillDatabase.strengtheningEye.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Strengthening Eye</div>
                         <div class="buff-value">+200 Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-strengtheningEye" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'strengtheningEye')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-mauGlory">
-                    <img src="https://myaion.eu/Images/Database/Skills/ev_ra_sabageroar_custom_b_up.png" class="buff-icon">
+                    <img src="${skillDatabase.mauGlory.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Mau's Glory</div>
                         <div class="buff-value">+4000 Atk / +4000 Crit</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-mauGlory" onclick="event.stopPropagation();" onchange="toggleMauBuffs('glory'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'mauGlory')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-mauHonour">
-                    <img src="https://myaion.eu/Images/Database/Skills/ev_ra_sabageroar_custom_a_up.png" class="buff-icon">
+                    <img src="${skillDatabase.mauHonour.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Mau's Honour</div>
                         <div class="buff-value">+800 Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-mauHonour" onclick="event.stopPropagation();" onchange="toggleMauBuffs('honour'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'mauHonour')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-sharpenArrows">
-                    <img src="https://myaion.eu/Images/Database/Skills/live_ra_a_trackermind_g1.png" class="buff-icon">
+                    <img src="${skillDatabase.sharpenArrows.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Sharpen Arrows</div>
                         <div class="buff-value">+500 Atk / +650 Crit / +650 PvE Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-sharpenArrows" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'sharpenArrows')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-devotion">
                     <img src="https://myaion.eu/Images/Database/Skills/CBT_SC_InvokePower_G1.png" class="buff-icon">
@@ -2217,15 +2701,17 @@
                             <option value="20" selected>+20</option>
                             <option value="26">+26</option>
                         </select>
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'devotion')" title="Skill Information">i</button>
                     </div>
                 </div>
                 <div class="buff-item" id="buff-focusedShots">
-                    <img src="https://myaion.eu/Images/Database/Skills/CBT_SC_A_TrueShotMind_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.focusedShots.icon}" class="buff-icon">
                     <div class="buff-info">
-                        <div class="buff-name">Focused Shots</div>
+                        <div class="buff-name">(Improved) Focused Shots</div>
                         <div class="buff-value">+30%</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-focusedShots" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'focusedShots')" title="Skill Information">i</button>
                 </div>
             `;
         }
@@ -2234,12 +2720,13 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-deadlyFocus">
-                    <img src="https://myaion.eu/Images/Database/Skills/LIVE_AS_RaidStance_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.deadlyFocus.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Deadly Focus</div>
                         <div class="buff-value">+2000 Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-deadlyFocus" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'deadlyFocus')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-devotion">
                     <img src="https://myaion.eu/Images/Database/Skills/CBT_SC_InvokePower_G1.png" class="buff-icon">
@@ -2258,39 +2745,44 @@
                             <option value="20" selected>+20</option>
                             <option value="26">+26</option>
                         </select>
+                        <button class="skill-info-btn" onclick="showSkillInfo(event, 'devotion')" title="Skill Information">i</button>
                     </div>
                 </div>
                 <div class="buff-item" id="buff-deadlyAbandon">
-                    <img src="https://myaion.eu/Images/Database/Skills/live_as_a_stabstance_g1.png" class="buff-icon">
+                    <img src="${skillDatabase.deadlyAbandon.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Deadly Abandon</div>
                         <div class="buff-value">+350 Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-deadlyAbandon" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'deadlyAbandon')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-flurry">
-                    <img src="https://myaion.eu/Images/Database/Skills/CBT_AS_QuickMove_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.flurry.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Flurry</div>
                         <div class="buff-value">+1500 Crit</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-flurry" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'flurry')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-mist">
-                    <img src="https://myaion.eu/Images/Database/Skills/LIVE_AS_Light_DefendRoar_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.mistButcher.icon}" class="buff-icon">
                     <div class="buff-info">
-                        <div class="buff-name">Mist</div>
+                        <div class="buff-name">Mist Butcher</div>
                         <div class="buff-value">+100%</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-mist" onclick="event.stopPropagation();" onchange="toggleSinBuffs('mist'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'mistButcher')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-eye">
-                    <img src="https://myaion.eu/Images/Database/Skills/CBT_AS_A_VisiousEye_G1.png" class="buff-icon">
+                    <img src="${skillDatabase.eyeOfWrath.icon}" class="buff-icon">
                     <div class="buff-info">
-                        <div class="buff-name">Eye</div>
+                        <div class="buff-name">(Improved) Eye of Wrath</div>
                         <div class="buff-value">+60%</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-eye" onclick="event.stopPropagation();" onchange="toggleSinBuffs('eye'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'eyeOfWrath')" title="Skill Information">i</button>
                 </div>
             `;
         }
@@ -2299,20 +2791,22 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-precisionColourBoost">
-                    <img src="https://myaion.eu/Images/Database/Skills/PA_PaintShower_Custom_A_up.png" class="buff-icon">
+                    <img src="${skillDatabase.precisionColourBoost?.icon || 'https://myaion.eu/Images/Database/Skills/PA_PaintShower_Custom_A_up.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Precision Colour Boost</div>
                         <div class="buff-value">+700 Atk / +2000 Crit</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-precisionColourBoost" onclick="event.stopPropagation();" onchange="togglePainterBuffs('precision'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'precisionColourBoost')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-attackColourBoost">
-                    <img src="https://myaion.eu/Images/Database/Skills/PA_PaintShower_Custom_B_up.png" class="buff-icon">
+                    <img src="${skillDatabase.attackColourBoost?.icon || 'https://myaion.eu/Images/Database/Skills/PA_PaintShower_Custom_B_up.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Attack Colour Boost</div>
                         <div class="buff-value">+2000 Atk / +2000 Crit</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-attackColourBoost" onclick="event.stopPropagation();" onchange="togglePainterBuffs('attack'); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'attackColourBoost')" title="Skill Information">i</button>
                 </div>
             `;
         }
@@ -2742,10 +3236,10 @@
 
         // Bard buffs
         if (selectedClass === 'bard') {
-            if (document.getElementById('check-cheerfulMelody')?.checked) {
-                const cheerfulMelodyBonus = 1000 + (cheerfulMelodyLevelValue * 20);
+            if (document.getElementById('check-cheeryMelody')?.checked) {
+                const cheeryMelodyBonus = 1000 + (cheeryMelodyLevelValue * 20);
                 if (currentMode === 'pve') {
-                    pveAttackBonus += cheerfulMelodyBonus;
+                    pveAttackBonus += cheeryMelodyBonus;
                 }
             }
             if (document.getElementById('check-magicBoostMode')?.checked) {
@@ -3181,7 +3675,7 @@
                 disrupterShot: document.getElementById('check-disrupterShot')?.checked,
                 marchOfTheBees: document.getElementById('check-marchOfTheBees')?.checked,
                 seaVariation: document.getElementById('check-seaVariation')?.checked,
-                cheerfulMelody: document.getElementById('check-cheerfulMelody')?.checked,
+                cheeryMelody: document.getElementById('check-cheeryMelody')?.checked,
                 arcaneCombustion: document.getElementById('check-arcaneCombustion')?.checked,
                 arcaneGrowth: document.getElementById('check-arcaneGrowth')?.checked,
                 magicIncitement: document.getElementById('check-magicIncitement')?.checked,
@@ -3205,7 +3699,7 @@
                 hexLevel: document.getElementById('hexLevel')?.value || '20',
                 amplificationLevel: document.getElementById('amplificationLevel')?.value || '20',
                 vaizlGiftLevel: document.getElementById('vaizlGiftLevel')?.value || '20',
-                cheerfulMelodyLevel: document.getElementById('cheerfulMelodyLevel')?.value || '20'
+                cheeryMelodyLevel: document.getElementById('cheeryMelodyLevel')?.value || '20'
             }
         };
         localStorage.setItem('manastoneSession', JSON.stringify(session));
@@ -3304,11 +3798,11 @@
                         }
                     }
                     // Restore Cheery Melody level
-                    if (session.buffs.cheerfulMelodyLevel !== undefined && session.buffs.cheerfulMelodyLevel !== null) {
-                        cheerfulMelodyLevelValue = parseInt(session.buffs.cheerfulMelodyLevel) || 20;
-                        const cheerfulMelodySelect = document.getElementById('cheerfulMelodyLevel');
-                        if (cheerfulMelodySelect) {
-                            cheerfulMelodySelect.value = session.buffs.cheerfulMelodyLevel;
+                    if (session.buffs.cheeryMelodyLevel !== undefined && session.buffs.cheeryMelodyLevel !== null) {
+                        cheeryMelodyLevelValue = parseInt(session.buffs.cheeryMelodyLevel) || 20;
+                        const cheeryMelodySelect = document.getElementById('cheeryMelodyLevel');
+                        if (cheeryMelodySelect) {
+                            cheeryMelodySelect.value = session.buffs.cheeryMelodyLevel;
                         }
                     }
                     
@@ -3332,7 +3826,7 @@
                         updateAmplificationValue(); // Update Amplification display value
                         updateVaizlGiftValue(); // Update Vaizel Gift display value
                         updateCollapsingSmashValue(); // Update Collapsing Smash display value
-                        updateCheerfulMelodyValue(); // Update Cheery Melody display value
+                        updatecheeryMelodyValue(); // Update Cheery Melody display value
                         updateWindHarmonyState(); // Sync Wind Harmony state across both sections
                         
                         // Trigger mutual exclusivity functions after restoring
