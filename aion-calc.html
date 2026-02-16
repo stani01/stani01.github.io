@@ -1318,7 +1318,7 @@
             cooldown: '30s',
             description: 'Increases Physical Attack by 750.<br>Increases Accuracy by 600.<br>Increases Crit Strike by 600.<br>Increases Additional PvE Attack by 500.<br>Reduces Healing Boost by 1000.<br>Active Skill.'
         },
-        'vaizlGift': {
+        'vaizelGift': {
             name: 'Vaizel Gift',
             icon: 'https://myaion.eu/Images/Database/Skills/CBT_WI_ArcaneBoost_G1.png',
             id: '5155',
@@ -1935,8 +1935,8 @@
             updateCollapsingSmashValue();
         } else if (buffId === 'hex') {
             updateHexValue();
-        } else if (buffId === 'vaizlGift') {
-            updateVaizlGiftValue();
+        } else if (buffId === 'vaizelGift') {
+            updatevaizelGiftValue();
         } else if (buffId === 'amplification') {
             updateAmplificationValue();
         } else if (buffId === 'devotion') {
@@ -1986,8 +1986,9 @@
         
         // Use variable as primary source, fall back to select value
         let devotionLevel = devotionLevelValue;
-        if (devotionSelect && devotionSelect.value) {
-            devotionLevel = parseInt(devotionSelect.value) || devotionLevelValue;
+        if (devotionSelect && devotionSelect.value !== undefined && devotionSelect.value !== '') {
+            const parsed = parseInt(devotionSelect.value);
+            devotionLevel = isNaN(parsed) ? devotionLevelValue : parsed;
         }
         
         // Calculate attack bonus: +450 at +0, +710 at +26, each level = +10
@@ -2004,7 +2005,7 @@
     let collapsingSmashLevelValue = 20;
     let hexLevelValue = 12;
     let amplificationLevelValue = 20;
-    let vaizlGiftLevelValue = 20;
+    let vaizelGiftLevelValue = 20;
     let devotionLevelValue = 20;
     let cheeryMelodyLevelValue = 20;
 
@@ -2013,8 +2014,9 @@
         const collapsingSmashSelect = document.getElementById('collapsingSmashLevel');
         // Use variable as primary source, fall back to select value
         let collapsingSmashLevel = collapsingSmashLevelValue;
-        if (collapsingSmashSelect && collapsingSmashSelect.value) {
-            collapsingSmashLevel = parseInt(collapsingSmashSelect.value) || collapsingSmashLevelValue;
+        if (collapsingSmashSelect && collapsingSmashSelect.value !== undefined && collapsingSmashSelect.value !== '') {
+            const parsed = parseInt(collapsingSmashSelect.value);
+            collapsingSmashLevel = isNaN(parsed) ? collapsingSmashLevelValue : parsed;
         }
         const collapsingSmashValue = document.getElementById('collapsingSmashValue');
         const buffCollapsingSmashItem = document.getElementById('buff-collapsingSmash');
@@ -2198,28 +2200,29 @@
         }
     }
 
-    function updateVaizlGiftValue() {
-        const vaizlGiftCheckbox = document.getElementById('check-vaizlGift');
-        const vaizlGiftSelect = document.getElementById('vaizlGiftLevel');
-        const vaizlGiftValue = document.getElementById('vaizlGiftValue');
-        const buffVaizlGiftItem = document.getElementById('buff-vaizlGift');
+    function updatevaizelGiftValue() {
+        const vaizelGiftCheckbox = document.getElementById('check-vaizelGift');
+        const vaizelGiftSelect = document.getElementById('vaizelGiftLevel');
+        const vaizelGiftValue = document.getElementById('vaizelGiftValue');
+        const buffvaizelGiftItem = document.getElementById('buff-vaizelGift');
         
         // Only proceed if elements exist
-        if (!vaizlGiftValue || !buffVaizlGiftItem) return;
+        if (!vaizelGiftValue || !buffvaizelGiftItem) return;
         
         // Use variable as primary source, fall back to select value
-        let vaizlGiftLevel = vaizlGiftLevelValue;
-        if (vaizlGiftSelect && vaizlGiftSelect.value) {
-            vaizlGiftLevel = parseInt(vaizlGiftSelect.value) || vaizlGiftLevelValue;
+        let vaizelGiftLevel = vaizelGiftLevelValue;
+        if (vaizelGiftSelect && vaizelGiftSelect.value !== undefined && vaizelGiftSelect.value !== '') {
+            const parsed = parseInt(vaizelGiftSelect.value);
+            vaizelGiftLevel = isNaN(parsed) ? vaizelGiftLevelValue : parsed;
         }
         
         // Calculate PvE attack bonus: +500 at +0, +760 at +26, each level = +10
-        const pveAttackBonus = 500 + (vaizlGiftLevel * 10);
-        vaizlGiftValue.textContent = `+${pveAttackBonus} PvE Atk`;
+        const pveAttackBonus = 500 + (vaizelGiftLevel * 10);
+        vaizelGiftValue.textContent = `+${pveAttackBonus} PvE Atk`;
         
         // Update visual state
-        if (vaizlGiftCheckbox) {
-            buffVaizlGiftItem.classList.toggle('active', vaizlGiftCheckbox.checked);
+        if (vaizelGiftCheckbox) {
+            buffvaizelGiftItem.classList.toggle('active', vaizelGiftCheckbox.checked);
         }
     }
 
@@ -2234,8 +2237,9 @@
         
         // Use variable as primary source, fall back to select value
         let cheeryMelodyLevel = cheeryMelodyLevelValue;
-        if (cheeryMelodySelect && cheeryMelodySelect.value) {
-            cheeryMelodyLevel = parseInt(cheeryMelodySelect.value) || cheeryMelodyLevelValue;
+        if (cheeryMelodySelect && cheeryMelodySelect.value !== undefined && cheeryMelodySelect.value !== '') {
+            const parsed = parseInt(cheeryMelodySelect.value);
+            cheeryMelodyLevel = isNaN(parsed) ? cheeryMelodyLevelValue : parsed;
         }
         
         // Calculate PvE attack bonus: +1000 at +0, +1520 at +26, each level = +20
@@ -2259,8 +2263,9 @@
         
         // Use variable as primary source, fall back to select value
         let hexLevel = hexLevelValue;
-        if (hexSelect && hexSelect.value) {
-            hexLevel = parseInt(hexSelect.value) || hexLevelValue;
+        if (hexSelect && hexSelect.value !== undefined && hexSelect.value !== '') {
+            const parsed = parseInt(hexSelect.value);
+            hexLevel = isNaN(parsed) ? hexLevelValue : parsed;
         }
         
         // Calculate defense reduction: -650 at +0, each level = +46 more reduction
@@ -2284,8 +2289,9 @@
         
         // Use variable as primary source, fall back to select value
         let amplificationLevel = amplificationLevelValue;
-        if (amplificationSelect && amplificationSelect.value) {
-            amplificationLevel = parseInt(amplificationSelect.value) || amplificationLevelValue;
+        if (amplificationSelect && amplificationSelect.value !== undefined && amplificationSelect.value !== '') {
+            const parsed = parseInt(amplificationSelect.value);
+            amplificationLevel = isNaN(parsed) ? amplificationLevelValue : parsed;
         }
         
         // Calculate attack bonus: +700 at +0, each level = +14 more attack
@@ -2452,15 +2458,15 @@
         if (selectedClass === 'sorcerer') {
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
-                <div class="buff-item" id="buff-vaizlGift">
-                    <img src="${skillDatabase.vaizlGift?.icon || 'https://myaion.eu/Images/Database/Skills/CBT_WI_ArcaneBoost_G1.png'}" class="buff-icon">
+                <div class="buff-item" id="buff-vaizelGift">
+                    <img src="${skillDatabase.vaizelGift?.icon || 'https://myaion.eu/Images/Database/Skills/CBT_WI_ArcaneBoost_G1.png'}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Vaizel Gift</div>
-                        <div class="buff-value" id="vaizlGiftValue">+500 PvE Atk</div>
+                        <div class="buff-value" id="vaizelGiftValue">+500 PvE Atk</div>
                     </div>
                     <div style="display: flex; gap: 8px; align-items: center;">
-                        <input type="checkbox" class="buff-checkbox" id="check-vaizlGift" onchange="event.stopPropagation(); updateVaizlGiftValue(); calculate()">
-                        <select id="vaizlGiftLevel" style="padding: 4px 8px; background: #2a2a2f; color: #fff; border: 1px solid #444; border-radius: 4px; cursor: pointer;" onchange="vaizlGiftLevelValue = parseInt(this.value) || 20; updateVaizlGiftValue(); saveSession(); calculate();" onclick="event.stopPropagation();">
+                        <input type="checkbox" class="buff-checkbox" id="check-vaizelGift" onchange="event.stopPropagation(); updatevaizelGiftValue(); calculate()">
+                        <select id="vaizelGiftLevel" style="padding: 4px 8px; background: #2a2a2f; color: #fff; border: 1px solid #444; border-radius: 4px; cursor: pointer;" onchange="vaizelGiftLevelValue = parseInt(this.value) || 20; updatevaizelGiftValue(); saveSession(); calculate();" onclick="event.stopPropagation();">
                             <option value="0">+0</option>
                             <option value="10">+10</option>
                             <option value="12">+12</option>
@@ -2470,7 +2476,7 @@
                             <option value="26">+26</option>
                         </select>
                     </div>
-                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'vaizlGift')" title="Skill Information">i</button>
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'vaizelGift')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-arcaneCombustion">
                     <img src="${skillDatabase.arcaneCombustion?.icon || 'https://myaion.eu/Images/Database/Skills/WI_ManaBoost_Custom_B_up.png'}" class="buff-icon">
@@ -3164,10 +3170,10 @@
         
         // Sorcerer buffs
         if (selectedClass === 'sorcerer') {
-            if (document.getElementById('check-vaizlGift')?.checked) {
-                const vaizlGiftBonus = 500 + (vaizlGiftLevelValue * 10);
+            if (document.getElementById('check-vaizelGift')?.checked) {
+                const vaizelGiftBonus = 500 + (vaizelGiftLevelValue * 10);
                 if (currentMode === 'pve') {
-                    pveAttackBonus += vaizlGiftBonus;
+                    pveAttackBonus += vaizelGiftBonus;
                 }
             }
             if (document.getElementById('check-arcaneCombustion')?.checked) {
@@ -3666,7 +3672,7 @@
                 sharpenArrows: document.getElementById('check-sharpenArrows')?.checked,
                 swiftSpear: document.getElementById('check-swiftSpear')?.checked,
                 blaze: document.getElementById('check-blaze')?.checked,
-                vaizlGift: document.getElementById('check-vaizlGift')?.checked,
+                vaizelGift: document.getElementById('check-vaizelGift')?.checked,
                 flameFusion: document.getElementById('check-flameFusion')?.checked,
                 windCutDown: document.getElementById('check-windCutDown')?.checked,
                 curseMagicPower: document.getElementById('check-curseMagicPower')?.checked,
@@ -3698,7 +3704,7 @@
                 devotionLevel: document.getElementById('devotionLevel')?.value || '20',
                 hexLevel: document.getElementById('hexLevel')?.value || '20',
                 amplificationLevel: document.getElementById('amplificationLevel')?.value || '20',
-                vaizlGiftLevel: document.getElementById('vaizlGiftLevel')?.value || '20',
+                vaizelGiftLevel: document.getElementById('vaizelGiftLevel')?.value || '20',
                 cheeryMelodyLevel: document.getElementById('cheeryMelodyLevel')?.value || '20'
             }
         };
@@ -3782,11 +3788,11 @@
                         }
                     }
                     // Restore Vaizel Gift level
-                    if (session.buffs.vaizlGiftLevel !== undefined && session.buffs.vaizlGiftLevel !== null) {
-                        vaizlGiftLevelValue = parseInt(session.buffs.vaizlGiftLevel) || 20;
-                        const vaizlGiftSelect = document.getElementById('vaizlGiftLevel');
-                        if (vaizlGiftSelect) {
-                            vaizlGiftSelect.value = session.buffs.vaizlGiftLevel;
+                    if (session.buffs.vaizelGiftLevel !== undefined && session.buffs.vaizelGiftLevel !== null) {
+                        vaizelGiftLevelValue = parseInt(session.buffs.vaizelGiftLevel) || 20;
+                        const vaizelGiftSelect = document.getElementById('vaizelGiftLevel');
+                        if (vaizelGiftSelect) {
+                            vaizelGiftSelect.value = session.buffs.vaizelGiftLevel;
                         }
                     }
                     // Restore Collapsing Smash level (default to 20 if not in session)
@@ -3807,7 +3813,7 @@
                     }
                     
                     Object.keys(session.buffs).forEach(key => {
-                        if (key === 'devotionLevel' || key === 'hexLevel' || key === 'amplificationLevel' || key === 'vaizlGiftLevel' || key === 'collapsingSmashLevel') return; // Skip non-checkbox properties
+                        if (key === 'devotionLevel' || key === 'hexLevel' || key === 'amplificationLevel' || key === 'vaizelGiftLevel' || key === 'collapsingSmashLevel') return; // Skip non-checkbox properties
                         const checkbox = document.getElementById(`check-${key}`);
                         const buffItem = document.getElementById(`buff-${key}`);
                         if (checkbox) {
@@ -3824,7 +3830,7 @@
                         updateDevotionValue(); // Update Devotion display value
                         updateHexValue(); // Update Hex display value
                         updateAmplificationValue(); // Update Amplification display value
-                        updateVaizlGiftValue(); // Update Vaizel Gift display value
+                        updatevaizelGiftValue(); // Update Vaizel Gift display value
                         updateCollapsingSmashValue(); // Update Collapsing Smash display value
                         updatecheeryMelodyValue(); // Update Cheery Melody display value
                         updateWindHarmonyState(); // Sync Wind Harmony state across both sections
