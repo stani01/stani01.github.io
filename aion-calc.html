@@ -209,6 +209,14 @@
                         </div>
                         <input type="checkbox" class="buff-checkbox" id="check-sealJudgement" onchange="event.stopPropagation(); calculate()">
                     </div>
+                    <div class="buff-item" onclick="toggleBuff('blastSpell')" id="buff-blastSpell">
+                        <img src="https://myaion.eu/Images/Database/Skills/ch_a_brand_g1.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">(Improved) Blast Spell</div>
+                            <div class="buff-value">Enemy -1200 Def</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-blastSpell" onchange="event.stopPropagation(); calculate()">
+                    </div>
                     <div class="buff-item" id="buff-collapsingSmash" onclick="event.stopPropagation(); toggleBuff('collapsingSmash')">
                         <img src="https://myaion.eu/Images/Database/Skills/RI_WeakeningAttack_G1.png" class="buff-icon">
                         <div class="buff-info">
@@ -1029,13 +1037,17 @@
     function updateDevotionValue() {
         const devotionCheckbox = document.getElementById('check-devotion');
         const devotionSelect = document.getElementById('devotionLevel');
+        const devotionValue = document.getElementById('devotionValue');
+        const buffDevotionItem = document.getElementById('buff-devotion');
+        
+        // Only proceed if elements exist
+        if (!devotionValue || !buffDevotionItem) return;
+        
         // Use variable as primary source, fall back to select value
         let devotionLevel = devotionLevelValue;
         if (devotionSelect && devotionSelect.value) {
             devotionLevel = parseInt(devotionSelect.value) || devotionLevelValue;
         }
-        const devotionValue = document.getElementById('devotionValue');
-        const buffDevotionItem = document.getElementById('buff-devotion');
         
         // Calculate attack bonus: +450 at +0, +710 at +26, each level = +10
         const attackBonus = 450 + (devotionLevel * 10);
@@ -1248,13 +1260,17 @@
     function updateVaizlGiftValue() {
         const vaizlGiftCheckbox = document.getElementById('check-vaizlGift');
         const vaizlGiftSelect = document.getElementById('vaizlGiftLevel');
+        const vaizlGiftValue = document.getElementById('vaizlGiftValue');
+        const buffVaizlGiftItem = document.getElementById('buff-vaizlGift');
+        
+        // Only proceed if elements exist
+        if (!vaizlGiftValue || !buffVaizlGiftItem) return;
+        
         // Use variable as primary source, fall back to select value
         let vaizlGiftLevel = vaizlGiftLevelValue;
         if (vaizlGiftSelect && vaizlGiftSelect.value) {
             vaizlGiftLevel = parseInt(vaizlGiftSelect.value) || vaizlGiftLevelValue;
         }
-        const vaizlGiftValue = document.getElementById('vaizlGiftValue');
-        const buffVaizlGiftItem = document.getElementById('buff-vaizlGift');
         
         // Calculate PvE attack bonus: +500 at +0, +760 at +26, each level = +10
         const pveAttackBonus = 500 + (vaizlGiftLevel * 10);
@@ -1269,13 +1285,17 @@
     function updateCheerfulMelodyValue() {
         const cheerfulMelodyCheckbox = document.getElementById('check-cheerfulMelody');
         const cheerfulMelodySelect = document.getElementById('cheerfulMelodyLevel');
+        const cheerfulMelodyValue = document.getElementById('cheerfulMelodyValue');
+        const buffCheerfulMelodyItem = document.getElementById('buff-cheerfulMelody');
+        
+        // Only proceed if elements exist
+        if (!cheerfulMelodyValue || !buffCheerfulMelodyItem) return;
+        
         // Use variable as primary source, fall back to select value
         let cheerfulMelodyLevel = cheerfulMelodyLevelValue;
         if (cheerfulMelodySelect && cheerfulMelodySelect.value) {
             cheerfulMelodyLevel = parseInt(cheerfulMelodySelect.value) || cheerfulMelodyLevelValue;
         }
-        const cheerfulMelodyValue = document.getElementById('cheerfulMelodyValue');
-        const buffCheerfulMelodyItem = document.getElementById('buff-cheerfulMelody');
         
         // Calculate PvE attack bonus: +1000 at +0, +1520 at +26, each level = +20
         const pveAttackBonus = 1000 + (cheerfulMelodyLevel * 20);
@@ -1290,13 +1310,17 @@
     function updateHexValue() {
         const hexCheckbox = document.getElementById('check-hex');
         const hexSelect = document.getElementById('hexLevel');
+        const hexValue = document.getElementById('hexValue');
+        const buffHexItem = document.getElementById('buff-hex');
+        
+        // Only proceed if elements exist
+        if (!hexValue || !buffHexItem) return;
+        
         // Use variable as primary source, fall back to select value
         let hexLevel = hexLevelValue;
         if (hexSelect && hexSelect.value) {
             hexLevel = parseInt(hexSelect.value) || hexLevelValue;
         }
-        const hexValue = document.getElementById('hexValue');
-        const buffHexItem = document.getElementById('buff-hex');
         
         // Calculate defense reduction: -650 at +0, each level = +46 more reduction
         const defenseReduction = 650 + (hexLevel * 46);
@@ -1311,13 +1335,17 @@
     function updateAmplificationValue() {
         const amplificationCheckbox = document.getElementById('check-amplification');
         const amplificationSelect = document.getElementById('amplificationLevel');
+        const amplificationValue = document.getElementById('amplificationValue');
+        const buffAmplificationItem = document.getElementById('buff-amplification');
+        
+        // Only proceed if elements exist
+        if (!amplificationValue || !buffAmplificationItem) return;
+        
         // Use variable as primary source, fall back to select value
         let amplificationLevel = amplificationLevelValue;
         if (amplificationSelect && amplificationSelect.value) {
             amplificationLevel = parseInt(amplificationSelect.value) || amplificationLevelValue;
         }
-        const amplificationValue = document.getElementById('amplificationValue');
-        const buffAmplificationItem = document.getElementById('buff-amplification');
         
         // Calculate attack bonus: +700 at +0, each level = +14 more attack
         const attackBonus = 700 + (amplificationLevel * 14);
@@ -2008,6 +2036,9 @@
         if (document.getElementById('check-sealJudgement')?.checked) {
             defenseReduction += 500;
         }
+        if (document.getElementById('check-blastSpell')?.checked) {
+            defenseReduction += 1200;
+        }
         
         // Universal magical buffs (defense reductions)
         if (document.getElementById('check-swiftSpear')?.checked) {
@@ -2614,6 +2645,7 @@
                 enhancedErosion: document.getElementById('check-enhancedErosion')?.checked,
                 infernalBlight: document.getElementById('check-infernalBlight')?.checked,
                 sealJudgement: document.getElementById('check-sealJudgement')?.checked,
+                blastSpell: document.getElementById('check-blastSpell')?.checked,
                 windHarmony: document.getElementById('check-windHarmony')?.checked,
                 invincibilityMantra: document.getElementById('check-invincibilityMantra')?.checked,
                 glad8: document.getElementById('check-glad8')?.checked,
