@@ -3436,7 +3436,8 @@
             if (document.getElementById('check-chant3')?.checked && classType === 'physical') {
                 resolvedDefense = Math.ceil(resolvedDefense * 0.97);
             }
-            return resolvedDefense;
+            // Ensure defense doesn't go below 0
+            return Math.max(0, resolvedDefense);
         }
 
         // Calculate total defense based on mode (subtract defense reduction debuffs)

@@ -703,7 +703,7 @@
                     }
                 } else if((random > contaminationThreshold) && (random < failThreshold) && (failThreshold > 0)) {
                     // Failed (level decreases)
-                    enchantLevel--;
+                    enchantLevel = Math.max(0, enchantLevel - 1);
                 } else {
                     // Success (level increases)
                     enchantLevel++;
@@ -884,7 +884,7 @@
                         newLevel = 10;
                         outcome = `Failed - Reset to +10 (Safe zone)`;
                     } else {
-                        newLevel = currentLevel - 1;
+                        newLevel = Math.max(0, currentLevel - 1);
                         outcome = `Failed - Level +${currentLevel} → +${newLevel}`;
                     }
                 }
