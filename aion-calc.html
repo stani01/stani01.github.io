@@ -508,30 +508,6 @@
             <div class="result-details" id="detailsResult"></div>
         </div>
 
-        <div class="result-box">
-            <div><strong>ENEMY DEFENSE SOLVER</strong></div>
-            <div class="result-details" style="margin-top: 6px;">
-                <label for="observedNonCritDamage" style="display: block; margin-bottom: 6px;">Observed Non-Crit Damage (per hit)</label>
-                <input type="text" id="observedNonCritDamage" value="" placeholder="e.g. 120000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
-            </div>
-            <div class="result-val" id="enemyDefenseResult">--</div>
-            <div class="result-details" id="enemyDefenseDetails" style="color: #999; font-size: 0.85em;">Uses current build and buffs. Exact formula swap.</div>
-        </div>
-
-        <div class="result-box">
-            <div><strong>ENEMY CRIT DAMAGE STAT SOLVER</strong></div>
-            <div class="result-details" style="margin-top: 6px;">
-                <label for="critStatNonCrit" style="display: block; margin-bottom: 6px;">Skill Damage (Non-Crit)</label>
-                <input type="text" id="critStatNonCrit" value="" placeholder="e.g. 85000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
-            </div>
-            <div class="result-details" style="margin-top: 6px;">
-                <label for="critStatCrit" style="display: block; margin-bottom: 6px;">Skill Damage (Crit)</label>
-                <input type="text" id="critStatCrit" value="" placeholder="e.g. 170000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
-            </div>
-            <div class="result-val" id="enemyCritStatResult">--</div>
-            <div class="result-details" id="enemyCritStatDetails" style="color: #999; font-size: 0.85em;">Uses selected weapon multiplier.</div>
-        </div>
-
         <!-- Comparison Table -->
         <div class="comparison">
             <table id="comparisonTable">
@@ -548,6 +524,30 @@
                 <tbody id="comparisonBody">
                 </tbody>
             </table>
+        </div>
+
+        <div class="result-box">
+            <div><strong>FIND ENEMY DEFENSE</strong></div>
+            <div class="result-details" style="margin-top: 6px;">
+                <label for="observedNonCritDamage" style="display: block; margin-bottom: 6px;">Non-Crit Damage (per hit)</label>
+                <input type="text" id="observedNonCritDamage" value="" placeholder="e.g. 120000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
+            </div>
+            <div class="result-val" id="enemyDefenseResult">--</div>
+            <div class="result-details" id="enemyDefenseDetails" style="color: #999; font-size: 0.85em;">Uses current build and buffs.</div>
+        </div>
+
+        <div class="result-box">
+            <div><strong>FIND ENEMY CRIT DAMAGE</strong></div>
+            <div class="result-details" style="margin-top: 6px;">
+                <label for="critStatNonCrit" style="display: block; margin-bottom: 6px;">Skill Damage (Non-Crit)</label>
+                <input type="text" id="critStatNonCrit" value="" placeholder="e.g. 85000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
+            </div>
+            <div class="result-details" style="margin-top: 6px;">
+                <label for="critStatCrit" style="display: block; margin-bottom: 6px;">Skill Damage (Crit)</label>
+                <input type="text" id="critStatCrit" value="" placeholder="e.g. 170000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
+            </div>
+            <div class="result-val" id="enemyCritStatResult">--</div>
+            <div class="result-details" id="enemyCritStatDetails" style="color: #999; font-size: 0.85em;">Uses selected weapon multiplier.</div>
         </div>
 
         <!-- Duration-Based Statistics -->
@@ -3568,7 +3568,7 @@
         const enemyDefenseDetails = document.getElementById('enemyDefenseDetails');
         if (!observedNonCritInput || observedNonCritInput <= 0) {
             enemyDefenseResult.textContent = '--';
-            enemyDefenseDetails.textContent = 'Enter observed non-crit damage per hit to solve defense.';
+            enemyDefenseDetails.textContent = 'Enter non-crit damage per hit to solve defense. Besides non-crit dmg, the weapon, class, skill base damage and total Attack (including buffs) are used to find the defense value.';
         } else {
             // Reverse-engineer the base damage by removing buff multipliers
             let baseDamage = observedNonCritInput;
@@ -3638,7 +3638,7 @@
         const enemyCritStatDetails = document.getElementById('enemyCritStatDetails');
         if (!critStatNonCritInput || !critStatCritInput || critStatNonCritInput <= 0 || critStatCritInput <= 0) {
             enemyCritStatResult.textContent = '--';
-            enemyCritStatDetails.textContent = 'Enter non-crit and crit damage to solve crit dmg stat.';
+            enemyCritStatDetails.textContent = 'Enter non-crit and crit damage to solve crit dmg stat. Besides the damage values, the weapon and class are used to find the crit dmg stat value.';
         } else {
             const critStat = Math.round((((critStatCritInput - (critStatNonCritInput * weaponMult)) / (critStatNonCritInput * weaponMult)) * 100) * 10);
             enemyCritStatResult.textContent = `${critStat.toLocaleString()} Crit Dmg`;
