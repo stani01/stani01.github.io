@@ -3562,7 +3562,7 @@
             `<strong>Normal Hit:</strong> ${Math.round(current.normalDmg).toLocaleString()} | ` +
             `<strong>Crit Hit:</strong> ${Math.round(current.critDmg).toLocaleString()}`;
 
-        // Enemy defense solver (uses current build)
+        // Enemy defense solver
         const observedNonCritInput = parseExpression(document.getElementById('observedNonCritDamage').value);
         const enemyDefenseResult = document.getElementById('enemyDefenseResult');
         const enemyDefenseDetails = document.getElementById('enemyDefenseDetails');
@@ -3570,9 +3570,28 @@
             enemyDefenseResult.textContent = '--';
             enemyDefenseDetails.textContent = 'Enter observed non-crit damage per hit to solve defense.';
         } else {
+            // Reverse-engineer the base damage by removing buff multipliers
+            let baseDamage = observedNonCritInput;
+            
+            // Reverse extra buffs (applied last)
+            if (extraBuffs > 0) {
+                baseDamage = baseDamage / (1 + extraBuffs / 100);
+            }
+            
+            // Reverse normal buffs
+            if (normalBuffs > 0) {
+                baseDamage = baseDamage / (1 + normalBuffs / 100);
+            }
+            
+            // Reverse shards buff (applied first to base damage)
+            if (shards > 0) {
+                baseDamage = baseDamage / (1 + shards / 100);
+            }
+            
+            // Now use the unbuiffed damage to solve for defense
             const skillRatio = (classKP > 0) ? (skillDmg * 100 / classKP) : 0;
             const roundedSkillRatio = Math.round(skillRatio);
-            const j40 = Math.floor(100 * observedNonCritInput / 125);
+            const j40 = Math.floor(100 * baseDamage / 125);
             let solvedDefense = null;
             let details = '';
 
@@ -3582,8 +3601,8 @@
                     solvedDefense = -Math.ceil(raw);
                     details = 'Physical PvP formula';
                 } else {
-                    const raw = (observedNonCritInput / (2 * roundedSkillRatio) - 1) * 1000;
-                    solvedDefense = totalAtk - raw + 350;
+                    const raw = (baseDamage / (2 * roundedSkillRatio) - 1) * 1000;
+                    solvedDefense = totalAtk - raw + (16/10*(totalAtk - raw));
                     details = 'Physical PvE formula';
                 }
             } else {
@@ -3592,8 +3611,8 @@
                     solvedDefense = -Math.ceil(raw);
                     details = 'Magical PvP formula';
                 } else {
-                    const raw = ((observedNonCritInput / 2 - skillDmg) / roundedSkillRatio) * 1000;
-                    solvedDefense = totalAtk - raw + 350;
+                    const raw = ((baseDamage / 2 - skillDmg) / roundedSkillRatio) * 1000;
+                    solvedDefense = totalAtk - raw + (Math.round(20/1000*(totalAtk - raw)));
                     details = 'Magical PvE formula';
                 }
             }
@@ -3602,8 +3621,13 @@
                 enemyDefenseResult.textContent = '--';
                 enemyDefenseDetails.textContent = 'Unable to solve defense with current inputs.';
             } else {
-                enemyDefenseResult.textContent = `${Math.round(solvedDefense).toLocaleString()} Def`;
-                enemyDefenseDetails.textContent = `${details} | Uses current buffs and attack stats.`;
+                // Ensure solved defense doesn't go below 0
+                solvedDefense = Math.max(0, solvedDefense);
+                const baseAttackWithoutBuffs = baseAtkInput + atkBonusInput;
+                const buffContribution = attackBonus + modeAttackBonus;
+                const buffMultiplier = ((1 + shards / 100) * (1 + normalBuffs / 100) * (1 + extraBuffs / 100)).toFixed(2);
+                enemyDefenseResult.textContent = `~${Math.round(solvedDefense).toLocaleString()} Def`;
+                enemyDefenseDetails.textContent = `${details} | Total Atk: ${totalAtk.toLocaleString()} (Base: ${baseAttackWithoutBuffs.toLocaleString()} + Buffs: ${buffContribution.toLocaleString()}) | Damage × ${buffMultiplier}`;
             }
         }
 
