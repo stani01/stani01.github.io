@@ -597,19 +597,19 @@
                         <strong style="color: var(--accent);">Build Stability Ratings (based on CoV):</strong>
                     </div>
                     <div style="margin-left: 10px; margin-bottom: 8px;">
-                        <span class="stability-excellent" style="color: var(--green);">★★★★★ Excellent</span> (CoV &lt; 5%)<br>
+                        <span class="stability-excellent">★★★★★ Excellent</span> (CoV &lt; 5%)<br>
                         <span style="color: #999; font-size: 0.85em;">Very predictable regardless of RNG. Attack-heavy builds excel here.</span>
                     </div>
                     <div style="margin-left: 10px; margin-bottom: 8px;">
-                        <span class="stability-good" style="color: #8eff4d;">★★★★☆ Good</span> (5% ≤ CoV &lt; 10%)<br>
+                        <span class="stability-good">★★★★☆ Good</span> (5% ≤ CoV &lt; 10%)<br>
                         <span style="color: #999; font-size: 0.85em;">Reliable with minor variance. Balanced stat builds perform well.</span>
                     </div>
                     <div style="margin-left: 10px; margin-bottom: 8px;">
-                        <span class="stability-fair" style="color: var(--warning);">★★★☆☆ Fair</span> (10% ≤ CoV &lt; 20%)<br>
+                        <span class="stability-fair">★★★☆☆ Fair</span> (10% ≤ CoV &lt; 20%)<br>
                         <span style="color: #999; font-size: 0.85em;">Noticeable variance but acceptable. Crit-heavy builds start showing RNG.</span>
                     </div>
                     <div style="margin-left: 10px;">
-                        <span class="stability-poor" style="color: var(--red);">★★☆☆☆ Poor</span> (CoV ≥ 20%)<br>
+                        <span class="stability-poor">★★☆☆☆ Poor</span> (CoV ≥ 20%)<br>
                         <span style="color: #999; font-size: 0.85em;">High RNG dependency. Pure crit builds unreliable in short encounters.</span>
                     </div>
                 </div>
@@ -3331,6 +3331,7 @@
             const diffColor = diffPercent > 0 ? 'var(--green)' : diffPercent < 0 ? 'var(--red)' : '#888';
             const diffSign = diffPercent > 0 ? '+' : '';
             
+            const coeffVarPercent = stat.coeffVar * 100;
             const row = `
                 <tr style="background: #1a1a1f;">
                     <td><strong>${stat.label}</strong></td>
@@ -3342,7 +3343,7 @@
                     <td>${Math.round(stat.maxDmg).toLocaleString()}</td>
                     <td>${damageRange.toLocaleString()} (${rangePercent}%)</td>
                     <td>${Math.round(stat.stdDev).toLocaleString()}</td>
-                    <td style="color: ${stat.coeffVar < 5 ? 'var(--green)' : stat.coeffVar < 10 ? '#8eff4d' : stat.coeffVar < 20 ? 'var(--warning)' : 'var(--red)'}; font-weight: bold;">${stat.coeffVar.toFixed(2)}%</td>
+                    <td style="color: ${stat.coeffVar < 0.05 ? 'var(--green)' : stat.coeffVar < 0.10 ? '#8eff4d' : stat.coeffVar < 0.20 ? 'var(--warning)' : 'var(--red)'}; font-weight: bold;">${coeffVarPercent.toFixed(2)}%</td>
                     <td>${expectedDps}</td>
                     <td><span class="${stabilityClass}">${stat.stability}</span></td>
                 </tr>
