@@ -508,6 +508,30 @@
             <div class="result-details" id="detailsResult"></div>
         </div>
 
+        <div class="result-box">
+            <div><strong>ENEMY DEFENSE SOLVER</strong></div>
+            <div class="result-details" style="margin-top: 6px;">
+                <label for="observedNonCritDamage" style="display: block; margin-bottom: 6px;">Observed Non-Crit Damage (per hit)</label>
+                <input type="text" id="observedNonCritDamage" value="" placeholder="e.g. 120000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
+            </div>
+            <div class="result-val" id="enemyDefenseResult">--</div>
+            <div class="result-details" id="enemyDefenseDetails" style="color: #999; font-size: 0.85em;">Uses current build and buffs. Exact formula swap.</div>
+        </div>
+
+        <div class="result-box">
+            <div><strong>ENEMY CRIT DAMAGE STAT SOLVER</strong></div>
+            <div class="result-details" style="margin-top: 6px;">
+                <label for="critStatNonCrit" style="display: block; margin-bottom: 6px;">Skill Damage (Non-Crit)</label>
+                <input type="text" id="critStatNonCrit" value="" placeholder="e.g. 85000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
+            </div>
+            <div class="result-details" style="margin-top: 6px;">
+                <label for="critStatCrit" style="display: block; margin-bottom: 6px;">Skill Damage (Crit)</label>
+                <input type="text" id="critStatCrit" value="" placeholder="e.g. 170000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
+            </div>
+            <div class="result-val" id="enemyCritStatResult">--</div>
+            <div class="result-details" id="enemyCritStatDetails" style="color: #999; font-size: 0.85em;">Uses selected weapon multiplier.</div>
+        </div>
+
         <!-- Comparison Table -->
         <div class="comparison">
             <table id="comparisonTable">
@@ -3398,12 +3422,25 @@
         // Parse defense stats
         const baseDef = parseExpression(document.getElementById('defense').value);
         const pvpDefInput = parseExpression(document.getElementById('pvpDefense').value);
-        
-        // Calculate total defense based on mode (subtract defense reduction debuffs)
-        let defense = baseDef - defenseReduction;
-        if (currentMode === 'pvp') {
-            defense = baseDef + pvpDefInput + pvpDefenseBonus - defenseReduction;
+
+        function resolveDefense(baseDefense) {
+            let resolvedDefense = baseDefense - defenseReduction;
+            if (currentMode === 'pvp') {
+                resolvedDefense = baseDefense + pvpDefInput + pvpDefenseBonus - defenseReduction;
+            }
+            // Apply Glad -8% def to enemy defense
+            if (document.getElementById('check-glad8')?.checked && classType === 'physical') {
+                resolvedDefense = Math.ceil(resolvedDefense * 0.92);
+            }
+            // Apply Chant -3% def to enemy defense
+            if (document.getElementById('check-chant3')?.checked && classType === 'physical') {
+                resolvedDefense = Math.ceil(resolvedDefense * 0.97);
+            }
+            return resolvedDefense;
         }
+
+        // Calculate total defense based on mode (subtract defense reduction debuffs)
+        let defense = resolveDefense(baseDef);
         
         const fortitude = (currentMode === 'pvp') ? parseExpression(document.getElementById('fortitude').value) : 0;
         const skillDmg = parseExpression(document.getElementById('skillDmg').value);
@@ -3412,15 +3449,6 @@
         const shards = document.getElementById('check-shards')?.checked ? 25 : 0;
         const { normalBuffs, extraBuffs } = getActiveBuffs();
         
-        // Apply Glad -8% def to enemy defense
-        if (document.getElementById('check-glad8')?.checked && classType === 'physical') {
-            defense = Math.ceil(defense * 0.92); // Reduce by 8%
-        }
-
-        // Apply Chant -3% def to enemy defense
-        if (document.getElementById('check-chant3')?.checked && classType === 'physical') {
-            defense = Math.ceil(defense * 0.97); // Reduce by 3%
-        }
         
         const pvpMult = (currentMode === 'pvp') ? 0.26 : 2.0;
         
@@ -3430,10 +3458,11 @@
         const baseCrit = totalCrit - (currentCritStones * 86);
         
         // Damage calculation function
-        function calculateDamage(atkStones, critStones) {
+        function calculateDamage(atkStones, critStones, defenseOverride) {
             const attack = baseAtk + (atkStones * 23);
             const crit = baseCrit + (critStones * 86);
-            const effectiveAtk = Math.max(0, Math.min(20000, attack - defense));
+            const resolvedDefense = (typeof defenseOverride === 'number' && !Number.isNaN(defenseOverride)) ? defenseOverride : defense;
+            const effectiveAtk = Math.max(0, Math.min(20000, attack - resolvedDefense));
             const critChance = Math.min(1, ((crit * 170) / (24000 + crit)) / 100);
             
             let normalDmg, critDmg;
@@ -3531,6 +3560,65 @@
             `<strong>Current Damage:</strong> <span style="color: var(--accent)">${Math.round(current.damage).toLocaleString()}</span> | ` +
             `<strong>Normal Hit:</strong> ${Math.round(current.normalDmg).toLocaleString()} | ` +
             `<strong>Crit Hit:</strong> ${Math.round(current.critDmg).toLocaleString()}`;
+
+        // Enemy defense solver (uses current build)
+        const observedNonCritInput = parseExpression(document.getElementById('observedNonCritDamage').value);
+        const enemyDefenseResult = document.getElementById('enemyDefenseResult');
+        const enemyDefenseDetails = document.getElementById('enemyDefenseDetails');
+        if (!observedNonCritInput || observedNonCritInput <= 0) {
+            enemyDefenseResult.textContent = '--';
+            enemyDefenseDetails.textContent = 'Enter observed non-crit damage per hit to solve defense.';
+        } else {
+            const skillRatio = (classKP > 0) ? (skillDmg * 100 / classKP) : 0;
+            const roundedSkillRatio = Math.round(skillRatio);
+            const j40 = Math.floor(100 * observedNonCritInput / 125);
+            let solvedDefense = null;
+            let details = '';
+
+            if (classType === 'physical') {
+                if (currentMode === 'pvp') {
+                    const raw = 1000 * (((j40 * 100 / 26) / skillRatio) - 1) - totalAtk;
+                    solvedDefense = -Math.ceil(raw);
+                    details = 'Physical PvP formula';
+                } else {
+                    const raw = (observedNonCritInput / (2 * roundedSkillRatio) - 1) * 1000;
+                    solvedDefense = totalAtk - raw + 350;
+                    details = 'Physical PvE formula';
+                }
+            } else {
+                if (currentMode === 'pvp') {
+                    const raw = (((j40 * 100 / 26) - skillDmg) / skillRatio) * 1000 - totalAtk;
+                    solvedDefense = -Math.ceil(raw);
+                    details = 'Magical PvP formula';
+                } else {
+                    const raw = ((observedNonCritInput / 2 - skillDmg) / roundedSkillRatio) * 1000;
+                    solvedDefense = totalAtk - raw + 350;
+                    details = 'Magical PvE formula';
+                }
+            }
+
+            if (!Number.isFinite(solvedDefense)) {
+                enemyDefenseResult.textContent = '--';
+                enemyDefenseDetails.textContent = 'Unable to solve defense with current inputs.';
+            } else {
+                enemyDefenseResult.textContent = `${Math.round(solvedDefense).toLocaleString()} Def`;
+                enemyDefenseDetails.textContent = `${details} | Uses current buffs and attack stats.`;
+            }
+        }
+
+        // Enemy crit damage stat solver
+        const critStatNonCritInput = parseExpression(document.getElementById('critStatNonCrit').value);
+        const critStatCritInput = parseExpression(document.getElementById('critStatCrit').value);
+        const enemyCritStatResult = document.getElementById('enemyCritStatResult');
+        const enemyCritStatDetails = document.getElementById('enemyCritStatDetails');
+        if (!critStatNonCritInput || !critStatCritInput || critStatNonCritInput <= 0 || critStatCritInput <= 0) {
+            enemyCritStatResult.textContent = '--';
+            enemyCritStatDetails.textContent = 'Enter non-crit and crit damage to solve crit dmg stat.';
+        } else {
+            const critStat = Math.round((((critStatCritInput - (critStatNonCritInput * weaponMult)) / (critStatNonCritInput * weaponMult)) * 100) * 10);
+            enemyCritStatResult.textContent = `${critStat.toLocaleString()} Crit Dmg`;
+            enemyCritStatDetails.textContent = 'Formula: ROUND((Crit - (NonCrit*WeaponMult)) / (NonCrit*WeaponMult) * 100) * 10';
+        }
         
         // Build comparison table (show current, optimal, and a few others)
         const comparisonBody = document.getElementById('comparisonBody');
@@ -3624,6 +3712,9 @@
             pvpDefense: document.getElementById('pvpDefense').value,
             skillDmg: document.getElementById('skillDmg').value,
             skillCooldown: document.getElementById('skillCooldown').value,
+            observedNonCritDamage: document.getElementById('observedNonCritDamage').value,
+            critStatNonCrit: document.getElementById('critStatNonCrit').value,
+            critStatCrit: document.getElementById('critStatCrit').value,
             fortitude: document.getElementById('fortitude')?.value || 0,
             cubeValue: document.getElementById('cubeValue').value,
             buffs: {
@@ -3737,6 +3828,9 @@
             document.getElementById('pvpDefense').value = session.pvpDefense || 1000;
             document.getElementById('skillDmg').value = session.skillDmg || 5000;
             document.getElementById('skillCooldown').value = session.skillCooldown || 3;
+            document.getElementById('observedNonCritDamage').value = session.observedNonCritDamage || '';
+            document.getElementById('critStatNonCrit').value = session.critStatNonCrit || '';
+            document.getElementById('critStatCrit').value = session.critStatCrit || '';
             if (document.getElementById('fortitude')) {
                 document.getElementById('fortitude').value = session.fortitude || 0;
             }
