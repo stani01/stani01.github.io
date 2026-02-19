@@ -703,7 +703,7 @@
                     }
                 } else if((random > contaminationThreshold) && (random < failThreshold) && (failThreshold > 0)) {
                     // Failed (level decreases)
-                    enchantLevel = Math.max(0, enchantLevel - 1);
+                    enchantLevel--;
                 } else {
                     // Success (level increases)
                     enchantLevel++;
