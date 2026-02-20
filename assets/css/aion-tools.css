@@ -2276,10 +2276,10 @@ flex: 1;
     border: 1px solid var(--accent-purple);
     color: var(--accent-purple);
     border-radius: 8px;
-    font-size: 1em;
-    font-weight: bold;
+    font-size: 1.5em;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-align: top;
 }
 
 .sim-button:hover {
