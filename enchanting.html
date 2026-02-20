@@ -181,19 +181,6 @@
                         Interactive single-attempt enchanting. Select a stone and click Enchant for each attempt. Success rates and critical chance displayed above.
                     </div>
                 </div>
-                <div class="items-display">
-                    <div class="items-grid">
-                        <div class="item-card stone-button" id="stone-ancient" onclick="selectUltimateStone('ancient')">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" alt="Ancient Enchantment Stone">
-                        </div>
-                        <div class="item-card stone-button" id="stone-legendary" onclick="selectUltimateStone('legendary')">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" alt="Legendary Enchantment Stone">
-                        </div>
-                        <div class="item-card stone-button active" id="stone-ultimate" onclick="selectUltimateStone('ultimate')">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" alt="Ultimate Enchantment Stone">
-                        </div>
-                    </div>
-                </div>
 
                 <div class="ultimate-chance-box">
                     <div class="chance-header">Chance</div>
@@ -219,19 +206,19 @@
                 <div class="enchant-loading-bar" id="enchant-loading"></div>
 
                 <div class="ultimate-gear-attempts">
-                    <div style="display: flex; gap: 20px; align-items: center; margin-top: 10px;">Stones Used:
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" alt="Ancient" style="width: 24px; height: 24px;">
-                            <span id="ancient-counter">0</span>
+                    <div style="display: flex; gap: 20px; align-items: center; margin-top: 10px; font-size: 20px;">Stones Used:
+                        <div class="item-card stone-button" id="stone-ancient" style="display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="selectUltimateStone('ancient')">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" alt="Ancient" style="width: 30px; height: 30px;">
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" alt="Legendary" style="width: 24px; height: 24px;">
-                            <span id="legendary-counter">0</span>
+                        <span id="ancient-counter" style="font-size: 20px;">0</span>
+                        <div class="item-card stone-button" id="stone-legendary" style="display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="selectUltimateStone('legendary')">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" alt="Legendary" style="width: 30px; height: 30px;">
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" alt="Ultimate" style="width: 24px; height: 24px;">
-                            <span id="ultimate-counter">0</span>
+                        <span id="legendary-counter" style="font-size: 20px;">0</span>
+                        <div class="item-card stone-button" id="stone-ultimate" style="display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="selectUltimateStone('ultimate')">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" alt="Ultimate" style="width: 30px; height: 30px;">
                         </div>
+                        <span id="ultimate-counter" style="font-size: 20px;">0</span>
                     </div>
                 </div>
 
@@ -806,12 +793,12 @@
             selectedUltimateStone = stoneType;
             localStorage.setItem('ultimateStone', stoneType);
 
-            // Update active button styling
-            document.querySelectorAll('.stone-button').forEach(btn => {
+            // Update active styling for the "Stones Used" section
+            document.querySelectorAll('.ultimate-gear-attempts div[onclick]').forEach(btn => {
                 btn.classList.remove('active');
             });
-            document.getElementById('stone-' + stoneType).classList.add('active');
-            
+            document.querySelector(`.ultimate-gear-attempts div[onclick*='${stoneType}']`).classList.add('active');
+
             // Update chance display
             updateUltimateChanceDisplay();
         }
