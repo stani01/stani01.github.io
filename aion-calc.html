@@ -404,7 +404,7 @@
                         <img src="https://myaion.eu/Images/Database/Skills/live_fi_enfeeblehit_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Weakening Blow</div>
-                            <div class="buff-value">Enemy -200 Def</div>
+                            <div class="buff-value">Enemy -300 Def</div>
                         </div>
                         <input type="checkbox" class="buff-checkbox" id="check-weakBlow" onchange="event.stopPropagation(); calculate()">
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'weakBlow')" title="Skill Information">i</button>
@@ -3006,7 +3006,7 @@
         
         // Universal physical buffs
         if (document.getElementById('check-weakBlow')?.checked) {
-            defenseReduction += 200;
+            defenseReduction += 300;
         }
         if (document.getElementById('check-comradePhys')?.checked) {
             attackBonus += 550;
