@@ -45,15 +45,6 @@
                     </div>
                 </div>
 
-                <div class="items-display">
-                    <div class="items-grid">
-                        <div class="item-card">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_infinite_n_01.png" alt="Ultimate Extreme Enchantment Stone">
-                            <span>Ultimate Extreme Enchantment Stone</span>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="settings-grid">
                     <div class="setting-group">
                         <label for="extreme-start">📍 Start Level</label>
@@ -80,7 +71,7 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="sim-button" onclick="runExtremeSimulation()">▶️ Run Simulation</button>
+                    <button class="sim-button" onclick="runExtremeSimulation()"><img src="https://aioncodex.com/items/icon_item_enchant_infinite_n_01.png" alt="Ultimate Extreme Enchantment Stone" style="vertical-align: middle; height: 30px; width: 30px;"> Run Simulation</button>
                     <button class="clear-button" onclick="clearExtremeOutput()">Clear Output</button>
                     <button class="info-button" onclick="toggleRates('extreme')" title="Show success and destruction rates">ℹ️ Rates</button>
                 </div>
@@ -100,19 +91,6 @@
                     <div class="simulator-info">
                         <strong>Rune/Odian Enchanting</strong><br>
                         Enchanting with risk of contamination requiring purifiers. After reaching the maximum number of contaminations, the item is wasted and resets to level 0.
-                    </div>
-                </div>
-
-                <div class="items-display">
-                    <div class="items-grid">
-                        <div class="item-card">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_grind_item_01.png" alt="Ancient Polishing Stone">
-                            <span>Ancient Polishing Stone</span>
-                        </div>
-                        <div class="item-card">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_purifier_01.png" alt="Ancient Purifier">
-                            <span>Ancient Purifier</span>
-                        </div>
                     </div>
                 </div>
 
@@ -159,7 +137,7 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="sim-button" onclick="runRuneSimulation()">▶️ Run Simulation</button>
+                    <button class="sim-button" onclick="runRuneSimulation()"><img src="https://aioncodex.com/items/icon_item_enchant_grind_item_01.png" alt="Ancient Polishing Stone" style="vertical-align: middle; height: 30px; width: 30px;"> Run Simulation</button>
                     <button class="clear-button" onclick="clearRuneOutput()">Clear Output</button>
                     <button class="info-button" onclick="toggleRates('rune')" title="Show contamination and failure rates">ℹ️ Rates</button>
                 </div>
@@ -179,19 +157,6 @@
                     <div class="simulator-info">
                         <strong>Ultimate Gear Enchanting</strong><br>
                         Interactive single-attempt enchanting. Select a stone and click Enchant for each attempt. Success rates and critical chance displayed above.
-                    </div>
-                </div>
-                <div class="items-display">
-                    <div class="items-grid">
-                        <div class="item-card stone-button" id="stone-ancient" onclick="selectUltimateStone('ancient')">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" alt="Ancient Enchantment Stone">
-                        </div>
-                        <div class="item-card stone-button" id="stone-legendary" onclick="selectUltimateStone('legendary')">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" alt="Legendary Enchantment Stone">
-                        </div>
-                        <div class="item-card stone-button active" id="stone-ultimate" onclick="selectUltimateStone('ultimate')">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" alt="Ultimate Enchantment Stone">
-                        </div>
                     </div>
                 </div>
 
@@ -219,19 +184,19 @@
                 <div class="enchant-loading-bar" id="enchant-loading"></div>
 
                 <div class="ultimate-gear-attempts">
-                    <div style="display: flex; gap: 20px; align-items: center; margin-top: 10px;">Stones Used:
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" alt="Ancient" style="width: 24px; height: 24px;">
-                            <span id="ancient-counter">0</span>
+                    <div style="display: flex; gap: 20px; align-items: center; margin-top: 10px; font-size: 20px;">Stones Used:
+                        <div class="item-card stone-button" id="stone-ancient" style="display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="selectUltimateStone('ancient')">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" alt="Ancient" style="width: 30px; height: 30px;">
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" alt="Legendary" style="width: 24px; height: 24px;">
-                            <span id="legendary-counter">0</span>
+                        <span id="ancient-counter" style="font-size: 20px;">0</span>
+                        <div class="item-card stone-button" id="stone-legendary" style="display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="selectUltimateStone('legendary')">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" alt="Legendary" style="width: 30px; height: 30px;">
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" alt="Ultimate" style="width: 24px; height: 24px;">
-                            <span id="ultimate-counter">0</span>
+                        <span id="legendary-counter" style="font-size: 20px;">0</span>
+                        <div class="item-card stone-button" id="stone-ultimate" style="display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="selectUltimateStone('ultimate')">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" alt="Ultimate" style="width: 30px; height: 30px;">
                         </div>
+                        <span id="ultimate-counter" style="font-size: 20px;">0</span>
                     </div>
                 </div>
 
@@ -806,12 +771,12 @@
             selectedUltimateStone = stoneType;
             localStorage.setItem('ultimateStone', stoneType);
 
-            // Update active button styling
-            document.querySelectorAll('.stone-button').forEach(btn => {
+            // Update active styling for the "Stones Used" section
+            document.querySelectorAll('.ultimate-gear-attempts div[onclick]').forEach(btn => {
                 btn.classList.remove('active');
             });
-            document.getElementById('stone-' + stoneType).classList.add('active');
-            
+            document.querySelector(`.ultimate-gear-attempts div[onclick*='${stoneType}']`).classList.add('active');
+
             // Update chance display
             updateUltimateChanceDisplay();
         }
