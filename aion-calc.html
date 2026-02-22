@@ -3452,9 +3452,9 @@
         
         
         // PvP multiplier and effectiveAtk divisor for tuning
-        const PVP_MULT = 0.18095; // Adjust this to match in-game
+        const PVP_MULTIPLIER = 0.18095; // Adjust this to match in-game
         const EFFECTIVE_ATK_DIVISOR = 1000; // Adjust this to match in-game
-        const pvpMult = (currentMode === 'pvp') ? PVP_MULT : 2.0;
+        const pvpMult = (currentMode === 'pvp') ? PVP_MULTIPLIER : 2.0;
         
         // Extract base stats by removing current manastones
         const currentCritStones = totalStones - currentAtkStones;
