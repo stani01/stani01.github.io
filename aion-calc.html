@@ -3451,7 +3451,10 @@
         const { normalBuffs, extraBuffs } = getActiveBuffs();
         
         
-        const pvpMult = (currentMode === 'pvp') ? 0.26 : 2.0;
+        // PvP multiplier and effectiveAtk divisor for tuning
+        const PVP_MULT = 0.18095; // Adjust this to match in-game
+        const EFFECTIVE_ATK_DIVISOR = 1000; // Adjust this to match in-game
+        const pvpMult = (currentMode === 'pvp') ? PVP_MULT : 2.0;
         
         // Extract base stats by removing current manastones
         const currentCritStones = totalStones - currentAtkStones;
@@ -3465,22 +3468,21 @@
             const resolvedDefense = (typeof defenseOverride === 'number' && !Number.isNaN(defenseOverride)) ? defenseOverride : defense;
             const effectiveAtk = Math.max(0, Math.min(20000, attack - resolvedDefense));
             const critChance = Math.min(1, ((crit * 170) / (24000 + crit)) / 100);
-            
+
             let normalDmg, critDmg;
-            
+
             if (classType === 'physical') {
-                // Physical formula: ((F20*100/T60)*(1+(MAX(Q32,0)/1000)))*IF(F5,26/100,2)
-                normalDmg = ((skillDmg * 100 / classKP) * (1 + effectiveAtk / 1000)) * pvpMult;
+                // Physical formula: ((F20*100/T60)*(1+(MAX(Q32,0)/EFFECTIVE_ATK_DIVISOR)))*IF(F5,PVP_MULT,2)
+                normalDmg = ((skillDmg * 100 / classKP) * (1 + effectiveAtk / EFFECTIVE_ATK_DIVISOR)) * pvpMult;
             } else {
-                // Magical formula: (F20+(F20*100/T60)*(MAX(Q32,0)/1000))*IF(F5,26/100,2)
-                normalDmg = (skillDmg + (skillDmg * 100 / classKP) * (effectiveAtk / 1000)) * pvpMult;
+                // Magical formula: (F20+(F20*100/T60)*(MAX(Q32,0)/EFFECTIVE_ATK_DIVISOR))*IF(F5,PVP_MULT,2)
+                normalDmg = (skillDmg + (skillDmg * 100 / classKP) * (effectiveAtk / EFFECTIVE_ATK_DIVISOR)) * pvpMult;
             }
-            
+
             // ROUNDUP base damage (before any buffs)
             normalDmg = Math.ceil(normalDmg);
-            
-            // Calculate crit damage: ROUND(normalDmg * (weaponMult * critDmgStat / 1000 + weaponMult))
-            // Excel formula: =ROUND(F27*(W61*D27/1000+W61))
+
+            // Calculate crit damage: ROUND(normalDmg * (weaponMult * (critDmgStat - fortitude) / 1000 + weaponMult))
             const effectiveCritDmgStat = critDmgStat - fortitude;
             critDmg = Math.round(normalDmg * (weaponMult * effectiveCritDmgStat / 1000 + weaponMult));
             
@@ -3591,14 +3593,12 @@
             // Now use the unbuiffed damage to solve for defense
             const skillRatio = (classKP > 0) ? (skillDmg * 100 / classKP) : 0;
             const roundedSkillRatio = Math.round(skillRatio);
-            const j40 = Math.floor(100 * baseDamage / 125);
             let solvedDefense = null;
             let details = '';
 
             if (classType === 'physical') {
                 if (currentMode === 'pvp') {
-                    const raw = 1000 * (((j40 * 100 / 26) / skillRatio) - 1) - totalAtk;
-                    solvedDefense = -Math.ceil(raw);
+                    solvedDefense = Math.round(totalAtk - (baseDamage * 100 / 22 / skillRatio - 1) * 1000);
                     details = 'Physical PvP formula';
                 } else {
                     const raw = (baseDamage / (2 * roundedSkillRatio) - 1) * 1000;
@@ -3607,8 +3607,7 @@
                 }
             } else {
                 if (currentMode === 'pvp') {
-                    const raw = (((j40 * 100 / 26) - skillDmg) / skillRatio) * 1000 - totalAtk;
-                    solvedDefense = -Math.ceil(raw);
+                    solvedDefense = Math.round(totalAtk - ((baseDamage * 100 / 22 - skillDmg) / skillRatio) * 1000);
                     details = 'Magical PvP formula';
                 } else {
                     const raw = ((baseDamage / 2 - skillDmg) / roundedSkillRatio) * 1000;
