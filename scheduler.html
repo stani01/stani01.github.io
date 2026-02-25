@@ -10,7 +10,7 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="assets/css/aion-tools.css">
+    <link rel="stylesheet" href="assets/css/aion-tools.css?v=1.4">
 </head>
 <body class="page-scheduler">
     <a href="aion.html" class="home-button">🏠 Tools Hub</a>
@@ -255,6 +255,18 @@
             return { hour: localHour, dayOffset: dayOffset };
         }
 
+        function shortenEventName(eventName) {
+            const shortNames = {
+                'Dumaha Altar': 'D. Altar',
+                'Mastarius/Veille': 'M/V',
+                'Inggison + Gelkmaros + Core': 'Siege',
+                'Bassen': 'Siege',
+                'Prades': 'Siege',
+                'Arena of Chaos': 'Chaos'
+            };
+            return shortNames[eventName] || eventName;
+        }
+
         function createSchedulerGrid() {
             const grid = document.getElementById('schedulerGrid');
             grid.innerHTML = '';
@@ -299,7 +311,8 @@
                         eventDiv.className = `scheduler-event event-${eventsAtThisTime[0].type}`;
                         
                         const eventNames = eventsAtThisTime.map(e => e.name).join(' + ');
-                        eventDiv.innerHTML = `<span class="event-label">${eventsAtThisTime[0].name}</span>`;
+                        const shortName = shortenEventName(eventsAtThisTime[0].name);
+                        eventDiv.innerHTML = `<span class="event-label">${shortName}</span>`;
                         eventDiv.title = eventNames;
                         
                         cell.appendChild(eventDiv);
