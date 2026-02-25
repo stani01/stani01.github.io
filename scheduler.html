@@ -258,7 +258,7 @@
         function shortenEventName(eventName) {
             const shortNames = {
                 'Dumaha Altar': 'D. Altar',
-                'Mastarius/Veille': 'M/V',
+                'Mastarius/Veille': 'Mast. Veille',
                 'Inggison + Gelkmaros + Core': 'Siege',
                 'Bassen': 'Siege',
                 'Prades': 'Siege',
@@ -311,8 +311,9 @@
                         eventDiv.className = `scheduler-event event-${eventsAtThisTime[0].type}`;
                         
                         const eventNames = eventsAtThisTime.map(e => e.name).join(' + ');
-                        const shortName = shortenEventName(eventsAtThisTime[0].name);
-                        eventDiv.innerHTML = `<span class="event-label">${shortName}</span>`;
+                        const isMobile = window.innerWidth <= 768;
+                        const displayName = isMobile ? shortenEventName(eventsAtThisTime[0].name) : eventsAtThisTime[0].name;
+                        eventDiv.innerHTML = `<span class="event-label">${displayName}</span>`;
                         eventDiv.title = eventNames;
                         
                         cell.appendChild(eventDiv);
