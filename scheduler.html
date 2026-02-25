@@ -10,7 +10,7 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="assets/css/aion-tools.css?v=2.3">
+    <link rel="stylesheet" href="assets/css/aion-tools.css?v=2.5">
 </head>
 <body class="page-scheduler">
     <a href="aion.html" class="home-button">🏠 Tools Hub</a>
@@ -38,6 +38,10 @@
             <div class="legend-item active" data-event-type="mastarius">
                 <div class="legend-color mastarius-veille"></div>
                 <span>Mastarius/Veille</span>
+            </div>
+            <div class="legend-item active" data-event-type="sarna">
+                <div class="legend-color sarna"></div>
+                <span>Sarna</span>
             </div>
             <div class="legend-item active" data-event-type="fortress">
                 <div class="legend-color fortress"></div>
@@ -70,6 +74,11 @@
                 <!-- Populated by JS -->
             </div>
         </div>
+
+        <div class="disclaimer">Notes: Event times are based on server time (UTC+1) and may be subject to change. Always double-check in-game for the most accurate schedule.
+            <br>Use the legend to filter events by type.
+            <br>Bassen and Prades Fortress gates appear at :05 after the hour, while Inggison, Gelkmaros, and Core gates appear at :00.
+        </div>
     </div>
 
     <div class="footer">
@@ -98,6 +107,8 @@
             { name: 'Dumaha Altar', type: 'dumaha', days: [0, 2, 4, 6], times: ['14:00', '20:00'] },
             // Mastarius/Veille
             { name: 'Mastarius/Veille', type: 'mastarius', days: [1, 4, 5], times: ['13:00', '22:00'] },
+            // Sarna
+            { name: 'Sarna', type: 'sarna', days: [1, 4, 5], times: ['13:30', '22:30'] },
             // Fortress Sieges
             { name: 'Inggison + Gelkmaros + Core', type: 'fortress', days: [3, 6], times: ['21:00'] },
             { name: 'Bassen', type: 'fortress', days: [3], times: ['22:00'] },
@@ -229,6 +240,7 @@
             const colors = {
                 'dumaha': '#c49c3a',
                 'mastarius': '#42a5f5',
+                'sarna': '#5442f5',
                 'fortress': '#ef5350',
                 'arena': '#ab47bc'
             };
@@ -259,6 +271,7 @@
             const shortNames = {
                 'Dumaha Altar': 'D. Altar',
                 'Mastarius/Veille': 'Mast. Veille',
+                'Sarna': 'Sarna',
                 'Inggison + Gelkmaros + Core': 'Siege',
                 'Bassen': 'Siege',
                 'Prades': 'Siege',
@@ -324,15 +337,51 @@
                         });
                     });
 
-                    if (eventsAtThisTime.length > 0) {
+                    if (eventsAtThisTime.length > 1) {
+                        // Multiple events in same hour - position vertically by minute
+                        const eventTimesData = eventsAtThisTime.map(event => {
+                            const eventTime = event.times.find(t => {
+                                const [serverHour, serverMinute] = t.split(':').map(Number);
+                                const { hour: eventLocalHour } = convertServerTimeToLocal(serverHour, serverMinute);
+                                return eventLocalHour === localHour;
+                            });
+                            const [serverHour, serverMinute] = eventTime.split(':').map(Number);
+                            return { event, minute: serverMinute };
+                        });
+                        
+                        // Sort by minute
+                        eventTimesData.sort((a, b) => a.minute - b.minute);
+                        
+                        // Create events with vertical positioning
+                        eventTimesData.forEach((data, index) => {
+                            const eventDiv = document.createElement('div');
+                            eventDiv.className = `scheduler-event event-${data.event.type}`;
+                            
+                            const topPercent = (data.minute / 60) * 100;
+                            const nextMinute = index < eventTimesData.length - 1 ? eventTimesData[index + 1].minute : 60;
+                            const heightPercent = ((nextMinute - data.minute) / 60) * 100;
+                            
+                            eventDiv.style.position = 'absolute';
+                            eventDiv.style.top = `${topPercent}%`;
+                            eventDiv.style.height = `${heightPercent}%`;
+                            eventDiv.style.width = '100%';
+                            
+                            const isMobile = window.innerWidth <= 768;
+                            const displayName = isMobile ? shortenEventName(data.event.name) : data.event.name;
+                            eventDiv.innerHTML = `<span class="event-label">${displayName}</span>`;
+                            eventDiv.title = data.event.name;
+                            
+                            cell.appendChild(eventDiv);
+                        });
+                    } else if (eventsAtThisTime.length === 1) {
+                        // Single event - display normally
                         const eventDiv = document.createElement('div');
                         eventDiv.className = `scheduler-event event-${eventsAtThisTime[0].type}`;
                         
-                        const eventNames = eventsAtThisTime.map(e => e.name).join(' + ');
                         const isMobile = window.innerWidth <= 768;
                         const displayName = isMobile ? shortenEventName(eventsAtThisTime[0].name) : eventsAtThisTime[0].name;
                         eventDiv.innerHTML = `<span class="event-label">${displayName}</span>`;
-                        eventDiv.title = eventNames;
+                        eventDiv.title = eventsAtThisTime[0].name;
                         
                         cell.appendChild(eventDiv);
                     }
@@ -359,7 +408,7 @@
                     const eventType = this.dataset.eventType;
                     
                     document.querySelectorAll(`.scheduler-event.event-${eventType}`).forEach(event => {
-                        event.parentElement.style.opacity = this.classList.contains('active') ? '1' : '0.3';
+                        event.style.opacity = this.classList.contains('active') ? '1' : '0.3';
                     });
                 });
             });

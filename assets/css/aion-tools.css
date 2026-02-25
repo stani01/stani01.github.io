@@ -3168,6 +3168,7 @@ flex: 1;
 
 .dumaha-altar { background: linear-gradient(135deg, #c49c3a 0%, #8b6f1f 100%); }
 .mastarius-veille { background: linear-gradient(135deg, #42a5f5 0%, #1565c0 100%); }
+.sarna { background: linear-gradient(135deg, #5442f5 0%, #1565c0 100%); }
 .fortress { background: linear-gradient(135deg, #ef5350 0%, #c62828 100%); }
 .arena-chaos { background: linear-gradient(135deg, #ab47bc 0%, #6a1b9a 100%); }
 
@@ -3312,8 +3313,9 @@ flex: 1;
     border-radius: 8px;
     min-height: 35px;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
@@ -3338,7 +3340,7 @@ flex: 1;
 }
 
 .scheduler-event {
-    width: 100%;
+    position: relative;
     height: 100%;
     display: flex;
     align-items: center;
@@ -3366,6 +3368,12 @@ flex: 1;
 
 .scheduler-event.event-mastarius {
     background: linear-gradient(135deg, #42a5f5 0%, #1565c0 100%);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.scheduler-event.event-sarna {
+    background: linear-gradient(135deg, #5442f5 0%, #3a2ba8 100%);
     color: #fff;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
