@@ -73,11 +73,13 @@
             <div class="scheduler-grid" id="schedulerGrid">
                 <!-- Populated by JS -->
             </div>
+            <div class="schedule-notes" id="scheduleNotes">Schedule shows server (UTC+1) events converted to your local time. If this area is empty there are no scheduled events for your timezone.</div>
         </div>
 
-        <div class="disclaimer">Notes: Event times are based on server time (UTC+1) and may be subject to change. Always double-check in-game for the most accurate schedule.
-            <br>Use the legend to filter events by type.
-            <br>Bassen and Prades Fortress gates appear at :05 after the hour, while Inggison, Gelkmaros, and Core gates appear at :00.
+        <div class="schedule-notes"><br>Notes:
+            <br><br>Event times are based on server time (UTC+1) and may be subject to change. Always double-check in-game for the most accurate schedule.
+            <br><br>Bassen and Prades Fortress gates appear at :05 after the hour, while Inggison, Gelkmaros, and Core gates appear at :00.
+            <br><br>Use the legend to filter events by type.
         </div>
     </div>
 
@@ -362,10 +364,7 @@
                         eventTimesData.forEach((data, index) => {
                             const eventDiv = document.createElement('div');
                                 eventDiv.className = `scheduler-event event-${data.event.type}`;
-                                // mark event overlay only when it's today's current hour
-                                if (isCurrentHour && day === (now.getDay() === 0 ? 6 : now.getDay() - 1)) {
-                                    eventDiv.classList.add('current-hour-event');
-                                }
+                                // no per-event current-hour overlay; highlight applies to the cell only
                             
                             const topPercent = (data.minute / 60) * 100;
                             const nextMinute = index < eventTimesData.length - 1 ? eventTimesData[index + 1].minute : 60;
@@ -387,9 +386,7 @@
                         // Single event - display normally
                         const eventDiv = document.createElement('div');
                         eventDiv.className = `scheduler-event event-${eventsAtThisTime[0].type}`;
-                        if (isCurrentHour && day === (now.getDay() === 0 ? 6 : now.getDay() - 1)) {
-                            eventDiv.classList.add('current-hour-event');
-                        }
+                        // no per-event current-hour overlay; highlight applies to the cell only
                         
                         const isMobile = window.innerWidth <= 768;
                         const displayName = isMobile ? shortenEventName(eventsAtThisTime[0].name) : eventsAtThisTime[0].name;
@@ -412,6 +409,13 @@
                     schedulerWrapper.scrollTop = currentHourLabel.offsetTop - 100;
                 }
             }, 50);
+
+            // Show or hide schedule notes depending on whether any events were rendered
+            const scheduleNotes = document.getElementById('scheduleNotes');
+            if (scheduleNotes) {
+                const hasAnyEvent = grid.querySelector('.scheduler-event') !== null;
+                scheduleNotes.style.display = hasAnyEvent ? 'none' : 'block';
+            }
         }
 
         function setupLegendFilters() {
@@ -445,6 +449,17 @@
                 todayHeader.style.position = 'relative';
             }
             
+            // Reassign current-hour classes so the highlight moves when the hour changes
+            const todayIndex = currentDayOfWeek;
+            // remove previous highlights
+            document.querySelectorAll('.current-hour-cell').forEach(c => c.classList.remove('current-hour-cell'));
+
+            // add highlight to the new current hour cell for today (if present)
+            const newCell = document.querySelector(`.scheduler-cell[data-day="${todayIndex}"][data-hour="${currentHour}"]`);
+            if (newCell) {
+                newCell.classList.add('current-hour-cell');
+            }
+
             // Update progressive fill for current hour cells
             updateCurrentHourFill();
         }
@@ -458,17 +473,7 @@
             const totalSeconds = minutes * 60 + seconds;
             const progressPercent = (totalSeconds / 3600) * 100;
             
-            // Update all current-hour-cell elements with progressive fill via ::after pseudo-element
-            document.querySelectorAll('.current-hour-cell').forEach(cell => {
-                const style = cell.style;
-                style.setProperty('--progress-percent', progressPercent + '%');
-                cell.style.backgroundImage = `linear-gradient(to right, rgba(181, 101, 245, 0.4) 0%, rgba(181, 101, 245, 0.4) ${progressPercent}%, rgba(181, 101, 245, 0.15) ${progressPercent}%, rgba(181, 101, 245, 0.15) 100%)`;
-            });
-            
-            // Update all current-hour-event elements with progressive fill overlay
-            document.querySelectorAll('.current-hour-event').forEach(event => {
-                event.style.backgroundImage = `linear-gradient(to right, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) ${progressPercent}%, transparent ${progressPercent}%, transparent 100%)`;
-            });
+            // No progressive fill: current hour highlighting uses border/background only
         }
 
         // Initialize
@@ -481,10 +486,7 @@
                 updateTimeDisplays();
                 updateNowHighlight();
             }, 1000);
-            // Update current hour fill more frequently for smooth animation
-            setInterval(() => {
-                updateCurrentHourFill();
-            }, 100);
+            // No separate progressive fill interval; highlight updates on the 1s interval above
             document.getElementById('copyright-year').textContent = new Date().getFullYear();
         });
     </script>

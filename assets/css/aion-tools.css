@@ -2785,6 +2785,17 @@ flex: 1;
     white-space: nowrap;
 }
 
+.schedule-notes {
+    text-align: center;
+    font-size: 0.78em;
+    color: #8a8a8a;
+    /* responsive width: almost full width on small screens, capped on large */
+    width: min(1000px, 96%);
+    line-height: 1.45;
+    margin: 10px auto 0;
+    font-style: italic;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .page-scheduler h1 {
@@ -3356,22 +3367,18 @@ flex: 1;
 }
 
 .current-hour-cell {
-    background: rgba(181, 101, 245, 0.15) !important;
-    border-left: 3px solid rgba(181, 101, 245, 0.8) !important;
+    /* match day header 'today' border effect */
+    background: rgba(181, 101, 245, 0.12);
+    border: 2px solid #b565f5;
+    color: #fff;
+    font-weight: 700;
     min-height: 35px;
 }
 
-.current-hour-cell::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    background: linear-gradient(to right, rgba(181, 101, 245, 0.4), rgba(181, 101, 245, 0.1));
-    width: 100%;
-    pointer-events: none;
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
+/* Halo glow for the current hour cell (applies to whole tile, not event) */
+.scheduler-event {
+    position: relative;
+    z-index: 2;
 }
 
 .scheduler-cell:hover {
@@ -3403,31 +3410,36 @@ flex: 1;
 .scheduler-event.event-dumaha {
     background: linear-gradient(135deg, #c49c3a 0%, #8b6f1f 100%);
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.55);
 }
 
 .scheduler-event.event-mastarius {
     background: linear-gradient(135deg, #42a5f5 0%, #1565c0 100%);
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .scheduler-event.event-sarna {
-    background: linear-gradient(135deg, #5442f5 0%, #3a2ba8 100%);
+    background: linear-gradient(135deg, #6a42f5 0%, #3a2bd8 100%);
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .scheduler-event.event-fortress {
     background: linear-gradient(135deg, #ef5350 0%, #c62828 100%);
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .scheduler-event.event-arena {
     background: linear-gradient(135deg, #ab47bc 0%, #6a1b9a 100%);
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+/* Add a subtle outer stroke for non-event tiles to improve contrast against event gradients */
+.scheduler-cell {
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.01);
 }
 
 .event-label {
