@@ -3178,21 +3178,49 @@ flex: 1;
     background: rgba(22, 22, 35, 0.7);
     backdrop-filter: blur(12px);
     border-radius: 15px;
-    padding: 20px;
     border: 1px solid rgba(181, 101, 245, 0.2);
-    overflow-x: auto;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(181, 101, 245, 0.6) rgba(181, 101, 245, 0.15);
+}
+
+.scheduler-grid-wrapper::-webkit-scrollbar {
+    width: 10px;
+}
+
+.scheduler-grid-wrapper::-webkit-scrollbar-track {
+    background: rgba(181, 101, 245, 0.08);
+    border-radius: 10px;
+}
+
+.scheduler-grid-wrapper::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(181, 101, 245, 0.5) 0%, rgba(181, 101, 245, 0.7) 100%);
+    border-radius: 10px;
+    border: 2px solid rgba(181, 101, 245, 0.08);
+}
+
+.scheduler-grid-wrapper::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(181, 101, 245, 0.7) 0%, rgba(181, 101, 245, 0.9) 100%);
 }
 
 .scheduler-header {
     display: grid;
     grid-template-columns: 80px repeat(7, 1fr);
     gap: 8px;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
+    padding: 20px 20px 15px 20px;
     border-bottom: 2px solid rgba(181, 101, 245, 0.2);
     font-weight: 700;
     box-sizing: border-box;
+    position: sticky;
+    top: 0;
+    background: rgba(22, 22, 35, 0.95);
+    backdrop-filter: blur(12px);
+    z-index: 10;
 }
 
 .day-header:first-child {
@@ -3241,8 +3269,9 @@ flex: 1;
     display: grid;
     grid-template-columns: 80px repeat(7, 1fr);
     gap: 8px;
-    auto-rows: minmax(100px, auto);
+    auto-rows: minmax(35px, auto);
     box-sizing: border-box;
+    padding: 0 20px 20px 20px;
 }
 
 .hour-label {
@@ -3263,17 +3292,44 @@ flex: 1;
     text-overflow: ellipsis;
 }
 
+.hour-label-empty {
+    min-height: 2px;
+    padding: 0;
+    background: rgba(181, 101, 245, 0.1);
+    border: none;
+}
+
+.current-hour-label {
+    background: rgba(181, 101, 245, 0.35) !important;
+    border-left: 3px solid #b565f5 !important;
+    font-weight: 700;
+    color: #dcb0ff !important;
+}
+
 .scheduler-cell {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(181, 101, 245, 0.1);
     border-radius: 8px;
-    min-height: 100px;
+    min-height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
+}
+
+.scheduler-cell-empty {
+    min-height: 35px;
+    border: none;
+    background: transparent;
+    border-bottom: 1px solid rgba(181, 101, 245, 0.05);
+}
+
+.current-hour-cell {
+    background: rgba(181, 101, 245, 0.1) !important;
+    border-left: 3px solid rgba(181, 101, 245, 0.8) !important;
+    min-height: 35px;
 }
 
 .scheduler-cell:hover {
@@ -3369,7 +3425,7 @@ flex: 1;
     .scheduler-grid-wrapper { margin-left: 5%; margin-right: 5%; padding: 15px; }
     .scheduler-header, .scheduler-grid { grid-template-columns: 60px repeat(7, 1fr); gap: 6px; }
     .hour-label { font-size: 0.7em; padding: 8px 4px; }
-    .scheduler-cell { min-height: 50px; }
+    .scheduler-cell { min-height: 35px; }
     .scheduler-event { font-size: 0.65em; }
     .day-header { font-size: 0.85em; padding: 8px 4px; }
     .day-header:first-child { padding: 8px 4px; }
@@ -3379,13 +3435,13 @@ flex: 1;
     .time-display-section { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
     .page-scheduler h1 { font-size: 2em; margin-bottom: 20px; }
     .time-value { font-size: 1.8em; }
-    .scheduler-grid-wrapper { margin-left: 0; margin-right: 0; border-radius: 10px; padding: 10px; }
+    .scheduler-grid-wrapper { margin-left: 0; margin-right: 0; border-radius: 10px; padding: 10px; max-height: 500px; }
     .scheduler-header, .scheduler-grid { grid-template-columns: 50px repeat(7, 1fr); gap: 4px; }
     .hour-label { font-size: 0.6em; padding: 6px 3px; }
-    .scheduler-cell { min-height: 40px; }
+    .scheduler-cell { min-height: 30px; }
     .scheduler-event { font-size: 0.6em; padding: 2px 4px; }
-    .event-label { font-size: 0.9em; }
-    .day-header { font-size: 0.45em; display: block; justify-content: center; align-items: center; padding: 20px 3px; }
+    .event-label { font-size: 0.7em; }
+    .day-header { display: block; font-size: 0.40em; padding: 15px 0px; }
     .day-header:first-child { padding: 6px 3px; }
     .next-event-info { font-size: 1em; }
     .page-scheduler .legend { gap: 10px; margin-bottom: 20px; }
