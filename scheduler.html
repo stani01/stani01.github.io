@@ -10,7 +10,7 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="assets/css/aion-tools.css?v=2.5">
+    <link rel="stylesheet" href="assets/css/aion-tools.css?v=3.1">
 </head>
 <body class="page-scheduler">
     <a href="aion.html" class="home-button">🏠 Tools Hub</a>
@@ -323,8 +323,14 @@
                     if (!hasEvents) {
                         cell.classList.add('scheduler-cell-empty');
                     }
-                    if (isCurrentHour) {
-                        cell.classList.add('current-hour-cell');
+                    // Add current day highlighting for entire column and only
+                    // apply the current-hour highlight to today's cell
+                    const todayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
+                    if (day === todayIndex) {
+                        cell.classList.add('current-day-cell');
+                        if (isCurrentHour) {
+                            cell.classList.add('current-hour-cell');
+                        }
                     }
 
                     // Check for events at this local hour and day
@@ -355,7 +361,11 @@
                         // Create events with vertical positioning
                         eventTimesData.forEach((data, index) => {
                             const eventDiv = document.createElement('div');
-                            eventDiv.className = `scheduler-event event-${data.event.type}`;
+                                eventDiv.className = `scheduler-event event-${data.event.type}`;
+                                // mark event overlay only when it's today's current hour
+                                if (isCurrentHour && day === (now.getDay() === 0 ? 6 : now.getDay() - 1)) {
+                                    eventDiv.classList.add('current-hour-event');
+                                }
                             
                             const topPercent = (data.minute / 60) * 100;
                             const nextMinute = index < eventTimesData.length - 1 ? eventTimesData[index + 1].minute : 60;
@@ -377,6 +387,9 @@
                         // Single event - display normally
                         const eventDiv = document.createElement('div');
                         eventDiv.className = `scheduler-event event-${eventsAtThisTime[0].type}`;
+                        if (isCurrentHour && day === (now.getDay() === 0 ? 6 : now.getDay() - 1)) {
+                            eventDiv.classList.add('current-hour-event');
+                        }
                         
                         const isMobile = window.innerWidth <= 768;
                         const displayName = isMobile ? shortenEventName(eventsAtThisTime[0].name) : eventsAtThisTime[0].name;
@@ -417,6 +430,7 @@
         function updateNowHighlight() {
             const now = new Date();
             let currentDayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1;
+            const currentHour = now.getHours();
             
             // Remove previous day header highlights
             document.querySelectorAll('.day-header.today').forEach(header => {
@@ -427,7 +441,34 @@
             const todayHeader = document.querySelector(`.day-header[data-day="${currentDayOfWeek}"]`);
             if (todayHeader) {
                 todayHeader.classList.add('today');
+                // Add position relative so ::after positioning works
+                todayHeader.style.position = 'relative';
             }
+            
+            // Update progressive fill for current hour cells
+            updateCurrentHourFill();
+        }
+
+        function updateCurrentHourFill() {
+            const now = new Date();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            
+            // Calculate percentage through the hour (0-100%)
+            const totalSeconds = minutes * 60 + seconds;
+            const progressPercent = (totalSeconds / 3600) * 100;
+            
+            // Update all current-hour-cell elements with progressive fill via ::after pseudo-element
+            document.querySelectorAll('.current-hour-cell').forEach(cell => {
+                const style = cell.style;
+                style.setProperty('--progress-percent', progressPercent + '%');
+                cell.style.backgroundImage = `linear-gradient(to right, rgba(181, 101, 245, 0.4) 0%, rgba(181, 101, 245, 0.4) ${progressPercent}%, rgba(181, 101, 245, 0.15) ${progressPercent}%, rgba(181, 101, 245, 0.15) 100%)`;
+            });
+            
+            // Update all current-hour-event elements with progressive fill overlay
+            document.querySelectorAll('.current-hour-event').forEach(event => {
+                event.style.backgroundImage = `linear-gradient(to right, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) ${progressPercent}%, transparent ${progressPercent}%, transparent 100%)`;
+            });
         }
 
         // Initialize
@@ -440,6 +481,10 @@
                 updateTimeDisplays();
                 updateNowHighlight();
             }, 1000);
+            // Update current hour fill more frequently for smooth animation
+            setInterval(() => {
+                updateCurrentHourFill();
+            }, 100);
             document.getElementById('copyright-year').textContent = new Date().getFullYear();
         });
     </script>
