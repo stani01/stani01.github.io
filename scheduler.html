@@ -36,17 +36,17 @@
         </div>
 
         <div class="legend">
-            <div class="legend-item active" data-event-type="dumaha">
-                <div class="legend-color dumaha-altar"></div>
+            <div class="legend-item active" data-event-type="altar">
+                <div class="legend-color altar"></div>
                 <span>Dumaha Altar</span>
             </div>
-            <div class="legend-item active" data-event-type="mastarius">
-                <div class="legend-color mastarius-veille"></div>
+            <div class="legend-item active" data-event-type="agent">
+                <div class="legend-color agent"></div>
                 <span>Mastarius/Veille</span>
             </div>
-            <div class="legend-item active" data-event-type="sarna">
-                <div class="legend-color sarna"></div>
-                <span>Sarna</span>
+            <div class="legend-item active" data-event-type="npc">
+                <div class="legend-color npc"></div>
+                <span>Merva / Sarna</span>
             </div>
             <div class="legend-item active" data-event-type="fortress">
                 <div class="legend-color fortress"></div>
@@ -70,6 +70,16 @@
 
         <div class="scheduler-controls">
             <button id="toggleEmptyHoursBtn" class="plain-button">Hide empty hours</button>
+        </div>
+
+        <!-- Event details panel (shown when clicking an event) -->
+        <div id="eventDetailsPanel" class="event-details-panel" style="display:none;">
+            <div class="ed-header">
+                <div class="ed-title">Event</div>
+                <button class="ed-close" id="edCloseBtn">✕</button>
+            </div>
+            <div class="ed-meta"></div>
+            <div class="ed-body"></div>
         </div>
 
         <div class="scheduler-grid-wrapper">
@@ -120,17 +130,33 @@
         // Events schedule (server time in 24-hour format)
         const events = [
             // Dumaha Altar (60m)
-            { name: 'Dumaha Altar', type: 'dumaha', days: [0, 2, 4, 6], times: ['14:00', '20:00'], duration: 60 },
+            { 
+                name: 'Dumaha Altar', type: 'altar', days: [0, 2, 4, 6], times: ['14:00', '20:00'], duration: 60,
+                details: `Main reward huge amounts of AP if taken solo, decent in group/alliance, odian crystals, special legion only npcs for special items and enchantment coupons on normal npc for everyone.`
+            },
             // Mastarius/Veille (30m)
-            { name: 'Mastarius/Veille', type: 'mastarius', days: [1, 4, 5], times: ['13:00', '22:00'], duration: 30 },
-            // Sarna (30m)
-            { name: 'Sarna', type: 'sarna', days: [1, 4, 5], times: ['13:30', '22:30'], duration: 30 },
+            { 
+                name: 'Mastarius/Veille', type: 'agent', days: [1, 4, 5], times: ['13:00', '22:00'], duration: 30,
+                details: `Agent Battle info: respawns 72h after kill. Held at 13:00 and 22:00 on Tue/Fri/Sat; raging version on Saturday with better rewards; rifts appear for 1 hour when battle begins; agent appears 5 minutes after start and must be killed within 25 minutes.`
+            },
+            // Merva / Sarna (30m)
+            { name: 'Merva / Sarna', type: 'npc', days: [1, 4, 5], times: ['13:30', '22:30'], duration: 30,
+                details: `The special NPC that appears after Mastarius or Veille gets killed or timer runs out. It sells ultimate manastone selection boxes and Ultimate Equipment Packaging (Level 83).`
+            },
             // Fortress Sieges (60m)
-            { name: 'Inggison + Gelkmaros + Core', type: 'fortress', days: [3, 6], times: ['21:00'], duration: 60 },
-            { name: 'Bassen', type: 'fortress', days: [3], times: ['22:00'], duration: 60 },
-            { name: 'Prades', type: 'fortress', days: [6], times: ['22:00'], duration: 60 },
+            { name: 'Inggison + Gelkmaros + Core', type: 'fortress', days: [3, 6], times: ['21:00'], duration: 60,
+                details: `Siege rewards: AP and honor points for rankings; enchantment stones.`
+            },
+            { name: 'Bassen', type: 'fortress', days: [3], times: ['22:00'], duration: 60,
+                details: `Siege rewards: AP and honor points for rankings; enchantment stones.`
+            },
+            { name: 'Prades', type: 'fortress', days: [6], times: ['22:00'], duration: 60,
+                details: `Siege rewards: AP and honor points for rankings; enchantment stones.`
+            },
             // Arena of Chaos (60m)
-            { name: 'Arena of Chaos', type: 'arena', days: [0, 1, 2, 3, 4, 5, 6, 7], times: ['12:00', '19:00', '00:00'], duration: 60 }
+            { name: 'Arena of Chaos', type: 'arena', days: [0, 1, 2, 3, 4, 5, 6, 7], times: ['12:00', '19:00', '00:00'], duration: 60,
+                details: `Only source for heroic trophies used to buy Lunaris/Solaris/Izar weapons, ultimate manastones, and various items.`
+            }
         ];
 
         // Tracks last hour we auto-scrolled to, so we only scroll on hour change
@@ -341,9 +367,9 @@
 
         function getEventColor(type) {
             const colors = {
-                'dumaha': '#c49c3a',
-                'mastarius': '#42a5f5',
-                'sarna': '#5442f5',
+                'altar': '#c49c3a',
+                'agent': '#42a5f5',
+                'npc': '#5442f5',
                 'fortress': '#ef5350',
                 'arena': '#ab47bc'
             };
@@ -374,7 +400,7 @@
             const shortNames = {
                 'Dumaha Altar': 'D. Altar',
                 'Mastarius/Veille': 'Mast. Veille',
-                'Sarna': 'Sarna',
+                'Merva / Sarna': 'Merva / Sarna',
                 'Inggison + Gelkmaros + Core': 'Siege',
                 'Bassen': 'Siege',
                 'Prades': 'Siege',
@@ -475,6 +501,10 @@
                             eventDiv.style.top = `${topPercent}%`;
                             eventDiv.style.height = `${heightPercent}%`;
                             eventDiv.style.width = '100%';
+                            // store event index and server time for details panel
+                            eventDiv.dataset.eventIndex = events.indexOf(data.event);
+                            eventDiv.dataset.serverTime = `${String(data.minute).padStart(2,'0')}`; // minute only
+                            // clicking events does nothing (details shown via legend)
                             
                             const isMobile = window.innerWidth <= 768;
                             const displayName = isMobile ? shortenEventName(data.event.name) : data.event.name;
@@ -493,7 +523,15 @@
                         const displayName = isMobile ? shortenEventName(eventsAtThisTime[0].name) : eventsAtThisTime[0].name;
                         eventDiv.innerHTML = `<span class="event-label">${displayName}</span>`;
                         eventDiv.title = eventsAtThisTime[0].name;
-                        
+                        // store event index and server time for details panel
+                        eventDiv.dataset.eventIndex = events.indexOf(eventsAtThisTime[0]);
+                        eventDiv.dataset.serverTime = eventsAtThisTime[0].times.find(t => {
+                            const [serverHour, serverMinute] = t.split(':').map(Number);
+                            const { hour: eventLocalHour } = convertServerTimeToLocal(serverHour, serverMinute);
+                            return eventLocalHour === localHour;
+                        }) || '';
+                        // clicking events does nothing (details shown via legend)
+
                         cell.appendChild(eventDiv);
                     }
 
@@ -515,14 +553,40 @@
         function setupLegendFilters() {
             document.querySelectorAll('.legend-item').forEach(item => {
                 item.addEventListener('click', function() {
+                    // toggle visual active state
                     this.classList.toggle('active');
                     const eventType = this.dataset.eventType;
-                    
-                    document.querySelectorAll(`.scheduler-event.event-${eventType}`).forEach(event => {
-                        event.style.opacity = this.classList.contains('active') ? '1' : '0.3';
-                    });
+                    // Show aggregated details for this event type
+                    showEventDetailsForType(eventType);
                 });
             });
+        }
+
+        // Show aggregated details for all events of a given type (used by legend)
+        function showEventDetailsForType(eventType) {
+            const matching = events.filter(e => e.type === eventType);
+            if (!matching || matching.length === 0) return;
+
+            const panel = document.getElementById('eventDetailsPanel');
+            if (!panel) return;
+
+            const title = panel.querySelector('.ed-title');
+            const meta = panel.querySelector('.ed-meta');
+            const body = panel.querySelector('.ed-body');
+
+            title.textContent = matching.length === 1 ? matching[0].name : `${matching[0].type.toUpperCase()} Events`;
+            meta.textContent = `Type: ${eventType}`;
+
+            let html = '';
+            const daysMap = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+            matching.forEach(ev => {
+                const daysStr = ev.days.map(d => daysMap[d]).join(', ');
+                const timesStr = ev.times.join(', ');
+                html += `<div style="margin-bottom:10px;"><strong>${ev.name}</strong><div>Server times: ${timesStr}</div><div>Days: ${daysStr}</div><div>Duration: ${ev.duration || 60}m</div><div style="margin-top:6px;">${ev.details || 'No details available.'}</div></div>`;
+            });
+
+            body.innerHTML = html;
+            panel.style.display = 'block';
         }
 
         function updateNowHighlight() {
@@ -620,6 +684,36 @@
             }
         }
 
+        // Event details panel handling (calendar events no longer trigger details)
+        function showEventDetails(eventObj, serverTime) {
+            let detailsPanel = document.getElementById('eventDetailsPanel');
+            if (!detailsPanel) return;
+
+            const title = detailsPanel.querySelector('.ed-title');
+            const body = detailsPanel.querySelector('.ed-body');
+            const meta = detailsPanel.querySelector('.ed-meta');
+
+            title.textContent = eventObj.name;
+            meta.textContent = `Type: ${eventObj.type} • Duration: ${eventObj.duration || 60}m`;
+
+            let timesHtml = '';
+            if (eventObj.times && eventObj.times.length) {
+                timesHtml = `<div><strong>Server times:</strong> ${eventObj.times.join(', ')}</div>`;
+            }
+
+            const daysMap = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+            const daysStr = eventObj.days.map(d => daysMap[d]).join(', ');
+
+            body.innerHTML = `${timesHtml}<div><strong>Days:</strong> ${daysStr}</div><div style="margin-top:8px;">${eventObj.details || 'No details available.'}</div>`;
+
+            detailsPanel.style.display = 'block';
+        }
+
+        function hideEventDetails() {
+            const detailsPanel = document.getElementById('eventDetailsPanel');
+            if (detailsPanel) detailsPanel.style.display = 'none';
+        }
+
         function getAionGameTime(serverTime) {
             // The reference: RT 10:33:00 is GT 06:44:00.
             // This means GT 00:00:00 happened 33m 40s earlier RT (at 09:59:20).
@@ -676,6 +770,18 @@
             if (toggleBtn) {
                 toggleBtn.addEventListener('click', toggleHideEmptyHours);
             }
+            const edClose = document.getElementById('edCloseBtn');
+            if (edClose) edClose.addEventListener('click', hideEventDetails);
+            document.addEventListener('click', function(e){
+                const panel = document.getElementById('eventDetailsPanel');
+                if (!panel) return;
+                const clickInsidePanel = panel.contains(e.target);
+                const clickedEvent = e.target.classList.contains('scheduler-event') || e.target.closest('.scheduler-event');
+                const clickedLegend = e.target.classList.contains('legend-item') || e.target.closest('.legend-item') || e.target.closest('.legend');
+                if (panel.style.display === 'block' && !clickInsidePanel && !clickedEvent && !clickedLegend) {
+                    panel.style.display = 'none';
+                }
+            });
             // No separate progressive fill interval; highlight updates on the 1s interval above
             document.getElementById('copyright-year').textContent = new Date().getFullYear();
         });
