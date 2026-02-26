@@ -3564,9 +3564,11 @@ flex: 1;
 }
 
 @media (max-width: 768px) {
-    .time-display-section { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+    .time-display-section { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 15px; }
     .page-scheduler h1 { font-size: 2em; margin-bottom: 20px; }
-    .time-value { font-size: 1.8em; }
+    .time-value { font-size: 0.8em; }
+    .time-label { font-size: 0.5em; }
+    .time-date { font-size: 0.65em; }
     .scheduler-grid-wrapper { margin-left: 0; margin-right: 0; border-radius: 10px; padding: 10px; max-height: 500px; }
     .scheduler-header, .scheduler-grid { grid-template-columns: 50px repeat(7, 1fr); gap: 4px; }
     .hour-label { font-size: 0.6em; padding: 6px 3px; }
