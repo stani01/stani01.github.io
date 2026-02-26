@@ -411,7 +411,7 @@
 
         // Shorten day header names for mobile view (keep first letter)
         function shortenDayHeadersForMobile() {
-            const isMobile = window.innerWidth <= 768;
+            const isMobile = window.innerWidth <= 1200;
             // include the left-most header (Local Time) as well
             document.querySelectorAll('.scheduler-header .day-header').forEach(h => {
                 if (!h.dataset.fullText) h.dataset.fullText = h.textContent.trim();
