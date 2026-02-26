@@ -397,9 +397,7 @@ a:hover {
 
 .tool-link:hover {
     text-decoration: none;
-}
-
-.coming-soon {
+}.coming-soon {
     opacity: 0.6;
     pointer-events: none;
 }
