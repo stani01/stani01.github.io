@@ -3484,8 +3484,8 @@ flex: 1;
     font-size: 0.95em;
 }
 
-/* Next Event Section */
-.next-event-section {
+/* Events Section */
+.event-section {
     max-width: 900px;
     margin: 30px auto;
     padding: 25px;
@@ -3497,7 +3497,7 @@ flex: 1;
     box-shadow: 0 10px 30px rgba(181, 101, 245, 0.1);
 }
 
-.next-event-title {
+.event-title {
     font-size: 1.1em;
     color: var(--text-muted);
     margin-bottom: 10px;
@@ -3506,7 +3506,7 @@ flex: 1;
     font-weight: 600;
 }
 
-.next-event-info {
+.event-info {
     font-size: 2em;
     font-weight: 700;
     font-family: 'Courier New', monospace;

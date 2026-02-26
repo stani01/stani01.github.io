@@ -58,9 +58,14 @@
             </div>
         </div>
 
-        <div class="next-event-section">
-            <div class="next-event-title">⏳ Time until next event:</div>
-            <div class="next-event-info" id="nextEventInfo">Calculating...</div>
+        <div class="event-section" id="currentEventSection" style="display:none;">
+            <div class="event-title">▶ Current event:</div>
+            <div class="event-info" id="currentEventInfo">None</div>
+        </div>
+
+        <div class="event-section" id="nextEventSection">
+            <div class="event-title">⏳ Time until next event:</div>
+            <div class="event-info" id="nextEventInfo">Calculating...</div>
         </div>
 
         <div class="scheduler-controls">
@@ -114,18 +119,18 @@
     <script>
         // Events schedule (server time in 24-hour format)
         const events = [
-            // Dumaha Altar
-            { name: 'Dumaha Altar', type: 'dumaha', days: [0, 2, 4, 6], times: ['14:00', '20:00'] },
-            // Mastarius/Veille
-            { name: 'Mastarius/Veille', type: 'mastarius', days: [1, 4, 5], times: ['13:00', '22:00'] },
-            // Sarna
-            { name: 'Sarna', type: 'sarna', days: [1, 4, 5], times: ['13:30', '22:30'] },
-            // Fortress Sieges
-            { name: 'Inggison + Gelkmaros + Core', type: 'fortress', days: [3, 6], times: ['21:00'] },
-            { name: 'Bassen', type: 'fortress', days: [3], times: ['22:00'] },
-            { name: 'Prades', type: 'fortress', days: [6], times: ['22:00'] },
-            // Arena of Chaos
-            { name: 'Arena of Chaos', type: 'arena', days: [0, 1, 2, 3, 4, 5, 6, 7], times: ['12:00', '19:00', '00:00'] }
+            // Dumaha Altar (60m)
+            { name: 'Dumaha Altar', type: 'dumaha', days: [0, 2, 4, 6], times: ['14:00', '20:00'], duration: 60 },
+            // Mastarius/Veille (30m)
+            { name: 'Mastarius/Veille', type: 'mastarius', days: [1, 4, 5], times: ['13:00', '22:00'], duration: 30 },
+            // Sarna (30m)
+            { name: 'Sarna', type: 'sarna', days: [1, 4, 5], times: ['13:30', '22:30'], duration: 30 },
+            // Fortress Sieges (60m)
+            { name: 'Inggison + Gelkmaros + Core', type: 'fortress', days: [3, 6], times: ['21:00'], duration: 60 },
+            { name: 'Bassen', type: 'fortress', days: [3], times: ['22:00'], duration: 60 },
+            { name: 'Prades', type: 'fortress', days: [6], times: ['22:00'], duration: 60 },
+            // Arena of Chaos (60m)
+            { name: 'Arena of Chaos', type: 'arena', days: [0, 1, 2, 3, 4, 5, 6, 7], times: ['12:00', '19:00', '00:00'], duration: 60 }
         ];
 
         // Tracks last hour we auto-scrolled to, so we only scroll on hour change
@@ -199,41 +204,88 @@
             updateNextEvent();
         }
 
+        // Return array of current event occurrences (may be multiple overlaps)
+        function getCurrentEvents(now = new Date()) {
+            const results = [];
+            const currentDayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1;
+
+            for (let event of events) {
+                const duration = event.duration || 60; // minutes
+                for (let day of event.days) {
+                    for (let timeStr of event.times) {
+                        const [serverHour, serverMinute] = timeStr.split(':').map(Number);
+                        const { hour: localHour, dayOffset } = convertServerTimeToLocal(serverHour, serverMinute);
+
+                        let eventDay = day + dayOffset;
+                        if (eventDay < 0) eventDay += 7;
+                        if (eventDay >= 7) eventDay -= 7;
+
+                        // Build the occurrence date for this week
+                        const daysDiff = (eventDay - currentDayOfWeek + 7) % 7;
+                        const occ = new Date(now);
+                        occ.setHours(0,0,0,0);
+                        occ.setDate(occ.getDate() + daysDiff);
+                        occ.setHours(localHour, serverMinute, 0, 0);
+
+                        const occEnd = new Date(occ.getTime() + duration * 60000);
+
+                        // Also check the previous occurrence (in case it started yesterday and continues into today)
+                        const prevOcc = new Date(occ.getTime() - 7 * 24 * 3600 * 1000);
+                        const prevEnd = new Date(prevOcc.getTime() + duration * 60000);
+
+                        if (now >= occ && now < occEnd) {
+                            results.push({ event, start: occ, end: occEnd });
+                        } else if (now >= prevOcc && now < prevEnd) {
+                            results.push({ event, start: prevOcc, end: prevEnd });
+                        }
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        // Find next upcoming event occurrence (skipping any currently running occurrences)
         function getNextEvent() {
             const now = new Date();
-            const currentHours = now.getHours();
-            const currentMinutes = now.getMinutes();
-            const currentDayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1; // Sunday = 6, Monday = 0
-            const currentTimeInMinutes = currentHours * 60 + currentMinutes;
+            const currentDayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1;
 
             let nextEvent = null;
             let minWait = Infinity;
 
             for (let event of events) {
+                const duration = event.duration || 60;
                 for (let day of event.days) {
                     for (let timeStr of event.times) {
-                        // Convert server time event to local time
                         const [serverHour, serverMinute] = timeStr.split(':').map(Number);
                         const { hour: localHour, dayOffset } = convertServerTimeToLocal(serverHour, serverMinute);
-                        const eventMinutes = Math.floor(localHour) * 60 + serverMinute;
-                        
-                        // Adjust day if timezone conversion caused day shift
+
                         let eventDay = day + dayOffset;
                         if (eventDay < 0) eventDay += 7;
                         if (eventDay >= 7) eventDay -= 7;
-                        
-                        let waitMinutes = 0;
 
-                        if (eventDay === currentDayOfWeek && eventMinutes > currentTimeInMinutes) {
-                            waitMinutes = eventMinutes - currentTimeInMinutes;
-                        } else if (eventDay > currentDayOfWeek) {
-                            const daysToAdd = eventDay - currentDayOfWeek;
-                            waitMinutes = (daysToAdd * 24 * 60) + (eventMinutes - currentTimeInMinutes);
+                        // Build the occurrence date for this week
+                        const daysDiff = (eventDay - currentDayOfWeek + 7) % 7;
+                        const occ = new Date(now);
+                        occ.setHours(0,0,0,0);
+                        occ.setDate(occ.getDate() + daysDiff);
+                        occ.setHours(localHour, serverMinute, 0, 0);
+
+                        const occEnd = new Date(occ.getTime() + duration * 60000);
+
+                        // If this occurrence is currently running, skip it
+                        if (now >= occ && now < occEnd) continue;
+
+                        // If occurrence is in the past (already ended), consider next week's occurrence
+                        let waitMs = 0;
+                        if (occ > now) {
+                            waitMs = occ - now;
                         } else {
-                            const daysToAdd = 7 - currentDayOfWeek + eventDay;
-                            waitMinutes = (daysToAdd * 24 * 60) + (eventMinutes - currentTimeInMinutes);
+                            // next week's occurrence
+                            waitMs = (occ.getTime() + 7 * 24 * 3600 * 1000) - now.getTime();
                         }
 
+                        const waitMinutes = Math.floor(waitMs / 60000);
                         if (waitMinutes >= 0 && waitMinutes < minWait) {
                             minWait = waitMinutes;
                             nextEvent = { ...event, waitMinutes };
@@ -246,9 +298,27 @@
         }
 
         function updateNextEvent() {
-            const nextEvent = getNextEvent();
-            const infoDiv = document.getElementById('nextEventInfo');
+            const now = new Date();
+            const current = getCurrentEvents(now);
+            const currentSection = document.getElementById('currentEventSection');
+            const currentInfo = document.getElementById('currentEventInfo');
+            const nextInfo = document.getElementById('nextEventInfo');
+            const nextSection = document.getElementById('nextEventSection');
 
+            if (current && current.length > 0) {
+                currentSection.style.display = 'block';
+                // Show first current event prominently, list others below
+                const first = current[0];
+                const remainingSec = Math.max(0, Math.floor((first.end - now) / 1000));
+                const remMin = Math.floor(remainingSec / 60);
+                const remSec = remainingSec % 60;
+                currentInfo.textContent = `${first.event.name} — ${remMin}m ${remSec}s remaining`;
+                currentInfo.style.color = getEventColor(first.event.type);
+            } else {
+                currentSection.style.display = 'none';
+            }
+
+            const nextEvent = getNextEvent();
             if (nextEvent) {
                 const hours = Math.floor(nextEvent.waitMinutes / 60);
                 const minutes = Math.floor(nextEvent.waitMinutes % 60);
@@ -261,8 +331,11 @@
                     timeStr = `${minutes}m ${seconds}s`;
                 }
 
-                infoDiv.textContent = `${nextEvent.name} - ${timeStr}`;
-                infoDiv.style.color = getEventColor(nextEvent.type);
+                nextInfo.textContent = `${nextEvent.name} - ${timeStr}`;
+                nextInfo.style.color = getEventColor(nextEvent.type);
+                if (nextSection) nextSection.style.display = 'block';
+            } else {
+                if (nextSection) nextSection.style.display = 'none';
             }
         }
 
