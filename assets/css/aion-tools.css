@@ -2789,7 +2789,6 @@ flex: 1;
     text-align: center;
     font-size: 0.78em;
     color: #8a8a8a;
-    /* responsive width: almost full width on small screens, capped on large */
     width: min(1000px, 96%);
     line-height: 1.45;
     margin: 10px auto 0;
@@ -2841,6 +2840,42 @@ flex: 1;
     .event-local {
         font-size: 0.85em;
     }
+}
+
+.scheduler-controls {
+    display: flex;
+    justify-content: flex-start;
+    margin: 12px 0 6px 0;
+}
+
+#toggleEmptyHoursBtn,
+.plain-button {
+    background: rgba(30, 30, 40, 0.6);
+    backdrop-filter: blur(5px);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.95em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+#toggleEmptyHoursBtn:hover,
+.plain-button:hover {
+    background: rgba(181, 101, 245, 0.12);
+    border-color: var(--accent-purple);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4), 0 0 15px rgba(181, 101, 245, 0.16);
+}
+
+#toggleEmptyHoursBtn[aria-pressed="true"] {
+    background: linear-gradient(90deg, rgba(181,101,245,0.12), rgba(77,184,255,0.06));
+    border-color: var(--accent-purple);
+    box-shadow: 0 6px 18px rgba(181,101,245,0.12);
+    color: #fff;
 }
 
 @media (max-width: 480px) {
@@ -3507,4 +3542,5 @@ flex: 1;
     .page-scheduler .legend { gap: 10px; margin-bottom: 20px; }
     .page-scheduler .legend-item { padding: 8px 12px; font-size: 0.85em; }
     .legend-color { width: 12px !important; height: 12px !important; }
+    .scheduler-controls { justify-content: flex-start; }
 }

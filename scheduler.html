@@ -58,6 +58,10 @@
             <div class="next-event-info" id="nextEventInfo">Calculating...</div>
         </div>
 
+        <div class="scheduler-controls">
+            <button id="toggleEmptyHoursBtn" class="plain-button">Hide empty hours</button>
+        </div>
+
         <div class="scheduler-grid-wrapper">
             <div class="scheduler-header">
                 <div class="day-header">Local Time</div>
@@ -78,7 +82,7 @@
 
         <div class="schedule-notes"><br>Notes:
             <br><br>Event times are based on server time (UTC+1) and may be subject to change. Always double-check in-game for the most accurate schedule.
-            <br><br>Bassen and Prades Fortress gates appear at :05 after the hour, while Inggison, Gelkmaros, and Core gates appear at :00.
+            <br><br>Core and Prades rifts appear at :05 after the hour, while Bassen rift appear at :00.
             <br><br>Use the legend to filter events by type.
         </div>
     </div>
@@ -118,6 +122,9 @@
             // Arena of Chaos
             { name: 'Arena of Chaos', type: 'arena', days: [0, 2, 4, 6], times: ['12:00', '19:00', '00:00'] }
         ];
+
+        // Tracks last hour we auto-scrolled to, so we only scroll on hour change
+        let lastAutoScrollHour = null;
 
         // Get current server time (UTC+1)
         function getServerTime() {
@@ -401,14 +408,7 @@
             }
 
             // Auto-scroll to current hour after a brief delay to ensure DOM is ready
-            setTimeout(() => {
-                const schedulerWrapper = document.querySelector('.scheduler-grid-wrapper');
-                const currentHourLabel = document.querySelector(`[data-hour="${currentHour}"].hour-label`);
-                if (schedulerWrapper && currentHourLabel) {
-                    // Scroll so the current hour is at the top with some offset
-                    schedulerWrapper.scrollTop = currentHourLabel.offsetTop - 100;
-                }
-            }, 50);
+            setTimeout(() => scrollToCurrentHour(), 50);
 
             // Show or hide schedule notes depending on whether any events were rendered
             const scheduleNotes = document.getElementById('scheduleNotes');
@@ -462,6 +462,11 @@
 
             // Update progressive fill for current hour cells
             updateCurrentHourFill();
+
+            // Auto-scroll when the hour changes (so page scroll follows the clock)
+            if (currentHour !== lastAutoScrollHour) {
+                scrollToCurrentHour();
+            }
         }
 
         function updateCurrentHourFill() {
@@ -476,6 +481,51 @@
             // No progressive fill: current hour highlighting uses border/background only
         }
 
+        // Apply or remove hiding of empty hours rows
+        function applyHideEmptyHours(shouldHide) {
+            document.querySelectorAll('.hour-label-empty').forEach(el => {
+                el.style.display = shouldHide ? 'none' : '';
+            });
+            document.querySelectorAll('.scheduler-cell-empty').forEach(el => {
+                el.style.display = shouldHide ? 'none' : '';
+            });
+
+            const btn = document.getElementById('toggleEmptyHoursBtn');
+            if (btn) {
+                btn.textContent = shouldHide ? 'Show empty hours' : 'Hide empty hours';
+                btn.setAttribute('aria-pressed', shouldHide ? 'true' : 'false');
+            }
+        }
+
+        function toggleHideEmptyHours() {
+            const key = 'schedulerHideEmptyHours';
+            const current = localStorage.getItem(key) === 'true';
+            const next = !current;
+            localStorage.setItem(key, next ? 'true' : 'false');
+            applyHideEmptyHours(next);
+        }
+
+        // Scroll scheduler wrapper to the current hour label and record that we scrolled
+        function scrollToCurrentHour() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const schedulerWrapper = document.querySelector('.scheduler-grid-wrapper');
+            const currentHourLabel = document.querySelector(`[data-hour="${currentHour}"].hour-label`);
+            if (schedulerWrapper && currentHourLabel) {
+                const target = Math.max(0, currentHourLabel.offsetTop - 100);
+                if ('scrollTo' in schedulerWrapper) {
+                    try {
+                        schedulerWrapper.scrollTo({ top: target, behavior: 'smooth' });
+                    } catch (e) {
+                        schedulerWrapper.scrollTop = target;
+                    }
+                } else {
+                    schedulerWrapper.scrollTop = target;
+                }
+                lastAutoScrollHour = currentHour;
+            }
+        }
+
         // Initialize
         window.addEventListener('load', () => {
             createSchedulerGrid();
@@ -486,6 +536,14 @@
                 updateTimeDisplays();
                 updateNowHighlight();
             }, 1000);
+            // Initialize hide-empty-hours button from saved preference
+            const key = 'schedulerHideEmptyHours';
+            const saved = localStorage.getItem(key) === 'true';
+            applyHideEmptyHours(saved);
+            const toggleBtn = document.getElementById('toggleEmptyHoursBtn');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', toggleHideEmptyHours);
+            }
             // No separate progressive fill interval; highlight updates on the 1s interval above
             document.getElementById('copyright-year').textContent = new Date().getFullYear();
         });
