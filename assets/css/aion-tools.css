@@ -3573,9 +3573,9 @@ flex: 1;
     .scheduler-cell { min-height: 30px; }
     .scheduler-event { font-size: 0.6em; padding: 2px 4px; }
     .event-label { font-size: 0.7em; }
-    .day-header { display: block; font-size: 0.40em; padding: 15px 0px; }
+    .day-header { display: flex; align-items: center; justify-content: center; font-size: 0.75em; padding: 6px 3px; }
     .day-header:first-child { padding: 6px 3px; }
-    .next-event-info { font-size: 1em; }
+    .event-info { font-size: 1em; }
     .page-scheduler .legend { gap: 10px; margin-bottom: 20px; }
     .page-scheduler .legend-item { padding: 8px 12px; font-size: 0.85em; }
     .legend-color { width: 12px !important; height: 12px !important; }

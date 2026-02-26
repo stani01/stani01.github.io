@@ -398,15 +398,43 @@
 
         function shortenEventName(eventName) {
             const shortNames = {
-                'Dumaha Altar': 'D. Altar',
-                'Mastarius/Veille': 'Mast. Veille',
-                'Merva / Sarna': 'Merva / Sarna',
+                'Dumaha Altar': 'Altar',
+                'Mastarius/Veille': 'Agent',
+                'Merva / Sarna': 'Npc',
                 'Inggison + Gelkmaros + Core': 'Siege',
                 'Bassen': 'Siege',
                 'Prades': 'Siege',
                 'Arena of Chaos': 'Chaos'
             };
             return shortNames[eventName] || eventName;
+        }
+
+        // Shorten day header names for mobile view (keep first letter)
+        function shortenDayHeadersForMobile() {
+            const isMobile = window.innerWidth <= 768;
+            // include the left-most header (Local Time) as well
+            document.querySelectorAll('.scheduler-header .day-header').forEach(h => {
+                if (!h.dataset.fullText) h.dataset.fullText = h.textContent.trim();
+                if (isMobile) {
+                    // for day columns keep first letter, but for the leftmost header show 'Time'
+                    if (h.hasAttribute('data-day')) {
+                        h.textContent = h.dataset.fullText.charAt(0);
+                    } else {
+                        h.textContent = 'Time';
+                    }
+                } else {
+                    h.textContent = h.dataset.fullText;
+                }
+            });
+        }
+
+        // Simple debounce helper for resize events
+        function debounce(fn, wait = 150) {
+            let t = null;
+            return function(...args) {
+                clearTimeout(t);
+                t = setTimeout(() => fn.apply(this, args), wait);
+            };
         }
 
         function createSchedulerGrid() {
@@ -756,12 +784,15 @@
         window.addEventListener('load', () => {
             createSchedulerGrid();
             setupLegendFilters();
+            shortenDayHeadersForMobile();
             updateTimeDisplays();
             updateNowHighlight();
             setInterval(() => {
                 updateTimeDisplays();
                 updateNowHighlight();
             }, 1000);
+            // Update day headers on resize to switch to single-letter mobile labels (debounced)
+            window.addEventListener('resize', debounce(shortenDayHeadersForMobile, 150));
             // Initialize hide-empty-hours button from saved preference
             const key = 'schedulerHideEmptyHours';
             const saved = localStorage.getItem(key) === 'true';
