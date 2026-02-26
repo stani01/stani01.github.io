@@ -33,6 +33,7 @@
                 <img src="https://aioncodex.com/items/icon_item_equip_odian_blue_03.png" alt="Odian" class="tab-icon">
                 <img src="https://aioncodex.com/items/icon_item_equip_odian_green_03.png" alt="Odian" class="tab-icon">
             </button>
+            <button class="tab-btn" onclick="switchTab('oath')"><img src="https://aioncodex.com/items/icon_item_equipment_skill_stone.png" alt="Pledge" class="tab-label-icon"> Ultimate Oath</button>
         </div>
 
         <!-- EXTREME GEAR TAB -->
@@ -206,6 +207,68 @@
             </div>
         </div>
 
+        <!-- ULTIMATE OATH TAB -->
+        <div id="oath" class="tab-content">
+            <div class="simulator-panel">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div class="simulator-info">
+                        <strong>Ultimate Oath Simulator</strong><br>
+                        Simulate administration for Oath skills on armor or weapons. Select the item type and desired oath, then run the simulation to see expected results.
+                    </div>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label>🛡️ Item Type</label>
+                        <input type="hidden" id="oath-item-type" value="">
+                        <div id="oath-itemtype-container" style="position: relative;">
+                            <button id="oath-itemtype-btn" type="button" onclick="toggleOathItemTypeDropdown()" style="width: 100%; padding: 8px; border: 1px solid #555; border-radius: 4px; background: #1a1a24; color: #aaa; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                <span id="oath-itemtype-btn-text">-- Select --</span>
+                            </button>
+                            <div id="oath-itemtype-dropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: #1a1a24; border: 1px solid #555; border-radius: 4px; margin-top: 4px; z-index: 1000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="oath-option">📍 Target Result</label>
+                        <div id="oath-option-container" style="position: relative;">
+                            <button id="oath-option-btn" type="button" onclick="toggleOathDropdown()" style="width: 100%; padding: 8px; border: 1px solid #555; border-radius: 4px; background: #1a1a24; color: #aaa; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                <img id="oath-option-btn-icon" src="" alt="" style="width: 24px; height: 24px; display: none;">
+                                <span id="oath-option-btn-text">-- Choose item type first --</span>
+                            </button>
+                            <div id="oath-option-dropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: #1a1a24; border: 1px solid #555; border-radius: 4px; margin-top: 4px; z-index: 1000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 15px; min-height: 80px;">
+                    <div id="oath-icon-display" style="width: 64px; height: 64px; background: rgba(255,255,255,0.05); border: 2px solid #555; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <img id="oath-icon-img" src="" alt="Item Icon" style="width: 60px; height: 60px; display: none;">
+                        <div id="oath-icon-placeholder" style="color: #666; font-size: 0.85em; text-align: center;">Icon</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div id="oath-selected-label" style="color: #aaa; font-size: 0.9em; margin-bottom: 5px;">Selected Item</div>
+                        <div id="oath-selected-name" style="color: #fff; font-size: 1.1em; font-weight: bold;">None</div>
+                        <div id="oath-selected-rate" style="color: #ffd700; margin-top: 5px; font-size: 0.9em;"></div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="sim-button" onclick="runOathSimulation()"><img src="https://aioncodex.com/items/icon_item_equipment_skill_stone.png" alt="Pledge" style="vertical-align: middle; height: 30px; width: 30px;"> Run Simulation</button>
+                    <button class="clear-button" onclick="clearOathOutput()">Clear Output</button>
+                    <button class="info-button" onclick="toggleRates('oath')" title="Show enchantment rates">ℹ️ Rates</button>
+                </div>
+
+                <div class="enchant-loading-bar" id="oath-loading"></div>
+
+                <div class="output-container" id="oath-output" style="max-height: none; overflow-y: visible;">
+                    <div class="output-line header">Select an item type and skill to begin...</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Rate Modals -->
         <div id="extreme-rates-modal" class="rates-modal" onclick="if(event.target === this) this.style.display='none'">
             <div class="rates-modal-content" style="max-width: 600px; border: 1px solid #444; background: #1a1a24;">
@@ -330,6 +393,235 @@
                         <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" width="14"> / 
                         <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" width="14"> : -1 or reset to +10. <br>
                         <span style="margin-left: 65px;"><img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" width="14"> : No penalty.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- OATH RATES MODAL -->
+        <div id="oath-rates-modal" class="rates-modal" onclick="if(event.target === this) this.style.display='none'">
+            <div class="rates-modal-content" style="max-width: 90%; border: 1px solid #444; background: #1a1a24;">
+                <span class="close" onclick="toggleRates('oath')">&times;</span><br>
+                
+                <h3 style="color: #d4af37; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                    Oath Enchantment Rates
+                </h3>
+
+                <h4 style="color: #ffd700; margin-top: 20px; margin-bottom: 10px;">🛡️ Armor Rates (All Levels)</h4>
+                <table class="rates-table" style="width: 100%; border-collapse: collapse; text-align: center; margin-bottom: 20px;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #d4af37;">
+                            <th style="padding: 10px; color: #ffd700; text-align: center; width: 80px;">Icon</th>
+                            <th style="padding: 10px; color: #ffd700; text-align: center;">Rarity</th>
+                            <th style="padding: 10px; color: #ffd700;">Level 1</th>
+                            <th style="padding: 10px; color: #ffd700;">Level 2</th>
+                            <th style="padding: 10px; color: #ffd700;">Level 3</th>
+                        </tr>
+                    </thead>
+                    <tbody style="font-weight: bold;">
+                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(0,0,0,0.3);">
+                            <td style="padding: 10px;"><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g1.png" alt="Legendary" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                            <td style="padding: 10px; color: #a335ee; text-align: center;">Legendary</td>
+                            <td style="color: #a335ee;">40%</td>
+                            <td style="color: #a335ee;">30%</td>
+                            <td style="color: #a335ee;">25%</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(0,0,0,0.5);">
+                            <td style="padding: 10px;"><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g6.png" alt="Ultimate" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                            <td style="padding: 10px; color: #ff4d4d; text-align: center;">Ultimate</td>
+                            <td style="color: #ff4d4d;">2.5%</td>
+                            <td style="color: #ff4d4d;">1.5%</td>
+                            <td style="color: #ff4d4d;">1%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4 style="color: #ffd700; margin-top: 20px; margin-bottom: 10px;">⚔️ Weapon Rates (All Levels)</h4>
+                <div style="overflow-x: auto; margin-bottom: 20px;">
+                    <table class="rates-table" style="width: 100%; border-collapse: collapse; text-align: center;">
+                        <thead>
+                            <tr style="background: #0f0f12; border-bottom: 2px solid #ffd700;">
+                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333; text-align: center; width: 80px;">Skill Icon</th>
+                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333; text-align: left;">Skill Name</th>
+                                <th colspan="3" style="padding: 10px; color: #a335ee; border: 1px solid #333;">Legendary</th>
+                                <th colspan="3" style="padding: 10px; color: #ff4d4d; border: 1px solid #333;">Ultimate</th>
+                            </tr>
+                            <tr style="background: #0f0f12; border-bottom: 2px solid #ffd700;">
+                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333;"></th>
+                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333;"></th>
+                                <th style="padding: 8px; color: #a335ee; border: 1px solid #333; font-size: 0.9em;">L1</th>
+                                <th style="padding: 8px; color: #a335ee; border: 1px solid #333; font-size: 0.9em;">L2</th>
+                                <th style="padding: 8px; color: #a335ee; border: 1px solid #333; font-size: 0.9em;">L3</th>
+                                <th style="padding: 8px; color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">L1</th>
+                                <th style="padding: 8px; color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">L2</th>
+                                <th style="padding: 8px; color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">L3</th>
+                            </tr>
+                        </thead>
+                        <tbody style="font-weight: bold;">
+                            <tr style="background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;">
+                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_a_g6.png" alt="Expose" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Expose Vulnerability</td>
+                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">6.6%</td>
+                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">5%</td>
+                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.5%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.3%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            </tr>
+                            <tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid #333;">
+                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_b_g6.png" alt="Corrosion" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Corrosion</td>
+                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">6.6%</td>
+                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">5%</td>
+                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.5%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.3%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            </tr>
+                            <tr style="background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;">
+                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_c_g6.png" alt="Harden" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Harden</td>
+                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">6.6%</td>
+                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">5%</td>
+                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.5%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.3%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            </tr>
+                            <tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid #333;">
+                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_d_g6.png" alt="Wound Care" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Wound Care</td>
+                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">6.8%</td>
+                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">5%</td>
+                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.5%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.3%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            </tr>
+                            <tr style="background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;">
+                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_e_g6.png" alt="Ignite" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Ignite</td>
+                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">6.8%</td>
+                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">5%</td>
+                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.5%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.3%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            </tr>
+                            <tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid #333;">
+                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_f_g6.png" alt="Disease" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Disease</td>
+                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">6.6%</td>
+                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">5%</td>
+                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.5%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.3%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.85em; text-align: left;">
+                    <p style="margin: 0 0 8px 0;"><strong style="color: #ffd700;">📌</strong> After the oath is administered, the previously active oath or any appearance skills is removed.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- OATH RATES MODAL -->
+        <div id="oath-rates-modal" class="rates-modal" onclick="if(event.target === this) this.style.display='none'">
+            <div class="rates-modal-content" style="max-width: 90%; border: 1px solid #444; background: #1a1a24;">
+                <span class="close" onclick="toggleRates('oath')">&times;</span><br>
+                
+                <h3 style="color: #d4af37; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                    Ultimate Oath Enchantment Rates
+                </h3>
+
+                <h4 style="color: #ffd700; margin-top: 20px; margin-bottom: 10px;">🛡️ Armor Enhancement Rates</h4>
+                <table class="rates-table" style="width: 100%; border-collapse: collapse; text-align: center; margin-bottom: 20px;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #d4af37;">
+                            <th style="padding: 10px; color: #ffd700; text-align: center; width: 80px;">Icon</th>
+                            <th style="padding: 10px; color: #ffd700; text-align: left;">Enhancement</th>
+                            <th style="padding: 10px; color: #ffd700;">Level 1</th>
+                            <th style="padding: 10px; color: #ffd700;">Level 2</th>
+                            <th style="padding: 10px; color: #ffd700;">Level 3</th>
+                        </tr>
+                    </thead>
+                    <tbody style="font-weight: bold;">
+                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(0,0,0,0.3);">
+                            <td style="padding: 10px;"><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g1.png" alt="Legendary" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                            <td style="padding: 10px; color: #a335ee; text-align: left;">Legendary</td>
+                            <td style="color: #4dfb4d;">40%</td>
+                            <td style="color: #4dfb4d;">30%</td>
+                            <td style="color: #4dfb4d;">25%</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(0,0,0,0.5);">
+                            <td style="padding: 10px;"><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g6.png" alt="Ultimate" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                            <td style="padding: 10px; color: #ffd700; text-align: left;">Ultimate</td>
+                            <td style="color: #ffd700;">2.5%</td>
+                            <td style="color: #ffd700;">1.5%</td>
+                            <td style="color: #ffd700;">1%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4 style="color: #ffd700; margin-top: 20px; margin-bottom: 10px;">⚔️ Weapon Skill Enhancement Rates (Level 3)</h4>
+                <div style="overflow-x: auto; margin-bottom: 20px;">
+                    <table class="rates-table" style="width: 100%; border-collapse: collapse; text-align: center;">
+                        <thead>
+                            <tr style="background: #0f0f12; border-bottom: 2px solid #ffd700;">
+                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333; text-align: center; width: 80px;">Skill Icon</th>
+                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333; text-align: left;">Skill Name</th>
+                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333;">Legendary L3</th>
+                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333;">Ultimate L3</th>
+                            </tr>
+                        </thead>
+                        <tbody style="font-weight: bold;">
+                            <tr style="background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;">
+                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_a_g6.png" alt="Expose" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Expose Vulnerability</td>
+                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            </tr>
+                            <tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid #333;">
+                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_b_g6.png" alt="Corrosion" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Corrosion</td>
+                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            </tr>
+                            <tr style="background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;">
+                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_c_g6.png" alt="Harden" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Harden</td>
+                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            </tr>
+                            <tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid #333;">
+                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_d_g6.png" alt="Wound Care" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Wound Care</td>
+                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            </tr>
+                            <tr style="background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;">
+                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_e_g6.png" alt="Ignite" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Ignite</td>
+                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            </tr>
+                            <tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid #333;">
+                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_f_g6.png" alt="Disease" style="width: 32px; height: 32px; border-radius: 4px;"></td>
+                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Disease</td>
+                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
+                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.85em; text-align: left;">
+                    <p style="margin: 0 0 8px 0;"><strong style="color: #ffd700;">📌 Notes:</strong> The Ultimate Oath system provides rate-based enchanting for both armor and weapon skills. Legendary stones have higher success rates than Ultimate stones.</p>
+                    <p style="margin: 0; line-height: 1.4;">
+                        <strong style="color: #ff4d4d;">⚠️ Weapon Skills:</strong> When enchanting weapons, the system randomly selects between Legendary (40% chance) and Ultimate (60% chance) rarity. Level 3 enhancements are recommended for optimal success rates.
                     </p>
                 </div>
             </div>
@@ -1046,6 +1338,525 @@
         // Provide a clear function on reset
         function clearExtremeSession() {
             localStorage.removeItem(EXTREME_SESSION_KEY);
+        }
+
+        // --- Oath Administration System ---
+        const OATH_ARMOR = {
+            'Ultimate L3': { rarity: 'ultimate', level: 3, icon: 'https://aioncodex.com/skills/vs_blending_passive_ef_g6.png', pct: 1 },
+            'Ultimate L2': { rarity: 'ultimate', level: 2, icon: 'https://aioncodex.com/skills/vs_blending_passive_ef_g6.png', pct: 1.5 },
+            'Ultimate L1': { rarity: 'ultimate', level: 1, icon: 'https://aioncodex.com/skills/vs_blending_passive_ef_g4.png', pct: 2.5 },
+            'Legendary L3': { rarity: 'legendary', level: 3, icon: 'https://aioncodex.com/skills/vs_blending_passive_ef_g1.png', pct: 25 },
+            'Legendary L2': { rarity: 'legendary', level: 2, icon: 'https://aioncodex.com/skills/vs_blending_passive_ef_g1.png', pct: 30 },
+            'Legendary L1': { rarity: 'legendary', level: 1, icon: 'https://aioncodex.com/skills/vs_blending_passive_ef_g1.png', pct: 40 }
+        };
+
+        // Item type dropdown toggle
+        function toggleOathItemTypeDropdown() {
+            const dropdown = document.getElementById('oath-itemtype-dropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Item type selection
+        function selectOathItemType(value, label) {
+            const itemTypeBtn = document.getElementById('oath-itemtype-btn-text');
+            const itemTypeDropdown = document.getElementById('oath-itemtype-dropdown');
+            
+            itemTypeBtn.textContent = label;
+            itemTypeDropdown.style.display = 'none';
+            document.getElementById('oath-item-type').value = value;
+            
+            updateOathOptions();
+            saveOathItemType();
+        }
+
+        // Initialize item type dropdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const itemTypeDropdown = document.getElementById('oath-itemtype-dropdown');
+            itemTypeDropdown.innerHTML = '';
+            
+            const items = [
+                { value: 'armor', label: '🛡️ Armor' },
+                { value: 'weapon', label: '⚔️ Weapon' }
+            ];
+            
+            for (const item of items) {
+                const dropdownItem = document.createElement('div');
+                dropdownItem.style.cssText = 'padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #2a2a35; transition: background 0.2s;';
+                dropdownItem.onmouseover = function() { this.style.background = 'rgba(255,255,255,0.1)'; };
+                dropdownItem.onmouseout = function() { this.style.background = 'transparent'; };
+                dropdownItem.onclick = function() { selectOathItemType(item.value, item.label); };
+                dropdownItem.textContent = item.label;
+                itemTypeDropdown.appendChild(dropdownItem);
+            }
+        });
+
+        const OATH_WEAPONS = {
+            // Expose Vulnerability - 6 outcomes
+            'Ultimate: Expose Vulnerability level 3': { skill: 'Expose Vulnerability', icon: 'https://aioncodex.com/skills/vs_weapon_a_g6.png', pct: 0.2 },
+            'Ultimate: Expose Vulnerability level 2': { skill: 'Expose Vulnerability', icon: 'https://aioncodex.com/skills/vs_weapon_a_g6.png', pct: 0.3 },
+            'Ultimate: Expose Vulnerability level 1': { skill: 'Expose Vulnerability', icon: 'https://aioncodex.com/skills/vs_weapon_a_g6.png', pct: 0.5 },
+            'Legendary: Expose Vulnerability level 3': { skill: 'Expose Vulnerability', icon: 'https://aioncodex.com/skills/vs_weapon_a_g6.png', pct: 4 },
+            'Legendary: Expose Vulnerability level 2': { skill: 'Expose Vulnerability', icon: 'https://aioncodex.com/skills/vs_weapon_a_g6.png', pct: 5 },
+            'Legendary: Expose Vulnerability level 1': { skill: 'Expose Vulnerability', icon: 'https://aioncodex.com/skills/vs_weapon_a_g6.png', pct: 6.6 },
+            // Corrosion - 6 outcomes
+            'Ultimate: Corrosion level 3': { skill: 'Corrosion', icon: 'https://aioncodex.com/skills/vs_weapon_b_g6.png', pct: 0.2 },
+            'Ultimate: Corrosion level 2': { skill: 'Corrosion', icon: 'https://aioncodex.com/skills/vs_weapon_b_g6.png', pct: 0.3 },
+            'Ultimate: Corrosion level 1': { skill: 'Corrosion', icon: 'https://aioncodex.com/skills/vs_weapon_b_g6.png', pct: 0.5 },
+            'Legendary: Corrosion level 3': { skill: 'Corrosion', icon: 'https://aioncodex.com/skills/vs_weapon_b_g6.png', pct: 4 },
+            'Legendary: Corrosion level 2': { skill: 'Corrosion', icon: 'https://aioncodex.com/skills/vs_weapon_b_g6.png', pct: 5 },
+            'Legendary: Corrosion level 1': { skill: 'Corrosion', icon: 'https://aioncodex.com/skills/vs_weapon_b_g6.png', pct: 6.6 },
+            // Harden - 6 outcomes
+            'Ultimate: Harden level 3': { skill: 'Harden', icon: 'https://aioncodex.com/skills/vs_weapon_c_g6.png', pct: 0.2 },
+            'Ultimate: Harden level 2': { skill: 'Harden', icon: 'https://aioncodex.com/skills/vs_weapon_c_g6.png', pct: 0.3 },
+            'Ultimate: Harden level 1': { skill: 'Harden', icon: 'https://aioncodex.com/skills/vs_weapon_c_g6.png', pct: 0.5 },
+            'Legendary: Harden level 3': { skill: 'Harden', icon: 'https://aioncodex.com/skills/vs_weapon_c_g6.png', pct: 4 },
+            'Legendary: Harden level 2': { skill: 'Harden', icon: 'https://aioncodex.com/skills/vs_weapon_c_g6.png', pct: 5 },
+            'Legendary: Harden level 1': { skill: 'Harden', icon: 'https://aioncodex.com/skills/vs_weapon_c_g6.png', pct: 6.6 },
+            // Wound Care - 6 outcomes (6.8% for L1)
+            'Ultimate: Wound Care level 3': { skill: 'Wound Care', icon: 'https://aioncodex.com/skills/vs_weapon_d_g6.png', pct: 0.2 },
+            'Ultimate: Wound Care level 2': { skill: 'Wound Care', icon: 'https://aioncodex.com/skills/vs_weapon_d_g6.png', pct: 0.3 },
+            'Ultimate: Wound Care level 1': { skill: 'Wound Care', icon: 'https://aioncodex.com/skills/vs_weapon_d_g6.png', pct: 0.5 },
+            'Legendary: Wound Care level 3': { skill: 'Wound Care', icon: 'https://aioncodex.com/skills/vs_weapon_d_g6.png', pct: 4 },
+            'Legendary: Wound Care level 2': { skill: 'Wound Care', icon: 'https://aioncodex.com/skills/vs_weapon_d_g6.png', pct: 5 },
+            'Legendary: Wound Care level 1': { skill: 'Wound Care', icon: 'https://aioncodex.com/skills/vs_weapon_d_g6.png', pct: 6.8 },
+            // Ignite - 6 outcomes (6.8% for L1)
+            'Ultimate: Ignite level 3': { skill: 'Ignite', icon: 'https://aioncodex.com/skills/vs_weapon_e_g6.png', pct: 0.2 },
+            'Ultimate: Ignite level 2': { skill: 'Ignite', icon: 'https://aioncodex.com/skills/vs_weapon_e_g6.png', pct: 0.3 },
+            'Ultimate: Ignite level 1': { skill: 'Ignite', icon: 'https://aioncodex.com/skills/vs_weapon_e_g6.png', pct: 0.5 },
+            'Legendary: Ignite level 3': { skill: 'Ignite', icon: 'https://aioncodex.com/skills/vs_weapon_e_g6.png', pct: 4 },
+            'Legendary: Ignite level 2': { skill: 'Ignite', icon: 'https://aioncodex.com/skills/vs_weapon_e_g6.png', pct: 5 },
+            'Legendary: Ignite level 1': { skill: 'Ignite', icon: 'https://aioncodex.com/skills/vs_weapon_e_g6.png', pct: 6.8 },
+            // Disease - 6 outcomes
+            'Ultimate: Disease level 3': { skill: 'Disease', icon: 'https://aioncodex.com/skills/vs_weapon_f_g6.png', pct: 0.2 },
+            'Ultimate: Disease level 2': { skill: 'Disease', icon: 'https://aioncodex.com/skills/vs_weapon_f_g6.png', pct: 0.3 },
+            'Ultimate: Disease level 1': { skill: 'Disease', icon: 'https://aioncodex.com/skills/vs_weapon_f_g6.png', pct: 0.5 },
+            'Legendary: Disease level 3': { skill: 'Disease', icon: 'https://aioncodex.com/skills/vs_weapon_f_g6.png', pct: 4 },
+            'Legendary: Disease level 2': { skill: 'Disease', icon: 'https://aioncodex.com/skills/vs_weapon_f_g6.png', pct: 5 },
+            'Legendary: Disease level 1': { skill: 'Disease', icon: 'https://aioncodex.com/skills/vs_weapon_f_g6.png', pct: 6.6 }
+        };
+
+        // Update the skill/level options based on selected item type
+        function updateOathOptions() {
+            const itemType = document.getElementById('oath-item-type').value;
+            const dropdown = document.getElementById('oath-option-dropdown');
+            const optionBtn = document.getElementById('oath-option-btn');
+            const optionBtnText = document.getElementById('oath-option-btn-text');
+            const optionBtnIcon = document.getElementById('oath-option-btn-icon');
+            
+            dropdown.innerHTML = '';
+            
+            if (!itemType) {
+                optionBtnText.textContent = '-- Choose item type first --';
+                optionBtnIcon.style.display = 'none';
+                updateOathIconDisplay();
+                return;
+            }
+            
+            const allOptions = itemType === 'armor' ? OATH_ARMOR : OATH_WEAPONS;
+            
+            // For both armor and weapons, only show the Ultimate L3 option as target
+            let optionsToShow = allOptions;
+            if (itemType === 'armor') {
+                optionsToShow = {};
+                for (const [key, data] of Object.entries(OATH_ARMOR)) {
+                    if (key === 'Ultimate L3') {
+                        optionsToShow[key] = data;
+                    }
+                }
+            } else if (itemType === 'weapon' || (itemType && !itemType.includes('armor'))) {
+                optionsToShow = {};
+                const skillOrder = ['Disease', 'Expose Vulnerability', 'Wound Care', 'Corrosion', 'Harden', 'Ignite'];
+                for (const skill of skillOrder) {
+                    for (const [key, data] of Object.entries(OATH_WEAPONS)) {
+                        if (key === `Ultimate: ${skill} level 3`) {
+                            optionsToShow[key] = data;
+                        }
+                    }
+                }
+            }
+            
+            for (const [key, data] of Object.entries(optionsToShow)) {
+                const dropdownItem = document.createElement('div');
+                dropdownItem.style.cssText = 'padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #2a2a35; transition: background 0.2s;';
+                dropdownItem.onmouseover = function() { this.style.background = 'rgba(255,255,255,0.1)'; };
+                dropdownItem.onmouseout = function() { this.style.background = 'transparent'; };
+                dropdownItem.onclick = function() {
+                    selectOathOption(key, data);
+                };
+                
+                const icon = document.createElement('img');
+                icon.src = data.icon;
+                icon.style.cssText = 'width: 28px; height: 28px; border-radius: 4px;';
+                
+                const label = document.createElement('div');
+                label.style.cssText = 'flex: 1;';
+                label.innerHTML = `<div style="color: #fff; font-weight: 500;">${key}</div>`;
+                if (itemType === 'armor') {
+                    // For armor, show the percentage for this specific outcome
+                    label.innerHTML += `<div style="color: #999; font-size: 0.8em;">${data.pct}%</div>`;
+                } else {
+                    // For weapons, show the percentage for this specific outcome
+                    label.innerHTML += `<div style="color: #999; font-size: 0.8em;">${data.pct}%</div>`;
+                }
+                
+                dropdownItem.appendChild(icon);
+                dropdownItem.appendChild(label);
+                dropdown.appendChild(dropdownItem);
+            }
+            
+            // Try to restore saved selection
+            const saved = localStorage.getItem('oathSelectedOption');
+            if (saved && allOptions[saved]) {
+                selectOathOption(saved, allOptions[saved]);
+            }
+        }
+
+        // Toggle dropdown visibility
+        function toggleOathDropdown() {
+            const dropdown = document.getElementById('oath-option-dropdown');
+            const itemType = document.getElementById('oath-item-type').value;
+            if (!itemType) return;
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Select an option from the dropdown
+        function selectOathOption(key, data) {
+            const optionBtnText = document.getElementById('oath-option-btn-text');
+            const optionBtnIcon = document.getElementById('oath-option-btn-icon');
+            const dropdown = document.getElementById('oath-option-dropdown');
+            
+            optionBtnText.textContent = key;
+            optionBtnIcon.src = data.icon;
+            optionBtnIcon.style.display = 'block';
+            dropdown.style.display = 'none';
+            
+            localStorage.setItem('oathSelectedOption', key);
+            updateOathIconDisplay();
+        }
+
+        // Update the icon display based on selected option
+        function updateOathIconDisplay() {
+            const itemType = document.getElementById('oath-item-type').value;
+            const optionBtnText = document.getElementById('oath-option-btn-text');
+            const selectedOption = optionBtnText.textContent;
+            const iconImg = document.getElementById('oath-icon-img');
+            const iconPlaceholder = document.getElementById('oath-icon-placeholder');
+            const selectedName = document.getElementById('oath-selected-name');
+            const selectedRate = document.getElementById('oath-selected-rate');
+            
+            if (!itemType || selectedOption === '-- Choose item type first --') {
+                iconImg.style.display = 'none';
+                iconPlaceholder.style.display = 'block';
+                selectedName.textContent = 'None';
+                selectedRate.textContent = '';
+                return;
+            }
+            
+            const options = itemType === 'armor' ? OATH_ARMOR : OATH_WEAPONS;
+            const selectedData = options[selectedOption];
+            
+            if (selectedData) {
+                iconImg.src = selectedData.icon;
+                iconImg.style.display = 'block';
+                iconPlaceholder.style.display = 'none';
+                selectedName.textContent = selectedOption;
+                
+                if (itemType === 'armor') {
+                    selectedRate.textContent = `Chance: ${selectedData.pct}%`;
+                } else {
+                    selectedRate.textContent = `Chance: ${selectedData.pct}%`;
+                }
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const container = document.getElementById('oath-option-container');
+            if (container && !container.contains(event.target)) {
+                document.getElementById('oath-option-dropdown').style.display = 'none';
+            }
+        });
+
+        // Run the Ultimate Oath simulation
+        function runOathSimulation() {
+            const itemType = document.getElementById('oath-item-type').value;
+            const optionBtnText = document.getElementById('oath-option-btn-text');
+            const selectedOption = optionBtnText.textContent;
+            
+            if (!itemType || selectedOption === '-- Choose item type first --') {
+                alert('Please select an item type and skill/level');
+                return;
+            }
+            
+            const output = document.getElementById('oath-output');
+            const loading = document.getElementById('oath-loading');
+            
+            // Show loading bar and animate it to completion
+            loading.classList.add('active');
+            loading.style.width = '0%';
+            
+            // Animate loading bar to 100% faster
+            const startTime = Date.now();
+            const duration = 600; // 600ms total
+            const animationInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                loading.style.width = (progress * 100) + '%';
+                if (progress >= 1) {
+                    clearInterval(animationInterval);
+                    setTimeout(() => {
+                        performOathSimulation(itemType, selectedOption);
+                    }, 100);
+                }
+            }, 16); // ~60fps
+        }
+        
+        // Perform the actual simulation after loading bar completes
+        function performOathSimulation(itemType, selectedOption) {
+            const output = document.getElementById('oath-output');
+            const loading = document.getElementById('oath-loading');
+            
+            const allOptions = itemType === 'armor' ? OATH_ARMOR : OATH_WEAPONS;
+            const selectedData = allOptions[selectedOption];
+            
+            // Track achievement statistics for armor
+            const achievementCounts = {
+                'Ultimate L3': 0,
+                'Ultimate L2': 0,
+                'Ultimate L1': 0,
+                'Legendary L3': 0,
+                'Legendary L2': 0,
+                'Legendary L1': 0
+            };
+            
+            let pledgeTabletsUsed = 0;
+            let successRate = 0;
+            
+            if (itemType === 'armor') {
+                // For armor, initialize achievementCounts for all 6 outcomes
+                const armorAchievementCounts = {
+                    'Ultimate L3': 0,
+                    'Ultimate L2': 0,
+                    'Ultimate L1': 0,
+                    'Legendary L3': 0,
+                    'Legendary L2': 0,
+                    'Legendary L1': 0
+                };
+                
+                successRate = selectedData.pct;
+                
+                // Simulate attempts until achieving the selected outcome
+                while (true) {
+                    pledgeTabletsUsed++;
+                    const roll = Math.random() * 100;
+                    
+                    // Find which outcome this roll lands on
+                    let cumulative = 0;
+                    let resultOutcome = null;
+                    
+                    for (const [outcomeKey, outcomeData] of Object.entries(OATH_ARMOR)) {
+                        cumulative += outcomeData.pct;
+                        if (roll < cumulative) {
+                            resultOutcome = outcomeKey;
+                            break;
+                        }
+                    }
+                    
+                    if (resultOutcome) {
+                        armorAchievementCounts[resultOutcome]++;
+                        
+                        if (resultOutcome === selectedOption) {
+                            break; // Success! Hit the target
+                        }
+                    }
+                }
+                
+                // Copy to use in stats display
+                Object.assign(achievementCounts, armorAchievementCounts);
+            } else {
+                // For weapons, initialize achievementCounts for all 36 outcomes
+                const weaponAchievementCounts = {};
+                for (const [key] of Object.entries(OATH_WEAPONS)) {
+                    weaponAchievementCounts[key] = 0;
+                }
+                
+                successRate = selectedData.pct;
+                
+                // Simulate attempts until achieving the selected outcome
+                while (true) {
+                    pledgeTabletsUsed++;
+                    const roll = Math.random() * 100;
+                    
+                    // Find which outcome this roll lands on
+                    let cumulative = 0;
+                    let resultOutcome = null;
+                    
+                    for (const [outcomeKey, outcomeData] of Object.entries(OATH_WEAPONS)) {
+                        cumulative += outcomeData.pct;
+                        if (roll < cumulative) {
+                            resultOutcome = outcomeKey;
+                            break;
+                        }
+                    }
+                    
+                    if (resultOutcome) {
+                        weaponAchievementCounts[resultOutcome]++;
+                        
+                        if (resultOutcome === selectedOption) {
+                            break; // Success! Hit the target
+                        }
+                    }
+                }
+                
+                // Copy to use in stats display
+                Object.assign(achievementCounts, weaponAchievementCounts);
+            }
+            
+            // Build statistics display for both armor and weapons
+            let statsHTML = '';
+            let stats = [];
+            
+            if (itemType === 'armor') {
+                // For armor, show all 6 possible outcomes in order
+                const rarityOrder = ['Ultimate', 'Legendary'];
+                const levelOrder = [3, 2, 1];
+                
+                stats = [];
+                for (const rarity of rarityOrder) {
+                    for (const level of levelOrder) {
+                        const outcomeKey = `${rarity} L${level}`;
+                        const count = achievementCounts[outcomeKey] || 0;
+                        const isTarget = outcomeKey === selectedOption;
+                        
+                        // Assign colors based on rarity AND level for better differentiation
+                        let color;
+                        if (isTarget) {
+                            color = '#4dfb4d'; // Bright green for target
+                        } else if (rarity === 'Ultimate') {
+                            // Red shades: darker for higher level
+                            if (level === 3) color = '#ff0000';      // Bright red
+                            else if (level === 2) color = '#ff6666'; // Medium red
+                            else color = '#ffcccc';                  // Light red
+                        } else {
+                            // Purple shades: darker for higher level
+                            if (level === 3) color = '#9933ff';      // Deep purple
+                            else if (level === 2) color = '#b366ff'; // Medium purple
+                            else color = '#d699ff';                  // Light purple
+                        }
+                        
+                        stats.push({ label: outcomeKey, value: count, color: color, isTarget: isTarget, icon: OATH_ARMOR[outcomeKey].icon });
+                    }
+                }
+            } else {
+                // For weapons, show all 36 possible outcomes in order
+                const skillOrder = ['Disease', 'Expose Vulnerability', 'Wound Care', 'Corrosion', 'Harden', 'Ignite'];
+                const rarityOrder = ['Ultimate', 'Legendary'];
+                const levelOrder = [3, 2, 1];
+                
+                stats = [];
+                for (const rarity of rarityOrder) {
+                    for (const level of levelOrder) {
+                        for (const skill of skillOrder) {
+                            const outcomeKey = `${rarity}: ${skill} level ${level}`;
+                            const count = achievementCounts[outcomeKey] || 0;
+                            const isTarget = outcomeKey === selectedOption;
+                            
+                            // Assign colors based on rarity AND level for better differentiation
+                            let color;
+                            if (isTarget) {
+                                color = '#4dfb4d'; // Bright green for target
+                            } else if (rarity === 'Ultimate') {
+                                // Red shades: darker for higher level
+                                if (level === 3) color = '#ff0000';      // Bright red
+                                else if (level === 2) color = '#ff6666'; // Medium red
+                                else color = '#ffcccc';                  // Light red
+                            } else {
+                                // Purple shades: darker for higher level
+                                if (level === 3) color = '#9933ff';      // Deep purple
+                                else if (level === 2) color = '#b366ff'; // Medium purple
+                                else color = '#d699ff';                  // Light purple
+                            }
+                            
+                            stats.push({ label: outcomeKey, value: count, color: color, isTarget: isTarget, icon: OATH_WEAPONS[outcomeKey].icon });
+                        }
+                    }
+                }
+            }
+            
+            statsHTML = '<div style="margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px;"><div style="color: #999; font-size: 0.9em; margin-bottom: 10px;">📊 Attempt Breakdown:</div>';
+            for (const stat of stats) {
+                const displayValue = stat.value || '—';
+                const fontWeight = stat.value > 0 ? 'normal' : 'normal';
+                statsHTML += `<div style="display: flex; align-items: center; gap: 8px; padding: 6px 0; color: ${stat.color}; ${stat.isTarget ? 'font-weight: bold;' : ''}">
+                    <img src="${stat.icon}" style="width: 24px; height: 24px; border-radius: 3px; flex-shrink: 0;" alt="${stat.label}">
+                    <span style="flex: 1;">${stat.label}</span>
+                    <span style="font-weight: bold;">${stat.value > 0 ? stat.value + 'x' : '—'}</span>
+                </div>`;
+            }
+            statsHTML += '</div>';
+            
+            // Display results
+            const iconUrl = selectedData.icon;
+            output.innerHTML = `
+                <div class="output-line header">✅ Simulation Complete</div>
+                <div class="output-line" style="margin: 15px 0; display: flex; align-items: center; gap: 15px;">
+                    <img src="${iconUrl}" alt="${selectedOption}" style="width: 48px; height: 48px; border-radius: 6px; background: rgba(0,0,0,0.3); padding: 4px;">
+                    <div>
+                        <strong style="color: ${itemType === 'armor' ? (selectedOption.includes('Ultimate') ? '#ff0000' : '#9933ff') : '#4dfb4d'}; font-size: 1.1em;">${selectedOption}</strong><br>
+                        <small style="color: #999;">Chance: ${successRate.toFixed(2)}%</small>
+                    </div>
+                </div>
+                <div class="output-line" style="border: 2px solid #d4af37; padding: 15px; border-radius: 6px; background: rgba(212,175,55,0.1); margin: 15px 0;">
+                    <div style="color: #888; font-size: 0.9em; margin-bottom: 5px;">Pledge Tablets Used</div>
+                    <div style="color: #ffd700; font-size: 2em; font-weight: bold;">${pledgeTabletsUsed}</div>
+                </div>
+                ${statsHTML}
+            `;
+            
+            // Hide loading bar
+            loading.classList.remove('active');
+            loading.style.width = '0%';
+        }
+
+        // Clear the output
+        function clearOathOutput() {
+            document.getElementById('oath-output').innerHTML = '<div class="output-line header">Select an item type and skill to begin...</div>';
+            document.getElementById('oath-item-type').value = '';
+            document.getElementById('oath-option-btn-text').textContent = '-- Choose item type first --';
+            document.getElementById('oath-option-btn-icon').style.display = 'none';
+            document.getElementById('oath-option-dropdown').innerHTML = '';
+            updateOathOptions();
+            updateOathIconDisplay();
+        }
+
+        // Restore oath selection on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedItemType = localStorage.getItem('oathItemType');
+            if (savedItemType) {
+                // Set item type value
+                document.getElementById('oath-item-type').value = savedItemType;
+                
+                // Update item type button UI
+                const label = savedItemType === 'armor' ? '🛡️ Armor' : '⚔️ Weapon';
+                document.getElementById('oath-itemtype-btn-text').textContent = label;
+                
+                // Update options dropdown
+                updateOathOptions();
+                
+                // Restore saved option if available
+                const savedOption = localStorage.getItem('oathSelectedOption');
+                if (savedOption) {
+                    const allOptions = savedItemType === 'armor' ? OATH_ARMOR : OATH_WEAPONS;
+                    if (allOptions[savedOption]) {
+                        selectOathOption(savedOption, allOptions[savedOption]);
+                    }
+                }
+            }
+        });
+
+        // Store item type selection
+        function saveOathItemType() {
+            localStorage.setItem('oathItemType', document.getElementById('oath-item-type').value);
         }
     </script>
 </body>
