@@ -500,24 +500,44 @@
 
                     // Check for events at this local hour and day
                     const eventsAtThisTime = events.filter(e => {
-                        if (!e.days.includes(day)) return false;
-                        return e.times.some(t => {
-                            const [serverHour, serverMinute] = t.split(':').map(Number);
-                            const { hour: eventLocalHour } = convertServerTimeToLocal(serverHour, serverMinute);
-                            return eventLocalHour === localHour;
-                        });
+                        for (let serverDay of e.days) {
+                            for (let timeStr of e.times) {
+                                const [serverHour, serverMinute] = timeStr.split(':').map(Number);
+                                const { hour: eventLocalHour, dayOffset } = convertServerTimeToLocal(serverHour, serverMinute);
+                                
+                                // Calculate which local day this event occurs on
+                                let eventLocalDay = serverDay + dayOffset;
+                                if (eventLocalDay < 0) eventLocalDay += 7;
+                                if (eventLocalDay >= 7) eventLocalDay -= 7;
+                                
+                                // Check if this event matches the current day and hour
+                                if (eventLocalDay === day && eventLocalHour === localHour) {
+                                    return true;
+                                }
+                            }
+                        }
+                        return false;
                     });
 
                     if (eventsAtThisTime.length > 1) {
                         // Multiple events in same hour - position vertically by minute
                         const eventTimesData = eventsAtThisTime.map(event => {
-                            const eventTime = event.times.find(t => {
-                                const [serverHour, serverMinute] = t.split(':').map(Number);
-                                const { hour: eventLocalHour } = convertServerTimeToLocal(serverHour, serverMinute);
-                                return eventLocalHour === localHour;
-                            });
-                            const [serverHour, serverMinute] = eventTime.split(':').map(Number);
-                            return { event, minute: serverMinute };
+                            // Find the matching time/day for this event
+                            for (let serverDay of event.days) {
+                                for (let timeStr of event.times) {
+                                    const [serverHour, serverMinute] = timeStr.split(':').map(Number);
+                                    const { hour: eventLocalHour, dayOffset } = convertServerTimeToLocal(serverHour, serverMinute);
+                                    
+                                    let eventLocalDay = serverDay + dayOffset;
+                                    if (eventLocalDay < 0) eventLocalDay += 7;
+                                    if (eventLocalDay >= 7) eventLocalDay -= 7;
+                                    
+                                    if (eventLocalDay === day && eventLocalHour === localHour) {
+                                        return { event, minute: serverMinute };
+                                    }
+                                }
+                            }
+                            return { event, minute: 0 }; // fallback, shouldn't happen
                         });
                         
                         // Sort by minute
@@ -551,6 +571,25 @@
                         });
                     } else if (eventsAtThisTime.length === 1) {
                         // Single event - display normally
+                        // Find the matching time/day for this event
+                        let eventTimeStr = '';
+                        for (let serverDay of eventsAtThisTime[0].days) {
+                            for (let timeStr of eventsAtThisTime[0].times) {
+                                const [serverHour, serverMinute] = timeStr.split(':').map(Number);
+                                const { hour: eventLocalHour, dayOffset } = convertServerTimeToLocal(serverHour, serverMinute);
+                                
+                                let eventLocalDay = serverDay + dayOffset;
+                                if (eventLocalDay < 0) eventLocalDay += 7;
+                                if (eventLocalDay >= 7) eventLocalDay -= 7;
+                                
+                                if (eventLocalDay === day && eventLocalHour === localHour) {
+                                    eventTimeStr = timeStr;
+                                    break;
+                                }
+                            }
+                            if (eventTimeStr) break;
+                        }
+                        
                         const eventDiv = document.createElement('div');
                         eventDiv.className = `scheduler-event event-${eventsAtThisTime[0].type}`;
                         // no per-event current-hour overlay; highlight applies to the cell only
@@ -561,11 +600,7 @@
                         eventDiv.title = eventsAtThisTime[0].name;
                         // store event index and server time for details panel
                         eventDiv.dataset.eventIndex = events.indexOf(eventsAtThisTime[0]);
-                        eventDiv.dataset.serverTime = eventsAtThisTime[0].times.find(t => {
-                            const [serverHour, serverMinute] = t.split(':').map(Number);
-                            const { hour: eventLocalHour } = convertServerTimeToLocal(serverHour, serverMinute);
-                            return eventLocalHour === localHour;
-                        }) || '';
+                        eventDiv.dataset.serverTime = eventTimeStr || '';
                         // clicking events does nothing (details shown via legend)
 
                         cell.appendChild(eventDiv);
@@ -641,6 +676,17 @@
                 todayHeader.classList.add('today');
                 // Add position relative so ::after positioning works
                 todayHeader.style.position = 'relative';
+            }
+            
+            // Remove previous hour label highlights and update to current hour
+            document.querySelectorAll('.hour-label.current-hour-label').forEach(label => {
+                label.classList.remove('current-hour-label');
+            });
+            
+            // Add highlight to the current hour label
+            const currentHourLabel = document.querySelector(`.hour-label[data-hour="${currentHour}"]`);
+            if (currentHourLabel) {
+                currentHourLabel.classList.add('current-hour-label');
             }
             
             // Reassign current-hour classes so the highlight moves when the hour changes
