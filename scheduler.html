@@ -812,7 +812,7 @@
             // (296 years * 360 days) + (4 full months * 30 days) + 17 full days
             // Then we add the days passed since 18.05.296 to get the total days, and from that derive the current game date.
             const baseDays = (296 * 360) + (4 * 30) + 17;
-            const daysPassedSinceRef = Math.floor((serverTime - new Date('2026-02-26T11:59:00+01:00')) / 86400000 * 12)+1; // +1 because the reference day counts as day 1, not day 0
+            const daysPassedSinceRef = Math.floor((serverTime - new Date('2026-02-26T11:59:00+01:00')) / 86400000 * 12); // 12x speed adjustment
             const totalDays = baseDays + daysPassedSinceRef;
 
             const gYear = Math.floor(totalDays / 360);
