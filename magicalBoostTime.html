@@ -333,28 +333,6 @@
             updateViewMode(false);
         }
 
-        function copyToClipboard() {
-            const url = window.location.href;
-            const btn = document.getElementById('shareBtn');
-            
-            navigator.clipboard.writeText(url).then(() => {
-                const originalText = btn.innerHTML;
-                btn.innerHTML = "✅ Link Copied!";
-                btn.style.borderColor = "#43a047";
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.style.borderColor = ""; 
-                }, 2000);
-            });
-        }
-
-        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-
-        window.onscroll = () => {
-            const btn = document.getElementById("backToTop");
-            btn.style.display = (document.documentElement.scrollTop > 300) ? "block" : "none";
-        };
-
         createCalendar(currentYear);
         hideOtherMonths();
         document.getElementById('calendar-container').classList.add('month-view');
