@@ -243,6 +243,24 @@
                             <button class="skill-info-btn" onclick="showSkillInfo(event, 'collapsingSmash')" title="Skill Information">i</button>
                         </div>
                     </div>
+                    <div class="buff-item" onclick="toggleBuff('ascensionJam')" id="buff-ascensionJam">
+                        <img src="https://aioncodex.com/items/icon_cash_item_2stenchant_boostcastingtime.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Ascension Jam</div>
+                            <div class="buff-value">+500 Attack</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-ascensionJam" onchange="event.stopPropagation(); calculate()">
+                        <button class="skill-info-btn" onclick="showSkillInfo(event, 'ascensionJam')" title="Skill Information">i</button>
+                    </div>
+                    <div class="buff-item" onclick="toggleBuff('lunaBuff')" id="buff-lunaBuff">
+                        <img src="https://aioncodex.com/items/icon_item_lunabox_01.png" class="buff-icon">
+                        <div class="buff-info">
+                            <div class="buff-name">Luna Buff</div>
+                            <div class="buff-value">+380 Atk / +1000 Crit</div>
+                        </div>
+                        <input type="checkbox" class="buff-checkbox" id="check-lunaBuff" onchange="event.stopPropagation(); calculate()">
+                        <button class="skill-info-btn" onclick="showSkillInfo(event, 'lunaBuff')" title="Skill Information">i</button>
+                    </div>
                 </div>
             </div>
 
@@ -1530,6 +1548,39 @@
             castTime: 'Cast Instantly',
             cooldown: '2m',
             description: 'Increases Physical Attack by 2000 for 10s.<br>Increases Attack Speed by 30%.<br>Increases Crit Strike by 2000.'
+        },
+        'ascensionJam': {
+            name: 'Ascension Jam (PvE)',
+            icon: 'https://aioncodex.com/items/icon_cash_item_2stenchant_boostcastingtime.png',
+            id: '160020035',
+            class: '-',
+            category: 'Item buff',
+            usageCost: '-',
+            castTime: 'Cast Instantly',
+            cooldown: '10m',
+            description: 'Increases additional PvE attack by 500, additional PvE defence by 1000 and HP by 10000 for 60 minutes.<br>The effect remains even after death.'
+        },
+        'ascensionJamPvP': {
+            name: 'Ascension Jam (PvP)',
+            icon: 'https://aioncodex.com/items/icon_cash_item_2stenchant_attackdelay.png',
+            id: '160020034',
+            class: '-',
+            category: 'Item buff',
+            usageCost: '-',
+            castTime: 'Cast Instantly',
+            cooldown: '10m',
+            description: 'Increases additional PvP attack by 500, additional PvP defence by 1000 and HP by 10000 for 60 minutes.<br>The effect remains even after death.'
+        },
+        'lunaBuff': {
+            name: 'Luna Buff',
+            icon: 'https://aioncodex.com/items/icon_item_lunabox_01.png',
+            id: '-',
+            class: '-',
+            category: 'Instance Buff',
+            usageCost: '-',
+            castTime: 'Cast Instantly',
+            cooldown: '1s',
+            description: 'Increases Physical and Magical Attack by 380.<br>Increases Crit Strike and Crit Spell by 1000.<br>Increases HP by 5000.<br>Increases Accuracy and Magic Accuracy by TBD.<br>The effect disappears when leaving the dungeon but comes back when rejoining same dungeon.'
         },
     };
 
@@ -3062,6 +3113,13 @@
         if (document.getElementById('check-blastSpell')?.checked) {
             defenseReduction += 1200;
         }
+        if (document.getElementById('check-ascensionJam')?.checked) {
+            attackBonus += 500;
+        }
+        if (document.getElementById('check-lunaBuff')?.checked) {
+            attackBonus += 380;
+            critBonus += 1000;
+        }
         
         // Universal magical buffs (defense reductions)
         if (document.getElementById('check-swiftSpear')?.checked) {
@@ -3415,7 +3473,19 @@
         const classType = classInfo.type;
         const classKP = classInfo.kp;
         const weaponMult = classInfo.weapons[selectedWeaponIndex].mult;
-        
+        const ascensionJamDiv = document.getElementById('buff-ascensionJam');
+        const ascensionJamInfoBtn = ascensionJamDiv.querySelector('.skill-info-btn');
+
+        // Change ascension jam icon if pvp mode is selected
+        const jamIcon = document.querySelector('#buff-ascensionJam .buff-icon');
+        if (currentMode === 'pvp') {
+            jamIcon.src = 'https://aioncodex.com/items/icon_cash_item_2stenchant_attackdelay.png';
+            ascensionJamInfoBtn.setAttribute('onclick', "showSkillInfo(event, 'ascensionJamPvP')");
+        } else {
+            jamIcon.src = 'https://aioncodex.com/items/icon_cash_item_2stenchant_boostcastingtime.png';
+            ascensionJamInfoBtn.setAttribute('onclick', "showSkillInfo(event, 'ascensionJam')");
+        }
+
         // Calculate max manastones based on extreme items
         const extremeItems = parseInt(document.getElementById('extremeItems').value) || 0;
         const totalStones = 51 - (extremeItems * 2);
@@ -3829,13 +3899,16 @@
                 combatPowerMax: document.getElementById('check-combatPowerMax')?.checked,
                 powerIncrease: document.getElementById('check-powerIncrease')?.checked,
                 extremeEffort: document.getElementById('check-extremeEffort')?.checked,
+                alertDialog: document.getElementById('check-alertDialog')?.checked,
                 collapsingSmash: document.getElementById('check-collapsingSmash')?.checked,
                 collapsingSmashLevel: document.getElementById('collapsingSmashLevel')?.value || '20',
                 devotionLevel: document.getElementById('devotionLevel')?.value || '20',
                 hexLevel: document.getElementById('hexLevel')?.value || '20',
                 amplificationLevel: document.getElementById('amplificationLevel')?.value || '20',
                 vaizelGiftLevel: document.getElementById('vaizelGiftLevel')?.value || '20',
-                cheeryMelodyLevel: document.getElementById('cheeryMelodyLevel')?.value || '20'
+                cheeryMelodyLevel: document.getElementById('cheeryMelodyLevel')?.value || '20',
+                ascensionJam: document.getElementById('check-ascensionJam')?.checked,
+                lunaBuff: document.getElementById('check-lunaBuff')?.checked
             }
         };
         localStorage.setItem('manastoneSession', JSON.stringify(session));
