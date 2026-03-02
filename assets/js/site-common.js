@@ -66,6 +66,7 @@
     var topBtn = document.createElement('button');
     topBtn.id = 'backToTop';
     topBtn.textContent = '\u2191';
+    topBtn.title = 'Back to top';
     topBtn.addEventListener('click', function () {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
