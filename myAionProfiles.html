@@ -11,151 +11,8 @@
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
     <link rel="stylesheet" href="assets/css/aion-tools.css">
-    <style>
-        body { padding: 20px; }
-        .profiles-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        h1 {
-            text-align: center;
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-        .profiles-subtitle {
-            text-align: center;
-            font-size: 1.2em;
-            color: #a8a8c0;
-            margin-bottom: 40px;
-        }
-        .server-section {
-            background: rgba(25, 25, 35, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(181, 101, 245, 0.3);
-        }
-        .server-title {
-            font-size: 2em;
-            color: #b565f5;
-            margin-bottom: 20px;
-            text-align: center;
-            text-shadow: 0 2px 8px rgba(181, 101, 245, 0.4);
-        }
-        .faction-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-            gap: 20px;
-        }
-        .faction-section {
-            background: rgba(30, 30, 40, 0.5);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(100, 100, 120, 0.3);
-        }
-        .faction-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid rgba(181, 101, 245, 0.3);
-        }
-        .faction-header img {
-            width: 40px;
-            height: 40px;
-        }
-        .faction-header h3 {
-            font-size: 1.4em;
-            color: #e0e0f0;
-            margin: 0;
-        }
-        .legion-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(181, 101, 245, 0.15);
-            border: 1px solid rgba(181, 101, 245, 0.3);
-            padding: 8px 15px;
-            border-radius: 8px;
-            color: #e0e0f0;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            margin-bottom: 15px;
-            display: inline-flex;
-        }
-        .legion-link:hover {
-            background: rgba(181, 101, 245, 0.3);
-            border-color: #b565f5;
-            transform: translateY(-2px);
-            text-decoration: none;
-        }
-        .legion-link img {
-            width: 24px;
-            height: 24px;
-        }
-        .character-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .character-card {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(20, 20, 30, 0.6);
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(100, 100, 120, 0.2);
-            transition: all 0.3s ease;
-        }
-        .character-card:hover {
-            background: rgba(40, 40, 60, 0.8);
-            border-color: rgba(181, 101, 245, 0.5);
-            transform: translateX(5px);
-        }
-        .character-card a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: #e0e0f0;
-            flex: 1;
-        }
-        .character-card img {
-            width: 40px;
-            height: 40px;
-            border-radius: 6px;
-            border: 2px solid rgba(181, 101, 245, 0.3);
-        }
-        .character-name {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #e0e0f0;
-        }
-        .character-card a:hover .character-name {
-            color: #b565f5;
-        }
-        .deleted-section {
-            opacity: 0.6;
-        }
-        .deleted-section .server-title {
-            color: #999;
-        }
-        @media (max-width: 768px) {
-            .faction-grid {
-                grid-template-columns: 1fr;
-            }
-            h1 {
-                font-size: 2em;
-            }
-        }
-    </style>
 </head>
 <body class="page-profiles">
-    <a href="aion.html" class="home-button">🏠 Tools Hub</a>
     
     <div class="profiles-container">
         <h1>Stan's AION Characters</h1>
@@ -332,10 +189,10 @@
         <!-- Deleted Characters -->
         <div class="server-section deleted-section">
             <h2 class="server-title">
-                <img src="images/deleted.png" alt="Deleted" style="width: 40px; height: 40px; vertical-align: middle; margin-right: 10px;">
+                <img src="images/deleted.png" alt="Deleted" class="server-title-icon">
                 Deleted Characters
             </h2>
-            <div class="character-grid" style="max-width: 600px; margin: 0 auto;">
+            <div class="character-grid character-grid-narrow">
                 <div class="character-card">
                     <a href="https://myaion.eu/Player/1017585" target="_blank">
                         <img src="images/spiritmaster.png" alt="Spiritmaster">
@@ -363,29 +220,9 @@
             </div>
         </div>
 
-        <!-- Footer -->
-        <div class="footer">
-            <div class="footer-actions">
-                <a href="https://discordapp.com/users/158658357606088704" target="_blank" class="discord-button">
-                    <svg class="discord-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
-                    </svg>
-                    Discord Profile
-                </a>
-            </div>
-
-            <div class="copyright">
-                © <span id="copyright-year"></span> <a href="myAionProfiles.html"><strong>15TAN</strong></a> - AION Character Profiles
-            </div>
-
-            <div class="disclaimer">
-                This website is a non-commercial fan project. AION and all related images/assets are trademarks or registered trademarks of NCSoft Corporation and Gameforge. All rights reserved.
-            </div>
-        </div>
+        <div id="site-footer"></div>
     </div>
 
-    <script>
-        document.getElementById('copyright-year').textContent = new Date().getFullYear();
-    </script>
+    <script src="assets/js/site-common.js"></script>
 </body>
 </html>

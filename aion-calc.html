@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="assets/css/aion-tools.css">
 </head>
 <body class="page-calculator">
-<a href="aion.html" class="home-button">🏠 Tools Hub</a>
 
 <div class="container">
     <h1>Aion 8.4: Attack vs Crit Manastone Optimizer</h1>
@@ -126,7 +125,7 @@
                 <strong style="color: var(--green); font-size: 0.9em;">Universal Buffs (All Classes)</strong>
                 <div class="buffs-grid" style="margin-top: 8px;">
                     <div class="buff-item active" onclick="toggleBuff('shards')" id="buff-shards">
-                        <img src="https://myaion.eu/Images/Database/Items/Icon_Item_nBattery01.png" class="buff-icon">
+                        <img src="https://aioncodex.com/items/icon_item_nbattery01.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Shards</div>
                             <div class="buff-value">+25%</div>
@@ -135,7 +134,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'shards')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('movingForward')" id="buff-movingForward">
-                        <img src="https://myaion.eu/Images/Database/Skills/icon_action_runmode.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/icon_action_runmode.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Moving Forward</div>
                             <div class="buff-value">+10%</div>
@@ -144,7 +143,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'movingForward')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item active" onclick="toggleBuff('intoBlack')" id="buff-intoBlack">
-                        <img src="https://myaion.eu/Images/Database/Skills/PA_A_TargetSelecting_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/pa_a_targetselecting_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Into the Black</div>
                             <div class="buff-value">+30%</div>
@@ -154,7 +153,7 @@
                     </div>
                     <div class="buff-item active buff-item-cubes" id="buff-cubes">
                         <div>
-                            <img src="https://myaion.eu/Images/Database/Items/icon_item_cubic_stat_idcubicidcatacombs_rudra_04.png" class="buff-icon">
+                            <img src="https://aioncodex.com/items/icon_item_cubic_stat_idcubicidcatacombs_rudra_04.png" class="buff-icon">
                             <div class="buff-info">
                                 <div class="buff-name">Cubes</div>
                             </div>
@@ -170,7 +169,7 @@
                         </select>
                     </div>
                     <div class="buff-item" id="buff-hex" onclick="event.stopPropagation(); const cb = document.getElementById('check-hex'); cb.checked = !cb.checked; document.getElementById('buff-hex').classList.toggle('active', cb.checked); updateHexValue(); calculate(); saveSession();">
-                        <img src="https://myaion.eu/Images/Database/Skills/Odi_MagicalBreakdown.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/odi_magicalbreakdown.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Hex</div>
                             <div class="buff-value" id="hexValue">Enemy -650 Def</div>
@@ -189,7 +188,7 @@
                         </div>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('enhancedErosion')" id="buff-enhancedErosion">
-                        <img src="https://myaion.eu/Images/Database/Skills/CBT_EL_AreaCage_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/cbt_el_areacage_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Enhanced Major Erosion</div>
                             <div class="buff-value">Enemy -400 Def</div>
@@ -198,7 +197,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'enhancedErosion')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('infernalBlight')" id="buff-infernalBlight">
-                        <img src="https://myaion.eu/Images/Database/Skills/LIVE_EL_A_HellCurse_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/live_el_a_hellcurse_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Infernal Blight</div>
                             <div class="buff-value">Enemy -900 Def</div>
@@ -207,7 +206,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'infernalBlight')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('sealJudgement')" id="buff-sealJudgement">
-                        <img src="https://myaion.eu/Images/Database/Skills/PR_A_PunishingLight_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/pr_a_punishinglight_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Seal of Judgement</div>
                             <div class="buff-value">Enemy -500 Def</div>
@@ -216,7 +215,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'sealJudgement')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('blastSpell')" id="buff-blastSpell">
-                        <img src="https://myaion.eu/Images/Database/Skills/ch_a_brand_g1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/ch_a_brand_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Blast Spell</div>
                             <div class="buff-value">Enemy -1200 Def</div>
@@ -225,7 +224,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'blastSpell')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" id="buff-collapsingSmash" onclick="event.stopPropagation(); toggleBuff('collapsingSmash')">
-                        <img src="https://myaion.eu/Images/Database/Skills/RI_WeakeningAttack_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/ri_weakeningattack_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Collapsing Smash</div>
                             <div class="buff-value" id="collapsingSmashValue">Enemy -412 Def</div>
@@ -251,7 +250,7 @@
                 <strong style="color: var(--accent); font-size: 0.9em;">Magical Buffs</strong>
                 <div class="buffs-grid" style="margin-top: 8px;">
                     <div class="buff-item" onclick="event.stopPropagation(); const cb = document.getElementById('check-windHarmony'); cb.checked = !cb.checked; document.getElementById('buff-windHarmony').classList.toggle('active', cb.checked); document.getElementById('buff-windHarmony-physical').classList.toggle('active', cb.checked); calculate(); saveSession();" id="buff-windHarmony">
-                        <img src="https://myaion.eu/Images/Database/Skills/LIVE_Ba_SongofWind_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/live_ba_songofwind_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Wind Harmony</div>
                             <div class="buff-value">+15%</div>
@@ -260,7 +259,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'windHarmony')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" id="buff-weda17" onclick="document.getElementById('check-weda17').click();">
-                        <img src="https://myaion.eu/Images/Database/Skills/WedS_buff_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/weds_buff_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Weda's Splendour</div>
                             <div class="buff-value">+17%</div>
@@ -269,7 +268,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'weda17')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" id="buff-templar10" onclick="document.getElementById('check-templar10').click();">
-                        <img src="https://myaion.eu/Images/Database/Skills/KN_GrandProtection_Custom_A_up.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/kn_grandprotection_custom_a_up.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Comrade's Aegis</div>
                             <div class="buff-value">+10%</div>
@@ -278,7 +277,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'templar10')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('swiftSpear')" id="buff-swiftSpear">
-                        <img src="https://myaion.eu/Images/Database/Skills/WI_WindSpear_Custom_A_up.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/wi_windspear_custom_a_up.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Swift Spear</div>
                             <div class="buff-value">Enemy -600 Def</div>
@@ -287,7 +286,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'swiftSpear')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('blaze')" id="buff-blaze">
-                        <img src="https://myaion.eu/Images/Database/Skills/CBT_MA_IgnicBurn_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/cbt_ma_ignicburn_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Blaze</div>
                             <div class="buff-value">Enemy -250 Def</div>
@@ -296,7 +295,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'blaze')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('flameFusion')" id="buff-flameFusion">
-                        <img src="https://myaion.eu/Images/Database/Skills/CBT_WI_MeltDown_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/cbt_wi_meltdown_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Flame Fusion</div>
                             <div class="buff-value">Enemy -700 Def</div>
@@ -305,7 +304,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'flameFusion')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('windCutDown')" id="buff-windCutDown">
-                        <img src="https://myaion.eu/Images/Database/Skills/Live_WI_A_WindCutter_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/live_wi_a_windcutter_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Wind Cut Down</div>
                             <div class="buff-value">Enemy -350 Def</div>
@@ -314,7 +313,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'windCutDown')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('curseMagicPower')" id="buff-curseMagicPower">
-                        <img src="https://myaion.eu/Images/Database/Skills/EL_A_MagicalBreakdown_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/el_a_magicalbreakdown_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Curse of Magic Power</div>
                             <div class="buff-value">Enemy -600 Def</div>
@@ -323,7 +322,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'curseMagicPower')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('fissureCannonball')" id="buff-fissureCannonball">
-                        <img src="https://myaion.eu/Images/Database/Skills/Live_GU_A_ArmorBreak_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/live_gu_a_armorbreak_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Fissure Cannonball</div>
                             <div class="buff-value">Enemy -600 Def</div>
@@ -332,7 +331,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'fissureCannonball')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('firebugCannon')" id="buff-firebugCannon">
-                        <img src="https://myaion.eu/Images/Database/Skills/Live_GU_A_FlameCannon_1_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/live_gu_a_flamecannon_1_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Firebug Cannon</div>
                             <div class="buff-value">Enemy -250 Def</div>
@@ -341,7 +340,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'firebugCannon')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('disrupterShot')" id="buff-disrupterShot">
-                        <img src="https://myaion.eu/Images/Database/Skills/Live_Gu_CrackSnipe_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/live_gu_cracksnipe_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Disrupter Shot</div>
                             <div class="buff-value">Enemy -500 Mag Def</div>
@@ -350,7 +349,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'disrupterShot')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('marchOfTheBees')" id="buff-marchOfTheBees">
-                        <img src="https://myaion.eu/Images/Database/Skills/LIVE_BA_A_SongofEarth_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/live_ba_a_songofearth_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">March of the Bees</div>
                             <div class="buff-value">Enemy -550 Def</div>
@@ -359,7 +358,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'marchOfTheBees')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('seaVariation')" id="buff-seaVariation">
-                        <img src="https://myaion.eu/Images/Database/Skills/LIVE_Ba_SongofGravity_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/live_ba_songofgravity_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Sea Variation</div>
                             <div class="buff-value">Enemy -400 Def</div>
@@ -374,7 +373,7 @@
                 <strong style="color: var(--red); font-size: 0.9em;">Physical Buffs</strong>
                 <div class="buffs-grid" style="margin-top: 8px;">
                     <div class="buff-item" onclick="toggleBuff('invincibilityMantra')" id="buff-invincibilityMantra">
-                        <img src="https://myaion.eu/Images/Database/Skills/live_ch_chant_invincible_g1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/live_ch_chant_invincible_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Invincibility Mantra</div>
                             <div class="buff-value">+180 Attack</div>
@@ -383,7 +382,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'invincibilityMantra')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item active" onclick="toggleBuff('glad8')" id="buff-glad8">
-                        <img src="https://myaion.eu/Images/Database/Skills/FI_ShockBurst_Custom_B_up.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/fi_shockburst_custom_b_up.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Bloodlust Explosion</div>
                             <div class="buff-value">Enemy -8% Def</div>
@@ -392,7 +391,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'glad8')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item active" onclick="toggleBuff('chant3')" id="buff-chant3">
-                        <img src="https://myaion.eu/Images/Database/Skills/CBT_CH_SonicSwing_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/cbt_ch_sonicswing_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Booming Strike</div>
                             <div class="buff-value">Enemy -3% Def</div>
@@ -401,7 +400,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'chant3')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('weakBlow')" id="buff-weakBlow">
-                        <img src="https://myaion.eu/Images/Database/Skills/live_fi_enfeeblehit_g1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/live_fi_enfeeblehit_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Weakening Blow</div>
                             <div class="buff-value">Enemy -300 Def</div>
@@ -410,7 +409,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'weakBlow')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('comradePhys')" id="buff-comradePhys">
-                        <img src="https://myaion.eu/Images/Database/Skills/KN_GrandProtection_Custom_A_up.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/kn_grandprotection_custom_a_up.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Comrade's Aegis</div>
                             <div class="buff-value">+550 Attack</div>
@@ -419,7 +418,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'templar10')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('lightningSlash')" id="buff-lightningSlash">
-                        <img src="https://myaion.eu/Images/Database/Skills/LIVE_AS_A_FlashSlash_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/live_as_a_flashslash_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Lightning Slash</div>
                             <div class="buff-value">Enemy -1000 Def</div>
@@ -428,7 +427,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'lightningSlash')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('wallProtection')" id="buff-wallProtection">
-                        <img src="https://myaion.eu/Images/Database/Skills/cbt_el_a_order_elementalfield_g1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/cbt_el_a_order_elementalfield_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Wall of Protection</div>
                             <div class="buff-value">+360 Attack</div>
@@ -437,7 +436,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'wallProtection')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleMagicIncitement()" id="buff-magicIncitement">
-                        <img src="https://myaion.eu/Images/Database/Skills/CH_A_PhysicalEnhancement_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/ch_a_physicalenhancement_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Magic of Incitement</div>
                             <div class="buff-value">+600 Atk / +800 Crit</div>
@@ -446,7 +445,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'magicIncitement')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('meteorStrike')" id="buff-meteorStrike">
-                        <img src="https://myaion.eu/Images/Database/Skills/CBT_CH_ViolentSwing_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/cbt_ch_violentswing_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Meteor Strike</div>
                             <div class="buff-value">Enemy -160 Def</div>
@@ -455,7 +454,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'meteorStrike')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('incandescentBlow')" id="buff-incandescentBlow">
-                        <img src="https://myaion.eu/Images/Database/Skills/CBT_CH_TriangleShock_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/cbt_ch_triangleshock_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Incandescent Blow</div>
                             <div class="buff-value">Enemy -52 Def</div>
@@ -464,7 +463,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'incandescentBlow')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('mountainCrash')" id="buff-mountainCrash">
-                        <img src="https://myaion.eu/Images/Database/Skills/LIVE_CH_A_MountainCrash_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/live_ch_a_mountaincrash_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">(Improved) Mountain Crash</div>
                             <div class="buff-value">Enemy -350 Def</div>
@@ -473,7 +472,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'mountainCrash')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="toggleBuff('sourDye')" id="buff-sourDye">
-                        <img src="https://myaion.eu/Images/Database/Skills/PA_AcidPaint_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/pa_acidpaint_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Sour Dye</div>
                             <div class="buff-value">Enemy -200 Def</div>
@@ -482,7 +481,7 @@
                         <button class="skill-info-btn" onclick="showSkillInfo(event, 'sourDye')" title="Skill Information">i</button>
                     </div>
                     <div class="buff-item" onclick="event.stopPropagation(); const cb = document.getElementById('check-windHarmony'); cb.checked = !cb.checked; document.getElementById('buff-windHarmony').classList.toggle('active', cb.checked); document.getElementById('buff-windHarmony-physical').classList.toggle('active', cb.checked); calculate(); saveSession();" id="buff-windHarmony-physical">
-                        <img src="https://myaion.eu/Images/Database/Skills/LIVE_Ba_SongofWind_G1.png" class="buff-icon">
+                        <img src="https://aioncodex.com/skills/live_ba_songofwind_g1.png" class="buff-icon">
                         <div class="buff-info">
                             <div class="buff-name">Wind Harmony</div>
                             <div class="buff-value">+121 Attack</div>
@@ -539,25 +538,25 @@
         <div class="result-box">
             <div><strong>FIND ENEMY CRIT DAMAGE</strong></div>
             <div class="result-details" style="margin-top: 6px;">
-                <label for="critStatNonCrit" style="display: block; margin-bottom: 6px;">Skill Damage (Non-Crit)</label>
-                <input type="text" id="critStatNonCrit" value="" placeholder="e.g. 85000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
+                <label for="critStatNonCrit">Skill Damage (Non-Crit)</label>
+                <input type="text" id="critStatNonCrit" class="input-sm" value="" placeholder="e.g. 85000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()">
             </div>
             <div class="result-details" style="margin-top: 6px;">
-                <label for="critStatCrit" style="display: block; margin-bottom: 6px;">Skill Damage (Crit)</label>
-                <input type="text" id="critStatCrit" value="" placeholder="e.g. 170000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
+                <label for="critStatCrit">Skill Damage (Crit)</label>
+                <input type="text" id="critStatCrit" class="input-sm" value="" placeholder="e.g. 170000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()">
             </div>
             <div class="result-val" id="enemyCritStatResult">--</div>
-            <div class="result-details" id="enemyCritStatDetails" style="color: #999; font-size: 0.85em;">Uses selected weapon multiplier.</div>
+            <div class="result-details result-note" id="enemyCritStatDetails">Uses selected weapon multiplier.</div>
         </div>
 
         <!-- Duration-Based Statistics -->
-        <div class="duration-stats" style="grid-column: span 3; margin-top: 20px;">
-            <h3 style="color: var(--accent); margin: 0 0 15px 0; font-size: 1em;">⏱️ Duration-Based Performance Analysis</h3>
-            <p style="font-size: 0.85em; color: #999; margin: 0 0 10px 0;">Shows how manastone build performs across different combat durations with varying crit variance.</p>
+        <div class="duration-stats">
+            <h3>⏱️ Duration-Based Performance Analysis</h3>
+            <p class="ds-subtitle">Shows how manastone build performs across different combat durations with varying crit variance.</p>
             
-            <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                <label style="font-size: 0.85em; color: var(--accent); font-weight: bold;">Select Build:</label>
-                <select id="buildSelector" onchange="updateDurationStats()" style="background: #101014; border: 1px solid var(--accent); color: white; padding: 8px; border-radius: 4px; font-size: 0.9em; flex: 1; max-width: 300px;">
+            <div class="build-selector">
+                <label>Select Build:</label>
+                <select id="buildSelector" onchange="updateDurationStats()">
                     <option value="0">-- Current Build --</option>
                     <option value="1">-- Optimal Build ⭐ --</option>
                     <option value="2">-- All Crit --</option>
@@ -566,75 +565,74 @@
                 </select>
             </div>
 
-            <table id="durationStatsTable" style="width: 100%; background: #1a1a1f; border-radius: 8px; overflow: hidden; border: 1px solid #3d3d45;">
+            <table id="durationStatsTable">
                 <thead>
-                    <tr style="background: #2a2a35;">
-                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;">Duration</th>
-                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;">Casts</th>
-                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;" title="Expected crits">E. Crits</th>
-                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;">Min</th>
-                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45; color: var(--warning);">Expected</th>
-                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;" title="vs Optimal build">vs Opt. %</th>
-                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;">Max</th>
-                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;" title="Max - Min">Range</th>
-                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;" title="Standard Deviation">σ</th>
-                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;" title="Coefficient of Variation">CV%</th>
-                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;" title="Damage per second">DPS</th>
-                        <th style="color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45;">Stability</th>
+                    <tr>
+                        <th>Duration</th>
+                        <th>Casts</th>
+                        <th title="Expected crits">E. Crits</th>
+                        <th>Min</th>
+                        <th class="th-warning" title="Expected damage">Expected</th>
+                        <th title="vs Optimal build">vs Opt. %</th>
+                        <th>Max</th>
+                        <th title="Max - Min">Range</th>
+                        <th title="Standard Deviation">σ</th>
+                        <th title="Coefficient of Variation">CV%</th>
+                        <th title="Damage per second">DPS</th>
+                        <th>Stability</th>
                     </tr>
                 </thead>
                 <tbody id="durationBody">
-                    <tr style="background: #1a1a1f;"><td colspan="12" style="text-align: center; padding: 20px; color: #666;">Calculating...</td></tr>
+                    <tr><td colspan="12" style="text-align: center; padding: 20px; color: #666;">Calculating...</td></tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- Duration Analysis Legend -->
-        <div class="duration-legend" style="grid-column: span 3; margin-top: 20px; background: #15151a; border-left: 4px solid var(--accent); padding: 15px; border-radius: 4px; font-size: 0.9em;">
-            <details style="cursor: pointer;">
-                <summary style="color: var(--accent); font-weight: bold; user-select: none; margin-bottom: 10px;">🔬 Statistical Formulas & Stability Metrics</summary>
-                <div style="margin-top: 15px; color: #d0d0d0; line-height: 1.8;">
-                    <div style="margin-bottom: 15px;">
-                        <strong style="color: var(--warning);">Skill Casts:</strong> ⌊Duration (sec) / Cooldown (sec)⌋
+        <div class="duration-legend">
+            <details>
+                <summary>🔬 Statistical Formulas & Stability Metrics</summary>
+                <div class="dl-content">
+                    <div class="dl-item">
+                        <strong>Skill Casts:</strong> ⌊Duration (sec) / Cooldown (sec)⌋
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <strong style="color: var(--warning);">Expected Crits:</strong> Casts × Crit Chance %<br>
-                        <span style="color: #999; font-size: 0.85em;">Expected number of critical hits in the duration</span>
+                    <div class="dl-item">
+                        <strong>Expected Crits:</strong> Casts × Crit Chance %<br>
+                        <span class="dl-note">Expected number of critical hits in the duration</span>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <strong style="color: var(--warning);">Damage Range:</strong> Max Dmg - Min Dmg<br>
-                        <span style="color: #999; font-size: 0.85em;">Spread between best and worst case scenarios</span>
+                    <div class="dl-item">
+                        <strong>Damage Range:</strong> Max Dmg - Min Dmg<br>
+                        <span class="dl-note">Spread between best and worst case scenarios</span>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <strong style="color: var(--warning);">Std Deviation (σ):</strong> √[n × p × (1-p) × (CritDmg - NormalDmg)²]<br>
-                        <span style="color: #999; font-size: 0.85em;">Where n=casts, p=crit chance. Measures variability in damage outcomes.</span>
+                    <div class="dl-item">
+                        <strong>Std Deviation (σ):</strong> √[n × p × (1-p) × (CritDmg - NormalDmg)²]<br>
+                        <span class="dl-note">Where n=casts, p=crit chance. Measures variability in damage outcomes.</span>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <strong style="color: var(--warning);">Coefficient of Variation (CoV):</strong> (Std Dev / Expected Dmg) × 100%<br>
-                        <span style="color: #999; font-size: 0.85em;">Normalized measure of consistency: lower = more predictable</span>
+                    <div class="dl-item">
+                        <strong>Coefficient of Variation (CoV):</strong> (Std Dev / Expected Dmg) × 100%<br>
+                        <span class="dl-note">Normalized measure of consistency: lower = more predictable</span>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <strong style="color: var(--warning);">Expected DPS:</strong> Expected Damage / Duration (sec)<br>
-                        <span style="color: #999; font-size: 0.85em;">Average damage output per second over the encounter</span>
+                    <div class="dl-item">
+                        <strong>Expected DPS:</strong> Expected Damage / Duration (sec)<br>
+                        <span class="dl-note">Average damage output per second over the encounter</span>
                     </div>
-                    <div style="margin-bottom: 15px; padding-top: 10px; border-top: 1px solid #3d3d45;">
-                        <strong style="color: var(--accent);">Build Stability Ratings (based on CoV):</strong>
+                    <div class="dl-separator">
+                        <strong class="accent">Build Stability Ratings (based on CoV):</strong>
                     </div>
-                    <div style="margin-left: 10px; margin-bottom: 8px;">
+                    <div class="dl-sub">
                         <span class="stability-excellent">★★★★★ Excellent</span> (CoV &lt; 5%)<br>
-                        <span style="color: #999; font-size: 0.85em;">Very predictable regardless of RNG. Attack-heavy builds excel here.</span>
+                        <span class="dl-note">Very predictable regardless of RNG. Attack-heavy builds excel here.</span>
                     </div>
-                    <div style="margin-left: 10px; margin-bottom: 8px;">
+                    <div class="dl-sub">
                         <span class="stability-good">★★★★☆ Good</span> (5% ≤ CoV &lt; 10%)<br>
-                        <span style="color: #999; font-size: 0.85em;">Reliable with minor variance. Balanced stat builds perform well.</span>
+                        <span class="dl-note">Reliable with minor variance. Balanced stat builds perform well.</span>
                     </div>
-                    <div style="margin-left: 10px; margin-bottom: 8px;">
+                    <div class="dl-sub">
                         <span class="stability-fair">★★★☆☆ Fair</span> (10% ≤ CoV &lt; 20%)<br>
-                        <span style="color: #999; font-size: 0.85em;">Noticeable variance but acceptable. Crit-heavy builds start showing RNG.</span>
+                        <span class="dl-note">Noticeable variance but acceptable. Crit-heavy builds start showing RNG.</span>
                     </div>
-                    <div style="margin-left: 10px;">
+                    <div class="dl-sub">
                         <span class="stability-poor">★★☆☆☆ Poor</span> (CoV ≥ 20%)<br>
-                        <span style="color: #999; font-size: 0.85em;">High RNG dependency. Pure crit builds unreliable in short encounters.</span>
+                        <span class="dl-note">High RNG dependency. Pure crit builds unreliable in short encounters.</span>
                     </div>
                 </div>
             </details>
@@ -706,22 +704,7 @@
         </div>
     </div>
     
-    <!-- Discord Server Advertisement -->
-    <div style="margin: 40px 0; padding: 20px; background: linear-gradient(135deg, rgba(88, 101, 242, 0.15) 0%, rgba(88, 101, 242, 0.05) 100%); border: 1px solid rgba(88, 101, 242, 0.3); border-radius: 12px; text-align: center;">
-        <div style="font-size: 28px; margin-bottom: 10px;">🎮</div>
-        <h3 style="margin: 10px 0; color: #5865f2; font-size: 1.2em;">Join Aion EU Shugo Tavern</h3>
-        <p style="margin: 8px 0; color: #bcc0c0; font-size: 0.95em;">Discord server with tutorials and information about most of the important things in Retail AION</p>
-        <a href="https://discord.gg/mkU2DK9Q" target="_blank" style="display: inline-block; margin-top: 12px; padding: 10px 24px; background: #5865f2; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: background 0.3s; cursor: pointer;">Join Discord Server</a>
-    </div>
-
-    <div class="copyright">
-        © <span id="copyright-year"></span> <a href="myAionProfiles.html"><strong>15TAN</strong></a> - AION Retail DPS Optimization<br>
-        Based on official 8.4 damage formulas
-    </div>
-
-    <div class="disclaimer">
-        This website is a non-commercial fan project. AION and all related images/assets are trademarks or registered trademarks of NCSoft Corporation and Gameforge. All rights reserved.
-    </div>
+    <div id="site-footer"></div>
 </div>
 
 <!-- Skill Info Modal -->
@@ -736,7 +719,7 @@
     const skillDatabase = {
         'intoBlack': {
             name: 'Into the Black',
-            icon: 'https://myaion.eu/Images/Database/Skills/PA_A_TargetSelecting_G1.png',
+            icon: 'https://aioncodex.com/skills/pa_a_targetselecting_g1.png',
             id: '6291',
             class: 'Painter',
             category: 'Greater Stigma',
@@ -747,7 +730,7 @@
         },
         'shards': {
             name: 'Shards',
-            icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_nBattery01.png',
+            icon: 'https://aioncodex.com/items/icon_item_nbattery01.png',
             id: '169020003',
             class: '-',
             category: 'Special Item',
@@ -758,7 +741,7 @@
         },
         'movingForward': {
             name: 'Moving Forward',
-            icon: 'https://myaion.eu/Images/Database/Skills/icon_action_runmode.png',
+            icon: 'https://aioncodex.com/skills/icon_action_runmode.png',
             id: '-',
             class: '-',
             category: 'Game Mechanic',
@@ -769,7 +752,7 @@
         },
         'hex': {
             name: 'Hex',
-            icon: 'https://myaion.eu/Images/Database/Skills/Odi_MagicalBreakdown.png',
+            icon: 'https://aioncodex.com/skills/odi_magicalbreakdown.png',
             id: '6349',
             class: 'Spiritmaster',
             category: 'Azure Odian Skill',
@@ -780,7 +763,7 @@
         },
         'enhancedErosion': {
             name: 'Enhanced Major Erosion',
-            icon: 'https://myaion.eu/Images/Database/Skills/CBT_EL_AreaCage_G1.png',
+            icon: 'https://aioncodex.com/skills/cbt_el_areacage_g1.png',
             id: '6705',
             class: 'Spiritmaster',
             category: 'Active',
@@ -791,7 +774,7 @@
         },
         'infernalBlight': {
             name: '(Improved) Infernal Blight',
-            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_EL_A_HellCurse_G1.png',
+            icon: 'https://aioncodex.com/skills/live_el_a_hellcurse_g1.png',
             id: '6132',
             class: 'Spiritmaster',
             category: 'Powerful Stigma',
@@ -802,7 +785,7 @@
         },
         'sealJudgement': {
             name: '(Improved) Seal of Judgement',
-            icon: 'https://myaion.eu/Images/Database/Skills/PR_A_PunishingLight_G1.png',
+            icon: 'https://aioncodex.com/skills/pr_a_punishinglight_g1.png',
             id: '6172',
             class: 'Cleric',
             category: 'Vision Stigma',
@@ -813,7 +796,7 @@
         },
         'blastSpell': {
             name: '(Improved) Blast Spell',
-            icon: 'https://myaion.eu/Images/Database/Skills/ch_a_brand_g1.png',
+            icon: 'https://aioncodex.com/skills/ch_a_brand_g1.png',
             id: '6152',
             class: 'Chanter',
             category: 'Vision Stigma',
@@ -824,7 +807,7 @@
         },
         'collapsingSmash': {
             name: 'Collapsing Smash',
-            icon: 'https://myaion.eu/Images/Database/Skills/RI_WeakeningAttack_G1.png',
+            icon: 'https://aioncodex.com/skills/ri_weakeningattack_g1.png',
             id: '2787',
             class: 'Aethertech',
             category: 'Active',
@@ -835,7 +818,7 @@
         },
         'windHarmony': {
             name: 'Wind Harmony',
-            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_Ba_SongofWind_G1.png',
+            icon: 'https://aioncodex.com/skills/live_ba_songofwind_g1.png',
             id: '4252',
             class: 'Bard',
             category: 'Active',
@@ -846,7 +829,7 @@
         },
         'weda17': {
             name: 'Weda\'s Splendour',
-            icon: 'https://myaion.eu/Images/Database/Skills/WedS_buff_G1.png',
+            icon: 'https://aioncodex.com/skills/weds_buff_g1.png',
             id: '5926',
             class: '-',
             category: 'Special Skill',
@@ -857,7 +840,7 @@
         },
         'templar10': {
             name: '(Improved) Comrade\'s Aegis',
-            icon: 'https://myaion.eu/Images/Database/Skills/KN_GrandProtection_Custom_A_up.png',
+            icon: 'https://aioncodex.com/skills/kn_grandprotection_custom_a_up.png',
             id: '5728',
             class: 'Templar',
             category: 'Active',
@@ -868,7 +851,7 @@
         },
         'swiftSpear': {
             name: '(Improved) Swift Spear',
-            icon: 'https://myaion.eu/Images/Database/Skills/WI_WindSpear_Custom_A_up.png',
+            icon: 'https://aioncodex.com/skills/wi_windspear_custom_a_up.png',
             id: '5786',
             class: 'Sorcerer',
             category: 'Active',
@@ -879,7 +862,7 @@
         },
         'blaze': {
             name: 'Blaze',
-            icon: 'https://myaion.eu/Images/Database/Skills/CBT_MA_IgnicBurn_G1.png',
+            icon: 'https://aioncodex.com/skills/cbt_ma_ignicburn_g1.png',
             id: '1415',
             class: 'Sorcerer',
             category: 'Active',
@@ -890,7 +873,7 @@
         },
         'flameFusion': {
             name: 'Flame Fusion',
-            icon: 'https://myaion.eu/Images/Database/Skills/CBT_WI_MeltDown_G1.png',
+            icon: 'https://aioncodex.com/skills/cbt_wi_meltdown_g1.png',
             id: '1539',
             class: 'Sorcerer',
             category: 'Active',
@@ -901,7 +884,7 @@
         },
         'windCutDown': {
             name: '(Improved) Wind Cut Down',
-            icon: 'https://myaion.eu/Images/Database/Skills/Live_WI_A_WindCutter_G1.png',
+            icon: 'https://aioncodex.com/skills/live_wi_a_windcutter_g1.png',
             id: '6118',
             class: 'Sorcerer',
             category: 'Greater Stigma',
@@ -912,7 +895,7 @@
         },
         'curseMagicPower': {
             name: '(Improved) Curse of Magic Power',
-            icon: 'https://myaion.eu/Images/Database/Skills/EL_A_MagicalBreakdown_G1.png',
+            icon: 'https://aioncodex.com/skills/el_a_magicalbreakdown_g1.png',
             id: '6142',
             class: 'Spiritmaster',
             category: 'Normal Stigma',
@@ -923,7 +906,7 @@
         },
         'fissureCannonball': {
             name: '(Improved) Fissure Cannonball',
-            icon: 'https://myaion.eu/Images/Database/Skills/Live_GU_A_ArmorBreak_G1.png',
+            icon: 'https://aioncodex.com/skills/live_gu_a_armorbreak_g1.png',
             id: '6205',
             class: 'Gunner',
             category: 'Greater Stigma',
@@ -934,7 +917,7 @@
         },
         'firebugCannon': {
             name: '(Improved) Firebug Cannon',
-            icon: 'https://myaion.eu/Images/Database/Skills/Live_GU_A_FlameCannon_1_G1.png',
+            icon: 'https://aioncodex.com/skills/live_gu_a_flamecannon_1_g1.png',
             id: '6213',
             class: 'Gunner',
             category: 'Normal Stigma',
@@ -945,7 +928,7 @@
         },
         'disrupterShot': {
             name: 'Disrupter Shot',
-            icon: 'https://myaion.eu/Images/Database/Skills/Live_Gu_CrackSnipe_G1.png',
+            icon: 'https://aioncodex.com/skills/live_gu_cracksnipe_g1.png',
             id: '1942',
             class: 'Gunner',
             category: 'Active',
@@ -956,7 +939,7 @@
         },
         'marchOfTheBees': {
             name: 'March of the Bees',
-            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_BA_A_SongofEarth_G1.png',
+            icon: 'https://aioncodex.com/skills/live_ba_a_songofearth_g1.png',
             id: '6247',
             class: 'Bard',
             category: 'Normal Stigma',
@@ -967,7 +950,7 @@
         },
         'seaVariation': {
             name: 'Sea Variation',
-            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_Ba_SongofGravity_G1.png',
+            icon: 'https://aioncodex.com/skills/live_ba_songofgravity_g1.png',
             id: '4430',
             class: 'Bard',
             category: 'Active',
@@ -978,7 +961,7 @@
         },
         'invincibilityMantra': {
             name: 'Invincibility Mantra',
-            icon: 'https://myaion.eu/Images/Database/Skills/live_ch_chant_invincible_g1.png',
+            icon: 'https://aioncodex.com/skills/live_ch_chant_invincible_g1.png',
             id: '4642',
             class: 'Chanter',
             category: 'Active - Magical Mantra',
@@ -989,7 +972,7 @@
         },
         'glad8': {
             name: 'Bloodlust Explosion',
-            icon: 'https://myaion.eu/Images/Database/Skills/FI_ShockBurst_Custom_B_up.png',
+            icon: 'https://aioncodex.com/skills/fi_shockburst_custom_b_up.png',
             id: '5719',
             class: 'Gladiator',
             category: 'Active',
@@ -1000,7 +983,7 @@
         },
         'chant3': {
             name: 'Booming Strike',
-            icon: 'https://myaion.eu/Images/Database/Skills/CBT_CH_SonicSwing_G1.png',
+            icon: 'https://aioncodex.com/skills/cbt_ch_sonicswing_g1.png',
             id: '1573',
             class: 'Chanter',
             category: 'Active',
@@ -1011,7 +994,7 @@
         },
         'weakBlow': {
             name: 'Weakening Blow',
-            icon: 'https://myaion.eu/Images/Database/Skills/live_fi_enfeeblehit_g1.png',
+            icon: 'https://aioncodex.com/skills/live_fi_enfeeblehit_g1.png',
             id: '669',
             class: 'Gladiator',
             category: 'Active',
@@ -1022,7 +1005,7 @@
         },
         'lightningSlash': {
             name: '(Improved) Lightning Slash',
-            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_AS_A_FlashSlash_G1.png',
+            icon: 'https://aioncodex.com/skills/live_as_a_flashslash_g1.png',
             id: '6067',
             class: 'Assassin',
             category: 'Greater Stigma',
@@ -1033,7 +1016,7 @@
         },
         'wallProtection': {
             name: '(Improved) Wall of Protection',
-            icon: 'https://myaion.eu/Images/Database/Skills/cbt_el_a_order_elementalfield_g1.png',
+            icon: 'https://aioncodex.com/skills/cbt_el_a_order_elementalfield_g1.png',
             id: '22065',
             class: 'Spiritmaster',
             category: 'Normal Stigma',
@@ -1044,7 +1027,7 @@
         },
         'magicIncitement': {
             name: '(Improved) Magic of Incitement',
-            icon: 'https://myaion.eu/Images/Database/Skills/CH_A_PhysicalEnhancement_G1.png',
+            icon: 'https://aioncodex.com/skills/ch_a_physicalenhancement_g1.png',
             id: '6153',
             class: 'Chanter',
             category: 'Vision Stigma',
@@ -1055,7 +1038,7 @@
         },
         'meteorStrike': {
             name: 'Meteor Strike',
-            icon: 'https://myaion.eu/Images/Database/Skills/CBT_CH_ViolentSwing_G1.png',
+            icon: 'https://aioncodex.com/skills/cbt_ch_violentswing_g1.png',
             id: '1789',
             class: 'Chanter',
             category: 'Active',
@@ -1066,7 +1049,7 @@
         },
         'incandescentBlow': {
             name: 'Incandescent Blow',
-            icon: 'https://myaion.eu/Images/Database/Skills/CBT_CH_TriangleShock_G1.png',
+            icon: 'https://aioncodex.com/skills/cbt_ch_triangleshock_g1.png',
             id: '1676',
             class: 'Chanter',
             category: 'Active',
@@ -1077,7 +1060,7 @@
         },
         'mountainCrash': {
             name: '(Improved) Mountain Crash',
-            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_CH_A_MountainCrash_G1.png',
+            icon: 'https://aioncodex.com/skills/live_ch_a_mountaincrash_g1.png',
             id: '6159',
             class: 'Chanter',
             category: 'Greater Stigma',
@@ -1088,7 +1071,7 @@
         },
         'sourDye': {
             name: 'Sour Dye',
-            icon: 'https://myaion.eu/Images/Database/Skills/PA_AcidPaint_G1.png',
+            icon: 'https://aioncodex.com/skills/pa_acidpaint_g1.png',
             id: '5462',
             class: 'Painter',
             category: 'Active',
@@ -1099,7 +1082,7 @@
         },
         'attackPosition': {
             name: '(Improved) Attack Position',
-            icon: 'https://myaion.eu/Images/Database/Skills/fi_berserkstance_custom_b_up.png',
+            icon: 'https://aioncodex.com/skills/fi_berserkstance_custom_b_up.png',
             id: '5723',
             class: 'Gladiator',
             category: 'Active',
@@ -1110,7 +1093,7 @@
         },
         'defencePrep': {
             name: 'Defence Preparation',
-            icon: 'https://myaion.eu/Images/Database/Skills/cbt_fi_defensemode_g1.png',
+            icon: 'https://aioncodex.com/skills/cbt_fi_defensemode_g1.png',
             id: '619',
             class: 'Gladiator',
             category: 'Active',
@@ -1121,7 +1104,7 @@
         },
         'combatPrep': {
             name: 'Combat Preparation',
-            icon: 'https://myaion.eu/Images/Database/Skills/cbt_fi_blademode_g1.png',
+            icon: 'https://aioncodex.com/skills/cbt_fi_blademode_g1.png',
             id: '697',
             class: 'Gladiator',
             category: 'Active',
@@ -1132,7 +1115,7 @@
         },
         'divineFury': {
             name: '(Improved) Divine Fury',
-            icon: 'https://myaion.eu/Images/Database/Skills/cbt_kn_a_divinepower_g1.png',
+            icon: 'https://aioncodex.com/skills/cbt_kn_a_divinepower_g1.png',
             id: '6055',
             class: 'Templar',
             category: 'Active',
@@ -1143,7 +1126,7 @@
         },
         'empyreanFury': {
             name: 'Empyrean Fury',
-            icon: 'https://myaion.eu/Images/Database/Skills/live_kn_destructwish_g1.png',
+            icon: 'https://aioncodex.com/skills/live_kn_destructwish_g1.png',
             id: '2933',
             class: 'Templar',
             category: 'Active',
@@ -1154,7 +1137,7 @@
         },
         'menacingPosture': {
             name: 'Menacing Posture',
-            icon: 'https://myaion.eu/Images/Database/Skills/cbt_fi_defensemode_g1.png',
+            icon: 'https://aioncodex.com/skills/cbt_fi_defensemode_g1.png',
             id: '3048',
             class: 'Templar',
             category: 'Active',
@@ -1165,7 +1148,7 @@
         },
         'deadlyFocus': {
             name: 'Deadly Focus',
-            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_AS_RaidStance_G1.png',
+            icon: 'https://aioncodex.com/skills/live_as_raidstance_g1.png',
             id: '3469',
             class: 'Assassin',
             category: 'Active',
@@ -1176,7 +1159,7 @@
         },
         'devotion': {
             name: 'Devotion',
-            icon: 'https://myaion.eu/Images/Database/Skills/CBT_SC_InvokePower_G1.png',
+            icon: 'https://aioncodex.com/skills/cbt_sc_invokepower_g1.png',
             id: '3235',
             class: 'Assassin+Ranger',
             category: 'Active',
@@ -1187,7 +1170,7 @@
         },
         'deadlyAbandon': {
             name: '(Improved) Deadly Abandon',
-            icon: 'https://myaion.eu/Images/Database/Skills/live_as_a_stabstance_g1.png',
+            icon: 'https://aioncodex.com/skills/live_as_a_stabstance_g1.png',
             id: '6074',
             class: 'Assassin',
             category: 'Normal Stigma',
@@ -1198,7 +1181,7 @@
         },
         'flurry': {
             name: 'Flurry',
-            icon: 'https://myaion.eu/Images/Database/Skills/CBT_AS_QuickMove_G1.png',
+            icon: 'https://aioncodex.com/skills/cbt_as_quickmove_g1.png',
             id: '3355',
             class: 'Assassin',
             category: 'Active',
@@ -1209,7 +1192,7 @@
         },
         'mistButcher': {
             name: 'Mist Butcher',
-            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_AS_Light_DefendRoar_G1.png',
+            icon: 'https://aioncodex.com/skills/live_as_light_defendroar_g1.png',
             id: '4878',
             class: 'Assassin',
             category: 'Active',
@@ -1220,7 +1203,7 @@
         },
         'eyeOfWrath': {
             name: '(Improved) Eye of Wrath',
-            icon: 'https://myaion.eu/Images/Database/Skills/CBT_AS_A_VisiousEye_G1.png',
+            icon: 'https://aioncodex.com/skills/cbt_as_a_visiouseye_g1.png',
             id: '6079',
             class: 'Assassin',
             category: 'Normal Stigma',
@@ -1231,7 +1214,7 @@
         },
         'bowOfBlessing': {
             name: '(Improved) Bow of Blessing',
-            icon: 'https://myaion.eu/Images/Database/Skills/live_ra_a_enchantbow_g1.png',
+            icon: 'https://aioncodex.com/skills/live_ra_a_enchantbow_g1.png',
             id: '6103',
             class: 'Ranger',
             category: 'Normal Stigma',
@@ -1242,7 +1225,7 @@
         },
         'strengtheningEye': {
             name: 'Strengthening Eye',
-            icon: 'https://myaion.eu/Images/Database/Skills/cbt_ra_snakeeye_g1.png',
+            icon: 'https://aioncodex.com/skills/cbt_ra_snakeeye_g1.png',
             id: '796',
             class: 'Ranger',
             category: 'Active',
@@ -1253,7 +1236,7 @@
         },
         'mauGlory': {
             name: '(Improved) Mau\'s Glory',
-            icon: 'https://myaion.eu/Images/Database/Skills/ev_ra_sabageroar_custom_b_up.png',
+            icon: 'https://aioncodex.com/skills/ev_ra_sabageroar_custom_b_up.png',
             id: '5984',
             class: 'Ranger',
             category: 'Active',
@@ -1264,7 +1247,7 @@
         },
         'mauHonour': {
             name: '(Improved) Mau\'s Honour',
-            icon: 'https://myaion.eu/Images/Database/Skills/ev_ra_sabageroar_custom_a_up.png',
+            icon: 'https://aioncodex.com/skills/ev_ra_sabageroar_custom_a_up.png',
             id: '5983',
             class: 'Ranger',
             category: 'Active',
@@ -1275,7 +1258,7 @@
         },
         'sharpenArrows': {
             name: '(Improved) Sharpen Arrows',
-            icon: 'https://myaion.eu/Images/Database/Skills/live_ra_a_trackermind_g1.png',
+            icon: 'https://aioncodex.com/skills/live_ra_a_trackermind_g1.png',
             id: '6093',
             class: 'Ranger',
             category: 'Greater Stigma',
@@ -1286,7 +1269,7 @@
         },
         'focusedShots': {
             name: '(Improved) Focused Shots',
-            icon: 'https://myaion.eu/Images/Database/Skills/CBT_SC_A_TrueShotMind_G1.png',
+            icon: 'https://aioncodex.com/skills/cbt_sc_a_trueshotmind_g1.png',
             id: '6094',
             class: 'Ranger',
             category: 'Normal Stigma',
@@ -1297,7 +1280,7 @@
         },
         'sacrificialPower': {
             name: '(Improved) Sacrificial Power',
-            icon: 'https://myaion.eu/Images/Database/Skills/live_pr_a_offensivemode_g1.png',
+            icon: 'https://aioncodex.com/skills/live_pr_a_offensivemode_g1.png',
             id: '6178',
             class: 'Cleric',
             category: 'Greater Stigma',
@@ -1308,7 +1291,7 @@
         },
         'amplification': {
             name: 'Amplification',
-            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_PR_PrepareHolywar_G1.png',
+            icon: 'https://aioncodex.com/skills/live_pr_prepareholywar_g1.png',
             id: '3895',
             class: 'Cleric',
             category: 'Active',
@@ -1319,7 +1302,7 @@
         },
         'blessingWind': {
             name: '(Improved) Blessing of Wind',
-            icon: 'https://myaion.eu/Images/Database/Skills/LIVE_CH_A_ImbuePower_G1.png',
+            icon: 'https://aioncodex.com/skills/live_ch_a_imbuepower_g1.png',
             id: '6157',
             class: 'Chanter',
             category: 'Greater Stigma',
@@ -1330,7 +1313,7 @@
         },
         'divineProtection': {
             name: 'Divine Protection',
-            icon: 'https://myaion.eu/Images/Database/Skills/CBT_CH_AbyssGloria_G1.png',
+            icon: 'https://aioncodex.com/skills/cbt_ch_abyssgloria_g1.png',
             id: '1638',
             class: 'Chanter',
             category: 'Active',
@@ -1341,7 +1324,7 @@
         },
         'wordInspiration': {
             name: '(Improved) Word of Inspiration',
-            icon: 'https://myaion.eu/Images/Database/Skills/cbt_ch_a_improvedallattack_g1.png',
+            icon: 'https://aioncodex.com/skills/cbt_ch_a_improvedallattack_g1.png',
             id: '6163',
             class: 'Chanter',
             category: 'Normal Stigma',
@@ -1352,7 +1335,7 @@
         },
         'vaizelGift': {
             name: 'Vaizel Gift',
-            icon: 'https://myaion.eu/Images/Database/Skills/CBT_WI_ArcaneBoost_G1.png',
+            icon: 'https://aioncodex.com/skills/cbt_wi_arcaneboost_g1.png',
             id: '5155',
             class: 'Sorcerer',
             category: 'Active',
@@ -1363,7 +1346,7 @@
         },
         'arcaneCombustion': {
             name: '(Improved) Arcane Combustion',
-            icon: 'https://myaion.eu/Images/Database/Skills/WI_ManaBoost_Custom_B_up.png',
+            icon: 'https://aioncodex.com/skills/wi_manaboost_custom_b_up.png',
             id: '5781',
             class: 'Sorcerer',
             category: 'Active',
@@ -1374,7 +1357,7 @@
         },
         'arcaneGrowth': {
             name: '(Improved) Arcane Growth',
-            icon: 'https://myaion.eu/Images/Database/Skills/WI_ManaBoost_Custom_A_up.png',
+            icon: 'https://aioncodex.com/skills/wi_manaboost_custom_a_up.png',
             id: '5780',
             class: 'Sorcerer',
             category: 'Active',
@@ -1385,7 +1368,7 @@
         },
         'boonFlame': {
             name: '(Improved) Boon of Flame',
-            icon: 'https://myaion.eu/Images/Database/Skills/Wi_A_FireShield_G1.png',
+            icon: 'https://aioncodex.com/skills/wi_a_fireshield_g1.png',
             id: '6107',
             class: 'Sorcerer',
             category: 'Vision Stigma',
@@ -1396,7 +1379,7 @@
         },
         'spiritBundle': {
             name: '(Improved) Spirit Bundling',
-            icon: 'https://myaion.eu/Images/Database/Skills/EL_A_SoulKing_G1.png',
+            icon: 'https://aioncodex.com/skills/el_a_soulking_g1.png',
             id: '6129',
             class: 'Spiritmaster',
             category: 'Vision Stigma',
@@ -1407,7 +1390,7 @@
         },
         'limitlessPower': {
             name: '(Improved) Limitless Power',
-            icon: 'https://myaion.eu/Images/Database/Skills/EV_RI_HighEndOverDrive_Custom_B_up.png',
+            icon: 'https://aioncodex.com/skills/ev_ri_highendoverdrive_custom_b_up.png',
             id: '6020',
             class: 'Aethertech',
             category: 'Active',
@@ -1418,7 +1401,7 @@
         },
         'combatPowerMax': {
             name: 'Combat Power Maximisation',
-            icon: 'https://myaion.eu/Images/Database/Skills/RI_PowerOverDrive_G1.png',
+            icon: 'https://aioncodex.com/skills/ri_poweroverdrive_g1.png',
             id: '4794',
             class: 'Aethertech',
             category: 'Active',
@@ -1429,7 +1412,7 @@
         },
         'powerIncrease': {
             name: '(Improved) Power Increase',
-            icon: 'https://myaion.eu/Images/Database/Skills/RI_A_OverCharge_G1.png',
+            icon: 'https://aioncodex.com/skills/ri_a_overcharge_g1.png',
             id: '6258',
             class: 'Aethertech',
             category: 'Greater Stigma',
@@ -1440,7 +1423,7 @@
         },
         'extremeEffort': {
             name: '(Improved) Extreme Effort',
-            icon: 'https://myaion.eu/Images/Database/Skills/EV_RI_HighEndOverDrive_Custom_A_up.png',
+            icon: 'https://aioncodex.com/skills/ev_ri_highendoverdrive_custom_a_up.png',
             id: '6019',
             class: 'Aethertech',
             category: 'Active',
@@ -1449,9 +1432,20 @@
             cooldown: '8s',
             description: 'Increases movement and flight speed by 25%.<br>Increases Attack Speed by 25%.<br>Increases Magic Attack by 900<br>Increases Magical Accuracy by 1200.<br>500 DP are used every 3 seconds.<br>Active Skill.'
         },
+        'alertDialog': {
+            name: 'Alert Dialog',
+            icon: 'https://aioncodex.com/skills/ri_warningalarm_g1.png',
+            id: '2848',
+            class: 'Aethertech',
+            category: 'Active',
+            usageCost: '-',
+            castTime: 'Cast Instantly',
+            cooldown: '10s',
+            description: 'The Enmity caused by your attack is increased..<br>Increases Add. PvE Def. by 2500.<br>Reduces Magic Attack by 200<br>Active Skill.'
+        },
         'focusedMagic': {
             name: '(Improved) Focused Magic',
-            icon: 'https://myaion.eu/Images/Database/Skills/gu_magicalstrength_custom_b_up.png',
+            icon: 'https://aioncodex.com/skills/gu_magicalstrength_custom_b_up.png',
             id: '6016',
             class: 'Gunner',
             category: 'Active',
@@ -1462,7 +1456,7 @@
         },
         'magicsBlessing': {
             name: '(Improved) Magic\'s Blessing',
-            icon: 'https://myaion.eu/Images/Database/Skills/gu_magicalstrength_custom_a_up.png',
+            icon: 'https://aioncodex.com/skills/gu_magicalstrength_custom_a_up.png',
             id: '6015',
             class: 'Gunner',
             category: 'Active',
@@ -1473,7 +1467,7 @@
         },
         'enhanceMagicProjectile': {
             name: '(Improved) Enhance Magic Projectile',
-            icon: 'https://myaion.eu/Images/Database/Skills/Live_GU_A_EmpowerAmmo_G1.png',
+            icon: 'https://aioncodex.com/skills/live_gu_a_empowerammo_g1.png',
             id: '6206',
             class: 'Gunner',
             category: 'Greater Stigma',
@@ -1484,7 +1478,7 @@
         },
         'giftMagic': {
             name: 'Gift of Magic Power',
-            icon: 'https://myaion.eu/Images/Database/Skills/Live_GU_A_EmpowerMagic_G1.png',
+            icon: 'https://aioncodex.com/skills/live_gu_a_empowermagic_g1.png',
             id: '6207',
             class: 'Gunner',
             category: 'Greater Stigma',
@@ -1495,7 +1489,7 @@
         },
         'cheeryMelody': {
             name: 'Cheery Melody',
-            icon: 'https://myaion.eu/Images/Database/Skills/BA_ExcitingMelody_G1.png',
+            icon: 'https://aioncodex.com/skills/ba_excitingmelody_g1.png',
             id: '4793',
             class: 'Bard',
             category: 'Active',
@@ -1506,7 +1500,7 @@
         },
         'magicBoostMode': {
             name: '(Improved) Magic Boost Mode',
-            icon: 'https://myaion.eu/Images/Database/Skills/live_ba_a_playingstyleschangeb_g1.png',
+            icon: 'https://aioncodex.com/skills/live_ba_a_playingstyleschangeb_g1.png',
             id: '6237',
             class: 'Bard',
             category: 'Greater Stigma',
@@ -1517,7 +1511,7 @@
         },
         'precisionColourBoost': {
             name: '(Improved) Precision Colour Boost',
-            icon: 'https://myaion.eu/Images/Database/Skills/PA_PaintShower_Custom_A_up.png',
+            icon: 'https://aioncodex.com/skills/pa_paintshower_custom_a_up.png',
             id: '6007',
             class: 'Painter',
             category: 'Active',
@@ -1528,7 +1522,7 @@
         },
         'attackColourBoost': {
             name: '(Improved) Attack Colour Boost',
-            icon: 'https://myaion.eu/Images/Database/Skills/PA_PaintShower_Custom_B_up.png',
+            icon: 'https://aioncodex.com/skills/pa_paintshower_custom_b_up.png',
             id: '6008',
             class: 'Painter',
             category: 'Active',
@@ -1634,27 +1628,27 @@
 
     // Weapon definitions (shared across classes)
     const WEAPONS = {
-        dagger: { name: 'Dagger', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_dagger_F01.png' },
-        sword: { name: 'Sword', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_sword_F01.png' },
-        mace: { name: 'Mace', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_mace_F01.png' },
-        polearm: { name: 'Polearm', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_polearm_F01.png' },
-        greatsword: { name: 'Greatsword', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_2hsword_F01.png' },
-        bow: { name: 'Bow', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_bow_F01.png' },
-        staff: { name: 'Staff', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_staff_F01.png' },
-        paintRings: { name: 'Paint Rings', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_spray_F01.png' },
-        orb: { name: 'Orb', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_orb_F01.png' },
-        spellbook: { name: 'Spellbook', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_book_F01.png' },
-        aetherKey: { name: 'Aether Key', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_keyblade_F01.png' },
-        cannon: { name: 'Cannon', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_cannon_F01.png' },
-        pistol: { name: 'Pistol', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_gun_F01.png' },
-        harp: { name: 'Harp', icon: 'https://myaion.eu/Images/Database/Items/Icon_Item_Equip_harp_F01.png' }
+        dagger: { name: 'Dagger', icon: 'https://aioncodex.com/items/icon_item_equip_dagger_f01.png' },
+        sword: { name: 'Sword', icon: 'https://aioncodex.com/items/icon_item_equip_sword_f01.png' },
+        mace: { name: 'Mace', icon: 'https://aioncodex.com/items/icon_item_equip_mace_f01.png' },
+        polearm: { name: 'Polearm', icon: 'https://aioncodex.com/items/icon_item_equip_polearm_f01.png' },
+        greatsword: { name: 'Greatsword', icon: 'https://aioncodex.com/items/icon_item_equip_2hsword_f01.png' },
+        bow: { name: 'Bow', icon: 'https://aioncodex.com/items/icon_item_equip_bow_f01.png' },
+        staff: { name: 'Staff', icon: 'https://aioncodex.com/items/icon_item_equip_staff_f01.png' },
+        paintRings: { name: 'Paint Rings', icon: 'https://aioncodex.com/items/icon_item_equip_spray_f01.png' },
+        orb: { name: 'Orb', icon: 'https://aioncodex.com/items/icon_item_equip_orb_f01.png' },
+        spellbook: { name: 'Spellbook', icon: 'https://aioncodex.com/items/icon_item_equip_book_f01.png' },
+        aetherKey: { name: 'Aether Key', icon: 'https://aioncodex.com/items/icon_item_equip_keyblade_f01.png' },
+        cannon: { name: 'Cannon', icon: 'https://aioncodex.com/items/icon_item_equip_cannon_f01.png' },
+        pistol: { name: 'Pistol', icon: 'https://aioncodex.com/items/icon_item_equip_gun_f01.png' },
+        harp: { name: 'Harp', icon: 'https://aioncodex.com/items/icon_item_equip_harp_f01.png' }
     };
 
     const CLASS_DATA = {
         'gladiator': { 
             kp: 115, 
             type: 'physical', 
-            icon: 'https://myaion.eu/images/Classes/Gladiator.png',
+            icon: 'images/Gladiator.png',
             weapons: [
                 { ...WEAPONS.dagger, mult: 2.3 },
                 { ...WEAPONS.sword, mult: 2.2 },
@@ -1665,7 +1659,7 @@
         'templar': { 
             kp: 115, 
             type: 'physical', 
-            icon: 'https://myaion.eu/images/Classes/Templar.png',
+            icon: 'images/Templar.png',
             weapons: [
                 { ...WEAPONS.sword, mult: 2.2 },
                 { ...WEAPONS.greatsword, mult: 1.8 }
@@ -1674,7 +1668,7 @@
         'assassin': { 
             kp: 110, 
             type: 'physical', 
-            icon: 'https://myaion.eu/images/Classes/Assassin.png',
+            icon: 'images/Assassin.png',
             weapons: [
                 { ...WEAPONS.dagger, mult: 2.3 },
                 { ...WEAPONS.sword, mult: 2.2 }
@@ -1683,7 +1677,7 @@
         'ranger': { 
             kp: 100, 
             type: 'physical', 
-            icon: 'https://myaion.eu/images/Classes/Ranger.png',
+            icon: 'images/Ranger.png',
             weapons: [
                 { ...WEAPONS.bow, mult: 1.7 }
             ]
@@ -1691,7 +1685,7 @@
         'chanter': { 
             kp: 110, 
             type: 'physical', 
-            icon: 'https://myaion.eu/images/Classes/Chanter.png',
+            icon: 'images/Chanter.png',
             weapons: [
                 { ...WEAPONS.staff, mult: 1.7 }
             ]
@@ -1699,7 +1693,7 @@
         'painter': { 
             kp: 100, 
             type: 'physical', 
-            icon: 'https://myaion.eu/images/Classes/Painter.png',
+            icon: 'images/Painter.png',
             weapons: [
                 { ...WEAPONS.paintRings, mult: 1.7 }
             ]
@@ -1707,7 +1701,7 @@
         'sorcerer': { 
             kp: 120, 
             type: 'magical', 
-            icon: 'https://myaion.eu/images/Classes/Sorcerer.png',
+            icon: 'images/Sorcerer.png',
             weapons: [
                 { ...WEAPONS.orb, mult: 1.5 },
                 { ...WEAPONS.spellbook, mult: 1.5 }
@@ -1716,7 +1710,7 @@
         'spiritmaster': { 
             kp: 115, 
             type: 'magical', 
-            icon: 'https://myaion.eu/images/Classes/Spiritmaster.png',
+            icon: 'images/Spiritmaster.png',
             weapons: [
                 { ...WEAPONS.orb, mult: 1.5 },
                 { ...WEAPONS.spellbook, mult: 1.5 }
@@ -1725,7 +1719,7 @@
         'cleric': { 
             kp: 105, 
             type: 'magical', 
-            icon: 'https://myaion.eu/images/Classes/Cleric.png',
+            icon: 'images/Cleric.png',
             weapons: [
                 { ...WEAPONS.mace, mult: 1.5 }
             ]
@@ -1733,7 +1727,7 @@
         'aethertech': { 
             kp: 105, 
             type: 'magical', 
-            icon: 'https://myaion.eu/images/Classes/Aethertech.png',
+            icon: 'images/Aethertech.png',
             weapons: [
                 { ...WEAPONS.aetherKey, mult: 1.5 }
             ]
@@ -1741,7 +1735,7 @@
         'gunner': { 
             kp: 100, 
             type: 'magical', 
-            icon: 'https://myaion.eu/images/Classes/Gunner.png',
+            icon: 'images/Gunner.png',
             weapons: [
                 { ...WEAPONS.cannon, mult: 1.5 },
                 { ...WEAPONS.pistol, mult: 1.5 }
@@ -1750,7 +1744,7 @@
         'bard': { 
             kp: 110, 
             type: 'magical', 
-            icon: 'https://myaion.eu/images/Classes/Bard.png',
+            icon: 'images/Bard.png',
             weapons: [
                 { ...WEAPONS.harp, mult: 1.5 }
             ]
@@ -2423,7 +2417,7 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-sacrificialPower">
-                    <img src="${skillDatabase.sacrificialPower?.icon || 'https://myaion.eu/Images/Database/Skills/live_pr_a_offensivemode_g1.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/live_pr_a_offensivemode_g1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Sacrificial Power</div>
                         <div class="buff-value">+1000 Atk / +500 PvE / +1000 Crit</div>
@@ -2458,7 +2452,7 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-blessingWind">
-                    <img src="${skillDatabase.blessingWind?.icon || 'https://myaion.eu/Images/Database/Skills/LIVE_CH_A_ImbuePower_G1.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/live_ch_a_imbuepower_g1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Blessing of Wind</div>
                         <div class="buff-value">+800 Attack</div>
@@ -2467,7 +2461,7 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'blessingWind')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-divineProtection">
-                    <img src="${skillDatabase.divineProtection?.icon || 'https://myaion.eu/Images/Database/Skills/CBT_CH_AbyssGloria_G1.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/cbt_ch_abyssgloria_g1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Divine Protection</div>
                         <div class="buff-value">+2000 Attack</div>
@@ -2476,7 +2470,7 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'divineProtection')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-wordInspiration" onclick="event.stopPropagation(); toggleWordInspiration();">
-                    <img src="${skillDatabase.wordInspiration?.icon || 'https://myaion.eu/Images/Database/Skills/cbt_ch_a_improvedallattack_g1.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/cbt_ch_a_improvedallattack_g1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Word of Inspiration</div>
                         <div class="buff-value">+750 Atk / +600 Crit / +500 PvE</div>
@@ -2491,7 +2485,7 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-vaizelGift">
-                    <img src="${skillDatabase.vaizelGift?.icon || 'https://myaion.eu/Images/Database/Skills/CBT_WI_ArcaneBoost_G1.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/cbt_wi_arcaneboost_g1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Vaizel Gift</div>
                         <div class="buff-value" id="vaizelGiftValue">+500 PvE Atk</div>
@@ -2511,7 +2505,7 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'vaizelGift')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-arcaneCombustion">
-                    <img src="${skillDatabase.arcaneCombustion?.icon || 'https://myaion.eu/Images/Database/Skills/WI_ManaBoost_Custom_B_up.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/wi_manaboost_custom_b_up.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Arcane Combustion</div>
                         <div class="buff-value">+700 Atk</div>
@@ -2520,7 +2514,7 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'arcaneCombustion')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-arcaneGrowth">
-                    <img src="${skillDatabase.arcaneGrowth?.icon || 'https://myaion.eu/Images/Database/Skills/WI_ManaBoost_Custom_A_up.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/wi_manaboost_custom_a_up.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Arcane Growth</div>
                         <div class="buff-value">+1500 Atk / +1500 Crit</div>
@@ -2529,7 +2523,7 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'arcaneGrowth')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-boonFlame">
-                    <img src="${skillDatabase.boonFlame?.icon || 'https://myaion.eu/Images/Database/Skills/Wi_A_FireShield_G1.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/wi_a_fireshield_g1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Boon of Flame</div>
                         <div class="buff-value">+18% / +1000 Crit Spell</div>
@@ -2544,7 +2538,7 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-spiritBundle">
-                    <img src="${skillDatabase.spiritBundle?.icon || 'https://myaion.eu/Images/Database/Skills/EL_A_SoulKing_G1.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/el_a_soulking_g1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Spirit Bundling</div>
                         <div class="buff-value">+12% / +1000 Attack / +500 Crit Spell</div>
@@ -2559,7 +2553,7 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-limitlessPower">
-                    <img src="${skillDatabase.limitlessPower?.icon || 'https://myaion.eu/Images/Database/Skills/EV_RI_HighEndOverDrive_Custom_B_up.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/ev_ri_highendoverdrive_custom_b_up.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Limitless Power</div>
                         <div class="buff-value">+5000 Atk</div>
@@ -2568,7 +2562,7 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'limitlessPower')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-combatPowerMax">
-                    <img src="${skillDatabase.combatPowerMax?.icon || 'https://myaion.eu/Images/Database/Skills/RI_PowerOverDrive_G1.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/ri_poweroverdrive_g1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Combat Power Maximisation</div>
                         <div class="buff-value">+800 Atk / +550 PvP</div>
@@ -2577,7 +2571,7 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'combatPowerMax')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-powerIncrease">
-                    <img src="${skillDatabase.powerIncrease?.icon || 'https://myaion.eu/Images/Database/Skills/RI_A_OverCharge_G1.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/ri_a_overcharge_g1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Power Increase</div>
                         <div class="buff-value">+900 Atk / +300 PvP</div>
@@ -2586,13 +2580,22 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'powerIncrease')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-extremeEffort">
-                    <img src="${skillDatabase.extremeEffort?.icon || 'https://myaion.eu/Images/Database/Skills/EV_RI_HighEndOverDrive_Custom_A_up.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/ev_ri_highendoverdrive_custom_a_up.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Extreme Effort</div>
                         <div class="buff-value">+900 Atk</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-extremeEffort" onclick="event.stopPropagation();" onchange="toggleAethertechBuffs('effort'); calculate()">
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'extremeEffort')" title="Skill Information">i</button>
+                </div>
+                <div class="buff-item" id="buff-alertDialog">
+                    <img src="https://aioncodex.com/skills/ri_warningalarm_g1.png" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">Alert Dialog</div>
+                        <div class="buff-value">-200 Atk</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-alertDialog" onclick="event.stopPropagation();" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'alertDialog')" title="Skill Information">i</button>
                 </div>
             `;
         }
@@ -2601,7 +2604,7 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-focusedMagic">
-                    <img src="${skillDatabase.focusedMagic?.icon || 'https://myaion.eu/Images/Database/Skills/gu_magicalstrength_custom_b_up.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/gu_magicalstrength_custom_b_up.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Focused Magic</div>
                         <div class="buff-value">+1200 Atk</div>
@@ -2610,7 +2613,7 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'focusedMagic')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-magicsBlessing">
-                    <img src="${skillDatabase.magicsBlessing?.icon || 'https://myaion.eu/Images/Database/Skills/gu_magicalstrength_custom_a_up.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/gu_magicalstrength_custom_a_up.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Magic's Blessing</div>
                         <div class="buff-value">+700 Atk</div>
@@ -2619,7 +2622,7 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'magicsBlessing')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-enhanceMagicProjectile">
-                    <img src="${skillDatabase.enhanceMagicProjectile?.icon || 'https://myaion.eu/Images/Database/Skills/Live_GU_A_EmpowerAmmo_G1.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/live_gu_a_empowerammo_g1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Enhance Magic Projectile</div>
                         <div class="buff-value">+500 PvP / +500 PvE</div>
@@ -2628,7 +2631,7 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'enhanceMagicProjectile')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-giftMagic">
-                    <img src="${skillDatabase.giftMagic?.icon || 'https://myaion.eu/Images/Database/Skills/Live_GU_A_EmpowerMagic_G1.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/live_gu_a_empowermagic_g1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Gift of Magic Power</div>
                         <div class="buff-value">+20%</div>
@@ -2723,7 +2726,7 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'sharpenArrows')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-devotion">
-                    <img src="https://myaion.eu/Images/Database/Skills/CBT_SC_InvokePower_G1.png" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/cbt_sc_invokepower_g1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Devotion</div>
                         <div class="buff-value" id="devotionValue">+450 Atk</div>
@@ -2767,7 +2770,7 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'deadlyFocus')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-devotion">
-                    <img src="https://myaion.eu/Images/Database/Skills/CBT_SC_InvokePower_G1.png" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/cbt_sc_invokepower_g1.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">Devotion</div>
                         <div class="buff-value" id="devotionValue">+450 Atk</div>
@@ -2829,7 +2832,7 @@
             hasClassSpecific = true;
             classBuffsGrid.innerHTML += `
                 <div class="buff-item" id="buff-precisionColourBoost">
-                    <img src="${skillDatabase.precisionColourBoost?.icon || 'https://myaion.eu/Images/Database/Skills/PA_PaintShower_Custom_A_up.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/pa_paintshower_custom_a_up.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Precision Colour Boost</div>
                         <div class="buff-value">+700 Atk / +2000 Crit</div>
@@ -2838,7 +2841,7 @@
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'precisionColourBoost')" title="Skill Information">i</button>
                 </div>
                 <div class="buff-item" id="buff-attackColourBoost">
-                    <img src="${skillDatabase.attackColourBoost?.icon || 'https://myaion.eu/Images/Database/Skills/PA_PaintShower_Custom_B_up.png'}" class="buff-icon">
+                    <img src="https://aioncodex.com/skills/pa_paintshower_custom_b_up.png" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Attack Colour Boost</div>
                         <div class="buff-value">+2000 Atk / +2000 Crit</div>
@@ -3247,6 +3250,9 @@
             }
             if (document.getElementById('check-extremeEffort')?.checked) {
                 attackBonus += 900;
+            }
+            if (document.getElementById('check-alertDialog')?.checked) {
+                attackBonus -= 200;
             }
         }
 
@@ -4006,7 +4012,6 @@
         });
     });
 
-    document.getElementById('copyright-year').textContent = new Date().getFullYear();
     loadSession();
     updateCritTooltip();
     initClassGrid();
@@ -4016,5 +4021,6 @@
     calculate();
 </script>
 
+<script src="assets/js/site-common.js"></script>
 </body>
 </html>

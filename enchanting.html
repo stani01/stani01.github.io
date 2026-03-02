@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="assets/css/aion-tools.css">
 </head>
 <body class="page-calculator">
-    <a href="aion.html" class="home-button">🏠 Tools Hub</a>
 
     <div class="container">
         <h1>AION Enchanting Simulator</h1>
@@ -39,7 +38,7 @@
         <!-- EXTREME GEAR TAB -->
         <div id="extreme" class="tab-content active">
             <div class="simulator-panel">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="sim-panel-header">
                     <div class="simulator-info">
                         <strong>Extreme Gear Enchanting</strong><br>
                         Simulate a single enchantment attempt from start to end level. Results show total stones, items used, and items destroyed.
@@ -72,7 +71,7 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="sim-button" onclick="runExtremeSimulation()"><img src="https://aioncodex.com/items/icon_item_enchant_infinite_n_01.png" alt="Ultimate Extreme Enchantment Stone" style="vertical-align: middle; height: 30px; width: 30px;"> Run Simulation</button>
+                    <button class="sim-button" onclick="runExtremeSimulation()"><img src="https://aioncodex.com/items/icon_item_enchant_infinite_n_01.png" alt="Ultimate Extreme Enchantment Stone" class="sim-btn-icon"> Run Simulation</button>
                     <button class="clear-button" onclick="clearExtremeOutput()">Clear Output</button>
                     <button class="info-button" onclick="toggleRates('extreme')" title="Show success and destruction rates">ℹ️ Rates</button>
                 </div>
@@ -88,7 +87,7 @@
         <!-- RUNE/ODIAN TAB -->
         <div id="rune" class="tab-content">
             <div class="simulator-panel">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="sim-panel-header">
                     <div class="simulator-info">
                         <strong>Rune/Odian Enchanting</strong><br>
                         Enchanting with risk of contamination requiring purifiers. After reaching the maximum number of contaminations, the item is wasted and resets to level 0.
@@ -138,7 +137,7 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="sim-button" onclick="runRuneSimulation()"><img src="https://aioncodex.com/items/icon_item_enchant_grind_item_01.png" alt="Ancient Polishing Stone" style="vertical-align: middle; height: 30px; width: 30px;"> Run Simulation</button>
+                    <button class="sim-button" onclick="runRuneSimulation()"><img src="https://aioncodex.com/items/icon_item_enchant_grind_item_01.png" alt="Ancient Polishing Stone" class="sim-btn-icon"> Run Simulation</button>
                     <button class="clear-button" onclick="clearRuneOutput()">Clear Output</button>
                     <button class="info-button" onclick="toggleRates('rune')" title="Show contamination and failure rates">ℹ️ Rates</button>
                 </div>
@@ -154,7 +153,7 @@
         <!-- ULTIMATE GEAR TAB -->
         <div id="ultimate" class="tab-content">
             <div class="simulator-panel">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="sim-panel-header">
                     <div class="simulator-info">
                         <strong>Ultimate Gear Enchanting</strong><br>
                         Interactive single-attempt enchanting. Select a stone and click Enchant for each attempt. Success rates and critical chance displayed above.
@@ -185,19 +184,19 @@
                 <div class="enchant-loading-bar" id="enchant-loading"></div>
 
                 <div class="ultimate-gear-attempts">
-                    <div style="display: flex; gap: 20px; align-items: center; margin-top: 10px; font-size: 20px;">Stones Used:
-                        <div class="item-card stone-button" id="stone-ancient" style="display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="selectUltimateStone('ancient')">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" alt="Ancient" style="width: 30px; height: 30px;">
+                    <div class="stone-usage-bar">Stones Used:
+                        <div class="item-card stone-button" id="stone-ancient" onclick="selectUltimateStone('ancient')">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" alt="Ancient" class="sim-btn-icon">
                         </div>
-                        <span id="ancient-counter" style="font-size: 20px;">0</span>
-                        <div class="item-card stone-button" id="stone-legendary" style="display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="selectUltimateStone('legendary')">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" alt="Legendary" style="width: 30px; height: 30px;">
+                        <span id="ancient-counter" class="stone-counter">0</span>
+                        <div class="item-card stone-button" id="stone-legendary" onclick="selectUltimateStone('legendary')">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" alt="Legendary" class="sim-btn-icon">
                         </div>
-                        <span id="legendary-counter" style="font-size: 20px;">0</span>
-                        <div class="item-card stone-button" id="stone-ultimate" style="display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="selectUltimateStone('ultimate')">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" alt="Ultimate" style="width: 30px; height: 30px;">
+                        <span id="legendary-counter" class="stone-counter">0</span>
+                        <div class="item-card stone-button" id="stone-ultimate" onclick="selectUltimateStone('ultimate')">
+                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" alt="Ultimate" class="sim-btn-icon">
                         </div>
-                        <span id="ultimate-counter" style="font-size: 20px;">0</span>
+                        <span id="ultimate-counter" class="stone-counter">0</span>
                     </div>
                 </div>
 
@@ -210,7 +209,7 @@
         <!-- ULTIMATE OATH TAB -->
         <div id="oath" class="tab-content">
             <div class="simulator-panel">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="sim-panel-header">
                     <div class="simulator-info">
                         <strong>Ultimate Oath Simulator</strong><br>
                         Simulate administration for Oath skills on armor or weapons. Select the item type and desired oath, then run the simulation to see expected results.
@@ -221,49 +220,49 @@
                     <div class="setting-group">
                         <label>🛡️ Item Type</label>
                         <input type="hidden" id="oath-item-type" value="">
-                        <div id="oath-itemtype-container" style="position: relative;">
-                            <button id="oath-itemtype-btn" type="button" onclick="toggleOathItemTypeDropdown()" style="width: 100%; padding: 8px; border: 1px solid #555; border-radius: 4px; background: #1a1a24; color: #aaa; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <div id="oath-itemtype-container" class="oath-dropdown-container">
+                            <button id="oath-itemtype-btn" type="button" onclick="toggleOathItemTypeDropdown()" class="oath-dropdown-btn">
                                 <span id="oath-itemtype-btn-text">-- Select --</span>
                             </button>
-                            <div id="oath-itemtype-dropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: #1a1a24; border: 1px solid #555; border-radius: 4px; margin-top: 4px; z-index: 1000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                            <div id="oath-itemtype-dropdown" class="oath-dropdown-list" style="display: none;">
                             </div>
                         </div>
                     </div>
 
                     <div class="setting-group">
                         <label for="oath-option">📍 Target Result</label>
-                        <div id="oath-option-container" style="position: relative;">
-                            <button id="oath-option-btn" type="button" onclick="toggleOathDropdown()" style="width: 100%; padding: 8px; border: 1px solid #555; border-radius: 4px; background: #1a1a24; color: #aaa; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                                <img id="oath-option-btn-icon" src="" alt="" style="width: 24px; height: 24px; display: none;">
+                        <div id="oath-option-container" class="oath-dropdown-container">
+                            <button id="oath-option-btn" type="button" onclick="toggleOathDropdown()" class="oath-dropdown-btn">
+                                <img id="oath-option-btn-icon" src="" alt="" class="oath-btn-icon">
                                 <span id="oath-option-btn-text">-- Choose item type first --</span>
                             </button>
-                            <div id="oath-option-dropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: #1a1a24; border: 1px solid #555; border-radius: 4px; margin-top: 4px; z-index: 1000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                            <div id="oath-option-dropdown" class="oath-dropdown-list" style="display: none;">
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 15px; min-height: 80px;">
-                    <div id="oath-icon-display" style="width: 64px; height: 64px; background: rgba(255,255,255,0.05); border: 2px solid #555; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                        <img id="oath-icon-img" src="" alt="Item Icon" style="width: 60px; height: 60px; display: none;">
-                        <div id="oath-icon-placeholder" style="color: #666; font-size: 0.85em; text-align: center;">Icon</div>
+                <div class="oath-preview">
+                    <div id="oath-icon-display" class="oath-icon-box">
+                        <img id="oath-icon-img" src="" alt="Item Icon">
+                        <div id="oath-icon-placeholder" class="oath-placeholder">Icon</div>
                     </div>
-                    <div style="flex: 1;">
-                        <div id="oath-selected-label" style="color: #aaa; font-size: 0.9em; margin-bottom: 5px;">Selected Item</div>
-                        <div id="oath-selected-name" style="color: #fff; font-size: 1.1em; font-weight: bold;">None</div>
-                        <div id="oath-selected-rate" style="color: #ffd700; margin-top: 5px; font-size: 0.9em;"></div>
+                    <div class="oath-detail">
+                        <div id="oath-selected-label" class="oath-label">Selected Item</div>
+                        <div id="oath-selected-name" class="oath-name">None</div>
+                        <div id="oath-selected-rate" class="oath-rate"></div>
                     </div>
                 </div>
 
                 <div class="button-group">
-                    <button class="sim-button" onclick="runOathSimulation()"><img src="https://aioncodex.com/items/icon_item_equipment_skill_stone.png" alt="Pledge" style="vertical-align: middle; height: 30px; width: 30px;"> Run Simulation</button>
+                    <button class="sim-button" onclick="runOathSimulation()"><img src="https://aioncodex.com/items/icon_item_equipment_skill_stone.png" alt="Pledge" class="sim-btn-icon"> Run Simulation</button>
                     <button class="clear-button" onclick="clearOathOutput()">Clear Output</button>
                     <button class="info-button" onclick="toggleRates('oath')" title="Show enchantment rates">ℹ️ Rates</button>
                 </div>
 
                 <div class="enchant-loading-bar" id="oath-loading"></div>
 
-                <div class="output-container" id="oath-output" style="max-height: none; overflow-y: visible;">
+                <div class="output-container output-container-full" id="oath-output">
                     <div class="output-line header">Select an item type and skill to begin...</div>
                 </div>
             </div>
@@ -271,128 +270,128 @@
 
         <!-- Rate Modals -->
         <div id="extreme-rates-modal" class="rates-modal" onclick="if(event.target === this) this.style.display='none'">
-            <div class="rates-modal-content" style="max-width: 600px; border: 1px solid #444; background: #1a1a24;">
+            <div class="rates-modal-content rates-modal-content-sm">
                 <span class="close" onclick="toggleRates('extreme')">&times;</span><br>
                 
-                <h3 style="color: #ff4d4d; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                <h3 class="rates-heading-extreme">
                     Extreme Gear Enchantment Rates
                 </h3>
 
-                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.95em;">
+                <table class="rates-table">
                     <thead>
-                        <tr style="border-bottom: 2px solid #333; color: #aaa;">
-                            <th style="padding: 10px;">Level</th>
-                            <th style="padding: 10px; color: #4dfb4d;">Success</th>
-                            <th style="padding: 10px; color: #ff3333;">Destroy</th>
-                            <th style="padding: 10px;">Fail (Safe)</th>
+                        <tr>
+                            <th>Level</th>
+                            <th class="cell-success">Success</th>
+                            <th class="cell-danger">Destroy</th>
+                            <th>Fail (Safe)</th>
                         </tr>
                     </thead>
-                    <tbody style="font-weight: bold;">
-                        <tr style="border-bottom: 1px solid #2a2a35;"><td>1</td><td>45%</td><td style="color: #ff3333;">9,1%</td><td style="color: #888;">55%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);"><td>2</td><td>42%</td><td style="color: #ff3333;">13,8%</td><td style="color: #888;">58%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35;"><td>3</td><td>19,5%</td><td style="color: #ff3333;">6,8%</td><td style="color: #888;">80,5%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);"><td>4</td><td>17,5%</td><td style="color: #ff3333;">9,1%</td><td style="color: #888;">82,5%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35;"><td>5</td><td>10,7%</td><td style="color: #ff3333;">7,1%</td><td style="color: #888;">89,3%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);"><td>6</td><td>9,3%</td><td style="color: #ff3333;">8,5%</td><td style="color: #888;">90,7%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35;"><td>7</td><td>5,6%</td><td style="color: #ff3333;">6,8%</td><td style="color: #888;">94,4%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);"><td>8</td><td>4,3%</td><td style="color: #ff3333;">8,0%</td><td style="color: #888;">95,7%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35;"><td>9</td><td>2,6%</td><td style="color: #ff3333;">7,6%</td><td style="color: #888;">97,4%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);"><td>10</td><td>1,5%</td><td style="color: #ff3333;">8,6%</td><td style="color: #888;">98,5%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,77,77,0.05);"><td>11-15</td><td>0,4%</td><td style="color: #ff3333;">9,6%</td><td style="color: #888;">99,6%</td></tr>
+                    <tbody>
+                        <tr><td>1</td><td>45%</td><td class="cell-danger">9,1%</td><td class="cell-muted">55%</td></tr>
+                        <tr><td>2</td><td>42%</td><td class="cell-danger">13,8%</td><td class="cell-muted">58%</td></tr>
+                        <tr><td>3</td><td>19,5%</td><td class="cell-danger">6,8%</td><td class="cell-muted">80,5%</td></tr>
+                        <tr><td>4</td><td>17,5%</td><td class="cell-danger">9,1%</td><td class="cell-muted">82,5%</td></tr>
+                        <tr><td>5</td><td>10,7%</td><td class="cell-danger">7,1%</td><td class="cell-muted">89,3%</td></tr>
+                        <tr><td>6</td><td>9,3%</td><td class="cell-danger">8,5%</td><td class="cell-muted">90,7%</td></tr>
+                        <tr><td>7</td><td>5,6%</td><td class="cell-danger">6,8%</td><td class="cell-muted">94,4%</td></tr>
+                        <tr><td>8</td><td>4,3%</td><td class="cell-danger">8,0%</td><td class="cell-muted">95,7%</td></tr>
+                        <tr><td>9</td><td>2,6%</td><td class="cell-danger">7,6%</td><td class="cell-muted">97,4%</td></tr>
+                        <tr><td>10</td><td>1,5%</td><td class="cell-danger">8,6%</td><td class="cell-muted">98,5%</td></tr>
+                        <tr><td>11-15</td><td>0,4%</td><td class="cell-danger">9,6%</td><td class="cell-muted">99,6%</td></tr>
                     </tbody>
                 </table>
-                <div style="margin-top: 15px; font-size: 0.85em; color: #888; text-align: left; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 5px;">
+                <div class="rates-info">
                     <strong>Note:</strong> Failure to reach success or destroy threshold results in a simple <strong>Fail</strong> (item is kept, stone is lost).
                 </div>
             </div>
         </div>
 
         <div id="rune-rates-modal" class="rates-modal" onclick="if(event.target === this) this.style.display='none'">
-            <div class="rates-modal-content" style="max-width: 600px; border: 1px solid #444; background: #1a1a24;">
+            <div class="rates-modal-content rates-modal-content-sm">
                 <span class="close" onclick="toggleRates('rune')">&times;</span><br>
                 
-                <h3 style="color: #b565f5; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                <h3 class="rates-heading-rune">
                     Rune & Odian Enchantment Rates
                 </h3>
 
-                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.95em;">
+                <table class="rates-table">
                     <thead>
-                        <tr style="border-bottom: 2px solid #333; color: #aaa;">
-                            <th style="padding: 10px;">Level</th>
-                            <th style="padding: 10px; color: #ffa500;">Contamination</th>
-                            <th style="padding: 10px; color: #ff4d4d;">Fail</th>
-                            <th style="padding: 10px; color: #4dfb4d;">Success</th>
+                        <tr>
+                            <th>Level</th>
+                            <th class="cell-warning">Contamination</th>
+                            <th class="cell-danger-alt">Fail</th>
+                            <th class="cell-success">Success</th>
                         </tr>
                     </thead>
-                    <tbody style="font-weight: bold;">
-                        <tr style="border-bottom: 1px solid #2a2a35;"><td>0</td><td>0%</td><td>0%</td><td style="color: #4dfb4d;">100%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35;"><td>1</td><td>0%</td><td style="color: #888;">20%</td><td style="color: #4dfb4d;">80%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35;"><td>2</td><td>0%</td><td style="color: #888;">20%</td><td style="color: #4dfb4d;">80%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35;"><td>3</td><td>0%</td><td style="color: #888;">20%</td><td style="color: #4dfb4d;">80%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35;"><td>4</td><td style="color: #ffa500;">10%</td><td style="color: #ff4d4d;">50%</td><td>40%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35;"><td>5-9</td><td style="color: #ffa500;">10%</td><td style="color: #ff4d4d;">57%</td><td>33%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35;"><td>10</td><td style="color: #ffa500;">10%</td><td style="color: #ff4d4d;">90%</td><td>10%</td></tr>
-                        <tr style="border-bottom: 1px solid #2a2a35;"><td>11+</td><td style="color: #ffa500;">10%</td><td style="color: #ff4d4d;">99%</td><td>1%</td></tr>
+                    <tbody>
+                        <tr><td>0</td><td>0%</td><td>0%</td><td class="cell-success">100%</td></tr>
+                        <tr><td>1</td><td>0%</td><td class="cell-muted">20%</td><td class="cell-success">80%</td></tr>
+                        <tr><td>2</td><td>0%</td><td class="cell-muted">20%</td><td class="cell-success">80%</td></tr>
+                        <tr><td>3</td><td>0%</td><td class="cell-muted">20%</td><td class="cell-success">80%</td></tr>
+                        <tr><td>4</td><td class="cell-warning">10%</td><td class="cell-danger-alt">50%</td><td>40%</td></tr>
+                        <tr><td>5-9</td><td class="cell-warning">10%</td><td class="cell-danger-alt">57%</td><td>33%</td></tr>
+                        <tr><td>10</td><td class="cell-warning">10%</td><td class="cell-danger-alt">90%</td><td>10%</td></tr>
+                        <tr><td>11+</td><td class="cell-warning">10%</td><td class="cell-danger-alt">99%</td><td>1%</td></tr>
                     </tbody>
                 </table>
-                <div style="margin-top: 15px; font-size: 0.85em; color: #888; text-align: left; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 5px;">
-                    <p style="margin: 0;"><strong>☣️ Contamination:</strong> Item breaks and resets to 0 if "Cleans" are exhausted.</p>
+                <div class="rates-info">
+                    <p><strong>☣️ Contamination:</strong> Item breaks and resets to 0 if "Cleans" are exhausted.</p>
                 </div>
             </div>
         </div>
 
         <div id="ultimate-rates-modal" class="rates-modal" onclick="if(event.target === this) this.style.display='none'">
-            <div class="rates-modal-content" style="max-width: 90%; border: 1px solid #444; background: #1a1a24;">
+            <div class="rates-modal-content rates-modal-content-lg">
                 <span class="close" onclick="toggleRates('ultimate')">&times;</span><br>
                 
-                <h3 style="color: #4da3ff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                <h3 class="rates-heading-ultimate">
                     Ultimate Gear Enchantment Rates
                 </h3>
 
-                <table class="rates-table" style="width: 100%; border-collapse: collapse; text-align: center;">
+                <table class="rates-table">
                     <thead>
-                        <tr style="border-bottom: 2px solid #333;">
-                            <th style="padding: 10px; color: #aaa;">Level</th>
-                            <th style="padding: 10px;"><img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" width="24"><br><small style="color: #cd7f32;">Ancient</small></th>
-                            <th style="padding: 10px;"><img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" width="24"><br><small style="color: #a335ee;">Legendary</small></th>
-                            <th style="padding: 10px;"><img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" width="24"><br><small style="color: #ff4d4d;">Ultimate</small></th>
+                        <tr>
+                            <th>Level</th>
+                            <th><img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" width="24"><br><small style="color: #cd7f32;">Ancient</small></th>
+                            <th><img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" width="24"><br><small style="color: #a335ee;">Legendary</small></th>
+                            <th><img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" width="24"><br><small style="color: #ff4d4d;">Ultimate</small></th>
                         </tr>
                     </thead>
-                    <tbody style="font-weight: bold;">
-                        <tr style="border-bottom: 1px solid #2a2a35;">
-                            <td style="padding: 12px; color: #888;">1 - 3</td>
-                            <td style="color: #fff;">52%</td>
-                            <td style="color: #4dfb4d;">100%</td>
-                            <td style="color: #4dfb4d;">100%</td>
+                    <tbody>
+                        <tr>
+                            <td class="cell-muted">1 - 3</td>
+                            <td class="cell-white">52%</td>
+                            <td class="cell-success">100%</td>
+                            <td class="cell-success">100%</td>
                         </tr>
-                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);">
-                            <td style="padding: 12px; color: #888;">4 - 6</td>
-                            <td style="color: #fff;">32%</td>
-                            <td style="color: #fff;">82%</td>
-                            <td style="color: #fff;">92%</td>
+                        <tr>
+                            <td class="cell-muted">4 - 6</td>
+                            <td class="cell-white">32%</td>
+                            <td class="cell-white">82%</td>
+                            <td class="cell-white">92%</td>
                         </tr>
-                        <tr style="border-bottom: 1px solid #2a2a35;">
-                            <td style="padding: 12px; color: #888;">7 - 9</td>
-                            <td style="color: #fff;">12%</td>
-                            <td style="color: #fff;">62%</td>
-                            <td style="color: #fff;">72%</td>
+                        <tr>
+                            <td class="cell-muted">7 - 9</td>
+                            <td class="cell-white">12%</td>
+                            <td class="cell-white">62%</td>
+                            <td class="cell-white">72%</td>
                         </tr>
-                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(255,255,255,0.02);">
-                            <td style="padding: 12px; color: #888;">10 - 15</td>
-                            <td style="color: #fff;">5%</td>
-                            <td style="color: #fff;">42%</td>
-                            <td style="color: #fff;">52%</td>
+                        <tr>
+                            <td class="cell-muted">10 - 15</td>
+                            <td class="cell-white">5%</td>
+                            <td class="cell-white">42%</td>
+                            <td class="cell-white">52%</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.85em; text-align: left;">
-                    <p style="margin: 0 0 8px 0;"><strong style="color: #ffd700;">✨ Critical:</strong> 10% chance for +2 on success</p>
-                    <p style="margin: 0; line-height: 1.4;">
+                <div class="rates-info-lg">
+                    <p><strong style="color: #ffd700;">✨ Critical:</strong> 10% chance for +2 on success</p>
+                    <p>
                         <strong style="color: #ff4d4d;">⚠️ Penalty:</strong> 
                         <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" width="14"> / 
                         <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" width="14"> : -1 or reset to +10. <br>
-                        <span style="margin-left: 65px;"><img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" width="14"> : No penalty.</span>
+                        <span class="rates-penalty-indent"><img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" width="14"> : No penalty.</span>
                     </p>
                 </div>
             </div>
@@ -400,261 +399,234 @@
 
         <!-- OATH RATES MODAL -->
         <div id="oath-rates-modal" class="rates-modal" onclick="if(event.target === this) this.style.display='none'">
-            <div class="rates-modal-content" style="max-width: 90%; border: 1px solid #444; background: #1a1a24;">
+            <div class="rates-modal-content rates-modal-content-lg">
                 <span class="close" onclick="toggleRates('oath')">&times;</span><br>
                 
-                <h3 style="color: #d4af37; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                <h3 class="rates-heading-oath">
                     Oath Enchantment Rates
                 </h3>
 
-                <h4 style="color: #ffd700; margin-top: 20px; margin-bottom: 10px;">🛡️ Armor Rates (All Levels)</h4>
-                <table class="rates-table" style="width: 100%; border-collapse: collapse; text-align: center; margin-bottom: 20px;">
+                <h4 class="rates-subheading">🛡️ Armor Rates (All Levels)</h4>
+                <table class="rates-table" style="margin-bottom: 20px;">
                     <thead>
-                        <tr style="border-bottom: 2px solid #d4af37;">
-                            <th style="padding: 10px; color: #ffd700; text-align: center; width: 80px;">Icon</th>
-                            <th style="padding: 10px; color: #ffd700; text-align: center;">Rarity</th>
-                            <th style="padding: 10px; color: #ffd700;">Level 1</th>
-                            <th style="padding: 10px; color: #ffd700;">Level 2</th>
-                            <th style="padding: 10px; color: #ffd700;">Level 3</th>
+                        <tr>
+                            <th class="cell-gold rates-icon-cell">Icon</th>
+                            <th class="cell-gold">Rarity</th>
+                            <th class="cell-gold">Level 1</th>
+                            <th class="cell-gold">Level 2</th>
+                            <th class="cell-gold">Level 3</th>
                         </tr>
                     </thead>
-                    <tbody style="font-weight: bold;">
-                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(0,0,0,0.3);">
-                            <td style="padding: 10px;"><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g1.png" alt="Legendary" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                            <td style="padding: 10px; color: #a335ee; text-align: center;">Legendary</td>
-                            <td style="color: #a335ee;">40%</td>
-                            <td style="color: #a335ee;">30%</td>
-                            <td style="color: #a335ee;">25%</td>
+                    <tbody>
+                        <tr>
+                            <td><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g1.png" alt="Legendary" class="rates-icon"></td>
+                            <td class="cell-legendary">Legendary</td>
+                            <td class="cell-legendary">40%</td>
+                            <td class="cell-legendary">30%</td>
+                            <td class="cell-legendary">25%</td>
                         </tr>
-                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(0,0,0,0.5);">
-                            <td style="padding: 10px;"><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g6.png" alt="Ultimate" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                            <td style="padding: 10px; color: #ff4d4d; text-align: center;">Ultimate</td>
-                            <td style="color: #ff4d4d;">2.5%</td>
-                            <td style="color: #ff4d4d;">1.5%</td>
-                            <td style="color: #ff4d4d;">1%</td>
+                        <tr>
+                            <td><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g6.png" alt="Ultimate" class="rates-icon"></td>
+                            <td class="cell-danger-alt">Ultimate</td>
+                            <td class="cell-danger-alt">2.5%</td>
+                            <td class="cell-danger-alt">1.5%</td>
+                            <td class="cell-danger-alt">1%</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <h4 style="color: #ffd700; margin-top: 20px; margin-bottom: 10px;">⚔️ Weapon Rates (All Levels)</h4>
+                <h4 class="rates-subheading">⚔️ Weapon Rates (All Levels)</h4>
                 <div style="overflow-x: auto; margin-bottom: 20px;">
-                    <table class="rates-table" style="width: 100%; border-collapse: collapse; text-align: center;">
+                    <table class="rates-table rates-table-bordered">
                         <thead>
-                            <tr style="background: #0f0f12; border-bottom: 2px solid #ffd700;">
-                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333; text-align: center; width: 80px;">Skill Icon</th>
-                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333; text-align: left;">Skill Name</th>
-                                <th colspan="3" style="padding: 10px; color: #a335ee; border: 1px solid #333;">Legendary</th>
-                                <th colspan="3" style="padding: 10px; color: #ff4d4d; border: 1px solid #333;">Ultimate</th>
+                            <tr>
+                                <th class="cell-gold rates-icon-cell">Skill Icon</th>
+                                <th class="cell-gold rates-name-cell">Skill Name</th>
+                                <th colspan="3" class="cell-legendary">Legendary</th>
+                                <th colspan="3" class="cell-danger-alt">Ultimate</th>
                             </tr>
-                            <tr style="background: #0f0f12; border-bottom: 2px solid #ffd700;">
-                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333;"></th>
-                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333;"></th>
-                                <th style="padding: 8px; color: #a335ee; border: 1px solid #333; font-size: 0.9em;">L1</th>
-                                <th style="padding: 8px; color: #a335ee; border: 1px solid #333; font-size: 0.9em;">L2</th>
-                                <th style="padding: 8px; color: #a335ee; border: 1px solid #333; font-size: 0.9em;">L3</th>
-                                <th style="padding: 8px; color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">L1</th>
-                                <th style="padding: 8px; color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">L2</th>
-                                <th style="padding: 8px; color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">L3</th>
+                            <tr>
+                                <th class="cell-gold"></th>
+                                <th class="cell-gold"></th>
+                                <th class="cell-legendary rates-level-col">L1</th>
+                                <th class="cell-legendary rates-level-col">L2</th>
+                                <th class="cell-legendary rates-level-col">L3</th>
+                                <th class="cell-danger-alt rates-level-col">L1</th>
+                                <th class="cell-danger-alt rates-level-col">L2</th>
+                                <th class="cell-danger-alt rates-level-col">L3</th>
                             </tr>
                         </thead>
-                        <tbody style="font-weight: bold;">
-                            <tr style="background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;">
-                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_a_g6.png" alt="Expose" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Expose Vulnerability</td>
-                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">6.6%</td>
-                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">5%</td>
-                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.5%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.3%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                        <tbody>
+                            <tr>
+                                <td><img src="https://aioncodex.com/skills/vs_weapon_a_g6.png" alt="Expose" class="rates-icon"></td>
+                                <td class="cell-white rates-name-cell">Expose Vulnerability</td>
+                                <td class="cell-legendary rates-level-col">6.6%</td>
+                                <td class="cell-legendary rates-level-col">5%</td>
+                                <td class="cell-legendary">4%</td>
+                                <td class="cell-danger-alt rates-level-col">0.5%</td>
+                                <td class="cell-danger-alt rates-level-col">0.3%</td>
+                                <td class="cell-danger-alt">0.2%</td>
                             </tr>
-                            <tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid #333;">
-                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_b_g6.png" alt="Corrosion" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Corrosion</td>
-                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">6.6%</td>
-                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">5%</td>
-                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.5%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.3%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            <tr>
+                                <td><img src="https://aioncodex.com/skills/vs_weapon_b_g6.png" alt="Corrosion" class="rates-icon"></td>
+                                <td class="cell-white rates-name-cell">Corrosion</td>
+                                <td class="cell-legendary rates-level-col">6.6%</td>
+                                <td class="cell-legendary rates-level-col">5%</td>
+                                <td class="cell-legendary">4%</td>
+                                <td class="cell-danger-alt rates-level-col">0.5%</td>
+                                <td class="cell-danger-alt rates-level-col">0.3%</td>
+                                <td class="cell-danger-alt">0.2%</td>
                             </tr>
-                            <tr style="background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;">
-                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_c_g6.png" alt="Harden" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Harden</td>
-                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">6.6%</td>
-                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">5%</td>
-                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.5%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.3%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            <tr>
+                                <td><img src="https://aioncodex.com/skills/vs_weapon_c_g6.png" alt="Harden" class="rates-icon"></td>
+                                <td class="cell-white rates-name-cell">Harden</td>
+                                <td class="cell-legendary rates-level-col">6.6%</td>
+                                <td class="cell-legendary rates-level-col">5%</td>
+                                <td class="cell-legendary">4%</td>
+                                <td class="cell-danger-alt rates-level-col">0.5%</td>
+                                <td class="cell-danger-alt rates-level-col">0.3%</td>
+                                <td class="cell-danger-alt">0.2%</td>
                             </tr>
-                            <tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid #333;">
-                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_d_g6.png" alt="Wound Care" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Wound Care</td>
-                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">6.8%</td>
-                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">5%</td>
-                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.5%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.3%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            <tr>
+                                <td><img src="https://aioncodex.com/skills/vs_weapon_d_g6.png" alt="Wound Care" class="rates-icon"></td>
+                                <td class="cell-white rates-name-cell">Wound Care</td>
+                                <td class="cell-legendary rates-level-col">6.8%</td>
+                                <td class="cell-legendary rates-level-col">5%</td>
+                                <td class="cell-legendary">4%</td>
+                                <td class="cell-danger-alt rates-level-col">0.5%</td>
+                                <td class="cell-danger-alt rates-level-col">0.3%</td>
+                                <td class="cell-danger-alt">0.2%</td>
                             </tr>
-                            <tr style="background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;">
-                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_e_g6.png" alt="Ignite" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Ignite</td>
-                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">6.8%</td>
-                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">5%</td>
-                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.5%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.3%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            <tr>
+                                <td><img src="https://aioncodex.com/skills/vs_weapon_e_g6.png" alt="Ignite" class="rates-icon"></td>
+                                <td class="cell-white rates-name-cell">Ignite</td>
+                                <td class="cell-legendary rates-level-col">6.8%</td>
+                                <td class="cell-legendary rates-level-col">5%</td>
+                                <td class="cell-legendary">4%</td>
+                                <td class="cell-danger-alt rates-level-col">0.5%</td>
+                                <td class="cell-danger-alt rates-level-col">0.3%</td>
+                                <td class="cell-danger-alt">0.2%</td>
                             </tr>
-                            <tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid #333;">
-                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_f_g6.png" alt="Disease" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Disease</td>
-                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">6.6%</td>
-                                <td style="color: #a335ee; border: 1px solid #333; font-size: 0.9em;">5%</td>
-                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.5%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333; font-size: 0.9em;">0.3%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            <tr>
+                                <td><img src="https://aioncodex.com/skills/vs_weapon_f_g6.png" alt="Disease" class="rates-icon"></td>
+                                <td class="cell-white rates-name-cell">Disease</td>
+                                <td class="cell-legendary rates-level-col">6.6%</td>
+                                <td class="cell-legendary rates-level-col">5%</td>
+                                <td class="cell-legendary">4%</td>
+                                <td class="cell-danger-alt rates-level-col">0.5%</td>
+                                <td class="cell-danger-alt rates-level-col">0.3%</td>
+                                <td class="cell-danger-alt">0.2%</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.85em; text-align: left;">
-                    <p style="margin: 0 0 8px 0;"><strong style="color: #ffd700;">📌</strong> After the oath is administered, the previously active oath or any appearance skills is removed.</p>
+                <div class="rates-info-lg">
+                    <p><strong style="color: #ffd700;">📌</strong> After the oath is administered, the previously active oath or any appearance skills is removed.</p>
                 </div>
             </div>
         </div>
 
         <!-- OATH RATES MODAL -->
         <div id="oath-rates-modal" class="rates-modal" onclick="if(event.target === this) this.style.display='none'">
-            <div class="rates-modal-content" style="max-width: 90%; border: 1px solid #444; background: #1a1a24;">
+            <div class="rates-modal-content rates-modal-content-lg">
                 <span class="close" onclick="toggleRates('oath')">&times;</span><br>
                 
-                <h3 style="color: #d4af37; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                <h3 class="rates-heading-oath">
                     Ultimate Oath Enchantment Rates
                 </h3>
 
-                <h4 style="color: #ffd700; margin-top: 20px; margin-bottom: 10px;">🛡️ Armor Enhancement Rates</h4>
-                <table class="rates-table" style="width: 100%; border-collapse: collapse; text-align: center; margin-bottom: 20px;">
+                <h4 class="rates-subheading">🛡️ Armor Enhancement Rates</h4>
+                <table class="rates-table" style="margin-bottom: 20px;">
                     <thead>
-                        <tr style="border-bottom: 2px solid #d4af37;">
-                            <th style="padding: 10px; color: #ffd700; text-align: center; width: 80px;">Icon</th>
-                            <th style="padding: 10px; color: #ffd700; text-align: left;">Enhancement</th>
-                            <th style="padding: 10px; color: #ffd700;">Level 1</th>
-                            <th style="padding: 10px; color: #ffd700;">Level 2</th>
-                            <th style="padding: 10px; color: #ffd700;">Level 3</th>
+                        <tr>
+                            <th class="cell-gold rates-icon-cell">Icon</th>
+                            <th class="cell-gold rates-name-cell">Enhancement</th>
+                            <th class="cell-gold">Level 1</th>
+                            <th class="cell-gold">Level 2</th>
+                            <th class="cell-gold">Level 3</th>
                         </tr>
                     </thead>
-                    <tbody style="font-weight: bold;">
-                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(0,0,0,0.3);">
-                            <td style="padding: 10px;"><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g1.png" alt="Legendary" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                            <td style="padding: 10px; color: #a335ee; text-align: left;">Legendary</td>
-                            <td style="color: #4dfb4d;">40%</td>
-                            <td style="color: #4dfb4d;">30%</td>
-                            <td style="color: #4dfb4d;">25%</td>
+                    <tbody>
+                        <tr>
+                            <td><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g1.png" alt="Legendary" class="rates-icon"></td>
+                            <td class="cell-legendary rates-name-cell">Legendary</td>
+                            <td class="cell-success">40%</td>
+                            <td class="cell-success">30%</td>
+                            <td class="cell-success">25%</td>
                         </tr>
-                        <tr style="border-bottom: 1px solid #2a2a35; background: rgba(0,0,0,0.5);">
-                            <td style="padding: 10px;"><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g6.png" alt="Ultimate" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                            <td style="padding: 10px; color: #ffd700; text-align: left;">Ultimate</td>
-                            <td style="color: #ffd700;">2.5%</td>
-                            <td style="color: #ffd700;">1.5%</td>
-                            <td style="color: #ffd700;">1%</td>
+                        <tr>
+                            <td><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g6.png" alt="Ultimate" class="rates-icon"></td>
+                            <td class="cell-gold rates-name-cell">Ultimate</td>
+                            <td class="cell-gold">2.5%</td>
+                            <td class="cell-gold">1.5%</td>
+                            <td class="cell-gold">1%</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <h4 style="color: #ffd700; margin-top: 20px; margin-bottom: 10px;">⚔️ Weapon Skill Enhancement Rates (Level 3)</h4>
+                <h4 class="rates-subheading">⚔️ Weapon Skill Enhancement Rates (Level 3)</h4>
                 <div style="overflow-x: auto; margin-bottom: 20px;">
-                    <table class="rates-table" style="width: 100%; border-collapse: collapse; text-align: center;">
+                    <table class="rates-table rates-table-bordered">
                         <thead>
-                            <tr style="background: #0f0f12; border-bottom: 2px solid #ffd700;">
-                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333; text-align: center; width: 80px;">Skill Icon</th>
-                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333; text-align: left;">Skill Name</th>
-                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333;">Legendary L3</th>
-                                <th style="padding: 10px; color: #ffd700; border: 1px solid #333;">Ultimate L3</th>
+                            <tr>
+                                <th class="cell-gold rates-icon-cell">Skill Icon</th>
+                                <th class="cell-gold rates-name-cell">Skill Name</th>
+                                <th class="cell-gold">Legendary L3</th>
+                                <th class="cell-gold">Ultimate L3</th>
                             </tr>
                         </thead>
-                        <tbody style="font-weight: bold;">
-                            <tr style="background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;">
-                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_a_g6.png" alt="Expose" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Expose Vulnerability</td>
-                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                        <tbody>
+                            <tr>
+                                <td><img src="https://aioncodex.com/skills/vs_weapon_a_g6.png" alt="Expose" class="rates-icon"></td>
+                                <td class="cell-white rates-name-cell">Expose Vulnerability</td>
+                                <td class="cell-legendary">4%</td>
+                                <td class="cell-danger-alt">0.2%</td>
                             </tr>
-                            <tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid #333;">
-                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_b_g6.png" alt="Corrosion" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Corrosion</td>
-                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            <tr>
+                                <td><img src="https://aioncodex.com/skills/vs_weapon_b_g6.png" alt="Corrosion" class="rates-icon"></td>
+                                <td class="cell-white rates-name-cell">Corrosion</td>
+                                <td class="cell-legendary">4%</td>
+                                <td class="cell-danger-alt">0.2%</td>
                             </tr>
-                            <tr style="background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;">
-                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_c_g6.png" alt="Harden" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Harden</td>
-                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            <tr>
+                                <td><img src="https://aioncodex.com/skills/vs_weapon_c_g6.png" alt="Harden" class="rates-icon"></td>
+                                <td class="cell-white rates-name-cell">Harden</td>
+                                <td class="cell-legendary">4%</td>
+                                <td class="cell-danger-alt">0.2%</td>
                             </tr>
-                            <tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid #333;">
-                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_d_g6.png" alt="Wound Care" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Wound Care</td>
-                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            <tr>
+                                <td><img src="https://aioncodex.com/skills/vs_weapon_d_g6.png" alt="Wound Care" class="rates-icon"></td>
+                                <td class="cell-white rates-name-cell">Wound Care</td>
+                                <td class="cell-legendary">4%</td>
+                                <td class="cell-danger-alt">0.2%</td>
                             </tr>
-                            <tr style="background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;">
-                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_e_g6.png" alt="Ignite" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Ignite</td>
-                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            <tr>
+                                <td><img src="https://aioncodex.com/skills/vs_weapon_e_g6.png" alt="Ignite" class="rates-icon"></td>
+                                <td class="cell-white rates-name-cell">Ignite</td>
+                                <td class="cell-legendary">4%</td>
+                                <td class="cell-danger-alt">0.2%</td>
                             </tr>
-                            <tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid #333;">
-                                <td style="padding: 10px; border: 1px solid #333;"><img src="https://aioncodex.com/skills/vs_weapon_f_g6.png" alt="Disease" style="width: 32px; height: 32px; border-radius: 4px;"></td>
-                                <td style="padding: 10px; color: #fff; border: 1px solid #333; text-align: left;">Disease</td>
-                                <td style="color: #a335ee; border: 1px solid #333;">4%</td>
-                                <td style="color: #ff4d4d; border: 1px solid #333;">0.2%</td>
+                            <tr>
+                                <td><img src="https://aioncodex.com/skills/vs_weapon_f_g6.png" alt="Disease" class="rates-icon"></td>
+                                <td class="cell-white rates-name-cell">Disease</td>
+                                <td class="cell-legendary">4%</td>
+                                <td class="cell-danger-alt">0.2%</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.85em; text-align: left;">
-                    <p style="margin: 0 0 8px 0;"><strong style="color: #ffd700;">📌 Notes:</strong> The Ultimate Oath system provides rate-based enchanting for both armor and weapon skills. Legendary stones have higher success rates than Ultimate stones.</p>
-                    <p style="margin: 0; line-height: 1.4;">
+                <div class="rates-info-lg">
+                    <p><strong style="color: #ffd700;">📌 Notes:</strong> The Ultimate Oath system provides rate-based enchanting for both armor and weapon skills. Legendary stones have higher success rates than Ultimate stones.</p>
+                    <p>
                         <strong style="color: #ff4d4d;">⚠️ Weapon Skills:</strong> When enchanting weapons, the system randomly selects between Legendary (40% chance) and Ultimate (60% chance) rarity. Level 3 enhancements are recommended for optimal success rates.
                     </p>
                 </div>
             </div>
         </div>
 
-        <!-- Discord Server Advertisement -->
-        <div style="margin: 40px 0; padding: 20px; background: linear-gradient(135deg, rgba(88, 101, 242, 0.15) 0%, rgba(88, 101, 242, 0.05) 100%); border: 1px solid rgba(88, 101, 242, 0.3); border-radius: 12px; text-align: center;">
-            <div style="font-size: 28px; margin-bottom: 10px;">🎮</div>
-            <h3 style="margin: 10px 0; color: #5865f2; font-size: 1.2em;">Join Aion EU Shugo Tavern</h3>
-            <p style="margin: 8px 0; color: #bcc0c0; font-size: 0.95em;">Discord server with tutorials and information about most of the important things in Retail AION</p>
-            <a href="https://discord.gg/mkU2DK9Q" target="_blank" style="display: inline-block; margin-top: 12px; padding: 10px 24px; background: #5865f2; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: background 0.3s; cursor: pointer;">Join Discord Server</a>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <div class="footer-actions">
-                <a href="https://discordapp.com/users/158658357606088704" target="_blank" class="discord-button">
-                    <svg class="discord-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
-                    </svg>
-                    Support & Feedback
-                </a>
-            </div>
-
-            <div class="copyright">
-                © <span id="copyright-year"></span> <a href="myAionProfiles.html"><strong>15TAN</strong></a> - AION Tools Hub<br>
-                Tools and calculators for AION Retail 8.x
-            </div>
-
-            <div class="disclaimer">
-                This website is a non-commercial fan project. AION and all related images/assets are trademarks or registered trademarks of NCSoft Corporation and Gameforge. All rights reserved.
-            </div>
-        </div>
+        <div id="site-footer"></div>
     </div>
 
     <script>
@@ -1212,7 +1184,6 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('copyright-year').textContent = new Date().getFullYear();
             // Restore saved extreme start if present, then populate end options
             try {
                 const savedStart = parseInt(localStorage.getItem('extremeStart'));
@@ -1859,5 +1830,6 @@
             localStorage.setItem('oathItemType', document.getElementById('oath-item-type').value);
         }
     </script>
+    <script src="assets/js/site-common.js"></script>
 </body>
 </html>

@@ -140,12 +140,29 @@ a:hover {
 }
 
 /* ============================================
-   HOME/NAVIGATION BUTTON (FIXED)
+   SITE HEADER (HOME BUTTON WRAPPER)
+   ============================================ */
+.site-header {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 15px 20px 0;
+}
+
+.page-calculator .site-header {
+    max-width: 1200px;
+}
+
+.page-profiles .site-header {
+    max-width: 1200px;
+}
+
+/* ============================================
+   HOME/NAVIGATION BUTTON (STATIC)
    ============================================ */
 .home-button {
-    position: fixed;
-    top: 20px;
-    left: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     background: rgba(30, 30, 40, 0.9);
     backdrop-filter: blur(10px);
     color: var(--text-primary);
@@ -155,12 +172,8 @@ a:hover {
     text-decoration: none;
     font-weight: bold;
     font-size: 1em;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
     transition: all 0.3s ease;
     box-shadow: var(--shadow-sm);
-    z-index: 1000;
 }
 
 .home-button:hover {
@@ -264,6 +277,54 @@ a:hover {
 }
 
 /* ============================================
+   DISCORD SERVER ADVERTISEMENT
+   ============================================ */
+.discord-ad {
+    margin: 40px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(88, 101, 242, 0.15) 0%, rgba(88, 101, 242, 0.05) 100%);
+    border: 1px solid rgba(88, 101, 242, 0.3);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.discord-ad-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.discord-ad-title {
+    margin: 10px 0;
+    color: #5865f2;
+    font-size: 1.2em;
+}
+
+.discord-ad-text {
+    margin: 8px 0;
+    color: #bcc0c0;
+    font-size: 0.95em;
+}
+
+.discord-ad-btn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 24px;
+    background: #5865f2;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background 0.3s;
+    cursor: pointer;
+}
+
+.discord-ad-btn:hover {
+    background: #4752c4;
+    color: white;
+    text-decoration: none;
+}
+
+/* ============================================
    RESPONSIVE BASE STYLES
    ============================================ */
 @media (max-width: 768px) {
@@ -281,8 +342,6 @@ a:hover {
     }
     
     .home-button {
-        top: 10px;
-        left: 10px;
         padding: 8px 16px;
         font-size: 0.9em;
     }
@@ -1857,11 +1916,27 @@ input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
 .bar-val { width: 70px; font-size: 0.85em; color: var(--warning); text-align: right; font-weight: bold; }
 
-.duration-stats { background: #1a1a25; padding: 20px; border-radius: 8px; border: 1px solid #3d3d45; }
+.duration-stats { background: #1a1a25; padding: 20px; border-radius: 8px; border: 1px solid #3d3d45; grid-column: span 3; margin-top: 20px; }
 
 .duration-stats h3 { margin: 0 0 15px 0; }
 
-.duration-stats table { border-collapse: collapse; table-layout: auto; }
+.duration-stats h3 { color: var(--accent); font-size: 1em; }
+
+.duration-stats .ds-subtitle { font-size: 0.85em; color: #999; margin: 0 0 10px 0; }
+
+.duration-stats .build-selector { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+
+.duration-stats .build-selector label { font-size: 0.85em; color: var(--accent); font-weight: bold; }
+
+.duration-stats .build-selector select { background: #101014; border: 1px solid var(--accent); color: white; padding: 8px; border-radius: 4px; font-size: 0.9em; flex: 1; max-width: 300px; }
+
+.duration-stats table { width: 100%; border-collapse: collapse; table-layout: auto; background: #1a1a1f; border-radius: 8px; overflow: hidden; border: 1px solid #3d3d45; }
+
+.duration-stats thead tr { background: #2a2a35; }
+
+.duration-stats th { color: var(--accent); padding: 6px 8px; text-align: center; font-size: 0.8em; border-bottom: 1px solid #3d3d45; }
+
+.duration-stats th.th-warning { color: var(--warning); }
 
 .duration-stats table td { padding: 6px 8px; text-align: center; border-bottom: 1px solid #333; font-size: 0.8em; }
 
@@ -1880,14 +1955,17 @@ input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     border-left: 4px solid var(--accent); 
     padding: 15px; 
     border-radius: 4px; 
-    font-size: 0.9em; 
+    font-size: 0.9em;
+    grid-column: span 3;
+    margin-top: 20px;
 }
 
 .duration-legend summary { 
     color: var(--accent); 
     font-weight: bold; 
     user-select: none; 
-    cursor: pointer; 
+    cursor: pointer;
+    margin-bottom: 10px;
 }
 
 .duration-legend summary::-webkit-details-marker { color: var(--accent); }
@@ -1921,37 +1999,6 @@ input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     border-radius: 8px; 
     margin: 20px 0; 
     border: 1px solid #3d3d45; 
-}
-
-/* Copyright Footer */
-.copyright { 
-    font-size: 0.9em; 
-    color: #777; 
-    text-align: center; 
-    margin-top: 40px; 
-    padding-top: 20px; 
-    border-top: 1px solid #333; 
-}
-
-.copyright a { 
-    color: #b565f5; 
-    text-decoration: none; 
-    transition: color 0.3s; 
-}
-
-.copyright a:hover { 
-    color: #dcb0ff; 
-    text-decoration: underline; 
-}
-
-.disclaimer { 
-    text-align: center; 
-    font-size: 0.75em; 
-    color: #555; 
-    max-width: 600px; 
-    line-height: 1.4; 
-    margin: 10px auto 0; 
-    font-style: italic; 
 }
 
 /* ============================================
@@ -2946,202 +2993,6 @@ flex: 1;
     .event-name {
         font-size: 0.85em;
     }
-}
-
-/* ============================================
-   PAGE: SCHEDULER
-   ============================================ */
-.page-scheduler {
-    padding: 20px;
-}
-
-.page-scheduler h1 {
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 2.8em;
-    color: var(--accent-purple);
-}
-
-.scheduler-subtitle {
-    text-align: center;
-    color: var(--text-muted);
-    margin-bottom: 20px;
-    font-size: 1em;
-}
-
-.scheduler-info {
-    text-align: center;
-    color: var(--text-muted);
-    margin-bottom: 30px;
-    font-size: 0.95em;
-}
-
-.server-time-label {
-    color: var(--accent-purple);
-    font-weight: 600;
-}
-
-.user-time-label {
-    color: #a8e063;
-    font-weight: 600;
-}
-
-.schedule-table-wrapper {
-    max-width: 900px;
-    margin: 0 auto 30px;
-}
-
-.schedule-table {
-    width: 100%;
-    background: var(--bg-panel-solid);
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1px solid var(--border-dim);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
-
-.schedule-table th {
-    background: #23233a;
-    color: var(--accent-purple);
-    padding: 15px;
-    text-align: left;
-    font-size: 1.1em;
-    border-bottom: 2px solid var(--border-dim);
-}
-
-.schedule-table td {
-    padding: 15px;
-    border-bottom: 1px solid #29293a;
-    color: var(--text-primary);
-}
-
-.schedule-table tr:last-child td {
-    border-bottom: none;
-}
-
-.schedule-table tr:hover {
-    background: rgba(181, 101, 245, 0.05);
-    transition: background 0.2s;
-}
-
-.schedule-day {
-    font-weight: bold;
-    color: var(--accent-purple);
-    width: 120px;
-    white-space: nowrap;
-    vertical-align: top;
-}
-
-.schedule-events {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.event-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.event-time {
-    font-weight: bold;
-    color: var(--accent-purple);
-    min-width: 60px;
-}
-
-.event-name {
-    color: var(--text-primary);
-    flex: 1;
-    min-width: 200px;
-}
-
-.event-local {
-    color: #a8e063;
-    font-size: 0.95em;
-    white-space: nowrap;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .page-scheduler h1 {
-        font-size: 1.8em;
-        margin-bottom: 15px;
-    }
-
-    .scheduler-subtitle {
-        font-size: 0.9em;
-        margin-bottom: 15px;
-    }
-
-    .scheduler-info {
-        font-size: 0.85em;
-        margin-bottom: 20px;
-    }
-
-    .schedule-table {
-        font-size: 0.9em;
-    }
-
-    .schedule-table th,
-    .schedule-table td {
-        padding: 10px;
-    }
-
-    .schedule-day {
-        width: 90px;
-        font-size: 0.9em;
-    }
-
-    .event-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-    }
-
-    .event-name {
-        min-width: auto;
-        font-size: 0.9em;
-    }
-
-    .event-local {
-        font-size: 0.85em;
-    }
-}
-
-@media (max-width: 480px) {
-    .page-scheduler h1 {
-        font-size: 1.5em;
-    }
-
-    .scheduler-subtitle,
-    .scheduler-info {
-        font-size: 0.8em;
-    }
-
-    .schedule-table {
-        font-size: 0.8em;
-    }
-
-    .schedule-table th,
-    .schedule-table td {
-        padding: 8px;
-    }
-
-    .schedule-day {
-        width: 70px;
-        font-size: 0.85em;
-    }
-
-    .event-time {
-        min-width: 50px;
-        font-size: 0.9em;
-    }
-
-    .event-name {
-        font-size: 0.85em;
-    }
 }/* ============================================
    PAGE: SCHEDULER (UPDATED GRID VERSION)
    ============================================ */
@@ -3583,3 +3434,378 @@ flex: 1;
     .legend-color { width: 12px !important; height: 12px !important; }
     .scheduler-controls { justify-content: flex-start; }
 }
+
+/* ============================================
+   PAGE: PROFILES (CHARACTER PAGES)
+   ============================================ */
+.page-profiles {
+    padding: 20px;
+}
+
+.profiles-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.page-profiles h1 {
+    text-align: center;
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+.profiles-subtitle {
+    text-align: center;
+    font-size: 1.2em;
+    color: #a8a8c0;
+    margin-bottom: 40px;
+}
+
+.server-section {
+    background: rgba(25, 25, 35, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(181, 101, 245, 0.3);
+}
+
+.server-title {
+    font-size: 2em;
+    color: #b565f5;
+    margin-bottom: 20px;
+    text-align: center;
+    text-shadow: 0 2px 8px rgba(181, 101, 245, 0.4);
+}
+
+.faction-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 20px;
+}
+
+.faction-section {
+    background: rgba(30, 30, 40, 0.5);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(100, 100, 120, 0.3);
+}
+
+.faction-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(181, 101, 245, 0.3);
+}
+
+.faction-header img {
+    width: 40px;
+    height: 40px;
+}
+
+.faction-header h3 {
+    font-size: 1.4em;
+    color: #e0e0f0;
+    margin: 0;
+}
+
+.legion-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(181, 101, 245, 0.15);
+    border: 1px solid rgba(181, 101, 245, 0.3);
+    padding: 8px 15px;
+    border-radius: 8px;
+    color: #e0e0f0;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.legion-link:hover {
+    background: rgba(181, 101, 245, 0.3);
+    border-color: #b565f5;
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.legion-link img {
+    width: 24px;
+    height: 24px;
+}
+
+.character-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.character-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(20, 20, 30, 0.6);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(100, 100, 120, 0.2);
+    transition: all 0.3s ease;
+}
+
+.character-card:hover {
+    background: rgba(40, 40, 60, 0.8);
+    border-color: rgba(181, 101, 245, 0.5);
+    transform: translateX(5px);
+}
+
+.character-card a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #e0e0f0;
+    flex: 1;
+}
+
+.character-card img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    border: 2px solid rgba(181, 101, 245, 0.3);
+}
+
+.character-name {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #e0e0f0;
+}
+
+.character-card a:hover .character-name {
+    color: #b565f5;
+}
+
+.deleted-section {
+    opacity: 0.6;
+}
+
+.deleted-section .server-title {
+    color: #999;
+}
+
+.deleted-section .server-title-icon {
+    width: 40px;
+    height: 40px;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+.character-grid-narrow {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .faction-grid {
+        grid-template-columns: 1fr;
+    }
+    .page-profiles h1 {
+        font-size: 2em;
+    }
+}
+
+/* ============================================
+   ENCHANTING SIMULATOR - INLINE STYLE CLASSES
+   ============================================ */
+.sim-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.sim-btn-icon {
+    vertical-align: middle;
+    height: 30px;
+    width: 30px;
+}
+
+.stone-usage-bar {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 20px;
+}
+
+.stone-counter {
+    font-size: 20px;
+}
+
+.output-container-full {
+    max-height: none;
+    overflow-y: visible;
+}
+
+.oath-dropdown-container {
+    position: relative;
+}
+
+.oath-dropdown-btn {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #1a1a24;
+    color: #aaa;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.oath-dropdown-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #1a1a24;
+    border: 1px solid #555;
+    border-radius: 4px;
+    margin-top: 4px;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.oath-btn-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.oath-preview {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    margin-top: 15px;
+    min-height: 80px;
+}
+
+.oath-icon-box {
+    width: 64px;
+    height: 64px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid #555;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.oath-icon-box img {
+    width: 60px;
+    height: 60px;
+}
+
+.oath-placeholder {
+    color: #666;
+    font-size: 0.85em;
+    text-align: center;
+}
+
+.oath-detail { flex: 1; }
+
+.oath-label { color: #aaa; font-size: 0.9em; margin-bottom: 5px; }
+
+.oath-name { color: #fff; font-size: 1.1em; font-weight: bold; }
+
+.oath-rate { color: #ffd700; margin-top: 5px; font-size: 0.9em; }
+
+/* Rates modal heading variants */
+.rates-heading-extreme { color: #ff4d4d; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+.rates-heading-rune { color: #b565f5; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+.rates-heading-ultimate { color: #4da3ff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+.rates-heading-oath { color: #d4af37; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* Rates modal content size variants */
+.rates-modal-content-sm { max-width: 600px; border: 1px solid #444; background: #1a1a24; }
+.rates-modal-content-lg { max-width: 90%; border: 1px solid #444; background: #1a1a24; }
+
+/* Rate tables */
+.rates-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.95em; }
+.rates-table thead tr { border-bottom: 2px solid #333; color: #aaa; }
+.rates-table th { padding: 10px; }
+.rates-table tbody { font-weight: bold; }
+.rates-table tbody tr { border-bottom: 1px solid #2a2a35; }
+.rates-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+.rates-table td { padding: 10px; }
+
+/* Rate info box under tables */
+.rates-info {
+    margin-top: 15px;
+    font-size: 0.85em;
+    color: #888;
+    text-align: left;
+    padding: 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+
+.rates-info p { margin: 0 0 8px 0; }
+.rates-info p:last-child { margin-bottom: 0; }
+
+.rates-info-lg { margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.85em; text-align: left; }
+.rates-info-lg p { margin: 0 0 8px 0; line-height: 1.4; }
+.rates-info-lg p:last-child { margin-bottom: 0; }
+
+.rates-subheading { color: #ffd700; margin-top: 20px; margin-bottom: 10px; }
+
+.rates-table-bordered th,
+.rates-table-bordered td { border: 1px solid #333; }
+.rates-table-bordered thead tr { background: #0f0f12; border-bottom: 2px solid #ffd700; }
+.rates-table-bordered th.rates-level-col { font-size: 0.9em; padding: 8px; }
+
+.rates-table .rates-icon-cell { width: 80px; }
+.rates-table .rates-name-cell { text-align: left; }
+.rates-table .rates-icon { width: 32px; height: 32px; border-radius: 4px; }
+
+.rates-penalty-indent { margin-left: 65px; }
+
+/* Color utility classes for rate table cells */
+.cell-success { color: #4dfb4d; }
+.cell-danger { color: #ff3333; }
+.cell-danger-alt { color: #ff4d4d; }
+.cell-warning { color: #ffa500; }
+.cell-muted { color: #888; }
+.cell-legendary { color: #a335ee; }
+.cell-ancient { color: #cd7f32; }
+.cell-gold { color: #ffd700; }
+.cell-white { color: #fff; }
+
+/* Calendar controls inner flex */
+.calendar-controls-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 500px;
+}
+
+/* Duration legend inner styles */
+.duration-legend details { cursor: pointer; }
+.duration-legend .dl-content { margin-top: 15px; color: #d0d0d0; line-height: 1.8; }
+.duration-legend .dl-item { margin-bottom: 15px; }
+.duration-legend .dl-separator { margin-bottom: 15px; padding-top: 10px; border-top: 1px solid #3d3d45; }
+.duration-legend .dl-sub { margin-left: 10px; margin-bottom: 8px; }
+.duration-legend .dl-note { color: #999; font-size: 0.85em; }
+.duration-legend .dl-item strong { color: var(--warning); }
+.duration-legend .dl-item strong.accent { color: var(--accent); }
+
+.result-details label { display: block; margin-bottom: 6px; }
+.result-details .input-sm { width: 220px; }
+.result-note { color: #999; font-size: 0.85em; }
