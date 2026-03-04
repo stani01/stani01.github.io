@@ -98,6 +98,37 @@
             return oneHanded[0] || cls.weapons[0];
         }
 
+        var SHIELD_ICON = 'assets/icons/icon_item_equip_shield_f01.png';
+        var NONE_ICON   = 'assets/icons/icon_frame_2.png';
+
+        // Build flat list of off-hand choices: [{key, icon, label}]
+        // key format: 'none', 'shield', 'fuse', 'weapon:dagger', 'weapon:sword', etc.
+        function getOffHandChoices(mainType, className) {
+            var choices = [];
+            var allowed = getAllowedOffHand(mainType, className);
+            choices.push({ key: 'none', icon: NONE_ICON, label: 'None' });
+            if (allowed.indexOf('shield') !== -1) {
+                choices.push({ key: 'shield', icon: SHIELD_ICON, label: 'Shield' });
+            }
+            if (allowed.indexOf('fuse') !== -1) {
+                choices.push({ key: 'fuse', icon: WEAPON_TYPES[mainType].icon, label: 'Fuse' });
+            }
+            if (allowed.indexOf('weapon') !== -1) {
+                var cls = CLASS_DATA[className];
+                var oneHanded = cls.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
+                oneHanded.forEach(function(wKey) {
+                    choices.push({ key: 'weapon:' + wKey, icon: WEAPON_TYPES[wKey].icon, label: WEAPON_TYPES[wKey].name });
+                });
+            }
+            return choices;
+        }
+
+        // Get current off-hand choice key from weaponConfig
+        function getCurrentOffHandKey() {
+            if (weaponConfig.offHandType === 'weapon') return 'weapon:' + weaponConfig.offHandWeaponType;
+            return weaponConfig.offHandType;
+        }
+
         // Armor slots (matches Excel order)
         var ARMOR_SLOTS = [
             { key: 'shoulders', iconKey: 'shoulder' },
@@ -151,14 +182,14 @@
         var OFFHAND_EXCLUDED_SETS = ['acrimony', 'presumption', 'vision'];
 
         var OATH_OPTIONS = [
-            { key: 'none',         name: '—',   rank: 0 },
-            { key: 'silent-skill', name: 'Silent Skill',  rank: 0 },
+            { key: 'none',         name: 'None',         rank: 0 },
+            { key: 'silent-skill', name: 'Silent Skill', rank: 0 },
             { key: 'legendary-1',  name: 'Legendary 1',  rank: 1 },
             { key: 'legendary-2',  name: 'Legendary 2',  rank: 2 },
             { key: 'legendary-3',  name: 'Legendary 3',  rank: 3 },
-            { key: 'ultimate-1',   name: 'Ultimate 1',  rank: 4 },
-            { key: 'ultimate-2',   name: 'Ultimate 2',  rank: 5 },
-            { key: 'ultimate-3',   name: 'Ultimate 3',  rank: 6 }
+            { key: 'ultimate-1',   name: 'Ultimate 1',   rank: 4 },
+            { key: 'ultimate-2',   name: 'Ultimate 2',   rank: 5 },
+            { key: 'ultimate-3',   name: 'Ultimate 3',   rank: 6 }
         ];
 
         // Oath stat bonuses per pair type
@@ -833,53 +864,46 @@
             var html = '<div class="gc-profile-header"><span class="gc-wc-title">⚔️ Weapon Setup</span><button class="gc-reset-btn" onclick="GC.resetWeapons()" title="Reset to defaults">↺</button></div>';
             html += '<div class="gc-wc-slots">';
 
-            // Main weapon
-            html += '<div class="gc-armor-row gc-wc-slot">';
-            html += '<div class="gc-slot-icon"><img src="' + wt.icon + '" alt="' + wt.name + '"></div>';
-            html += '<div class="gc-slot-label">Main</div>';
-            html += '<select class="gc-select" onchange="GC.setMainWeaponType(this.value)">';
+            // Main weapon — icon picker
+            html += '<div class="gc-wc-item">';
+            html += '<div class="gc-wc-item-label">Main</div>';
+            html += '<div class="gc-icon-picker" onclick="GC.togglePicker(\'main-picker\')">';
+            html += '<img src="' + wt.icon + '" alt="' + wt.name + '" title="' + wt.name + '">';
+            html += '</div>';
+            html += '<div class="gc-icon-picker-menu" id="main-picker">';
             classInfo.weapons.forEach(function(wKey) {
                 var w = WEAPON_TYPES[wKey];
-                var s = mainType === wKey ? ' selected' : '';
-                html += '<option value="' + wKey + '"' + s + '>' + w.name + '</option>';
+                var sel = mainType === wKey ? ' gc-picker-selected' : '';
+                html += '<div class="gc-picker-option' + sel + '" onclick="GC.pickMainWeapon(\'' + wKey + '\')" title="' + w.name + '">';
+                html += '<img src="' + w.icon + '" alt="' + w.name + '">';
+                html += '</div>';
             });
-            html += '</select>';
+            html += '</div>';
             html += '</div>';
 
-            // Off-hand
-            html += '<div class="gc-armor-row gc-wc-slot">';
-            if (ohType === 'shield') {
-                html += '<div class="gc-slot-icon"><img src="assets/icons/icon_item_equip_shield_f01.png" alt="Shield"></div>';
-            } else if (ohType === 'fuse') {
-                html += '<div class="gc-slot-icon"><img src="' + wt.icon + '" alt="Fuse"></div>';
-            } else if (ohType === 'weapon') {
-                var ohWt = WEAPON_TYPES[weaponConfig.offHandWeaponType];
-                html += '<div class="gc-slot-icon"><img src="' + ohWt.icon + '" alt="' + ohWt.name + '"></div>';
-            } else {
-                html += '<div class="gc-slot-icon gc-slot-icon-empty"></div>';
+            // Off-hand — icon picker (unified: none/shield/fuse/weapons)
+            var ohChoices = getOffHandChoices(mainType, selectedClass);
+            var ohKey = getCurrentOffHandKey();
+            var ohChoice = ohChoices.find(function(c) { return c.key === ohKey; }) || ohChoices[0];
+            html += '<div class="gc-wc-item">';
+            html += '<div class="gc-wc-item-label">Off-Hand</div>';
+            html += '<div class="gc-icon-picker' + (ohChoice.key === 'none' ? ' gc-icon-picker-empty' : '') + '" onclick="GC.togglePicker(\'off-picker\')">';
+            if (ohChoice.key !== 'none') {
+                html += '<img src="' + ohChoice.icon + '" alt="' + ohChoice.label + '" title="' + ohChoice.label + '">';
             }
-            html += '<div class="gc-slot-label">Off</div>';
-            html += '<select class="gc-select" onchange="GC.setOffHandType(this.value)">';
-            var allowedOH = getAllowedOffHand(mainType, selectedClass);
-            if (allowedOH.indexOf('none') !== -1)
-                html += '<option value="none"' + (ohType === 'none' ? ' selected' : '') + '>None</option>';
-            if (allowedOH.indexOf('fuse') !== -1)
-                html += '<option value="fuse"' + (ohType === 'fuse' ? ' selected' : '') + '>Fuse</option>';
-            if (allowedOH.indexOf('weapon') !== -1)
-                html += '<option value="weapon"' + (ohType === 'weapon' ? ' selected' : '') + '>Off-hand Weapon</option>';
-            if (allowedOH.indexOf('shield') !== -1)
-                html += '<option value="shield"' + (ohType === 'shield' ? ' selected' : '') + '>Shield</option>';
-            html += '</select>';
-            if (ohType === 'weapon') {
-                var oneHanded = classInfo.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
-                html += '<select class="gc-select" onchange="GC.setOffHandWeaponType(this.value)">';
-                oneHanded.forEach(function(wKey) {
-                    var w = WEAPON_TYPES[wKey];
-                    var s = weaponConfig.offHandWeaponType === wKey ? ' selected' : '';
-                    html += '<option value="' + wKey + '"' + s + '>' + w.name + '</option>';
-                });
-                html += '</select>';
-            }
+            html += '</div>';
+            html += '<div class="gc-icon-picker-menu" id="off-picker">';
+            ohChoices.forEach(function(c) {
+                var sel = c.key === ohKey ? ' gc-picker-selected' : '';
+                html += '<div class="gc-picker-option' + sel + (c.key === 'none' ? ' gc-picker-none' : '') + '" onclick="GC.pickOffHand(\'' + c.key + '\')" title="' + c.label + '">';
+                if (c.key === 'none') {
+                    html += '<span class="gc-picker-x">✕</span>';
+                } else {
+                    html += '<img src="' + c.icon + '" alt="' + c.label + '">';
+                }
+                html += '</div>';
+            });
+            html += '</div>';
             html += '</div>';
 
             html += '</div>';
@@ -1046,23 +1070,19 @@
                 html += '<option value="15">+15</option>';
             }
             html += '</select>';
-            // Oath icon
+            // Oath icon trigger
+            html += '<div class="gc-oath-picker-wrap">';
             if (oathIconUrl) {
                 var isFramed = (slotOath === 'silent-skill');
-                html += '<div class="gc-oath-icon' + (isFramed ? ' gc-oath-icon-framed' : '') + '">';
-                html += '<img src="' + oathIconUrl + '" alt="Oath" class="gc-oath-img">';
-                if (isFramed) html += '<img src="' + OATH_FRAME + '" alt="" class="gc-oath-frame">';
+                html += '<div class="gc-icon-picker gc-oath-pick" onclick="GC.openOathPicker(' + pid + ',\'' + slot.key + '\',this)">';
+                html += '<img src="' + oathIconUrl + '" alt="' + slotOath + '" title="' + (OATH_OPTIONS.find(function(o){return o.key===slotOath;})||{}).name + '"' + (isFramed ? ' class="gc-oath-img-framed"' : '') + '>';
                 html += '</div>';
             } else {
-                html += '<div class="gc-oath-icon gc-oath-icon-empty"></div>';
+                html += '<div class="gc-icon-picker gc-oath-pick gc-icon-picker-empty" onclick="GC.openOathPicker(' + pid + ',\'' + slot.key + '\',this)">';
+                html += '</div>';
             }
-            // Oath dropdown
-            html += '<select class="gc-select gc-select-oath" onchange="GC.setOath(' + pid + ',\'' + slot.key + '\',this.value)">';
-            OATH_OPTIONS.forEach(function(opt) {
-                var s = slotOath === opt.key ? ' selected' : '';
-                html += '<option value="' + opt.key + '"' + s + '>' + opt.name + '</option>';
-            });
-            html += '</select>';
+
+            html += '</div>';
 
             html += '</div>';
             return html;
@@ -1252,8 +1272,134 @@
                 renderProfile(pid);
                 updateComparison();
                 saveState();
+            },
+
+            togglePicker: function(pickerId) {
+                var menu = document.getElementById(pickerId);
+                var wasOpen = menu.classList.contains('gc-picker-open');
+                // Close all pickers first
+                document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) {
+                    m.classList.remove('gc-picker-open');
+                });
+                if (!wasOpen) menu.classList.add('gc-picker-open');
+            },
+
+            pickMainWeapon: function(wKey) {
+                document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
+                closeOathPopup();
+                weaponConfig.mainType = wKey;
+                var allowed = getAllowedOffHand(wKey, selectedClass);
+                if (allowed.indexOf(weaponConfig.offHandType) === -1) {
+                    weaponConfig.offHandType = getDefaultOffHand(wKey, selectedClass);
+                }
+                weaponConfig.offHandWeaponType = getDefaultOffHandWeapon(wKey, selectedClass);
+                renderWeaponConfig();
+                renderProfile(1);
+                renderProfile(2);
+                updateComparison();
+                saveState();
+            },
+
+            pickOffHand: function(choiceKey) {
+                document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
+                closeOathPopup();
+                if (choiceKey.indexOf('weapon:') === 0) {
+                    var wType = choiceKey.substring(7);
+                    weaponConfig.offHandType = 'weapon';
+                    weaponConfig.offHandWeaponType = wType;
+                } else {
+                    weaponConfig.offHandType = choiceKey;
+                }
+                [1, 2].forEach(function(id) {
+                    if (weaponConfig.offHandType !== 'none' && OFFHAND_EXCLUDED_SETS.indexOf(state[id].offHand.set) !== -1) {
+                        state[id].offHand.set = 'fighting-spirit';
+                    }
+                });
+                renderWeaponConfig();
+                renderProfile(1);
+                renderProfile(2);
+                updateComparison();
+                saveState();
+            },
+
+            pickOath: function(pid, slotKey, oathKey) {
+                document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
+                closeOathPopup();
+                state[pid].oath[slotKey] = oathKey;
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
+            openOathPicker: function(pid, slotKey, triggerEl) {
+                var popup = document.getElementById('gc-oath-popup');
+                var isOpen = popup.style.display === 'flex';
+                // Close all other pickers
+                document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
+                closeOathPopup();
+                if (isOpen && popup.dataset.pid == pid && popup.dataset.slot === slotKey) return;
+
+                var currentOath = state[pid].oath[slotKey] || 'none';
+                // Find slot key to get correct icons
+                var slotObj = ARMOR_SLOTS.find(function(s) { return s.key === slotKey; });
+                var html = '';
+                OATH_OPTIONS.forEach(function(opt) {
+                    var sel = currentOath === opt.key ? ' gc-oath-option-selected' : '';
+                    var optIcon = getOathIcon(slotKey, opt.key);
+                    html += '<div class="gc-oath-option' + sel + (opt.key === 'none' ? ' gc-oath-option-none' : '') + '" onclick="GC.pickOath(' + pid + ',\'' + slotKey + '\',\'' + opt.key + '\')">';
+                    if (opt.key === 'none') {
+                        html += '<span class="gc-oath-option-icon"><span class="gc-picker-x">✕</span></span>';
+                    } else {
+                        html += '<span class="gc-oath-option-icon"><img src="' + optIcon + '" alt="' + opt.name + '"></span>';
+                    }
+                    html += '<span class="gc-oath-option-label">' + opt.name + '</span>';
+                    html += '</div>';
+                });
+                popup.innerHTML = html;
+                popup.dataset.pid = pid;
+                popup.dataset.slot = slotKey;
+
+                // Position relative to trigger
+                var rect = triggerEl.getBoundingClientRect();
+                popup.style.display = 'flex';
+                var popH = popup.offsetHeight;
+                var popW = popup.offsetWidth;
+                var top = rect.top - popH - 6;
+                if (top < 4) top = rect.bottom + 6;
+                var left = rect.left + rect.width / 2 - popW / 2;
+                if (left < 4) left = 4;
+                if (left + popW > window.innerWidth - 4) left = window.innerWidth - popW - 4;
+                popup.style.top = top + 'px';
+                popup.style.left = left + 'px';
             }
         };
+
+        function closeOathPopup() {
+            var popup = document.getElementById('gc-oath-popup');
+            popup.style.display = 'none';
+            popup.innerHTML = '';
+        }
+
+        // Shared oath popup (appended to body to escape overflow:hidden)
+        var oathPopup = document.createElement('div');
+        oathPopup.id = 'gc-oath-popup';
+        oathPopup.className = 'gc-oath-popup';
+        document.body.appendChild(oathPopup);
+
+        // Close pickers on outside click
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.gc-wc-item')) {
+                document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) {
+                    m.classList.remove('gc-picker-open');
+                });
+            }
+            if (!e.target.closest('.gc-oath-popup') && !e.target.closest('.gc-oath-pick')) {
+                closeOathPopup();
+            }
+        });
+
+        // Close oath popup on scroll
+        window.addEventListener('scroll', function() { closeOathPopup(); }, true);
 
         // ═══════════════════════════════════════════════════════════
         // INIT
