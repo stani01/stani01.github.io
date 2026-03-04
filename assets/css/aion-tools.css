@@ -3838,3 +3838,478 @@ flex: 1;
 .result-details label { display: block; margin-bottom: 6px; }
 .result-details .input-sm { width: 220px; }
 .result-note { color: #999; font-size: 0.85em; }
+
+/* ============================================
+   PAGE: GEAR COMPARISON TOOL
+   ============================================ */
+.page-gear-compare .container {
+    max-width: 1600px;
+}
+
+.page-gear-compare h1 {
+    text-align: center;
+    color: var(--warning);
+    border-bottom: 2px solid #333;
+    padding-bottom: 20px;
+    margin-bottom: 10px;
+}
+
+.page-gear-compare .subtitle {
+    text-align: center;
+    color: #999;
+    font-size: 0.95em;
+    margin-bottom: 30px;
+}
+
+/* ── Profiles Layout ── */
+.gc-profiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.gc-profile {
+    background: var(--bg-panel-solid);
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.gc-profile-header {
+    text-align: center;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-dim);
+}
+
+.gc-set-title {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* ── Sections inside profile ── */
+.gc-section {
+    margin-bottom: 18px;
+}
+
+.gc-section-label {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.95em;
+    margin-bottom: 10px;
+    padding-left: 4px;
+}
+
+/* ── Shared Class Selector ── */
+.gc-class-selector {
+    background: var(--bg-panel-solid);
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 24px;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+}
+
+.gc-class-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.gc-class-btn {
+    width: 56px;
+    border-radius: 10px;
+    border: 2px solid var(--border-dim);
+    background: rgba(20, 20, 30, 0.7);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 4px 4px;
+    gap: 3px;
+}
+
+.gc-class-btn img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.gc-class-label {
+    font-size: 0.55em;
+    color: var(--text-dim);
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.gc-class-btn:hover {
+    border-color: var(--accent-purple);
+    transform: scale(1.08);
+    box-shadow: 0 0 10px rgba(181, 101, 245, 0.3);
+}
+
+.gc-class-btn:hover .gc-class-label {
+    color: var(--text-primary);
+}
+
+.gc-class-btn.selected {
+    border-color: var(--accent);
+    background: rgba(77, 184, 255, 0.15);
+    box-shadow: 0 0 12px rgba(77, 184, 255, 0.4);
+}
+
+.gc-class-btn.selected .gc-class-label {
+    color: var(--accent);
+}
+
+/* ── Section Label Row (label + inline dropdown) ── */
+.gc-section-label-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.gc-section-label-row .gc-section-label {
+    margin-bottom: 0;
+}
+
+.gc-select-inline {
+    width: auto;
+    min-width: 130px;
+}
+
+.gc-armor-type-badge {
+    font-size: 0.82em;
+    color: var(--accent-purple);
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    padding: 2px 10px;
+    background: rgba(181, 101, 245, 0.08);
+}
+
+/* ── Armor List (row-based layout) ── */
+.gc-armor-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.gc-armor-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 6px;
+    background: rgba(15, 15, 25, 0.6);
+    border: 1px solid rgba(200, 160, 60, 0.15);
+    border-radius: 8px;
+    transition: border-color 0.2s ease;
+}
+
+.gc-armor-row:hover {
+    border-color: rgba(200, 160, 60, 0.4);
+}
+
+.gc-oath-icon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.gc-oath-icon .gc-oath-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 0 4px rgba(181, 101, 245, 0.5));
+}
+
+.gc-oath-icon-framed .gc-oath-frame {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: calc(100% + 2px);
+    height: calc(100% + 2px);
+    pointer-events: none;
+    filter: none;
+}
+
+.gc-oath-icon-empty {
+    opacity: 0;
+}
+
+/* ── Equipment Slot (shared armor + weapon) ── */
+.gc-slot {
+    background: rgba(15, 15, 25, 0.8);
+    border: 1px solid rgba(200, 160, 60, 0.25);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 0.2s ease;
+}
+
+.gc-slot:hover {
+    border-color: rgba(200, 160, 60, 0.5);
+}
+
+.gc-slot-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+}
+
+.gc-slot-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.gc-slot-label {
+    font-size: 0.78em;
+    font-weight: 600;
+    color: var(--text-primary);
+    width: 70px;
+    flex-shrink: 0;
+}
+
+.gc-slot-name {
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+}
+
+/* ── Weapon Notice ── */
+.gc-weapon-notice {
+    background: rgba(255, 204, 0, 0.08);
+    border: 1px solid rgba(255, 204, 0, 0.25);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    font-size: 0.8em;
+    color: var(--warning);
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* ── Weapon Grid ── */
+.gc-weapon-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.gc-weapon-icon {
+    width: 48px;
+    height: 48px;
+    margin: 4px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 10, 18, 0.6);
+    border: 1px solid rgba(200, 160, 60, 0.3);
+    border-radius: 8px;
+}
+
+.gc-weapon-icon img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.gc-weapon-icon-empty {
+    color: var(--text-dim);
+    font-size: 1.5em;
+}
+
+/* ── Dropdowns ── */
+.gc-select {
+    width: 100%;
+    background: rgba(10, 10, 20, 0.9);
+    color: var(--text-primary);
+    border: 1px solid var(--border-dim);
+    border-radius: 5px;
+    padding: 5px 6px;
+    font-size: 0.78em;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+    appearance: auto;
+}
+
+.gc-select:hover,
+.gc-select:focus {
+    border-color: var(--accent-purple);
+    outline: none;
+}
+
+.gc-select-sm {
+    max-width: 80px;
+    display: inline-block;
+    margin: 0 2px;
+}
+
+.gc-select-oath {
+    border-color: rgba(181, 101, 245, 0.3);
+    font-style: italic;
+}
+
+/* (Stats panel removed — comparison is now item-based) */
+
+/* ── Comparison Table ── */
+.gc-comparison {
+    background: var(--bg-panel-solid);
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow-md);
+}
+
+.gc-comparison-header {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.gc-comparison-header h2 {
+    color: var(--accent);
+    border-left: none;
+    margin-top: 0;
+    padding-left: 0;
+    font-size: 1.3em;
+}
+
+.gc-comp-subtitle {
+    color: var(--text-dim);
+    font-size: 0.75em;
+    font-weight: 400;
+}
+
+.gc-comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.gc-comp-table thead th {
+    color: var(--text-primary);
+    font-weight: 700;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--border-dim);
+    text-align: center;
+}
+
+.gc-comp-th-stat {
+    text-align: left !important;
+    width: 40%;
+}
+
+.gc-comp-th-val {
+    width: 20%;
+}
+
+.gc-comp-th-diff {
+    width: 20%;
+}
+
+.gc-comp-category-row td {
+    font-weight: 700;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    padding: 12px 12px 6px;
+    border-bottom: 1px solid rgba(77, 184, 255, 0.15);
+}
+
+.gc-comp-row td {
+    padding: 6px 12px;
+    border-bottom: 1px solid rgba(60, 60, 70, 0.3);
+}
+
+.gc-comp-row:hover td {
+    background: rgba(77, 184, 255, 0.04);
+}
+
+.gc-comp-stat {
+    color: var(--text-muted);
+    text-align: left;
+}
+
+.gc-comp-val {
+    text-align: center;
+    color: var(--text-primary);
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-weight: 600;
+}
+
+.gc-comp-diff {
+    text-align: center;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-weight: 700;
+}
+
+.gc-diff-positive {
+    color: #4dff4d;
+}
+
+.gc-diff-negative {
+    color: #ff4d4d;
+}
+
+.gc-diff-zero {
+    color: #555;
+}
+
+/* ── Gear Compare Responsive ── */
+@media (max-width: 1024px) {
+    .gc-profiles {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .gc-weapon-grid {
+        grid-template-columns: 1fr;
+    }
+    .gc-armor-row {
+        flex-wrap: wrap;
+    }
+    .gc-slot-label {
+        width: 60px;
+    }
+    .gc-oath-icon {
+        width: 22px;
+        height: 22px;
+    }
+    .gc-comp-table {
+        font-size: 0.8em;
+    }
+    .gc-comp-table thead th,
+    .gc-comp-row td {
+        padding: 4px 6px;
+    }
+    .gc-set-title {
+        font-size: 1.2em;
+    }
+    .gc-class-btn {
+        width: 46px;
+    }
+}

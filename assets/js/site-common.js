@@ -15,7 +15,8 @@
         { label: 'Magical Boost Calendar', href: 'magicalBoostTime.html' },
         { label: 'Retail EU Scheduler',    href: 'scheduler.html' },
         { label: 'Damage Calculator',      href: 'aion-calc.html' },
-        { label: 'Enchanting Simulator',   href: 'enchanting.html' }
+        { label: 'Enchanting Simulator',   href: 'enchanting.html' },
+        { label: 'Gear Compare',            href: 'gear-compare.html' }
     ];
     var currentPage = window.location.pathname.split('/').pop() || 'aion.html';
 

@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f0c29">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>AION 8.x - Gear Comparison Tool</title>
+    <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
+    <link rel="stylesheet" href="assets/css/aion-tools.css?v=3.4">
+</head>
+<body class="page-gear-compare">
+
+    <div class="container">
+        <h1>Gear Comparison Tool</h1>
+        <div class="subtitle">Compare two gear loadouts side by side | AION Retail 8.x</div>
+
+        <!-- Shared Class Selector -->
+        <div class="gc-class-selector" id="class-selector"></div>
+
+        <!-- Two profiles side by side -->
+        <div class="gc-profiles">
+            <div class="gc-profile" id="profile-1"></div>
+            <div class="gc-profile" id="profile-2"></div>
+        </div>
+
+        <!-- Stats Comparison Table -->
+        <div class="gc-comparison" id="comparison-panel"></div>
+
+        <div id="site-footer"></div>
+    </div>
+
+    <script src="assets/js/site-common.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        // ═══════════════════════════════════════════════════════════
+        // DATA CONSTANTS
+        // ═══════════════════════════════════════════════════════════
+
+        // One-handed: dagger, sword, mace, pistol
+        // Two-handed: everything else
+        var WEAPON_TYPES = {
+            dagger:     { name: 'Dagger',      icon: 'https://aioncodex.com/items/icon_item_equip_dagger_f01.png', twoHanded: false },
+            sword:      { name: 'Sword',       icon: 'https://aioncodex.com/items/icon_item_equip_sword_f01.png', twoHanded: false },
+            mace:       { name: 'Mace',        icon: 'https://aioncodex.com/items/icon_item_equip_mace_f01.png', twoHanded: false },
+            pistol:     { name: 'Pistol',      icon: 'https://aioncodex.com/items/icon_item_equip_gun_f01.png', twoHanded: false },
+            greatsword: { name: 'Greatsword',  icon: 'https://aioncodex.com/items/icon_item_equip_2hsword_f01.png', twoHanded: true },
+            polearm:    { name: 'Polearm',     icon: 'https://aioncodex.com/items/icon_item_equip_polearm_f01.png', twoHanded: true },
+            bow:        { name: 'Bow',         icon: 'https://aioncodex.com/items/icon_item_equip_bow_f01.png', twoHanded: true },
+            staff:      { name: 'Staff',       icon: 'https://aioncodex.com/items/icon_item_equip_staff_f01.png', twoHanded: true },
+            paintRings: { name: 'Paint Rings', icon: 'https://aioncodex.com/items/icon_item_equip_spray_f01.png', twoHanded: true },
+            orb:        { name: 'Orb',         icon: 'https://aioncodex.com/items/icon_item_equip_orb_f01.png', twoHanded: true },
+            spellbook:  { name: 'Spellbook',   icon: 'https://aioncodex.com/items/icon_item_equip_book_f01.png', twoHanded: true },
+            aetherKey:  { name: 'Aether Key',  icon: 'https://aioncodex.com/items/icon_item_equip_keyblade_f01.png', twoHanded: true },
+            cannon:     { name: 'Cannon',      icon: 'https://aioncodex.com/items/icon_item_equip_cannon_f01.png', twoHanded: true },
+            harp:       { name: 'Harp',        icon: 'https://aioncodex.com/items/icon_item_equip_harp_f01.png', twoHanded: true }
+        };
+
+        // Shield-compatible main-hand weapons
+        var SHIELD_WEAPONS = ['dagger', 'sword', 'mace'];
+
+        // Armor slots (matches Excel order)
+        var ARMOR_SLOTS = [
+            { key: 'shoulders', name: 'Shoulders', iconKey: 'shoulder' },
+            { key: 'helmet',    name: 'Helmet',    iconKey: 'head' },
+            { key: 'chest',     name: 'Chest',     iconKey: 'torso' },
+            { key: 'pants',     name: 'Pants',     iconKey: 'pants' },
+            { key: 'gloves',    name: 'Gloves',    iconKey: 'glove' },
+            { key: 'boots',     name: 'Boots',     iconKey: 'shoes' }
+        ];
+
+        // Armor material → icon URL prefix
+        var ARMOR_MAT_PREFIX = { plate: 'pl', chain: 'ch', leather: 'lt', cloth: 'rb' };
+
+        function getArmorIcon(material, slotIconKey) {
+            return 'https://aioncodex.com/items/icon_item_equip_' + ARMOR_MAT_PREFIX[material] + '_' + slotIconKey + '_f01.png';
+        }
+        function getArmorMaterial(armorType) {
+            return armorType.split('-')[1]; // 'physical-plate' → 'plate'
+        }
+
+        var ARMOR_TYPE_OPTIONS = [
+            { key: 'physical-plate',   name: 'Phys. Plate',   material: 'plate' },
+            { key: 'magical-plate',    name: 'Mag. Plate',    material: 'plate' },
+            { key: 'physical-chain',   name: 'Phys. Chain',   material: 'chain' },
+            { key: 'magical-chain',    name: 'Mag. Chain',    material: 'chain' },
+            { key: 'physical-leather', name: 'Phys. Leather', material: 'leather' },
+            { key: 'magical-leather',  name: 'Mag. Leather',  material: 'leather' },
+            { key: 'physical-cloth',   name: 'Phys. Cloth',   material: 'cloth' },
+            { key: 'magical-cloth',    name: 'Mag. Cloth',    material: 'cloth' }
+        ];
+
+        var ARMOR_SETS = [
+            { key: 'fighting-spirit', name: 'Fighting Spirit' },
+            { key: 'acrimony',        name: 'Acrimony' },
+            { key: 'presumption',     name: 'Presumption' }
+        ];
+
+        var WEAPON_SETS = [
+            { key: 'spiked-helper',   name: 'Spiked/Helper' },
+            { key: 'fighting-spirit', name: 'Fighting Spirit' },
+            { key: 'jorgoth-t4-v1',   name: 'Jorgoth T4 v1' },
+            { key: 'jorgoth-t4-v2',   name: 'Jorgoth T4 v2' },
+            { key: 'jorgoth-t4-v3',   name: 'Jorgoth T4 v3' },
+            { key: 'acrimony',        name: 'Acrimony' },
+            { key: 'presumption',     name: 'Presumption' },
+            { key: 'vision',          name: 'Vision' },
+            { key: 'salvation',       name: 'Salvation (Upgraded FS)' }
+        ];
+
+        var OATH_OPTIONS = [
+            { key: 'none',         name: 'None',         rank: 0 },
+            { key: 'silent-skill', name: 'Silent Skill', rank: 0 },
+            { key: 'legendary-1',  name: 'Legendary 1',  rank: 1 },
+            { key: 'legendary-2',  name: 'Legendary 2',  rank: 2 },
+            { key: 'legendary-3',  name: 'Legendary 3',  rank: 3 },
+            { key: 'ultimate-1',   name: 'Ultimate 1',   rank: 4 },
+            { key: 'ultimate-2',   name: 'Ultimate 2',   rank: 5 },
+            { key: 'ultimate-3',   name: 'Ultimate 3',   rank: 6 }
+        ];
+
+        // Oath stat bonuses per pair type
+        // shoulders+helmet → HP + ACC (accuracy + magicalAccuracy)
+        // chest+pants      → HP + DEF (physicalDef + magicalDef)
+        // gloves+boots     → HP + ATK (attack)
+        // Both slots must have a real oath (not none/silent-skill) to activate
+        var OATH_BONUS = {
+            'none':         { hp: 0,    def: 0,   attack: 0,   acc: 0 },
+            'silent-skill': { hp: 0,    def: 0,   attack: 0,   acc: 0 },
+            'legendary-1':  { hp: 1000, def: 100, attack: 100, acc: 300 },
+            'legendary-2':  { hp: 1250, def: 125, attack: 125, acc: 375 },
+            'legendary-3':  { hp: 1500, def: 150, attack: 150, acc: 450 },
+            'ultimate-1':   { hp: 2500, def: 250, attack: 250, acc: 750 },
+            'ultimate-2':   { hp: 3500, def: 350, attack: 350, acc: 1050 },
+            'ultimate-3':   { hp: 5000, def: 500, attack: 500, acc: 1500 }
+        };
+
+        // Oath icon URL parts per slot
+        var OATH_SLOT_ICON = {
+            shoulders: 'shoulder', helmet: 'head', chest: 'torso',
+            pants: 'leg', gloves: 'glove', boots: 'foot'
+        };
+
+        // Oath pairs: the two slots in each pair share one oath bonus
+        var OATH_PAIRS = [
+            ['shoulders', 'helmet'],
+            ['chest', 'pants'],
+            ['gloves', 'boots']
+        ];
+
+        function getOathIconTier(oathKey) {
+            if (oathKey === 'ultimate-3') return 'g6';
+            if (oathKey === 'ultimate-1' || oathKey === 'ultimate-2') return 'g4';
+            if (oathKey === 'legendary-1' || oathKey === 'legendary-2' || oathKey === 'legendary-3') return 'g1';
+            return null;
+        }
+
+        var SILENT_SKILL_ICONS = {
+            shoulders: 'https://aioncodex.com/items/icon_item_rb_shoulder_s01.png',
+            helmet:    'https://aioncodex.com/items/icon_item_ac_head_s05.png',
+            chest:     'https://aioncodex.com/items/icon_item_rb_torso_s01.png',
+            pants:     'https://aioncodex.com/items/icon_item_rb_pants_s01.png',
+            gloves:    'https://aioncodex.com/items/icon_item_rb_glove_s01.png',
+            boots:     'https://aioncodex.com/items/icon_item_rb_shoes_s01.png'
+        };
+
+        var OATH_FRAME = 'https://aioncodex.com/images/icon_frame_2.png';
+
+        function getOathIcon(slotKey, oathKey) {
+            if (oathKey === 'silent-skill') return SILENT_SKILL_ICONS[slotKey] || null;
+            var tier = getOathIconTier(oathKey);
+            if (!tier) return null;
+            return 'https://aioncodex.com/skills/vs_armor_' + OATH_SLOT_ICON[slotKey] + '_a_' + tier + '.png';
+        }
+
+        function getOathRank(oathKey) {
+            var opt = OATH_OPTIONS.find(function(o) { return o.key === oathKey; });
+            return opt ? opt.rank : 0;
+        }
+
+        // For a pair, both slots must have a real oath to activate
+        function isRealOath(oathKey) {
+            return oathKey !== 'none' && oathKey !== 'silent-skill';
+        }
+
+        function getEffectiveOath(oath, slot1, slot2) {
+            if (!isRealOath(oath[slot1]) || !isRealOath(oath[slot2])) return 'none';
+            var r1 = getOathRank(oath[slot1]);
+            var r2 = getOathRank(oath[slot2]);
+            return r1 >= r2 ? oath[slot1] : oath[slot2];
+        }
+
+        var CLASS_DATA = {
+            gladiator:    { name: 'Gladiator',    icon: 'images/gladiator.png',    weapons: ['sword', 'dagger', 'greatsword', 'polearm'], armorTypes: ['physical-plate'] },
+            templar:      { name: 'Templar',      icon: 'images/templar.png',      weapons: ['sword', 'mace', 'greatsword'],              armorTypes: ['physical-plate'] },
+            assassin:     { name: 'Assassin',     icon: 'images/assassin.png',     weapons: ['dagger', 'sword'],                          armorTypes: ['physical-leather', 'magical-leather'] },
+            ranger:       { name: 'Ranger',       icon: 'images/ranger.png',       weapons: ['bow'],                                      armorTypes: ['physical-leather', 'magical-leather'] },
+            sorcerer:     { name: 'Sorcerer',     icon: 'images/sorcerer.png',     weapons: ['orb', 'spellbook'],                         armorTypes: ['magical-cloth'] },
+            spiritmaster: { name: 'Spiritmaster', icon: 'images/spiritmaster.png', weapons: ['orb', 'spellbook'],                         armorTypes: ['magical-cloth'] },
+            cleric:       { name: 'Cleric',       icon: 'images/cleric.png',       weapons: ['mace'],                                     armorTypes: ['physical-chain', 'magical-chain'] },
+            chanter:      { name: 'Chanter',      icon: 'images/chanter.png',      weapons: ['staff'],                                    armorTypes: ['physical-chain', 'magical-chain'] },
+            aethertech:   { name: 'Aethertech',   icon: 'images/aethertech.png',   weapons: ['aetherKey'],                                armorTypes: ['magical-plate'] },
+            gunner:       { name: 'Gunner',       icon: 'images/gunner.png',       weapons: ['cannon', 'pistol'],                         armorTypes: ['magical-leather'] },
+            bard:         { name: 'Bard',         icon: 'images/bard.png',         weapons: ['harp'],                                     armorTypes: ['magical-cloth'] },
+            painter:      { name: 'Painter',      icon: 'images/painter.png',      weapons: ['paintRings'],                               armorTypes: ['physical-cloth'] }
+        };
+
+        var CLASS_ORDER = ['gladiator', 'templar', 'assassin', 'ranger', 'sorcerer', 'spiritmaster',
+                           'cleric', 'chanter', 'aethertech', 'gunner', 'bard', 'painter'];
+
+        // Stats that items provide (used for comparison)
+        var COMPARISON_STATS = [
+            { key: 'attack',          name: 'Attack' },
+            { key: 'physicalDef',     name: 'Physical Def' },
+            { key: 'magicalDef',      name: 'Magical Def' },
+            { key: 'healingBoost',    name: 'Healing Boost' },
+            { key: 'increasedRegen',  name: 'Increased Regeneration' },
+            { key: 'pvpAttack',       name: 'Add. PvP Atk' },
+            { key: 'pveAttack',       name: 'Add. PvE Atk' },
+            { key: 'pvpDefense',      name: 'Add. PvP Def' },
+            { key: 'pveDefense',      name: 'Add. PvE Def' },
+            { key: 'accuracy',    name: 'Accuracy' },
+            { key: 'crit',        name: 'Crit' },
+            { key: 'hp',          name: 'HP' },
+            { key: 'magicResist',     name: 'Magic Resist' },
+            { key: 'evasion',         name: 'Evasion' }
+        ];
+
+        var STAT_KEYS = COMPARISON_STATS.map(function(s) { return s.key; });
+
+        // ═══════════════════════════════════════════════════════════
+        // ITEM DATABASE (dummy data — replace with real values)
+        // ═══════════════════════════════════════════════════════════
+
+        function emptyStats() {
+            var s = {};
+            STAT_KEYS.forEach(function(k) { s[k] = 0; });
+            return s;
+        }
+
+        var ITEM_DB = { armor: {}, weapon: {}, shield: {} };
+
+        // Build keys lists
+        var ARMOR_TYPE_KEYS = ARMOR_TYPE_OPTIONS.map(function(o) { return o.key; });
+        var ARMOR_SET_KEYS  = ARMOR_SETS.map(function(o) { return o.key; });
+        var ARMOR_SLOT_KEYS = ARMOR_SLOTS.map(function(o) { return o.key; });
+        var WEAPON_SET_KEYS = WEAPON_SETS.map(function(o) { return o.key; });
+        var WEAPON_TYPE_KEYS = Object.keys(WEAPON_TYPES);
+
+        // ═══════════════════════════════════════════════════════════
+        // ARMOR STATS DATABASE (real values)
+        // ═══════════════════════════════════════════════════════════
+
+        // Fighting Spirit: slot tier mapping
+        var FS_TIER = {
+            helmet: 'high', chest: 'high', pants: 'high',
+            shoulders: 'low', gloves: 'low', boots: 'low'
+        };
+
+        // Fighting Spirit: [pDef, mDef] per armor type and tier
+        var FS_DEF = {
+            'physical-plate':   { high: [2229, 1911], low: [1620, 1387] },
+            'magical-plate':    { high: [2229, 1911], low: [1620, 1387] },
+            'physical-chain':   { high: [2166, 1676], low: [1574, 1435] },
+            'magical-chain':    { high: [2101, 2038], low: [1527, 1481] },
+            'physical-leather': { high: [2038, 2101], low: [1481, 1527] },
+            'magical-leather':  { high: [1974, 2166], low: [1435, 1574] },
+            'physical-cloth':   { high: [1974, 2166], low: [1435, 1574] },
+            'magical-cloth':    { high: [1911, 2229], low: [1387, 1620] }
+        };
+
+        // Fighting Spirit: common stats by tier (same for all armor types)
+        var FS_COMMON = {
+            high: { hp: 3712, attack: 1676, crit: 249, accuracy: 288, bonusDef: 210, enchDef: 175, enchAtk: 175, evasion: 356, magicResist: 356, increasedRegen: 30 },
+            low:  { hp: 0,    attack: 1200, crit: 127, accuracy: 144, bonusDef: 210, enchDef: 175, enchAtk: 175, evasion: 178, magicResist: 178, increasedRegen: 10 }
+        };
+
+        // Extreme gear (Acrimony/Presumption): slot tier mapping
+        var EX_TIER = {
+            helmet: 'high', chest: 'high',
+            pants: 'mid',
+            shoulders: 'low', gloves: 'low', boots: 'low'
+        };
+
+        // Extreme gear: base [pDef, mDef] per armor type and tier
+        var EX_BASE_DEF = {
+            'physical-plate':   { high: [2294, 1965], mid: [1971, 1689], low: [1665, 1428] },
+            'magical-plate':    { high: [2228, 2031], mid: [1914, 1745], low: [1619, 1476] },
+            'physical-chain':   { high: [2228, 2031], mid: [1914, 1745], low: [1619, 1476] },
+            'magical-chain':    { high: [2162, 2097], mid: [1857, 1802], low: [1571, 1523] },
+            'physical-leather': { high: [2097, 2162], mid: [1802, 1857], low: [1523, 1571] },
+            'magical-leather':  { high: [2031, 2228], mid: [1745, 1914], low: [1476, 1619] },
+            'physical-cloth':   { high: [2031, 2228], mid: [1745, 1914], low: [1476, 1619] },
+            'magical-cloth':    { high: [1965, 2294], mid: [1689, 1971], low: [1428, 1665] }
+        };
+
+        // Extreme gear common stats per tier (applies to both acrimony and presumption)
+        var EX_COMMON = {
+            high: { hp: 2273, attack: 1532 },
+            mid:  { hp: 1933, attack: 1297 },
+            low:  { hp: 1380, attack: 1097 }
+        };
+
+        // Acrimony enchant bonuses: { attack, def, hp, crit } each with { low, mid, high }
+        var ACRI_ENCHANT = {
+            8:  { attack: { low: 195, mid: 241, high: 270 }, def: { low: 306, mid: 387, high: 419 }, hp: { low: 2155, mid: 2480, high: 2802 }, crit: { low: 647, mid: 816, high: 884 } },
+            9:  { attack: { low: 243, mid: 300, high: 336 }, def: { low: 381, mid: 482, high: 522 }, hp: { low: 2685, mid: 3090, high: 3491 }, crit: { low: 806, mid: 1017, high: 1102 } },
+            10: { attack: { low: 291, mid: 359, high: 403 }, def: { low: 456, mid: 577, high: 626 }, hp: { low: 3216, mid: 3701, high: 4181 }, crit: { low: 965, mid: 1217, high: 1319 } },
+            11: { attack: { low: 339, mid: 418, high: 469 }, def: { low: 531, mid: 672, high: 729 }, hp: { low: 3746, mid: 4311, high: 4870 }, crit: { low: 1124, mid: 1418, high: 1537 } },
+            12: { attack: { low: 387, mid: 477, high: 535 }, def: { low: 606, mid: 768, high: 832 }, hp: { low: 4276, mid: 4921, high: 5560 }, crit: { low: 1284, mid: 1619, high: 1754 } },
+            13: { attack: { low: 435, mid: 537, high: 602 }, def: { low: 682, mid: 863, high: 935 }, hp: { low: 4807, mid: 5532, high: 6250 }, crit: { low: 1443, mid: 1820, high: 1972 } },
+            14: { attack: { low: 483, mid: 596, high: 668 }, def: { low: 757, mid: 958, high: 1038 }, hp: { low: 5337, mid: 6142, high: 6939 }, crit: { low: 1602, mid: 2021, high: 2190 } },
+            15: { attack: { low: 531, mid: 655, high: 735 }, def: { low: 832, mid: 1053, high: 1142 }, hp: { low: 5868, mid: 6753, high: 7629 }, crit: { low: 1761, mid: 2221, high: 2407 } }
+        };
+
+        // Presumption enchant bonuses: { attack, def, hp } each with { low, mid, high }
+        var PRES_ENCHANT = {
+            8:  { attack: { low: 195, mid: 241, high: 270 }, def: { low: 468, mid: 592, high: 640 }, hp: { low: 2155, mid: 2480, high: 2802 } },
+            9:  { attack: { low: 243, mid: 300, high: 336 }, def: { low: 583, mid: 737, high: 798 }, hp: { low: 2685, mid: 3090, high: 3491 } },
+            10: { attack: { low: 291, mid: 359, high: 403 }, def: { low: 698, mid: 883, high: 955 }, hp: { low: 3216, mid: 3701, high: 4181 } },
+            11: { attack: { low: 339, mid: 418, high: 469 }, def: { low: 814, mid: 1028, high: 1113 }, hp: { low: 3746, mid: 4311, high: 4870 } },
+            12: { attack: { low: 387, mid: 477, high: 535 }, def: { low: 929, mid: 1174, high: 1271 }, hp: { low: 4276, mid: 4921, high: 5560 } },
+            13: { attack: { low: 435, mid: 537, high: 602 }, def: { low: 1044, mid: 1320, high: 1428 }, hp: { low: 4807, mid: 5532, high: 6250 } },
+            14: { attack: { low: 483, mid: 596, high: 668 }, def: { low: 1159, mid: 1465, high: 1586 }, hp: { low: 5337, mid: 6142, high: 6939 } },
+            15: { attack: { low: 531, mid: 655, high: 735 }, def: { low: 1274, mid: 1611, high: 1743 }, hp: { low: 5868, mid: 6753, high: 7629 } }
+        };
+
+        // Calculate actual stats for one armor slot
+        function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel) {
+            var s = emptyStats();
+
+            if (setKey === 'fighting-spirit') {
+                var tier = FS_TIER[slotKey];
+                var def = FS_DEF[armorType];
+                if (!def) return s;
+                var d = def[tier];
+                var c = FS_COMMON[tier];
+                s.physicalDef = d[0] + c.bonusDef + c.enchDef;
+                s.magicalDef = d[1] + c.bonusDef + c.enchDef;
+                s.hp = c.hp;
+                s.attack = c.attack + c.enchAtk;
+                s.crit = c.crit;
+                s.accuracy = c.accuracy;
+                s.evasion = c.evasion;
+                s.magicResist = c.magicResist;
+                s.increasedRegen = c.increasedRegen;
+            } else if (setKey === 'acrimony' || setKey === 'presumption') {
+                var tier = EX_TIER[slotKey];
+                var baseDef = EX_BASE_DEF[armorType];
+                if (!baseDef) return s;
+                var bd = baseDef[tier];
+                var ec = EX_COMMON[tier];
+                s.physicalDef = bd[0];
+                s.magicalDef = bd[1];
+                s.hp = ec.hp;
+                s.attack = ec.attack;
+                // Base bonus
+                if (setKey === 'acrimony') {
+                    s.attack += 20; s.physicalDef += 10; s.magicalDef += 10; s.hp += 20; s.crit += 20;
+                } else {
+                    s.attack += 20; s.physicalDef += 20; s.magicalDef += 20; s.hp += 20;
+                }
+                // Enchant bonuses (+8 to +15)
+                var bonusTable = (setKey === 'acrimony') ? ACRI_ENCHANT : PRES_ENCHANT;
+                if (enchantLevel >= 8 && bonusTable[enchantLevel]) {
+                    var b = bonusTable[enchantLevel];
+                    s.attack += b.attack[tier];
+                    s.physicalDef += b.def[tier];
+                    s.magicalDef += b.def[tier];
+                    s.hp += b.hp[tier];
+                    if (setKey === 'acrimony' && b.crit) {
+                        s.crit += b.crit[tier];
+                    }
+                }
+            }
+            return s;
+        }
+
+        // ── Dummy weapon data ──
+        // Structure: ITEM_DB.weapon[weaponSet][weaponType] = { stat: value, ... }
+        WEAPON_SET_KEYS.forEach(function(set, si) {
+            ITEM_DB.weapon[set] = {};
+            WEAPON_TYPE_KEYS.forEach(function(wType, wi) {
+                var b = (si + 1) * 100 + (wi + 1) * 10;
+                var s = emptyStats();
+                s.attack      = b;
+                s.physicalDef = Math.round(b * 0.1);
+                s.magicalDef  = Math.round(b * 0.1);
+                s.accuracy    = Math.round(b * 0.3);
+                s.hp          = b * 5;
+                s.crit        = Math.round(b * 0.2);
+                ITEM_DB.weapon[set][wType] = s;
+            });
+        });
+
+        // ── Dummy shield data ──
+        // Structure: ITEM_DB.shield[weaponSet][shieldType] = { stat: value, ... }
+        WEAPON_SET_KEYS.forEach(function(set, si) {
+            ITEM_DB.shield[set] = {};
+            ['scale-phys', 'scale-mag'].forEach(function(sType, sti) {
+                var b = (si + 1) * 50 + sti * 20;
+                var s = emptyStats();
+                s.physicalDef = b + (sti === 0 ? 20 : 5);
+                s.magicalDef  = b + (sti === 1 ? 20 : 5);
+                s.pvpDefense  = b + 3;
+                s.pveDefense  = b + 4;
+                s.hp          = b * 10;
+                s.magicResist = sti === 1 ? b + 15 : 0;
+                ITEM_DB.shield[set][sType] = s;
+            });
+        });
+
+        // ═══════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════
+
+        function createDefaultProfile(className) {
+            var cls = CLASS_DATA[className];
+            var oneHanded = cls.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
+            var profile = {
+                armorType: cls.armorTypes[0],
+                armor: {},
+                mainWeapon: { type: cls.weapons[0], set: 'fighting-spirit', enchant: 8 },
+                offHand: { type: 'none', weaponType: oneHanded[0] || cls.weapons[0], set: 'fighting-spirit', enchant: 8 },
+                shieldType: 'scale-phys',
+                oath: { shoulders: 'none', helmet: 'none', chest: 'none', pants: 'none', gloves: 'none', boots: 'none' }
+            };
+            ARMOR_SLOTS.forEach(function(slot) {
+                profile.armor[slot.key] = { set: 'fighting-spirit', enchant: 8 };
+            });
+            return profile;
+        }
+
+        var STORAGE_KEY = 'gc-state-v1';
+
+        function saveState() {
+            try {
+                var data = { selectedClass: selectedClass, profiles: { 1: state[1], 2: state[2] } };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            } catch (e) { /* quota exceeded or private mode */ }
+        }
+
+        function loadState() {
+            try {
+                var raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return false;
+                var data = JSON.parse(raw);
+                if (!data || !data.selectedClass || !data.profiles) return false;
+                // Validate class exists
+                if (!CLASS_DATA[data.selectedClass]) return false;
+                selectedClass = data.selectedClass;
+                [1, 2].forEach(function(id) {
+                    var saved = data.profiles[id];
+                    if (!saved) return;
+                    var cls = CLASS_DATA[selectedClass];
+                    var p = createDefaultProfile(selectedClass);
+                    // Restore armor type
+                    if (saved.armorType && cls.armorTypes.indexOf(saved.armorType) !== -1) {
+                        p.armorType = saved.armorType;
+                    }
+                    // Restore armor slots
+                    if (saved.armor) {
+                        ARMOR_SLOTS.forEach(function(slot) {
+                            var sa = saved.armor[slot.key];
+                            if (sa) {
+                                if (sa.set && ARMOR_SET_KEYS.indexOf(sa.set) !== -1) p.armor[slot.key].set = sa.set;
+                                if (typeof sa.enchant === 'number' && sa.enchant >= 8 && sa.enchant <= 15) p.armor[slot.key].enchant = sa.enchant;
+                            }
+                        });
+                    }
+                    // Restore main weapon
+                    if (saved.mainWeapon) {
+                        if (saved.mainWeapon.type && cls.weapons.indexOf(saved.mainWeapon.type) !== -1) p.mainWeapon.type = saved.mainWeapon.type;
+                        if (saved.mainWeapon.set && WEAPON_SET_KEYS.indexOf(saved.mainWeapon.set) !== -1) p.mainWeapon.set = saved.mainWeapon.set;
+                        if (typeof saved.mainWeapon.enchant === 'number' && saved.mainWeapon.enchant >= 8 && saved.mainWeapon.enchant <= 15) p.mainWeapon.enchant = saved.mainWeapon.enchant;
+                    }
+                    // Restore off-hand
+                    if (saved.offHand) {
+                        if (['none','fuse','weapon','shield'].indexOf(saved.offHand.type) !== -1) p.offHand.type = saved.offHand.type;
+                        if (saved.offHand.weaponType && WEAPON_TYPE_KEYS.indexOf(saved.offHand.weaponType) !== -1) p.offHand.weaponType = saved.offHand.weaponType;
+                        if (saved.offHand.set && WEAPON_SET_KEYS.indexOf(saved.offHand.set) !== -1) p.offHand.set = saved.offHand.set;
+                        if (typeof saved.offHand.enchant === 'number' && saved.offHand.enchant >= 8 && saved.offHand.enchant <= 15) p.offHand.enchant = saved.offHand.enchant;
+                    }
+                    // Restore shield type
+                    if (saved.shieldType && ['scale-phys','scale-mag'].indexOf(saved.shieldType) !== -1) p.shieldType = saved.shieldType;
+                    // Restore oaths
+                    if (saved.oath) {
+                        var oathKeys = OATH_OPTIONS.map(function(o) { return o.key; });
+                        ARMOR_SLOTS.forEach(function(slot) {
+                            if (saved.oath[slot.key] && oathKeys.indexOf(saved.oath[slot.key]) !== -1) {
+                                p.oath[slot.key] = saved.oath[slot.key];
+                            }
+                        });
+                    }
+                    state[id] = p;
+                });
+                return true;
+            } catch (e) { return false; }
+        }
+
+        var selectedClass = 'gladiator';
+        var state = {
+            1: createDefaultProfile('gladiator'),
+            2: createDefaultProfile('gladiator')
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // STAT CALCULATION
+        // ═══════════════════════════════════════════════════════════
+
+        function calculateProfileStats(profileId) {
+            var profile = state[profileId];
+            var totals = emptyStats();
+
+            // Sum armor stats across all 6 slots
+            ARMOR_SLOTS.forEach(function(slot) {
+                var piece = profile.armor[slot.key];
+                var armorStats = getArmorSlotStats(profile.armorType, piece.set, slot.key, piece.enchant);
+                STAT_KEYS.forEach(function(k) { totals[k] += (armorStats[k] || 0); });
+            });
+
+            // Main weapon
+            var mw = profile.mainWeapon;
+            if (ITEM_DB.weapon[mw.set] && ITEM_DB.weapon[mw.set][mw.type]) {
+                var wStats = ITEM_DB.weapon[mw.set][mw.type];
+                STAT_KEYS.forEach(function(k) { totals[k] += (wStats[k] || 0); });
+            }
+
+            // Off-hand
+            var oh = profile.offHand;
+            if (oh.type === 'shield') {
+                if (ITEM_DB.shield[oh.set] && ITEM_DB.shield[oh.set][profile.shieldType]) {
+                    var sStats = ITEM_DB.shield[oh.set][profile.shieldType];
+                    STAT_KEYS.forEach(function(k) { totals[k] += (sStats[k] || 0); });
+                }
+            } else if (oh.type === 'fuse') {
+                if (ITEM_DB.weapon[oh.set] && ITEM_DB.weapon[oh.set][mw.type]) {
+                    var fStats = ITEM_DB.weapon[oh.set][mw.type];
+                    STAT_KEYS.forEach(function(k) { totals[k] += (fStats[k] || 0); });
+                }
+            } else if (oh.type === 'weapon') {
+                if (ITEM_DB.weapon[oh.set] && ITEM_DB.weapon[oh.set][oh.weaponType]) {
+                    var owStats = ITEM_DB.weapon[oh.set][oh.weaponType];
+                    STAT_KEYS.forEach(function(k) { totals[k] += (owStats[k] || 0); });
+                }
+            }
+
+            // Oath pair bonuses (both slots must have real oath)
+            // shoulders+helmet → HP + accuracy + magicalAccuracy
+            // chest+pants      → HP + physicalDef + magicalDef
+            // gloves+boots     → HP + attack
+            OATH_PAIRS.forEach(function(pair, pairIdx) {
+                var effectiveOath = getEffectiveOath(profile.oath, pair[0], pair[1]);
+                var ob = OATH_BONUS[effectiveOath];
+                if (ob) {
+                    totals.hp += ob.hp;
+                    if (pairIdx === 0) {
+                        // shoulders + helmet → accuracy
+                        totals.accuracy += ob.acc;
+                    } else if (pairIdx === 1) {
+                        // chest + pants → defense
+                        totals.physicalDef += ob.def;
+                        totals.magicalDef  += ob.def;
+                    } else if (pairIdx === 2) {
+                        // gloves + boots → attack
+                        totals.attack += ob.attack;
+                    }
+                }
+            });
+
+            return totals;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // RENDERING
+        // ═══════════════════════════════════════════════════════════
+
+        function renderAll() {
+            renderClassSelector();
+            renderProfile(1);
+            renderProfile(2);
+            updateComparison();
+        }
+
+        function renderClassSelector() {
+            var el = document.getElementById('class-selector');
+            var html = '<div class="gc-section-label" style="margin-bottom:10px">Choose Class</div>';
+            html += '<div class="gc-class-grid">';
+            CLASS_ORDER.forEach(function(cn) {
+                var cls = CLASS_DATA[cn];
+                var sel = cn === selectedClass ? ' selected' : '';
+                html += '<div class="gc-class-btn' + sel + '" onclick="GC.selectClass(\'' + cn + '\')" title="' + cls.name + '">';
+                html += '<img src="' + cls.icon + '" alt="' + cls.name + '">';
+                html += '<span class="gc-class-label">' + cls.name + '</span>';
+                html += '</div>';
+            });
+            html += '</div>';
+            el.innerHTML = html;
+        }
+
+        function renderProfile(id) {
+            var container = document.getElementById('profile-' + id);
+            var profile = state[id];
+            var classInfo = CLASS_DATA[selectedClass];
+            var material = getArmorMaterial(profile.armorType);
+            var html = '';
+
+            // ── Header ──
+            html += '<div class="gc-profile-header">';
+            html += '<span class="gc-set-title">SET ' + id + '</span>';
+            html += '</div>';
+
+            // ── Armor Section ──
+            html += '<div class="gc-section">';
+            html += '<div class="gc-section-label-row">';
+            html += '<span class="gc-section-label">⚔️ Armor</span>';
+            if (classInfo.armorTypes.length > 1) {
+                html += '<select class="gc-select gc-select-inline" onchange="GC.setArmorType(' + id + ',this.value)">';
+                classInfo.armorTypes.forEach(function(atKey) {
+                    var opt = ARMOR_TYPE_OPTIONS.find(function(o) { return o.key === atKey; });
+                    var s = profile.armorType === atKey ? ' selected' : '';
+                    html += '<option value="' + atKey + '"' + s + '>' + opt.name + '</option>';
+                });
+                html += '</select>';
+            } else {
+                var singleOpt = ARMOR_TYPE_OPTIONS.find(function(o) { return o.key === classInfo.armorTypes[0]; });
+                html += '<span class="gc-armor-type-badge">' + singleOpt.name + '</span>';
+            }
+            html += '</div>';
+
+            html += '<div class="gc-armor-list">';
+            ARMOR_SLOTS.forEach(function(slot) {
+                var armor = profile.armor[slot.key];
+                html += renderArmorSlot(id, slot, armor, profile, material);
+            });
+            html += '</div></div>';
+
+            // ── Weapons Section ──
+            html += '<div class="gc-section">';
+            html += '<div class="gc-section-label">🗡️ Weapons</div>';
+            html += '<div class="gc-weapon-notice">⚠️ Weapon stats are under construction — use armor comparison only for now.</div>';
+            html += '<div class="gc-weapon-grid">';
+            html += renderMainWeaponSlot(id, profile.mainWeapon, classInfo);
+            html += renderOffHandSlot(id, profile, classInfo);
+            html += '</div></div>';
+
+            container.innerHTML = html;
+        }
+
+        function renderArmorSlot(pid, slot, armor, profile, material) {
+            var iconUrl = getArmorIcon(material, slot.iconKey);
+            var slotOath = profile.oath[slot.key];
+            var oathIconUrl = getOathIcon(slot.key, slotOath);
+            var html = '<div class="gc-armor-row">';
+
+            // Armor icon
+            html += '<div class="gc-slot-icon"><img src="' + iconUrl + '" alt="' + slot.name + '"></div>';
+            // Name
+            html += '<div class="gc-slot-label">' + slot.name + '</div>';
+            // Set
+            html += '<select class="gc-select" onchange="GC.setArmor(' + pid + ',\'' + slot.key + '\',this.value)">';
+            ARMOR_SETS.forEach(function(set) {
+                var s = armor.set === set.key ? ' selected' : '';
+                html += '<option value="' + set.key + '"' + s + '>' + set.name + '</option>';
+            });
+            html += '</select>';
+            // Enchant
+            html += '<select class="gc-select gc-select-sm" onchange="GC.setArmorEnchant(' + pid + ',\'' + slot.key + '\',this.value)">';
+            for (var i = 8; i <= 15; i++) {
+                var s = armor.enchant === i ? ' selected' : '';
+                html += '<option value="' + i + '"' + s + '>+' + i + '</option>';
+            }
+            html += '</select>';
+            // Oath icon
+            if (oathIconUrl) {
+                var isFramed = (slotOath === 'silent-skill');
+                html += '<div class="gc-oath-icon' + (isFramed ? ' gc-oath-icon-framed' : '') + '">';
+                html += '<img src="' + oathIconUrl + '" alt="Oath" class="gc-oath-img">';
+                if (isFramed) html += '<img src="' + OATH_FRAME + '" alt="" class="gc-oath-frame">';
+                html += '</div>';
+            } else {
+                html += '<div class="gc-oath-icon gc-oath-icon-empty"></div>';
+            }
+            // Oath dropdown
+            html += '<select class="gc-select gc-select-oath" onchange="GC.setOath(' + pid + ',\'' + slot.key + '\',this.value)">';
+            OATH_OPTIONS.forEach(function(opt) {
+                var s = slotOath === opt.key ? ' selected' : '';
+                html += '<option value="' + opt.key + '"' + s + '>' + opt.name + '</option>';
+            });
+            html += '</select>';
+
+            html += '</div>';
+            return html;
+        }
+
+        function renderMainWeaponSlot(pid, weapon, classInfo) {
+            var wt = WEAPON_TYPES[weapon.type];
+            var html = '<div class="gc-slot gc-slot-weapon">';
+            html += '<div class="gc-slot-name">Main Weapon</div>';
+            html += '<div class="gc-weapon-icon"><img src="' + wt.icon + '" alt="' + wt.name + '"></div>';
+
+            // Weapon type (filtered by class)
+            html += '<select class="gc-select" onchange="GC.setWeaponType(' + pid + ',this.value)">';
+            classInfo.weapons.forEach(function(wKey) {
+                var w = WEAPON_TYPES[wKey];
+                var s = weapon.type === wKey ? ' selected' : '';
+                html += '<option value="' + wKey + '"' + s + '>' + w.name + '</option>';
+            });
+            html += '</select>';
+
+            // Weapon set
+            html += '<select class="gc-select" onchange="GC.setWeaponSet(' + pid + ',\'main\',this.value)">';
+            WEAPON_SETS.forEach(function(set) {
+                var s = weapon.set === set.key ? ' selected' : '';
+                html += '<option value="' + set.key + '"' + s + '>' + set.name + '</option>';
+            });
+            html += '</select>';
+
+            // Enchant
+            html += '<select class="gc-select gc-select-sm" onchange="GC.setWeaponEnchant(' + pid + ',\'main\',this.value)">';
+            for (var i = 8; i <= 15; i++) {
+                var s = weapon.enchant === i ? ' selected' : '';
+                html += '<option value="' + i + '"' + s + '>+' + i + '</option>';
+            }
+            html += '</select>';
+
+            html += '</div>';
+            return html;
+        }
+
+        function renderOffHandSlot(pid, profile, classInfo) {
+            var oh = profile.offHand;
+            var mainType = profile.mainWeapon.type;
+            var mainIs2H = WEAPON_TYPES[mainType].twoHanded;
+            var canShield = !mainIs2H && SHIELD_WEAPONS.indexOf(mainType) !== -1;
+
+            var html = '<div class="gc-slot gc-slot-weapon">';
+            html += '<div class="gc-slot-name">Off-hand / Fuse</div>';
+
+            // Icon
+            if (oh.type === 'shield') {
+                html += '<div class="gc-weapon-icon"><img src="https://aioncodex.com/items/icon_item_equip_shield_f01.png" alt="Shield"></div>';
+            } else if (oh.type === 'fuse') {
+                html += '<div class="gc-weapon-icon"><img src="' + WEAPON_TYPES[mainType].icon + '" alt="Fuse"></div>';
+            } else if (oh.type === 'weapon') {
+                html += '<div class="gc-weapon-icon"><img src="' + WEAPON_TYPES[oh.weaponType].icon + '" alt="' + WEAPON_TYPES[oh.weaponType].name + '"></div>';
+            } else {
+                html += '<div class="gc-weapon-icon gc-weapon-icon-empty">—</div>';
+            }
+
+            // Type selector
+            html += '<select class="gc-select" onchange="GC.setOffHandType(' + pid + ',this.value)">';
+            html += '<option value="none"' + (oh.type === 'none' ? ' selected' : '') + '>None</option>';
+            html += '<option value="fuse"' + (oh.type === 'fuse' ? ' selected' : '') + '>Fuse</option>';
+            if (!mainIs2H) {
+                html += '<option value="weapon"' + (oh.type === 'weapon' ? ' selected' : '') + '>Off-hand Weapon</option>';
+                if (canShield) {
+                    html += '<option value="shield"' + (oh.type === 'shield' ? ' selected' : '') + '>Shield</option>';
+                }
+            }
+            html += '</select>';
+
+            // Shield type
+            if (oh.type === 'shield') {
+                html += '<select class="gc-select" onchange="GC.setShieldType(' + pid + ',this.value)">';
+                html += '<option value="scale-phys"' + (profile.shieldType === 'scale-phys' ? ' selected' : '') + '>Scale (Physical)</option>';
+                html += '<option value="scale-mag"' + (profile.shieldType === 'scale-mag' ? ' selected' : '') + '>Scale (Magical)</option>';
+                html += '</select>';
+            }
+
+            // Off-hand weapon type (dual-wield)
+            if (oh.type === 'weapon') {
+                var oneHanded = classInfo.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
+                html += '<select class="gc-select" onchange="GC.setOffHandWeaponType(' + pid + ',this.value)">';
+                oneHanded.forEach(function(wKey) {
+                    var w = WEAPON_TYPES[wKey];
+                    var s = oh.weaponType === wKey ? ' selected' : '';
+                    html += '<option value="' + wKey + '"' + s + '>' + w.name + '</option>';
+                });
+                html += '</select>';
+            }
+
+            // Set + enchant (when not "none")
+            if (oh.type !== 'none') {
+                html += '<select class="gc-select" onchange="GC.setWeaponSet(' + pid + ',\'offHand\',this.value)">';
+                WEAPON_SETS.forEach(function(set) {
+                    var s = oh.set === set.key ? ' selected' : '';
+                    html += '<option value="' + set.key + '"' + s + '>' + set.name + '</option>';
+                });
+                html += '</select>';
+
+                html += '<select class="gc-select gc-select-sm" onchange="GC.setWeaponEnchant(' + pid + ',\'offHand\',this.value)">';
+                for (var i = 8; i <= 15; i++) {
+                    var s = oh.enchant === i ? ' selected' : '';
+                    html += '<option value="' + i + '"' + s + '>+' + i + '</option>';
+                }
+                html += '</select>';
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // COMPARISON TABLE
+        // ═══════════════════════════════════════════════════════════
+
+        function updateComparison() {
+            var stats1 = calculateProfileStats(1);
+            var stats2 = calculateProfileStats(2);
+            var panel = document.getElementById('comparison-panel');
+            var html = '<div class="gc-comparison-header">';
+            html += '<h2>📈 Total Diff <span class="gc-comp-subtitle">(SET 1 − SET 2)</span></h2>';
+            html += '</div>';
+
+            html += '<table class="gc-comp-table">';
+            html += '<thead><tr>';
+            html += '<th class="gc-comp-th-stat">Stat</th>';
+            html += '<th class="gc-comp-th-val">SET 1</th>';
+            html += '<th class="gc-comp-th-diff">DIFF</th>';
+            html += '<th class="gc-comp-th-val">SET 2</th>';
+            html += '</tr></thead>';
+            html += '<tbody>';
+
+            COMPARISON_STATS.forEach(function(stat) {
+                var v1 = stats1[stat.key];
+                var v2 = stats2[stat.key];
+                var diff = v1 - v2;
+
+                var diffClass = 'gc-diff-zero';
+                var diffText = '0';
+                if (diff > 0) {
+                    diffClass = 'gc-diff-positive';
+                    diffText = '+' + formatNum(diff);
+                } else if (diff < 0) {
+                    diffClass = 'gc-diff-negative';
+                    diffText = formatNum(diff);
+                }
+
+                html += '<tr class="gc-comp-row">';
+                html += '<td class="gc-comp-stat">' + stat.name + '</td>';
+                html += '<td class="gc-comp-val">' + formatNum(v1) + '</td>';
+                html += '<td class="gc-comp-diff ' + diffClass + '">' + diffText + '</td>';
+                html += '<td class="gc-comp-val">' + formatNum(v2) + '</td>';
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            panel.innerHTML = html;
+        }
+
+        function formatNum(n) {
+            if (n === 0) return '0';
+            if (n % 1 !== 0) return n.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+            return n.toLocaleString();
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // EVENT HANDLERS
+        // ═══════════════════════════════════════════════════════════
+
+        window.GC = {
+            selectClass: function(className) {
+                selectedClass = className;
+                var cls = CLASS_DATA[className];
+                var oneHanded = cls.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
+
+                [1, 2].forEach(function(id) {
+                    var p = state[id];
+                    // Reset armor type
+                    if (cls.armorTypes.indexOf(p.armorType) === -1) {
+                        p.armorType = cls.armorTypes[0];
+                    }
+                    // Reset main weapon
+                    if (cls.weapons.indexOf(p.mainWeapon.type) === -1) {
+                        p.mainWeapon.type = cls.weapons[0];
+                    }
+                    // Fix off-hand
+                    var mainIs2H = WEAPON_TYPES[p.mainWeapon.type].twoHanded;
+                    if (mainIs2H && (p.offHand.type === 'shield' || p.offHand.type === 'weapon')) {
+                        p.offHand.type = 'none';
+                    }
+                    if (p.offHand.type === 'shield' && SHIELD_WEAPONS.indexOf(p.mainWeapon.type) === -1) {
+                        p.offHand.type = 'none';
+                    }
+                    p.offHand.weaponType = oneHanded.length > 0 ? oneHanded[0] : cls.weapons[0];
+                });
+                renderAll();
+                saveState();
+            },
+
+            setArmorType: function(pid, armorType) {
+                state[pid].armorType = armorType;
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
+            setArmor: function(pid, slotKey, setKey) {
+                state[pid].armor[slotKey].set = setKey;
+                updateComparison();
+                saveState();
+            },
+
+            setArmorEnchant: function(pid, slotKey, level) {
+                state[pid].armor[slotKey].enchant = parseInt(level);
+                updateComparison();
+                saveState();
+            },
+
+            setOath: function(pid, slotKey, oath) {
+                state[pid].oath[slotKey] = oath;
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
+            setWeaponType: function(pid, type) {
+                var p = state[pid];
+                p.mainWeapon.type = type;
+                var mainIs2H = WEAPON_TYPES[type].twoHanded;
+                if (mainIs2H && (p.offHand.type === 'shield' || p.offHand.type === 'weapon')) {
+                    p.offHand.type = 'none';
+                }
+                if (p.offHand.type === 'shield' && SHIELD_WEAPONS.indexOf(type) === -1) {
+                    p.offHand.type = 'none';
+                }
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
+            setWeaponSet: function(pid, slot, setKey) {
+                if (slot === 'main') {
+                    state[pid].mainWeapon.set = setKey;
+                } else {
+                    state[pid].offHand.set = setKey;
+                }
+                updateComparison();
+                saveState();
+            },
+
+            setWeaponEnchant: function(pid, slot, level) {
+                if (slot === 'main') {
+                    state[pid].mainWeapon.enchant = parseInt(level);
+                } else {
+                    state[pid].offHand.enchant = parseInt(level);
+                }
+                updateComparison();
+                saveState();
+            },
+
+            setOffHandType: function(pid, type) {
+                state[pid].offHand.type = type;
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
+            setOffHandWeaponType: function(pid, type) {
+                state[pid].offHand.weaponType = type;
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
+            setShieldType: function(pid, type) {
+                state[pid].shieldType = type;
+                updateComparison();
+                saveState();
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════
+
+        loadState();
+        renderAll();
+
+    })();
+    </script>
+
+</body>
+</html>
