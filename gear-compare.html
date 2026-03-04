@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f0c29">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>AION 8.x - Gear Comparison Tool</title>
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="assets/css/aion-tools.css?v=3.4">
+    <link rel="stylesheet" href="assets/css/aion-tools.css?v=3.5">
 </head>
 <body class="page-gear-compare">
 
@@ -20,6 +20,9 @@
 
         <!-- Shared Class Selector -->
         <div class="gc-class-selector" id="class-selector"></div>
+
+        <!-- Shared Weapon Setup -->
+        <div class="gc-weapon-config" id="weapon-config"></div>
 
         <!-- Two profiles side by side -->
         <div class="gc-profiles">
@@ -42,13 +45,13 @@
         // DATA CONSTANTS
         // ═══════════════════════════════════════════════════════════
 
-        // One-handed: dagger, sword, mace, pistol
+        // One-handed: dagger, sword, mace, revolver
         // Two-handed: everything else
         var WEAPON_TYPES = {
             dagger:     { name: 'Dagger',      icon: 'https://aioncodex.com/items/icon_item_equip_dagger_f01.png', twoHanded: false },
             sword:      { name: 'Sword',       icon: 'https://aioncodex.com/items/icon_item_equip_sword_f01.png', twoHanded: false },
             mace:       { name: 'Mace',        icon: 'https://aioncodex.com/items/icon_item_equip_mace_f01.png', twoHanded: false },
-            pistol:     { name: 'Pistol',      icon: 'https://aioncodex.com/items/icon_item_equip_gun_f01.png', twoHanded: false },
+            revolver:   { name: 'Revolver',    icon: 'https://aioncodex.com/items/icon_item_equip_gun_f01.png', twoHanded: false },
             greatsword: { name: 'Greatsword',  icon: 'https://aioncodex.com/items/icon_item_equip_2hsword_f01.png', twoHanded: true },
             polearm:    { name: 'Polearm',     icon: 'https://aioncodex.com/items/icon_item_equip_polearm_f01.png', twoHanded: true },
             bow:        { name: 'Bow',         icon: 'https://aioncodex.com/items/icon_item_equip_bow_f01.png', twoHanded: true },
@@ -112,6 +115,9 @@
             { key: 'vision',          name: 'Vision' },
             { key: 'salvation',       name: 'Salvation (Upgraded FS)' }
         ];
+
+        // Sets that are main-hand exclusive (not available for off-hand/fuse)
+        var OFFHAND_EXCLUDED_SETS = ['acrimony', 'presumption', 'vision'];
 
         var OATH_OPTIONS = [
             { key: 'none',         name: 'None',         rank: 0 },
@@ -205,7 +211,7 @@
             cleric:       { name: 'Cleric',       icon: 'images/cleric.png',       weapons: ['mace'],                                     armorTypes: ['magical-chain', 'physical-chain'] },
             chanter:      { name: 'Chanter',      icon: 'images/chanter.png',      weapons: ['staff'],                                    armorTypes: ['physical-chain', 'magical-chain'] },
             aethertech:   { name: 'Aethertech',   icon: 'images/aethertech.png',   weapons: ['aetherKey'],                                armorTypes: ['magical-plate'] },
-            gunner:       { name: 'Gunner',       icon: 'images/gunner.png',       weapons: ['pistol', 'cannon'],                         armorTypes: ['magical-leather'] },
+            gunner:       { name: 'Gunner',       icon: 'images/gunner.png',       weapons: ['revolver', 'cannon'],                         armorTypes: ['magical-leather'] },
             bard:         { name: 'Bard',         icon: 'images/bard.png',         weapons: ['harp'],                                     armorTypes: ['magical-cloth'] },
             painter:      { name: 'Painter',      icon: 'images/painter.png',      weapons: ['paintRings'],                               armorTypes: ['physical-cloth'] }
         };
@@ -243,7 +249,7 @@
             return s;
         }
 
-        var ITEM_DB = { armor: {}, weapon: {}, shield: {} };
+        var ITEM_DB = { shield: {} };
 
         // Build keys lists
         var ARMOR_TYPE_KEYS = ARMOR_TYPE_OPTIONS.map(function(o) { return o.key; });
@@ -381,22 +387,196 @@
             return s;
         }
 
-        // ── Dummy weapon data ──
-        // Structure: ITEM_DB.weapon[weaponSet][weaponType] = { stat: value, ... }
-        WEAPON_SET_KEYS.forEach(function(set, si) {
-            ITEM_DB.weapon[set] = {};
-            WEAPON_TYPE_KEYS.forEach(function(wType, wi) {
-                var b = (si + 1) * 100 + (wi + 1) * 10;
-                var s = emptyStats();
-                s.attack      = b;
-                s.physicalDef = Math.round(b * 0.1);
-                s.magicalDef  = Math.round(b * 0.1);
-                s.accuracy    = Math.round(b * 0.3);
-                s.hp          = b * 5;
-                s.crit        = Math.round(b * 0.2);
-                ITEM_DB.weapon[set][wType] = s;
-            });
-        });
+        // ═══════════════════════════════════════════════════════════
+        // WEAPON STATS DATABASE (real values)
+        // ═══════════════════════════════════════════════════════════
+
+        // Fixed-stat weapons (stats baked in, only vary by 2h/1h)
+        var WEAPON_STATS_FIXED = {
+            'spiked-helper':   { baseAtk: 4796, bonusAtk: 275, enchAtk2h: 547,  enchDef2h: 277, enchAtk1h: 311,  enchDef1h: 237, enchHp: 1917, enchCrit: 363,  baseDef: 177, baseAcc: 2675, bonusAcc: 0 },
+            'fighting-spirit': { baseAtk: 5515, bonusAtk: 275, enchAtk2h: 350,  enchDef2h: 175, enchAtk1h: 230,  enchDef1h: 120, enchHp: 0,    enchCrit: 363,  baseDef: 0,   baseAcc: 2675, bonusAcc: 411 },
+            'vision':          { baseAtk: 4605, bonusAtk: 275, enchAtk2h: 554,  enchDef2h: 279, enchAtk1h: 315,  enchDef1h: 238, enchHp: 1917, enchCrit: 0,    baseDef: 170, baseAcc: 2568, bonusAcc: 411 },
+            'salvation':       { baseAtk: 5791, bonusAtk: 316, enchAtk2h: 350,  enchDef2h: 175, enchAtk1h: 230,  enchDef1h: 120, enchHp: 0,    enchCrit: 417,  baseDef: 112, baseAcc: 2729, bonusAcc: 473 }
+        };
+
+        // Jorgoth: shared enchant bonuses (applied on top of per-weapon data)
+        var JORGOTH_ENCHANT = { enchAtk1h: 223, enchAtk2h: 371, enchDef1h: 61, enchDef2h: 101 };
+
+        // Jorgoth: per weapon type × variant (v1=left in item manual, v3=right)
+        // Each entry: { baseAtk, hp, bonusDef, bonusAtk, crit, acc, healingBoost?, tag? }
+        // tag: 'extended' = Extended weapon, 'masterpiece' = Jorgoth's Masterpiece buff
+        // Common: baseDef=170, baseAcc=2568 (added in getWeaponStats)
+        var JORGOTH_WEAPONS = {
+            dagger: {
+                v1: { baseAtk: 5200, hp: 1917, bonusDef: 0,   bonusAtk: 275, crit: 617, acc: 411, tag: 'extended' },
+                v2: { baseAtk: 5200, hp: 1917, bonusDef: 0,   bonusAtk: 399, crit: 454, acc: 411, tag: 'extended' },
+                v3: { baseAtk: 5200, hp: 1917, bonusDef: 0,   bonusAtk: 467, crit: 363, acc: 411, tag: 'extended' }
+            },
+            sword: {
+                v1: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 0,   crit: 617, acc: 411, tag: 'extended' },
+                v2: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 0,   crit: 363, acc: 698, tag: 'extended' },
+                v3: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 0,   crit: 454, acc: 595, tag: 'extended' }
+            },
+            mace: {
+                v1: { baseAtk: 5200, hp: 2396, bonusDef: 176, bonusAtk: 0,   crit: 363, acc: 411, healingBoost: 82, tag: 'extended' },
+                v2: { baseAtk: 5200, hp: 1917, bonusDef: 280, bonusAtk: 0,   crit: 363, acc: 411, healingBoost: 128 },
+                v3: { baseAtk: 5200, hp: 3258, bonusDef: 176, bonusAtk: 0,   crit: 363, acc: 411, healingBoost: 128 }
+            },
+            revolver: {
+                v1: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 0,   crit: 526, acc: 514, tag: 'masterpiece' },
+                v2: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 0,   crit: 517, acc: 698 },
+                v3: { baseAtk: 2250, hp: 1917, bonusDef: 176, bonusAtk: 683, crit: 363, acc: 411 }
+            },
+            orb: {
+                v1: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 399, crit: 454, acc: 0, tag: 'masterpiece' },
+                v2: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 467, crit: 617, acc: 0 },
+                v3: { baseAtk: 2250, hp: 1917, bonusDef: 176, bonusAtk: 958, crit: 363, acc: 0 }
+            },
+            spellbook: {
+                v1: { baseAtk: 2250, hp: 1917, bonusDef: 176, bonusAtk: 683, crit: 363, acc: 411 },
+                v2: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 0,   crit: 454, acc: 595, tag: 'masterpiece' },
+                v3: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 0,   crit: 517, acc: 698 }
+            },
+            greatsword: {
+                v1: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 467, crit: 0,   acc: 411, tag: 'extended' },
+                v2: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 343, crit: 0,   acc: 595, tag: 'extended' },
+                v3: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 275, crit: 0,   acc: 698, tag: 'extended' }
+            },
+            polearm: {
+                v1: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 275, crit: 617, acc: 0, tag: 'extended' },
+                v2: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 467, crit: 363, acc: 0, tag: 'extended' },
+                v3: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 399, crit: 454, acc: 0, tag: 'extended' }
+            },
+            staff: {
+                v1: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 275, crit: 617, acc: 411, tag: 'extended' },
+                v2: { baseAtk: 5200, hp: 3258, bonusDef: 176, bonusAtk: 275, crit: 363, acc: 411, tag: 'extended' },
+                v3: { baseAtk: 5200, hp: 2396, bonusDef: 176, bonusAtk: 275, crit: 526, acc: 411, tag: 'extended' }
+            },
+            bow: {
+                v1: { baseAtk: 5200, hp: 1917, bonusDef: 0,   bonusAtk: 399, crit: 454, acc: 411, tag: 'masterpiece' },
+                v2: { baseAtk: 5200, hp: 1917, bonusDef: 0,   bonusAtk: 467, crit: 617, acc: 411 },
+                v3: { baseAtk: 2250, hp: 1917, bonusDef: 0,   bonusAtk: 958, crit: 363, acc: 411 }
+            },
+            aetherKey: {
+                v1: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 399, crit: 454, acc: 0, tag: 'masterpiece' },
+                v2: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 467, crit: 617, acc: 0 },
+                v3: { baseAtk: 2250, hp: 1917, bonusDef: 176, bonusAtk: 958, crit: 363, acc: 0 }
+            },
+            cannon: {
+                v1: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 399, crit: 454, acc: 0, tag: 'masterpiece' },
+                v2: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 467, crit: 617, acc: 0 },
+                v3: { baseAtk: 2250, hp: 1917, bonusDef: 176, bonusAtk: 958, crit: 363, acc: 0 }
+            },
+            paintRings: {
+                v1: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 399, crit: 454, acc: 0, tag: 'masterpiece' },
+                v2: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 467, crit: 617, acc: 0 },
+                v3: { baseAtk: 2250, hp: 1917, bonusDef: 176, bonusAtk: 958, crit: 363, acc: 0 }
+            },
+            harp: {
+                v1: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 399, crit: 0,   acc: 514, tag: 'masterpiece' },
+                v2: { baseAtk: 5200, hp: 1917, bonusDef: 176, bonusAtk: 467, crit: 0,   acc: 698 },
+                v3: { baseAtk: 2250, hp: 1917, bonusDef: 176, bonusAtk: 958, crit: 0,   acc: 411 }
+            }
+        };
+
+        // Helper: get Jorgoth tag for display
+        function getJorgothTag(weaponType, setKey) {
+            var vKey = setKey === 'jorgoth-t4-v1' ? 'v1' : setKey === 'jorgoth-t4-v2' ? 'v2' : setKey === 'jorgoth-t4-v3' ? 'v3' : null;
+            if (!vKey || !JORGOTH_WEAPONS[weaponType]) return null;
+            var w = JORGOTH_WEAPONS[weaponType][vKey];
+            return w ? (w.tag || null) : null;
+        }
+
+        // Acrimony weapon enchant table (level 1-15): attack, def, hp, crit
+        var ACRI_WEAPON_ENCHANT = {
+            1:  { attack: 66,   def: 14,  hp: 265,   crit: 61 },
+            2:  { attack: 131,  def: 28,  hp: 531,   crit: 121 },
+            3:  { attack: 197,  def: 42,  hp: 796,   crit: 182 },
+            4:  { attack: 295,  def: 63,  hp: 1194,  crit: 273 },
+            5:  { attack: 426,  def: 91,  hp: 1725,  crit: 394 },
+            6:  { attack: 590,  def: 126, hp: 2389,  crit: 545 },
+            7:  { attack: 804,  def: 172, hp: 3251,  crit: 742 },
+            8:  { attack: 1066, def: 228, hp: 4313,  crit: 985 },
+            9:  { attack: 1328, def: 284, hp: 5374,  crit: 1227 },
+            10: { attack: 1591, def: 340, hp: 6436,  crit: 1470 },
+            11: { attack: 1853, def: 396, hp: 7498,  crit: 1712 },
+            12: { attack: 2116, def: 452, hp: 8559,  crit: 1954 },
+            13: { attack: 2378, def: 508, hp: 9621,  crit: 2197 },
+            14: { attack: 2640, def: 564, hp: 10682, crit: 2439 },
+            15: { attack: 2903, def: 620, hp: 11744, crit: 2682 }
+        };
+
+        // Presumption weapon enchant: same attack/hp as acrimony, different def, crit=0
+        var PRES_WEAPON_ENCHANT = {
+            1:  { attack: 66,   def: 21,  hp: 265,   crit: 0 },
+            2:  { attack: 131,  def: 42,  hp: 531,   crit: 0 },
+            3:  { attack: 197,  def: 64,  hp: 796,   crit: 0 },
+            4:  { attack: 295,  def: 95,  hp: 1194,  crit: 0 },
+            5:  { attack: 426,  def: 138, hp: 1725,  crit: 0 },
+            6:  { attack: 590,  def: 191, hp: 2389,  crit: 0 },
+            7:  { attack: 804,  def: 260, hp: 3251,  crit: 0 },
+            8:  { attack: 1066, def: 345, hp: 4313,  crit: 0 },
+            9:  { attack: 1328, def: 429, hp: 5374,  crit: 0 },
+            10: { attack: 1591, def: 514, hp: 6436,  crit: 0 },
+            11: { attack: 1853, def: 599, hp: 7498,  crit: 0 },
+            12: { attack: 2116, def: 684, hp: 8559,  crit: 0 },
+            13: { attack: 2378, def: 769, hp: 9621,  crit: 0 },
+            14: { attack: 2640, def: 853, hp: 10682, crit: 0 },
+            15: { attack: 2903, def: 938, hp: 11744, crit: 0 }
+        };
+
+        // Acrimony/Presumption weapon base values
+        var EXTREME_WEAPON_BASE = { baseAtk: 4950, bonusAtk: 20, baseDef: 170, baseAcc: 2568 };
+
+        // Calculate weapon stats for any set + weapon type + enchant level
+        function getWeaponStats(setKey, weaponType, enchantLevel) {
+            var s = emptyStats();
+            var is2H = WEAPON_TYPES[weaponType].twoHanded;
+
+            // Fixed-stat sets (spiked-helper, fighting-spirit, vision, salvation)
+            var fixed = WEAPON_STATS_FIXED[setKey];
+            if (fixed) {
+                s.attack      = fixed.baseAtk + fixed.bonusAtk + (is2H ? fixed.enchAtk2h : fixed.enchAtk1h);
+                s.physicalDef = fixed.baseDef + (is2H ? fixed.enchDef2h : fixed.enchDef1h);
+                s.magicalDef  = s.physicalDef;
+                s.accuracy    = fixed.baseAcc + fixed.bonusAcc;
+                s.hp          = fixed.enchHp;
+                s.crit        = fixed.enchCrit;
+                return s;
+            }
+
+            // Jorgoth variants (per weapon-type × variant data)
+            var vKey = setKey === 'jorgoth-t4-v1' ? 'v1' : setKey === 'jorgoth-t4-v2' ? 'v2' : setKey === 'jorgoth-t4-v3' ? 'v3' : null;
+            if (vKey && JORGOTH_WEAPONS[weaponType]) {
+                var w = JORGOTH_WEAPONS[weaponType][vKey];
+                if (w) {
+                    var je = JORGOTH_ENCHANT;
+                    s.attack      = w.baseAtk + w.bonusAtk + (is2H ? je.enchAtk2h : je.enchAtk1h);
+                    s.physicalDef = 170 + w.bonusDef + (is2H ? je.enchDef2h : je.enchDef1h);
+                    s.magicalDef  = s.physicalDef;
+                    s.accuracy    = 2568 + w.acc;
+                    s.hp          = w.hp;
+                    s.crit        = w.crit;
+                    s.healingBoost = w.healingBoost || 0;
+                }
+                return s;
+            }
+
+            // Acrimony / Presumption (enchant-level scaling)
+            var enchTable = (setKey === 'acrimony') ? ACRI_WEAPON_ENCHANT : (setKey === 'presumption') ? PRES_WEAPON_ENCHANT : null;
+            if (enchTable) {
+                var ench = enchTable[enchantLevel] || enchTable[8];
+                s.attack      = EXTREME_WEAPON_BASE.baseAtk + EXTREME_WEAPON_BASE.bonusAtk + ench.attack;
+                s.physicalDef = EXTREME_WEAPON_BASE.baseDef + ench.def;
+                s.magicalDef  = s.physicalDef;
+                s.accuracy    = EXTREME_WEAPON_BASE.baseAcc;
+                s.hp          = ench.hp;
+                s.crit        = ench.crit;
+                return s;
+            }
+
+            return s;
+        }
 
         // ── Dummy shield data ──
         // Structure: ITEM_DB.shield[weaponSet][shieldType] = { stat: value, ... }
@@ -419,28 +599,36 @@
         // STATE
         // ═══════════════════════════════════════════════════════════
 
-        function createDefaultProfile(className) {
+        function createDefaultWeaponConfig(className) {
             var cls = CLASS_DATA[className];
             var oneHanded = cls.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
+            return {
+                mainType: cls.weapons[0],
+                offHandType: 'none',
+                offHandWeaponType: oneHanded[0] || cls.weapons[0],
+                shieldType: 'scale-phys'
+            };
+        }
+
+        function createDefaultProfile(className) {
             var profile = {
-                armorType: cls.armorTypes[0],
+                armorType: CLASS_DATA[className].armorTypes[0],
                 armor: {},
-                mainWeapon: { type: cls.weapons[0], set: 'fighting-spirit', enchant: 9 },
-                offHand: { type: 'none', weaponType: oneHanded[0] || cls.weapons[0], set: 'fighting-spirit', enchant: 9 },
-                shieldType: 'scale-phys',
+                mainWeapon: { set: 'fighting-spirit', enchant: 9 },
+                offHand: { set: 'fighting-spirit', enchant: 9 },
                 oath: { shoulders: 'none', helmet: 'none', chest: 'none', pants: 'none', gloves: 'none', boots: 'none' }
             };
             ARMOR_SLOTS.forEach(function(slot) {
-                profile.armor[slot.key] = { set: 'fighting-spirit', enchant: 8 };
+                profile.armor[slot.key] = { set: 'fighting-spirit', enchant: 9 };
             });
             return profile;
         }
 
-        var STORAGE_KEY = 'gc-state-v1';
+        var STORAGE_KEY = 'gc-state-v2';
 
         function saveState() {
             try {
-                var data = { selectedClass: selectedClass, profiles: { 1: state[1], 2: state[2] } };
+                var data = { selectedClass: selectedClass, weaponConfig: weaponConfig, profiles: { 1: state[1], 2: state[2] } };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             } catch (e) { /* quota exceeded or private mode */ }
         }
@@ -451,19 +639,32 @@
                 if (!raw) return false;
                 var data = JSON.parse(raw);
                 if (!data || !data.selectedClass || !data.profiles) return false;
-                // Validate class exists
                 if (!CLASS_DATA[data.selectedClass]) return false;
                 selectedClass = data.selectedClass;
+                var cls = CLASS_DATA[selectedClass];
+                // Restore weapon config
+                if (data.weaponConfig) {
+                    var wc = data.weaponConfig;
+                    weaponConfig = createDefaultWeaponConfig(selectedClass);
+                    if (wc.mainType && cls.weapons.indexOf(wc.mainType) !== -1) weaponConfig.mainType = wc.mainType;
+                    if (['none','fuse','weapon','shield'].indexOf(wc.offHandType) !== -1) weaponConfig.offHandType = wc.offHandType;
+                    if (wc.offHandWeaponType && WEAPON_TYPE_KEYS.indexOf(wc.offHandWeaponType) !== -1) weaponConfig.offHandWeaponType = wc.offHandWeaponType;
+                    if (['scale-phys','scale-mag'].indexOf(wc.shieldType) !== -1) weaponConfig.shieldType = wc.shieldType;
+                    var mainIs2H = WEAPON_TYPES[weaponConfig.mainType].twoHanded;
+                    if (mainIs2H && (weaponConfig.offHandType === 'shield' || weaponConfig.offHandType === 'weapon')) {
+                        weaponConfig.offHandType = 'none';
+                    }
+                    if (weaponConfig.offHandType === 'shield' && SHIELD_WEAPONS.indexOf(weaponConfig.mainType) === -1) {
+                        weaponConfig.offHandType = 'none';
+                    }
+                }
                 [1, 2].forEach(function(id) {
                     var saved = data.profiles[id];
                     if (!saved) return;
-                    var cls = CLASS_DATA[selectedClass];
                     var p = createDefaultProfile(selectedClass);
-                    // Restore armor type
                     if (saved.armorType && cls.armorTypes.indexOf(saved.armorType) !== -1) {
                         p.armorType = saved.armorType;
                     }
-                    // Restore armor slots
                     if (saved.armor) {
                         ARMOR_SLOTS.forEach(function(slot) {
                             var sa = saved.armor[slot.key];
@@ -473,22 +674,16 @@
                             }
                         });
                     }
-                    // Restore main weapon
                     if (saved.mainWeapon) {
-                        if (saved.mainWeapon.type && cls.weapons.indexOf(saved.mainWeapon.type) !== -1) p.mainWeapon.type = saved.mainWeapon.type;
                         if (saved.mainWeapon.set && WEAPON_SET_KEYS.indexOf(saved.mainWeapon.set) !== -1) p.mainWeapon.set = saved.mainWeapon.set;
                         if (typeof saved.mainWeapon.enchant === 'number' && saved.mainWeapon.enchant >= 8 && saved.mainWeapon.enchant <= 15) p.mainWeapon.enchant = saved.mainWeapon.enchant;
                     }
-                    // Restore off-hand
                     if (saved.offHand) {
-                        if (['none','fuse','weapon','shield'].indexOf(saved.offHand.type) !== -1) p.offHand.type = saved.offHand.type;
-                        if (saved.offHand.weaponType && WEAPON_TYPE_KEYS.indexOf(saved.offHand.weaponType) !== -1) p.offHand.weaponType = saved.offHand.weaponType;
-                        if (saved.offHand.set && WEAPON_SET_KEYS.indexOf(saved.offHand.set) !== -1) p.offHand.set = saved.offHand.set;
+                        if (saved.offHand.set && WEAPON_SET_KEYS.indexOf(saved.offHand.set) !== -1 && OFFHAND_EXCLUDED_SETS.indexOf(saved.offHand.set) === -1) {
+                            p.offHand.set = saved.offHand.set;
+                        }
                         if (typeof saved.offHand.enchant === 'number' && saved.offHand.enchant >= 8 && saved.offHand.enchant <= 15) p.offHand.enchant = saved.offHand.enchant;
                     }
-                    // Restore shield type
-                    if (saved.shieldType && ['scale-phys','scale-mag'].indexOf(saved.shieldType) !== -1) p.shieldType = saved.shieldType;
-                    // Restore oaths
                     if (saved.oath) {
                         var oathKeys = OATH_OPTIONS.map(function(o) { return o.key; });
                         ARMOR_SLOTS.forEach(function(slot) {
@@ -504,6 +699,7 @@
         }
 
         var selectedClass = 'gladiator';
+        var weaponConfig = createDefaultWeaponConfig('gladiator');
         var state = {
             1: createDefaultProfile('gladiator'),
             2: createDefaultProfile('gladiator')
@@ -524,36 +720,29 @@
                 STAT_KEYS.forEach(function(k) { totals[k] += (armorStats[k] || 0); });
             });
 
-            // Main weapon
-            var mw = profile.mainWeapon;
-            if (ITEM_DB.weapon[mw.set] && ITEM_DB.weapon[mw.set][mw.type]) {
-                var wStats = ITEM_DB.weapon[mw.set][mw.type];
-                STAT_KEYS.forEach(function(k) { totals[k] += (wStats[k] || 0); });
-            }
+            // Main weapon (type from shared weaponConfig)
+            var mwSet = profile.mainWeapon.set;
+            var mwType = weaponConfig.mainType;
+            var wStats = getWeaponStats(mwSet, mwType, profile.mainWeapon.enchant);
+            STAT_KEYS.forEach(function(k) { totals[k] += (wStats[k] || 0); });
 
-            // Off-hand
-            var oh = profile.offHand;
-            if (oh.type === 'shield') {
-                if (ITEM_DB.shield[oh.set] && ITEM_DB.shield[oh.set][profile.shieldType]) {
-                    var sStats = ITEM_DB.shield[oh.set][profile.shieldType];
+            // Off-hand (type from shared weaponConfig)
+            var ohType = weaponConfig.offHandType;
+            var ohSet = profile.offHand.set;
+            if (ohType === 'shield') {
+                if (ITEM_DB.shield[ohSet] && ITEM_DB.shield[ohSet][weaponConfig.shieldType]) {
+                    var sStats = ITEM_DB.shield[ohSet][weaponConfig.shieldType];
                     STAT_KEYS.forEach(function(k) { totals[k] += (sStats[k] || 0); });
                 }
-            } else if (oh.type === 'fuse') {
-                if (ITEM_DB.weapon[oh.set] && ITEM_DB.weapon[oh.set][mw.type]) {
-                    var fStats = ITEM_DB.weapon[oh.set][mw.type];
-                    STAT_KEYS.forEach(function(k) { totals[k] += (fStats[k] || 0); });
-                }
-            } else if (oh.type === 'weapon') {
-                if (ITEM_DB.weapon[oh.set] && ITEM_DB.weapon[oh.set][oh.weaponType]) {
-                    var owStats = ITEM_DB.weapon[oh.set][oh.weaponType];
-                    STAT_KEYS.forEach(function(k) { totals[k] += (owStats[k] || 0); });
-                }
+            } else if (ohType === 'fuse') {
+                var fStats = getWeaponStats(ohSet, mwType, profile.offHand.enchant);
+                STAT_KEYS.forEach(function(k) { totals[k] += (fStats[k] || 0); });
+            } else if (ohType === 'weapon') {
+                var owStats = getWeaponStats(ohSet, weaponConfig.offHandWeaponType, profile.offHand.enchant);
+                STAT_KEYS.forEach(function(k) { totals[k] += (owStats[k] || 0); });
             }
 
-            // Oath pair bonuses (both slots must have real oath)
-            // shoulders+helmet → HP + accuracy + magicalAccuracy
-            // chest+pants      → HP + physicalDef + magicalDef
-            // gloves+boots     → HP + attack
+            // Oath pair bonuses
             OATH_PAIRS.forEach(function(pair, pairIdx) {
                 var effectiveOath = getEffectiveOath(profile.oath, pair[0], pair[1]);
                 var ob = OATH_BONUS[effectiveOath];
@@ -582,6 +771,7 @@
 
         function renderAll() {
             renderClassSelector();
+            renderWeaponConfig();
             renderProfile(1);
             renderProfile(2);
             updateComparison();
@@ -599,6 +789,73 @@
                 html += '<span class="gc-class-label">' + cls.name + '</span>';
                 html += '</div>';
             });
+            html += '</div>';
+            el.innerHTML = html;
+        }
+
+        function renderWeaponConfig() {
+            var el = document.getElementById('weapon-config');
+            var classInfo = CLASS_DATA[selectedClass];
+            var mainType = weaponConfig.mainType;
+            var mainIs2H = WEAPON_TYPES[mainType].twoHanded;
+            var canShield = !mainIs2H && SHIELD_WEAPONS.indexOf(mainType) !== -1;
+            var wt = WEAPON_TYPES[mainType];
+            var ohType = weaponConfig.offHandType;
+
+            var html = '<div class="gc-section-label" style="margin-bottom:10px">Weapon Setup</div>';
+            html += '<div class="gc-weapon-notice">⚠️ Weapon stats are under construction — armor comparison is accurate.</div>';
+            html += '<div class="gc-wc-grid">';
+
+            // Main weapon row
+            html += '<div class="gc-wc-row">';
+            html += '<div class="gc-slot-icon"><img src="' + wt.icon + '" alt="' + wt.name + '"></div>';
+            html += '<div class="gc-wc-label">Main Hand</div>';
+            html += '<select class="gc-select" onchange="GC.setMainWeaponType(this.value)">';
+            classInfo.weapons.forEach(function(wKey) {
+                var w = WEAPON_TYPES[wKey];
+                var s = mainType === wKey ? ' selected' : '';
+                html += '<option value="' + wKey + '"' + s + '>' + w.name + '</option>';
+            });
+            html += '</select>';
+            html += '</div>';
+
+            // Off-hand row
+            html += '<div class="gc-wc-row">';
+            if (ohType === 'shield') {
+                html += '<div class="gc-slot-icon"><img src="https://aioncodex.com/items/icon_item_equip_shield_f01.png" alt="Shield"></div>';
+            } else if (ohType === 'fuse') {
+                html += '<div class="gc-slot-icon"><img src="' + wt.icon + '" alt="Fuse"></div>';
+            } else if (ohType === 'weapon') {
+                var ohWt = WEAPON_TYPES[weaponConfig.offHandWeaponType];
+                html += '<div class="gc-slot-icon"><img src="' + ohWt.icon + '" alt="' + ohWt.name + '"></div>';
+            } else {
+                html += '<div class="gc-slot-icon gc-slot-icon-empty"></div>';
+            }
+            html += '<div class="gc-wc-label">Off-hand</div>';
+            html += '<select class="gc-select" onchange="GC.setOffHandType(this.value)">';
+            html += '<option value="none"' + (ohType === 'none' ? ' selected' : '') + '>None</option>';
+            if(mainIs2H) {
+                html += '<option value="fuse"' + (ohType === 'fuse' ? ' selected' : '') + '>Fuse</option>';
+            }
+            if (!mainIs2H) {
+                html += '<option value="weapon"' + (ohType === 'weapon' ? ' selected' : '') + '>Off-hand Weapon</option>';
+                if (canShield) {
+                    html += '<option value="shield"' + (ohType === 'shield' ? ' selected' : '') + '>Shield</option>';
+                }
+            }
+            html += '</select>';
+            if (ohType === 'weapon') {
+                var oneHanded = classInfo.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
+                html += '<select class="gc-select" onchange="GC.setOffHandWeaponType(this.value)">';
+                oneHanded.forEach(function(wKey) {
+                    var w = WEAPON_TYPES[wKey];
+                    var s = weaponConfig.offHandWeaponType === wKey ? ' selected' : '';
+                    html += '<option value="' + wKey + '"' + s + '>' + w.name + '</option>';
+                });
+                html += '</select>';
+            }
+            html += '</div>';
+
             html += '</div>';
             el.innerHTML = html;
         }
@@ -643,10 +900,74 @@
             // ── Weapons Section ──
             html += '<div class="gc-section">';
             html += '<div class="gc-section-label">🗡️ Weapons</div>';
-            html += '<div class="gc-weapon-notice">⚠️ Weapon stats are under construction — use armor comparison only for now.</div>';
-            html += '<div class="gc-weapon-grid">';
-            html += renderMainWeaponSlot(id, profile.mainWeapon, classInfo);
-            html += renderOffHandSlot(id, profile, classInfo);
+            html += '<div class="gc-armor-list">';
+            var mwt = WEAPON_TYPES[weaponConfig.mainType];
+            html += '<div class="gc-armor-row">';
+            html += '<div class="gc-slot-icon"><img src="' + mwt.icon + '" alt="' + mwt.name + '"></div>';
+            html += '<div class="gc-slot-label">' + mwt.name + '</div>';
+            html += '<select class="gc-select" onchange="GC.setWeaponSet(' + id + ',\'main\',this.value)">';
+            WEAPON_SETS.forEach(function(set) {
+                var s = profile.mainWeapon.set === set.key ? ' selected' : '';
+                html += '<option value="' + set.key + '"' + s + '>' + set.name + '</option>';
+            });
+            html += '</select>';
+            if (profile.mainWeapon.set === 'acrimony' || profile.mainWeapon.set === 'presumption') {
+                html += '<select class="gc-select gc-select-sm" onchange="GC.setWeaponEnchant(' + id + ',\'main\',this.value)">';
+                for (var ei = 8; ei <= 15; ei++) {
+                    var es = profile.mainWeapon.enchant === ei ? ' selected' : '';
+                    html += '<option value="' + ei + '"' + es + '>+' + ei + '</option>';
+                }
+                html += '</select>';
+            }
+            var mwTag = getJorgothTag(weaponConfig.mainType, profile.mainWeapon.set);
+            if (mwTag) {
+                var tagClass = mwTag === 'masterpiece' ? 'gc-weapon-tag-masterpiece' : 'gc-weapon-tag-extended';
+                var tagLabel = mwTag === 'masterpiece' ? '✦ Masterpiece' : '⟐ Extended';
+                html += '<span class="gc-weapon-tag ' + tagClass + '">' + tagLabel + '</span>';
+            }
+            html += '</div>';
+            if (weaponConfig.offHandType !== 'none') {
+                var ohType = weaponConfig.offHandType;
+                var ohIcon, ohLabel;
+                if (ohType === 'shield') {
+                    ohIcon = 'https://aioncodex.com/items/icon_item_equip_shield_f01.png';
+                    ohLabel = 'Shield';
+                } else if (ohType === 'fuse') {
+                    ohIcon = mwt.icon;
+                    ohLabel = 'Fuse';
+                } else {
+                    var ohWt = WEAPON_TYPES[weaponConfig.offHandWeaponType];
+                    ohIcon = ohWt.icon;
+                    ohLabel = ohWt.name + ' (OH)';
+                }
+                var ohSets = WEAPON_SETS.filter(function(ws) { return OFFHAND_EXCLUDED_SETS.indexOf(ws.key) === -1; });
+                html += '<div class="gc-armor-row">';
+                html += '<div class="gc-slot-icon"><img src="' + ohIcon + '" alt="' + ohLabel + '"></div>';
+                html += '<div class="gc-slot-label">' + ohLabel + '</div>';
+                html += '<select class="gc-select" onchange="GC.setWeaponSet(' + id + ',\'offHand\',this.value)">';
+                ohSets.forEach(function(set) {
+                    var s = profile.offHand.set === set.key ? ' selected' : '';
+                    html += '<option value="' + set.key + '"' + s + '>' + set.name + '</option>';
+                });
+                html += '</select>';
+                if (ohType === 'shield') {
+                    html += '<select class="gc-select" onchange="GC.setShieldType(this.value)">';
+                    html += '<option value="scale-phys"' + (weaponConfig.shieldType === 'scale-phys' ? ' selected' : '') + '>Battle (Physical)</option>';
+                    html += '<option value="scale-mag"' + (weaponConfig.shieldType === 'scale-mag' ? ' selected' : '') + '>Scale (Magical)</option>';
+                    html += '</select>';
+                } else if (ohType === 'fuse' || ohType === 'weapon') {
+                    // No enchant for fuse
+
+                }else {
+                    html += '<select class="gc-select gc-select-sm" onchange="GC.setWeaponEnchant(' + id + ',\'offHand\',this.value)">';
+                    for (var oi = 8; oi <= 15; oi++) {
+                        var os = profile.offHand.enchant === oi ? ' selected' : '';
+                        html += '<option value="' + oi + '"' + os + '>+' + oi + '</option>';
+                    }
+                    html += '</select>';
+                }
+                html += '</div>';
+            }
             html += '</div></div>';
 
             container.innerHTML = html;
@@ -670,12 +991,14 @@
             });
             html += '</select>';
             // Enchant
-            html += '<select class="gc-select gc-select-sm" onchange="GC.setArmorEnchant(' + pid + ',\'' + slot.key + '\',this.value)">';
-            for (var i = 8; i <= 15; i++) {
-                var s = armor.enchant === i ? ' selected' : '';
-                html += '<option value="' + i + '"' + s + '>+' + i + '</option>';
+            if (armor.set === 'acrimony' || armor.set === 'presumption') {
+                html += '<select class="gc-select gc-select-sm" onchange="GC.setArmorEnchant(' + pid + ',\'' + slot.key + '\',this.value)">';
+                for (var i = 8; i <= 15; i++) {
+                    var s = armor.enchant === i ? ' selected' : '';
+                    html += '<option value="' + i + '"' + s + '>+' + i + '</option>';
+                }
+                html += '</select>';
             }
-            html += '</select>';
             // Oath icon
             if (oathIconUrl) {
                 var isFramed = (slotOath === 'silent-skill');
@@ -693,114 +1016,6 @@
                 html += '<option value="' + opt.key + '"' + s + '>' + opt.name + '</option>';
             });
             html += '</select>';
-
-            html += '</div>';
-            return html;
-        }
-
-        function renderMainWeaponSlot(pid, weapon, classInfo) {
-            var wt = WEAPON_TYPES[weapon.type];
-            var html = '<div class="gc-slot gc-slot-weapon">';
-            html += '<div class="gc-slot-name">Main Weapon</div>';
-            html += '<div class="gc-weapon-icon"><img src="' + wt.icon + '" alt="' + wt.name + '"></div>';
-
-            // Weapon type (filtered by class)
-            html += '<select class="gc-select" onchange="GC.setWeaponType(' + pid + ',this.value)">';
-            classInfo.weapons.forEach(function(wKey) {
-                var w = WEAPON_TYPES[wKey];
-                var s = weapon.type === wKey ? ' selected' : '';
-                html += '<option value="' + wKey + '"' + s + '>' + w.name + '</option>';
-            });
-            html += '</select>';
-
-            // Weapon set
-            html += '<select class="gc-select" onchange="GC.setWeaponSet(' + pid + ',\'main\',this.value)">';
-            WEAPON_SETS.forEach(function(set) {
-                var s = weapon.set === set.key ? ' selected' : '';
-                html += '<option value="' + set.key + '"' + s + '>' + set.name + '</option>';
-            });
-            html += '</select>';
-
-            // Enchant
-            html += '<select class="gc-select gc-select-sm" onchange="GC.setWeaponEnchant(' + pid + ',\'main\',this.value)">';
-            for (var i = 8; i <= 15; i++) {
-                var s = weapon.enchant === i ? ' selected' : '';
-                html += '<option value="' + i + '"' + s + '>+' + i + '</option>';
-            }
-            html += '</select>';
-
-            html += '</div>';
-            return html;
-        }
-
-        function renderOffHandSlot(pid, profile, classInfo) {
-            var oh = profile.offHand;
-            var mainType = profile.mainWeapon.type;
-            var mainIs2H = WEAPON_TYPES[mainType].twoHanded;
-            var canShield = !mainIs2H && SHIELD_WEAPONS.indexOf(mainType) !== -1;
-
-            var html = '<div class="gc-slot gc-slot-weapon">';
-            html += '<div class="gc-slot-name">Off-hand / Fuse</div>';
-
-            // Icon
-            if (oh.type === 'shield') {
-                html += '<div class="gc-weapon-icon"><img src="https://aioncodex.com/items/icon_item_equip_shield_f01.png" alt="Shield"></div>';
-            } else if (oh.type === 'fuse') {
-                html += '<div class="gc-weapon-icon"><img src="' + WEAPON_TYPES[mainType].icon + '" alt="Fuse"></div>';
-            } else if (oh.type === 'weapon') {
-                html += '<div class="gc-weapon-icon"><img src="' + WEAPON_TYPES[oh.weaponType].icon + '" alt="' + WEAPON_TYPES[oh.weaponType].name + '"></div>';
-            } else {
-                html += '<div class="gc-weapon-icon gc-weapon-icon-empty">—</div>';
-            }
-
-            // Type selector
-            html += '<select class="gc-select" onchange="GC.setOffHandType(' + pid + ',this.value)">';
-            html += '<option value="none"' + (oh.type === 'none' ? ' selected' : '') + '>None</option>';
-            html += '<option value="fuse"' + (oh.type === 'fuse' ? ' selected' : '') + '>Fuse</option>';
-            if (!mainIs2H) {
-                html += '<option value="weapon"' + (oh.type === 'weapon' ? ' selected' : '') + '>Off-hand Weapon</option>';
-                if (canShield) {
-                    html += '<option value="shield"' + (oh.type === 'shield' ? ' selected' : '') + '>Shield</option>';
-                }
-            }
-            html += '</select>';
-
-            // Shield type
-            if (oh.type === 'shield') {
-                html += '<select class="gc-select" onchange="GC.setShieldType(' + pid + ',this.value)">';
-                html += '<option value="scale-phys"' + (profile.shieldType === 'scale-phys' ? ' selected' : '') + '>Scale (Physical)</option>';
-                html += '<option value="scale-mag"' + (profile.shieldType === 'scale-mag' ? ' selected' : '') + '>Scale (Magical)</option>';
-                html += '</select>';
-            }
-
-            // Off-hand weapon type (dual-wield)
-            if (oh.type === 'weapon') {
-                var oneHanded = classInfo.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
-                html += '<select class="gc-select" onchange="GC.setOffHandWeaponType(' + pid + ',this.value)">';
-                oneHanded.forEach(function(wKey) {
-                    var w = WEAPON_TYPES[wKey];
-                    var s = oh.weaponType === wKey ? ' selected' : '';
-                    html += '<option value="' + wKey + '"' + s + '>' + w.name + '</option>';
-                });
-                html += '</select>';
-            }
-
-            // Set + enchant (when not "none")
-            if (oh.type !== 'none') {
-                html += '<select class="gc-select" onchange="GC.setWeaponSet(' + pid + ',\'offHand\',this.value)">';
-                WEAPON_SETS.forEach(function(set) {
-                    var s = oh.set === set.key ? ' selected' : '';
-                    html += '<option value="' + set.key + '"' + s + '>' + set.name + '</option>';
-                });
-                html += '</select>';
-
-                html += '<select class="gc-select gc-select-sm" onchange="GC.setWeaponEnchant(' + pid + ',\'offHand\',this.value)">';
-                for (var i = 8; i <= 15; i++) {
-                    var s = oh.enchant === i ? ' selected' : '';
-                    html += '<option value="' + i + '"' + s + '>+' + i + '</option>';
-                }
-                html += '</select>';
-            }
 
             html += '</div>';
             return html;
@@ -868,27 +1083,27 @@
             selectClass: function(className) {
                 selectedClass = className;
                 var cls = CLASS_DATA[className];
-                var oneHanded = cls.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
-
+                // Reset weapon config for new class
+                if (cls.weapons.indexOf(weaponConfig.mainType) === -1) {
+                    weaponConfig = createDefaultWeaponConfig(className);
+                } else {
+                    var mainIs2H = WEAPON_TYPES[weaponConfig.mainType].twoHanded;
+                    if (mainIs2H && (weaponConfig.offHandType === 'shield' || weaponConfig.offHandType === 'weapon')) {
+                        weaponConfig.offHandType = 'none';
+                    }
+                    if (weaponConfig.offHandType === 'shield' && SHIELD_WEAPONS.indexOf(weaponConfig.mainType) === -1) {
+                        weaponConfig.offHandType = 'none';
+                    }
+                    var oneHanded = cls.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
+                    if (weaponConfig.offHandType === 'weapon' && oneHanded.indexOf(weaponConfig.offHandWeaponType) === -1) {
+                        weaponConfig.offHandWeaponType = oneHanded[0] || cls.weapons[0];
+                    }
+                }
                 [1, 2].forEach(function(id) {
                     var p = state[id];
-                    // Reset armor type
                     if (cls.armorTypes.indexOf(p.armorType) === -1) {
                         p.armorType = cls.armorTypes[0];
                     }
-                    // Reset main weapon
-                    if (cls.weapons.indexOf(p.mainWeapon.type) === -1) {
-                        p.mainWeapon.type = cls.weapons[0];
-                    }
-                    // Fix off-hand
-                    var mainIs2H = WEAPON_TYPES[p.mainWeapon.type].twoHanded;
-                    if (mainIs2H && (p.offHand.type === 'shield' || p.offHand.type === 'weapon')) {
-                        p.offHand.type = 'none';
-                    }
-                    if (p.offHand.type === 'shield' && SHIELD_WEAPONS.indexOf(p.mainWeapon.type) === -1) {
-                        p.offHand.type = 'none';
-                    }
-                    p.offHand.weaponType = oneHanded.length > 0 ? oneHanded[0] : cls.weapons[0];
                 });
                 renderAll();
                 saveState();
@@ -903,6 +1118,7 @@
 
             setArmor: function(pid, slotKey, setKey) {
                 state[pid].armor[slotKey].set = setKey;
+                renderProfile(pid);
                 updateComparison();
                 saveState();
             },
@@ -920,27 +1136,61 @@
                 saveState();
             },
 
-            setWeaponType: function(pid, type) {
-                var p = state[pid];
-                p.mainWeapon.type = type;
+            // Shared weapon config handlers
+            setMainWeaponType: function(type) {
+                weaponConfig.mainType = type;
                 var mainIs2H = WEAPON_TYPES[type].twoHanded;
-                if (mainIs2H && (p.offHand.type === 'shield' || p.offHand.type === 'weapon')) {
-                    p.offHand.type = 'none';
+                if (mainIs2H && (weaponConfig.offHandType === 'shield' || weaponConfig.offHandType === 'weapon')) {
+                    weaponConfig.offHandType = 'none';
                 }
-                if (p.offHand.type === 'shield' && SHIELD_WEAPONS.indexOf(type) === -1) {
-                    p.offHand.type = 'none';
+                if (weaponConfig.offHandType === 'shield' && SHIELD_WEAPONS.indexOf(type) === -1) {
+                    weaponConfig.offHandType = 'none';
                 }
-                renderProfile(pid);
+                renderWeaponConfig();
+                renderProfile(1);
+                renderProfile(2);
                 updateComparison();
                 saveState();
             },
 
+            setOffHandType: function(type) {
+                weaponConfig.offHandType = type;
+                [1, 2].forEach(function(id) {
+                    if (type !== 'none' && OFFHAND_EXCLUDED_SETS.indexOf(state[id].offHand.set) !== -1) {
+                        state[id].offHand.set = 'fighting-spirit';
+                    }
+                });
+                renderWeaponConfig();
+                renderProfile(1);
+                renderProfile(2);
+                updateComparison();
+                saveState();
+            },
+
+            setOffHandWeaponType: function(type) {
+                weaponConfig.offHandWeaponType = type;
+                renderWeaponConfig();
+                renderProfile(1);
+                renderProfile(2);
+                updateComparison();
+                saveState();
+            },
+
+            setShieldType: function(type) {
+                weaponConfig.shieldType = type;
+                renderWeaponConfig();
+                updateComparison();
+                saveState();
+            },
+
+            // Per-profile weapon set/enchant
             setWeaponSet: function(pid, slot, setKey) {
                 if (slot === 'main') {
                     state[pid].mainWeapon.set = setKey;
                 } else {
                     state[pid].offHand.set = setKey;
                 }
+                renderProfile(pid);
                 updateComparison();
                 saveState();
             },
@@ -951,26 +1201,6 @@
                 } else {
                     state[pid].offHand.enchant = parseInt(level);
                 }
-                updateComparison();
-                saveState();
-            },
-
-            setOffHandType: function(pid, type) {
-                state[pid].offHand.type = type;
-                renderProfile(pid);
-                updateComparison();
-                saveState();
-            },
-
-            setOffHandWeaponType: function(pid, type) {
-                state[pid].offHand.weaponType = type;
-                renderProfile(pid);
-                updateComparison();
-                saveState();
-            },
-
-            setShieldType: function(pid, type) {
-                state[pid].shieldType = type;
                 updateComparison();
                 saveState();
             }

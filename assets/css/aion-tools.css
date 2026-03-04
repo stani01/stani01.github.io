@@ -4096,6 +4096,47 @@ flex: 1;
     letter-spacing: 0.3px;
 }
 
+/* ── Shared Weapon Config ── */
+.gc-weapon-config {
+    background: var(--bg-panel-solid);
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.gc-wc-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.gc-wc-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    background: rgba(15, 15, 25, 0.6);
+    border: 1px solid rgba(200, 160, 60, 0.15);
+    border-radius: 8px;
+}
+
+.gc-wc-label {
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--text-primary);
+    width: 75px;
+    flex-shrink: 0;
+}
+
+.gc-slot-icon-empty {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    opacity: 0.3;
+}
+
 /* ── Weapon Notice ── */
 .gc-weapon-notice {
     background: rgba(255, 204, 0, 0.08);
@@ -4107,6 +4148,28 @@ flex: 1;
     color: var(--warning);
     text-align: center;
     line-height: 1.4;
+}
+
+/* ── Jorgoth Weapon Tags ── */
+.gc-weapon-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72em;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.gc-weapon-tag-extended {
+    background: rgba(100, 180, 255, 0.12);
+    border: 1px solid rgba(100, 180, 255, 0.35);
+    color: #7cc4ff;
+}
+.gc-weapon-tag-masterpiece {
+    background: rgba(255, 170, 50, 0.12);
+    border: 1px solid rgba(255, 170, 50, 0.35);
+    color: #ffbb44;
 }
 
 /* ── Weapon Grid ── */
@@ -4292,7 +4355,13 @@ flex: 1;
     .gc-armor-row {
         flex-wrap: wrap;
     }
+    .gc-wc-row {
+        flex-wrap: wrap;
+    }
     .gc-slot-label {
+        width: 60px;
+    }
+    .gc-wc-label {
         width: 60px;
     }
     .gc-oath-icon {
