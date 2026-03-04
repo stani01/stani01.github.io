@@ -67,14 +67,45 @@
         // Shield-compatible main-hand weapons
         var SHIELD_WEAPONS = ['dagger', 'sword', 'mace'];
 
+        // Mace can only use shield (no off-hand weapon, no fuse)
+        var MACE_OH_ONLY = ['none', 'shield'];
+
+        // Compute allowed off-hand types for a given main weapon + class
+        function getAllowedOffHand(mainType, className) {
+            var is2H = WEAPON_TYPES[mainType].twoHanded;
+            if (is2H) return ['none', 'fuse'];
+            if (mainType === 'mace') return ['none', 'shield'];
+            if (mainType === 'sword' && className === 'templar') return ['none', 'shield'];
+            var opts = ['none', 'weapon'];
+            if (SHIELD_WEAPONS.indexOf(mainType) !== -1) opts.push('shield');
+            return opts;
+        }
+
+        // Compute default off-hand type when switching main weapon
+        function getDefaultOffHand(mainType, className) {
+            var is2H = WEAPON_TYPES[mainType].twoHanded;
+            if (is2H) return 'fuse';
+            if (mainType === 'mace') return 'shield';
+            if (mainType === 'sword' && className === 'templar') return 'shield';
+            return 'weapon';
+        }
+
+        // Compute default off-hand weapon type based on main weapon
+        function getDefaultOffHandWeapon(mainType, className) {
+            if (mainType === 'dagger') return 'sword';
+            var cls = CLASS_DATA[className];
+            var oneHanded = cls.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
+            return oneHanded[0] || cls.weapons[0];
+        }
+
         // Armor slots (matches Excel order)
         var ARMOR_SLOTS = [
-            { key: 'shoulders', name: 'Shoulders', iconKey: 'shoulder' },
-            { key: 'helmet',    name: 'Helmet',    iconKey: 'head' },
-            { key: 'chest',     name: 'Chest',     iconKey: 'torso' },
-            { key: 'pants',     name: 'Pants',     iconKey: 'pants' },
-            { key: 'gloves',    name: 'Gloves',    iconKey: 'glove' },
-            { key: 'boots',     name: 'Boots',     iconKey: 'shoes' }
+            { key: 'shoulders', iconKey: 'shoulder' },
+            { key: 'helmet',    iconKey: 'head' },
+            { key: 'chest',     iconKey: 'torso' },
+            { key: 'pants',     iconKey: 'pants' },
+            { key: 'gloves',    iconKey: 'glove' },
+            { key: 'boots',     iconKey: 'shoes' }
         ];
 
         // Armor material → icon URL prefix
@@ -120,14 +151,14 @@
         var OFFHAND_EXCLUDED_SETS = ['acrimony', 'presumption', 'vision'];
 
         var OATH_OPTIONS = [
-            { key: 'none',         name: 'None',         rank: 0 },
-            { key: 'silent-skill', name: 'Silent Skill', rank: 0 },
+            { key: 'none',         name: '—',   rank: 0 },
+            { key: 'silent-skill', name: 'Silent skill',  rank: 0 },
             { key: 'legendary-1',  name: 'Legendary 1',  rank: 1 },
             { key: 'legendary-2',  name: 'Legendary 2',  rank: 2 },
             { key: 'legendary-3',  name: 'Legendary 3',  rank: 3 },
-            { key: 'ultimate-1',   name: 'Ultimate 1',   rank: 4 },
-            { key: 'ultimate-2',   name: 'Ultimate 2',   rank: 5 },
-            { key: 'ultimate-3',   name: 'Ultimate 3',   rank: 6 }
+            { key: 'ultimate-1',   name: 'Ultimate 1',  rank: 4 },
+            { key: 'ultimate-2',   name: 'Ultimate 2',  rank: 5 },
+            { key: 'ultimate-3',   name: 'Ultimate 3',  rank: 6 }
         ];
 
         // Oath stat bonuses per pair type
@@ -601,11 +632,11 @@
 
         function createDefaultWeaponConfig(className) {
             var cls = CLASS_DATA[className];
-            var oneHanded = cls.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
+            var mainType = cls.weapons[0];
             return {
-                mainType: cls.weapons[0],
-                offHandType: 'none',
-                offHandWeaponType: oneHanded[0] || cls.weapons[0],
+                mainType: mainType,
+                offHandType: getDefaultOffHand(mainType, className),
+                offHandWeaponType: getDefaultOffHandWeapon(mainType, className),
                 shieldType: 'scale-phys'
             };
         }
@@ -616,7 +647,7 @@
                 armor: {},
                 mainWeapon: { set: 'fighting-spirit', enchant: 9 },
                 offHand: { set: 'fighting-spirit', enchant: 9 },
-                oath: { shoulders: 'none', helmet: 'none', chest: 'none', pants: 'none', gloves: 'none', boots: 'none' }
+                oath: { shoulders: 'silent-skill', helmet: 'silent-skill', chest: 'ultimate-3', pants: 'ultimate-3', gloves: 'ultimate-3', boots: 'ultimate-3' }
             };
             ARMOR_SLOTS.forEach(function(slot) {
                 profile.armor[slot.key] = { set: 'fighting-spirit', enchant: 9 };
@@ -650,12 +681,10 @@
                     if (['none','fuse','weapon','shield'].indexOf(wc.offHandType) !== -1) weaponConfig.offHandType = wc.offHandType;
                     if (wc.offHandWeaponType && WEAPON_TYPE_KEYS.indexOf(wc.offHandWeaponType) !== -1) weaponConfig.offHandWeaponType = wc.offHandWeaponType;
                     if (['scale-phys','scale-mag'].indexOf(wc.shieldType) !== -1) weaponConfig.shieldType = wc.shieldType;
-                    var mainIs2H = WEAPON_TYPES[weaponConfig.mainType].twoHanded;
-                    if (mainIs2H && (weaponConfig.offHandType === 'shield' || weaponConfig.offHandType === 'weapon')) {
-                        weaponConfig.offHandType = 'none';
-                    }
-                    if (weaponConfig.offHandType === 'shield' && SHIELD_WEAPONS.indexOf(weaponConfig.mainType) === -1) {
-                        weaponConfig.offHandType = 'none';
+                    // Validate off-hand type against current rules
+                    var allowed = getAllowedOffHand(weaponConfig.mainType, selectedClass);
+                    if (allowed.indexOf(weaponConfig.offHandType) === -1) {
+                        weaponConfig.offHandType = getDefaultOffHand(weaponConfig.mainType, selectedClass);
                     }
                 }
                 [1, 2].forEach(function(id) {
@@ -798,18 +827,16 @@
             var classInfo = CLASS_DATA[selectedClass];
             var mainType = weaponConfig.mainType;
             var mainIs2H = WEAPON_TYPES[mainType].twoHanded;
-            var canShield = !mainIs2H && SHIELD_WEAPONS.indexOf(mainType) !== -1;
             var wt = WEAPON_TYPES[mainType];
             var ohType = weaponConfig.offHandType;
 
-            var html = '<div class="gc-section-label" style="margin-bottom:10px">Weapon Setup</div>';
-            html += '<div class="gc-weapon-notice">⚠️ Weapon stats are under construction — armor comparison is accurate.</div>';
-            html += '<div class="gc-wc-grid">';
+            var html = '<div class="gc-profile-header"><span class="gc-wc-title">⚔️ Weapon Setup</span><button class="gc-reset-btn" onclick="GC.resetWeapons()" title="Reset to defaults">↺</button></div>';
+            html += '<div class="gc-wc-slots">';
 
-            // Main weapon row
-            html += '<div class="gc-wc-row">';
+            // Main weapon
+            html += '<div class="gc-armor-row gc-wc-slot">';
             html += '<div class="gc-slot-icon"><img src="' + wt.icon + '" alt="' + wt.name + '"></div>';
-            html += '<div class="gc-wc-label">Main Hand</div>';
+            html += '<div class="gc-slot-label">Main</div>';
             html += '<select class="gc-select" onchange="GC.setMainWeaponType(this.value)">';
             classInfo.weapons.forEach(function(wKey) {
                 var w = WEAPON_TYPES[wKey];
@@ -819,8 +846,8 @@
             html += '</select>';
             html += '</div>';
 
-            // Off-hand row
-            html += '<div class="gc-wc-row">';
+            // Off-hand
+            html += '<div class="gc-armor-row gc-wc-slot">';
             if (ohType === 'shield') {
                 html += '<div class="gc-slot-icon"><img src="assets/icons/icon_item_equip_shield_f01.png" alt="Shield"></div>';
             } else if (ohType === 'fuse') {
@@ -831,18 +858,17 @@
             } else {
                 html += '<div class="gc-slot-icon gc-slot-icon-empty"></div>';
             }
-            html += '<div class="gc-wc-label">Off-hand</div>';
+            html += '<div class="gc-slot-label">Off</div>';
             html += '<select class="gc-select" onchange="GC.setOffHandType(this.value)">';
-            html += '<option value="none"' + (ohType === 'none' ? ' selected' : '') + '>None</option>';
-            if(mainIs2H) {
+            var allowedOH = getAllowedOffHand(mainType, selectedClass);
+            if (allowedOH.indexOf('none') !== -1)
+                html += '<option value="none"' + (ohType === 'none' ? ' selected' : '') + '>None</option>';
+            if (allowedOH.indexOf('fuse') !== -1)
                 html += '<option value="fuse"' + (ohType === 'fuse' ? ' selected' : '') + '>Fuse</option>';
-            }
-            if (!mainIs2H) {
+            if (allowedOH.indexOf('weapon') !== -1)
                 html += '<option value="weapon"' + (ohType === 'weapon' ? ' selected' : '') + '>Off-hand Weapon</option>';
-                if (canShield) {
-                    html += '<option value="shield"' + (ohType === 'shield' ? ' selected' : '') + '>Shield</option>';
-                }
-            }
+            if (allowedOH.indexOf('shield') !== -1)
+                html += '<option value="shield"' + (ohType === 'shield' ? ' selected' : '') + '>Shield</option>';
             html += '</select>';
             if (ohType === 'weapon') {
                 var oneHanded = classInfo.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
@@ -857,6 +883,7 @@
             html += '</div>';
 
             html += '</div>';
+            html += '<div class="gc-weapon-notice">⚠️ Weapon stats are under construction — armor comparison is accurate.</div>';
             el.innerHTML = html;
         }
 
@@ -870,37 +897,15 @@
             // ── Header ──
             html += '<div class="gc-profile-header">';
             html += '<span class="gc-set-title">SET ' + id + '</span>';
+            html += '<button class="gc-reset-btn" onclick="GC.resetProfile(' + id + ')" title="Reset SET ' + id + ' to defaults">↺</button>';
             html += '</div>';
-
-            // ── Armor Section ──
-            html += '<div class="gc-section">';
-            html += '<div class="gc-section-label-row">';
-            html += '<span class="gc-section-label">⚔️ Armor</span>';
-            if (classInfo.armorTypes.length > 1) {
-                html += '<select class="gc-select gc-select-inline" onchange="GC.setArmorType(' + id + ',this.value)">';
-                classInfo.armorTypes.forEach(function(atKey) {
-                    var opt = ARMOR_TYPE_OPTIONS.find(function(o) { return o.key === atKey; });
-                    var s = profile.armorType === atKey ? ' selected' : '';
-                    html += '<option value="' + atKey + '"' + s + '>' + opt.name + '</option>';
-                });
-                html += '</select>';
-            } else {
-                var singleOpt = ARMOR_TYPE_OPTIONS.find(function(o) { return o.key === classInfo.armorTypes[0]; });
-                html += '<span class="gc-armor-type-badge">' + singleOpt.name + '</span>';
-            }
-            html += '</div>';
-
-            html += '<div class="gc-armor-list">';
-            ARMOR_SLOTS.forEach(function(slot) {
-                var armor = profile.armor[slot.key];
-                html += renderArmorSlot(id, slot, armor, profile, material);
-            });
-            html += '</div></div>';
 
             // ── Weapons Section ──
             html += '<div class="gc-section">';
             html += '<div class="gc-section-label">🗡️ Weapons</div>';
-            html += '<div class="gc-armor-list">';
+            html += '<div class="gc-armor-columns">';
+            // ── Left: Main Weapon ──
+            html += '<div class="gc-armor-col">';
             var mwt = WEAPON_TYPES[weaponConfig.mainType];
             html += '<div class="gc-armor-row">';
             html += '<div class="gc-slot-icon"><img src="' + mwt.icon + '" alt="' + mwt.name + '"></div>';
@@ -911,14 +916,17 @@
                 html += '<option value="' + set.key + '"' + s + '>' + set.name + '</option>';
             });
             html += '</select>';
-            if (profile.mainWeapon.set === 'acrimony' || profile.mainWeapon.set === 'presumption') {
-                html += '<select class="gc-select gc-select-sm" onchange="GC.setWeaponEnchant(' + id + ',\'main\',this.value)">';
+            var hasMwEnchant = (profile.mainWeapon.set === 'acrimony' || profile.mainWeapon.set === 'presumption');
+            html += '<select class="gc-select gc-select-sm"' + (hasMwEnchant ? '' : ' disabled') + ' onchange="GC.setWeaponEnchant(' + id + ',\'main\',this.value)">';
+            if (hasMwEnchant) {
                 for (var ei = 8; ei <= 15; ei++) {
                     var es = profile.mainWeapon.enchant === ei ? ' selected' : '';
                     html += '<option value="' + ei + '"' + es + '>+' + ei + '</option>';
                 }
-                html += '</select>';
+            } else {
+                html += '<option value="15">+15</option>';
             }
+            html += '</select>';
             var mwTag = getJorgothTag(weaponConfig.mainType, profile.mainWeapon.set);
             if (mwTag) {
                 var tagClass = mwTag === 'masterpiece' ? 'gc-weapon-tag-masterpiece' : 'gc-weapon-tag-extended';
@@ -926,6 +934,9 @@
                 html += '<span class="gc-weapon-tag ' + tagClass + '">' + tagLabel + '</span>';
             }
             html += '</div>';
+            html += '</div>';
+            // ── Right: Off-Hand / Shield / Fuse ──
+            html += '<div class="gc-armor-col">';
             if (weaponConfig.offHandType !== 'none') {
                 var ohType = weaponConfig.offHandType;
                 var ohIcon, ohLabel;
@@ -938,7 +949,7 @@
                 } else {
                     var ohWt = WEAPON_TYPES[weaponConfig.offHandWeaponType];
                     ohIcon = ohWt.icon;
-                    ohLabel = ohWt.name + ' (OH)';
+                    ohLabel = ohWt.name;
                 }
                 var ohSets = WEAPON_SETS.filter(function(ws) { return OFFHAND_EXCLUDED_SETS.indexOf(ws.key) === -1; });
                 html += '<div class="gc-armor-row">';
@@ -957,8 +968,7 @@
                     html += '</select>';
                 } else if (ohType === 'fuse' || ohType === 'weapon') {
                     // No enchant for fuse
-
-                }else {
+                } else {
                     html += '<select class="gc-select gc-select-sm" onchange="GC.setWeaponEnchant(' + id + ',\'offHand\',this.value)">';
                     for (var oi = 8; oi <= 15; oi++) {
                         var os = profile.offHand.enchant === oi ? ' selected' : '';
@@ -968,6 +978,42 @@
                 }
                 html += '</div>';
             }
+            html += '</div>';
+            html += '</div></div>';
+
+            // ── Armor Section ──
+            html += '<div class="gc-section">';
+            html += '<div class="gc-section-label-row">';
+            html += '<span class="gc-section-label">🛡️ Armor</span>';
+            if (classInfo.armorTypes.length > 1) {
+                html += '<select class="gc-select gc-select-inline" onchange="GC.setArmorType(' + id + ',this.value)">';
+                classInfo.armorTypes.forEach(function(atKey) {
+                    var opt = ARMOR_TYPE_OPTIONS.find(function(o) { return o.key === atKey; });
+                    var s = profile.armorType === atKey ? ' selected' : '';
+                    html += '<option value="' + atKey + '"' + s + '>' + opt.name + '</option>';
+                });
+                html += '</select>';
+            } else {
+                var singleOpt = ARMOR_TYPE_OPTIONS.find(function(o) { return o.key === classInfo.armorTypes[0]; });
+                html += '<span class="gc-armor-type-badge">' + singleOpt.name + '</span>';
+            }
+            html += '</div>';
+
+            var LEFT_SLOTS  = ['helmet', 'chest', 'pants'];
+            var RIGHT_SLOTS = ['shoulders', 'gloves', 'boots'];
+            html += '<div class="gc-armor-columns">';
+            html += '<div class="gc-armor-col">';
+            LEFT_SLOTS.forEach(function(key) {
+                var slot = ARMOR_SLOTS.find(function(s) { return s.key === key; });
+                html += renderArmorSlot(id, slot, profile.armor[slot.key], profile, material);
+            });
+            html += '</div>';
+            html += '<div class="gc-armor-col">';
+            RIGHT_SLOTS.forEach(function(key) {
+                var slot = ARMOR_SLOTS.find(function(s) { return s.key === key; });
+                html += renderArmorSlot(id, slot, profile.armor[slot.key], profile, material);
+            });
+            html += '</div>';
             html += '</div></div>';
 
             container.innerHTML = html;
@@ -980,9 +1026,7 @@
             var html = '<div class="gc-armor-row">';
 
             // Armor icon
-            html += '<div class="gc-slot-icon"><img src="' + iconUrl + '" alt="' + slot.name + '"></div>';
-            // Name
-            html += '<div class="gc-slot-label">' + slot.name + '</div>';
+            html += '<div class="gc-slot-icon"><img src="' + iconUrl + '" alt="' + slot.key + '"></div>';
             // Set
             html += '<select class="gc-select" onchange="GC.setArmor(' + pid + ',\'' + slot.key + '\',this.value)">';
             ARMOR_SETS.forEach(function(set) {
@@ -990,15 +1034,18 @@
                 html += '<option value="' + set.key + '"' + s + '>' + set.name + '</option>';
             });
             html += '</select>';
-            // Enchant
-            if (armor.set === 'acrimony' || armor.set === 'presumption') {
-                html += '<select class="gc-select gc-select-sm" onchange="GC.setArmorEnchant(' + pid + ',\'' + slot.key + '\',this.value)">';
+            // Enchant (always rendered for consistent layout)
+            var hasArmorEnchant = (armor.set === 'acrimony' || armor.set === 'presumption');
+            html += '<select class="gc-select gc-select-sm"' + (hasArmorEnchant ? '' : ' disabled') + ' onchange="GC.setArmorEnchant(' + pid + ',\'' + slot.key + '\',this.value)">';
+            if (hasArmorEnchant) {
                 for (var i = 8; i <= 15; i++) {
                     var s = armor.enchant === i ? ' selected' : '';
                     html += '<option value="' + i + '"' + s + '>+' + i + '</option>';
                 }
-                html += '</select>';
+            } else {
+                html += '<option value="15">+15</option>';
             }
+            html += '</select>';
             // Oath icon
             if (oathIconUrl) {
                 var isFramed = (slotOath === 'silent-skill');
@@ -1083,22 +1130,8 @@
             selectClass: function(className) {
                 selectedClass = className;
                 var cls = CLASS_DATA[className];
-                // Reset weapon config for new class
-                if (cls.weapons.indexOf(weaponConfig.mainType) === -1) {
-                    weaponConfig = createDefaultWeaponConfig(className);
-                } else {
-                    var mainIs2H = WEAPON_TYPES[weaponConfig.mainType].twoHanded;
-                    if (mainIs2H && (weaponConfig.offHandType === 'shield' || weaponConfig.offHandType === 'weapon')) {
-                        weaponConfig.offHandType = 'none';
-                    }
-                    if (weaponConfig.offHandType === 'shield' && SHIELD_WEAPONS.indexOf(weaponConfig.mainType) === -1) {
-                        weaponConfig.offHandType = 'none';
-                    }
-                    var oneHanded = cls.weapons.filter(function(w) { return !WEAPON_TYPES[w].twoHanded; });
-                    if (weaponConfig.offHandType === 'weapon' && oneHanded.indexOf(weaponConfig.offHandWeaponType) === -1) {
-                        weaponConfig.offHandWeaponType = oneHanded[0] || cls.weapons[0];
-                    }
-                }
+                // Always reset weapon config to class defaults
+                weaponConfig = createDefaultWeaponConfig(className);
                 [1, 2].forEach(function(id) {
                     var p = state[id];
                     if (cls.armorTypes.indexOf(p.armorType) === -1) {
@@ -1139,13 +1172,13 @@
             // Shared weapon config handlers
             setMainWeaponType: function(type) {
                 weaponConfig.mainType = type;
-                var mainIs2H = WEAPON_TYPES[type].twoHanded;
-                if (mainIs2H && (weaponConfig.offHandType === 'shield' || weaponConfig.offHandType === 'weapon')) {
-                    weaponConfig.offHandType = 'none';
+                var allowed = getAllowedOffHand(type, selectedClass);
+                // If current off-hand type is no longer allowed, reset to default
+                if (allowed.indexOf(weaponConfig.offHandType) === -1) {
+                    weaponConfig.offHandType = getDefaultOffHand(type, selectedClass);
                 }
-                if (weaponConfig.offHandType === 'shield' && SHIELD_WEAPONS.indexOf(type) === -1) {
-                    weaponConfig.offHandType = 'none';
-                }
+                // Update off-hand weapon type default
+                weaponConfig.offHandWeaponType = getDefaultOffHandWeapon(type, selectedClass);
                 renderWeaponConfig();
                 renderProfile(1);
                 renderProfile(2);
@@ -1201,6 +1234,22 @@
                 } else {
                     state[pid].offHand.enchant = parseInt(level);
                 }
+                updateComparison();
+                saveState();
+            },
+
+            resetWeapons: function() {
+                weaponConfig = createDefaultWeaponConfig(selectedClass);
+                renderWeaponConfig();
+                renderProfile(1);
+                renderProfile(2);
+                updateComparison();
+                saveState();
+            },
+
+            resetProfile: function(pid) {
+                state[pid] = createDefaultProfile(selectedClass);
+                renderProfile(pid);
                 updateComparison();
                 saveState();
             }

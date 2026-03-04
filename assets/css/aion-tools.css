@@ -3865,7 +3865,7 @@ flex: 1;
 .gc-profiles {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 16px;
     margin-bottom: 30px;
 }
 
@@ -3873,8 +3873,10 @@ flex: 1;
     background: var(--bg-panel-solid);
     border: 1px solid var(--border-primary);
     border-radius: 14px;
-    padding: 20px;
+    padding: 14px;
     box-shadow: var(--shadow-md);
+    min-width: 0;
+    overflow: hidden;
 }
 
 .gc-profile-header {
@@ -3882,6 +3884,33 @@ flex: 1;
     margin-bottom: 16px;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--border-dim);
+    position: relative;
+}
+
+.gc-reset-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(200, 160, 60, 0.2);
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-size: 1.1em;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.gc-reset-btn:hover {
+    background: rgba(255, 80, 80, 0.15);
+    border-color: rgba(255, 80, 80, 0.4);
+    color: #ff6b6b;
 }
 
 .gc-set-title {
@@ -3924,8 +3953,8 @@ flex: 1;
 }
 
 .gc-class-btn {
-    width: 56px;
-    border-radius: 10px;
+    width: 84px;
+    border-radius: 12px;
     border: 2px solid var(--border-dim);
     background: rgba(20, 20, 30, 0.7);
     cursor: pointer;
@@ -3933,19 +3962,19 @@ flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 6px 4px 4px;
-    gap: 3px;
+    padding: 8px 6px 5px;
+    gap: 4px;
 }
 
 .gc-class-btn img {
-    width: 32px;
-    height: 32px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     object-fit: cover;
 }
 
 .gc-class-label {
-    font-size: 0.55em;
+    font-size: 0.6em;
     color: var(--text-dim);
     line-height: 1.1;
     white-space: nowrap;
@@ -4000,6 +4029,19 @@ flex: 1;
     background: rgba(181, 101, 245, 0.08);
 }
 
+/* ── Armor Columns (2-col layout) ── */
+.gc-armor-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.gc-armor-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
 /* ── Armor List (row-based layout) ── */
 .gc-armor-list {
     display: flex;
@@ -4010,12 +4052,13 @@ flex: 1;
 .gc-armor-row {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 5px 6px;
+    gap: 4px;
+    padding: 4px 5px;
     background: rgba(15, 15, 25, 0.6);
     border: 1px solid rgba(200, 160, 60, 0.15);
     border-radius: 8px;
     transition: border-color 0.2s ease;
+    min-width: 0;
 }
 
 .gc-armor-row:hover {
@@ -4023,8 +4066,8 @@ flex: 1;
 }
 
 .gc-oath-icon {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     flex-shrink: 0;
     position: relative;
 }
@@ -4069,8 +4112,8 @@ flex: 1;
 }
 
 .gc-slot-icon {
-    width: 36px;
-    height: 36px;
+    width: 42px;
+    height: 42px;
     flex-shrink: 0;
 }
 
@@ -4101,9 +4144,19 @@ flex: 1;
     background: var(--bg-panel-solid);
     border: 1px solid var(--border-primary);
     border-radius: 14px;
-    padding: 20px 24px;
-    margin-bottom: 20px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
     box-shadow: var(--shadow-md);
+}
+
+.gc-wc-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.gc-wc-slot {
+    width: fit-content;
 }
 
 .gc-wc-grid {
@@ -4137,16 +4190,19 @@ flex: 1;
     opacity: 0.3;
 }
 
+.gc-wc-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+}
+
 /* ── Weapon Notice ── */
 .gc-weapon-notice {
-    background: rgba(255, 204, 0, 0.08);
-    border: 1px solid rgba(255, 204, 0, 0.25);
-    border-radius: 6px;
-    padding: 8px 12px;
-    margin-bottom: 10px;
-    font-size: 0.8em;
-    color: var(--warning);
+    font-size: 0.7em;
+    color: rgba(255, 204, 0, 0.5);
     text-align: center;
+    padding-top: 8px;
     line-height: 1.4;
 }
 
@@ -4204,13 +4260,15 @@ flex: 1;
 
 /* ── Dropdowns ── */
 .gc-select {
-    width: 100%;
+    width: auto;
+    min-width: 0;
+    flex: 1 1 auto;
     background: rgba(10, 10, 20, 0.9);
     color: var(--text-primary);
     border: 1px solid var(--border-dim);
     border-radius: 5px;
-    padding: 5px 6px;
-    font-size: 0.78em;
+    padding: 4px 5px;
+    font-size: 0.75em;
     font-family: inherit;
     cursor: pointer;
     transition: border-color 0.2s ease;
@@ -4224,14 +4282,22 @@ flex: 1;
 }
 
 .gc-select-sm {
-    max-width: 80px;
-    display: inline-block;
-    margin: 0 2px;
+    flex: 0 0 auto;
+    margin: 0 1px;
+}
+
+.gc-select:disabled {
+    opacity: 0.35;
+    cursor: default;
+    border-color: rgba(200, 160, 60, 0.08);
 }
 
 .gc-select-oath {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
     border-color: rgba(181, 101, 245, 0.3);
-    font-style: italic;
+    text-align: center;
 }
 
 /* (Stats panel removed — comparison is now item-based) */
@@ -4342,8 +4408,23 @@ flex: 1;
 }
 
 /* ── Gear Compare Responsive ── */
+@media (max-width: 1400px) {
+    .gc-armor-columns {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 1024px) {
     .gc-profiles {
+        grid-template-columns: 1fr;
+    }
+    .gc-armor-columns {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .gc-armor-columns {
         grid-template-columns: 1fr;
     }
 }
@@ -4365,8 +4446,8 @@ flex: 1;
         width: 60px;
     }
     .gc-oath-icon {
-        width: 22px;
-        height: 22px;
+        width: 24px;
+        height: 24px;
     }
     .gc-comp-table {
         font-size: 0.8em;
@@ -4379,6 +4460,6 @@ flex: 1;
         font-size: 1.2em;
     }
     .gc-class-btn {
-        width: 46px;
+        width: 60px;
     }
 }
