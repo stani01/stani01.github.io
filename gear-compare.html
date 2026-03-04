@@ -48,20 +48,20 @@
         // One-handed: dagger, sword, mace, revolver
         // Two-handed: everything else
         var WEAPON_TYPES = {
-            dagger:     { name: 'Dagger',      icon: 'https://aioncodex.com/items/icon_item_equip_dagger_f01.png', twoHanded: false },
-            sword:      { name: 'Sword',       icon: 'https://aioncodex.com/items/icon_item_equip_sword_f01.png', twoHanded: false },
-            mace:       { name: 'Mace',        icon: 'https://aioncodex.com/items/icon_item_equip_mace_f01.png', twoHanded: false },
-            revolver:   { name: 'Revolver',    icon: 'https://aioncodex.com/items/icon_item_equip_gun_f01.png', twoHanded: false },
-            greatsword: { name: 'Greatsword',  icon: 'https://aioncodex.com/items/icon_item_equip_2hsword_f01.png', twoHanded: true },
-            polearm:    { name: 'Polearm',     icon: 'https://aioncodex.com/items/icon_item_equip_polearm_f01.png', twoHanded: true },
-            bow:        { name: 'Bow',         icon: 'https://aioncodex.com/items/icon_item_equip_bow_f01.png', twoHanded: true },
-            staff:      { name: 'Staff',       icon: 'https://aioncodex.com/items/icon_item_equip_staff_f01.png', twoHanded: true },
-            paintRings: { name: 'Paint Rings', icon: 'https://aioncodex.com/items/icon_item_equip_spray_f01.png', twoHanded: true },
-            orb:        { name: 'Orb',         icon: 'https://aioncodex.com/items/icon_item_equip_orb_f01.png', twoHanded: true },
-            spellbook:  { name: 'Spellbook',   icon: 'https://aioncodex.com/items/icon_item_equip_book_f01.png', twoHanded: true },
-            aetherKey:  { name: 'Aether Key',  icon: 'https://aioncodex.com/items/icon_item_equip_keyblade_f01.png', twoHanded: true },
-            cannon:     { name: 'Cannon',      icon: 'https://aioncodex.com/items/icon_item_equip_cannon_f01.png', twoHanded: true },
-            harp:       { name: 'Harp',        icon: 'https://aioncodex.com/items/icon_item_equip_harp_f01.png', twoHanded: true }
+            dagger:     { name: 'Dagger',      icon: 'assets/icons/icon_item_equip_dagger_f01.png', twoHanded: false },
+            sword:      { name: 'Sword',       icon: 'assets/icons/icon_item_equip_sword_f01.png', twoHanded: false },
+            mace:       { name: 'Mace',        icon: 'assets/icons/icon_item_equip_mace_f01.png', twoHanded: false },
+            revolver:   { name: 'Revolver',    icon: 'assets/icons/icon_item_equip_gun_f01.png', twoHanded: false },
+            greatsword: { name: 'Greatsword',  icon: 'assets/icons/icon_item_equip_2hsword_f01.png', twoHanded: true },
+            polearm:    { name: 'Polearm',     icon: 'assets/icons/icon_item_equip_polearm_f01.png', twoHanded: true },
+            bow:        { name: 'Bow',         icon: 'assets/icons/icon_item_equip_bow_f01.png', twoHanded: true },
+            staff:      { name: 'Staff',       icon: 'assets/icons/icon_item_equip_staff_f01.png', twoHanded: true },
+            paintRings: { name: 'Paint Rings', icon: 'assets/icons/icon_item_equip_spray_f01.png', twoHanded: true },
+            orb:        { name: 'Orb',         icon: 'assets/icons/icon_item_equip_orb_f01.png', twoHanded: true },
+            spellbook:  { name: 'Spellbook',   icon: 'assets/icons/icon_item_equip_book_f01.png', twoHanded: true },
+            aetherKey:  { name: 'Aether Key',  icon: 'assets/icons/icon_item_equip_keyblade_f01.png', twoHanded: true },
+            cannon:     { name: 'Cannon',      icon: 'assets/icons/icon_item_equip_cannon_f01.png', twoHanded: true },
+            harp:       { name: 'Harp',        icon: 'assets/icons/icon_item_equip_harp_f01.png', twoHanded: true }
         };
 
         // Shield-compatible main-hand weapons
@@ -81,7 +81,7 @@
         var ARMOR_MAT_PREFIX = { plate: 'pl', chain: 'ch', leather: 'lt', cloth: 'rb' };
 
         function getArmorIcon(material, slotIconKey) {
-            return 'https://aioncodex.com/items/icon_item_equip_' + ARMOR_MAT_PREFIX[material] + '_' + slotIconKey + '_f01.png';
+            return 'assets/icons/icon_item_equip_' + ARMOR_MAT_PREFIX[material] + '_' + slotIconKey + '_f01.png';
         }
         function getArmorMaterial(armorType) {
             return armorType.split('-')[1]; // 'physical-plate' → 'plate'
@@ -167,21 +167,21 @@
         }
 
         var SILENT_SKILL_ICONS = {
-            shoulders: 'https://aioncodex.com/items/icon_item_rb_shoulder_s01.png',
-            helmet:    'https://aioncodex.com/items/icon_item_ac_head_s05.png',
-            chest:     'https://aioncodex.com/items/icon_item_rb_torso_s01.png',
-            pants:     'https://aioncodex.com/items/icon_item_rb_pants_s01.png',
-            gloves:    'https://aioncodex.com/items/icon_item_rb_glove_s01.png',
-            boots:     'https://aioncodex.com/items/icon_item_rb_shoes_s01.png'
+            shoulders: 'assets/icons/icon_item_rb_shoulder_s01.png',
+            helmet:    'assets/icons/icon_item_ac_head_s05.png',
+            chest:     'assets/icons/icon_item_rb_torso_s01.png',
+            pants:     'assets/icons/icon_item_rb_pants_s01.png',
+            gloves:    'assets/icons/icon_item_rb_glove_s01.png',
+            boots:     'assets/icons/icon_item_rb_shoes_s01.png'
         };
 
-        var OATH_FRAME = 'https://aioncodex.com/images/icon_frame_2.png';
+        var OATH_FRAME = 'assets/icons/icon_frame_2.png';
 
         function getOathIcon(slotKey, oathKey) {
             if (oathKey === 'silent-skill') return SILENT_SKILL_ICONS[slotKey] || null;
             var tier = getOathIconTier(oathKey);
             if (!tier) return null;
-            return 'https://aioncodex.com/skills/vs_armor_' + OATH_SLOT_ICON[slotKey] + '_a_' + tier + '.png';
+            return 'assets/icons/vs_armor_' + OATH_SLOT_ICON[slotKey] + '_a_' + tier + '.png';
         }
 
         function getOathRank(oathKey) {
@@ -202,18 +202,18 @@
         }
 
         var CLASS_DATA = {
-            gladiator:    { name: 'Gladiator',    icon: 'images/gladiator.png',    weapons: ['dagger', 'sword', 'greatsword', 'polearm'], armorTypes: ['physical-plate'] },
-            templar:      { name: 'Templar',      icon: 'images/templar.png',      weapons: ['sword', 'greatsword'],              armorTypes: ['physical-plate'] },
-            assassin:     { name: 'Assassin',     icon: 'images/assassin.png',     weapons: ['dagger', 'sword'],                          armorTypes: ['physical-leather', 'magical-leather'] },
-            ranger:       { name: 'Ranger',       icon: 'images/ranger.png',       weapons: ['bow'],                                      armorTypes: ['physical-leather'] },
-            sorcerer:     { name: 'Sorcerer',     icon: 'images/sorcerer.png',     weapons: ['orb', 'spellbook'],                         armorTypes: ['magical-cloth'] },
-            spiritmaster: { name: 'Spiritmaster', icon: 'images/spiritmaster.png', weapons: ['orb', 'spellbook'],                         armorTypes: ['magical-cloth'] },
-            cleric:       { name: 'Cleric',       icon: 'images/cleric.png',       weapons: ['mace'],                                     armorTypes: ['magical-chain', 'physical-chain'] },
-            chanter:      { name: 'Chanter',      icon: 'images/chanter.png',      weapons: ['staff'],                                    armorTypes: ['physical-chain', 'magical-chain'] },
-            aethertech:   { name: 'Aethertech',   icon: 'images/aethertech.png',   weapons: ['aetherKey'],                                armorTypes: ['magical-plate'] },
-            gunner:       { name: 'Gunner',       icon: 'images/gunner.png',       weapons: ['revolver', 'cannon'],                         armorTypes: ['magical-leather'] },
-            bard:         { name: 'Bard',         icon: 'images/bard.png',         weapons: ['harp'],                                     armorTypes: ['magical-cloth'] },
-            painter:      { name: 'Painter',      icon: 'images/painter.png',      weapons: ['paintRings'],                               armorTypes: ['physical-cloth'] }
+            gladiator:    { name: 'Gladiator',    icon: 'assets/icons/gladiator.png',    weapons: ['dagger', 'sword', 'greatsword', 'polearm'], armorTypes: ['physical-plate'] },
+            templar:      { name: 'Templar',      icon: 'assets/icons/templar.png',      weapons: ['sword', 'greatsword'],              armorTypes: ['physical-plate'] },
+            assassin:     { name: 'Assassin',     icon: 'assets/icons/assassin.png',     weapons: ['dagger', 'sword'],                          armorTypes: ['physical-leather', 'magical-leather'] },
+            ranger:       { name: 'Ranger',       icon: 'assets/icons/ranger.png',       weapons: ['bow'],                                      armorTypes: ['physical-leather'] },
+            sorcerer:     { name: 'Sorcerer',     icon: 'assets/icons/sorcerer.png',     weapons: ['orb', 'spellbook'],                         armorTypes: ['magical-cloth'] },
+            spiritmaster: { name: 'Spiritmaster', icon: 'assets/icons/spiritmaster.png', weapons: ['orb', 'spellbook'],                         armorTypes: ['magical-cloth'] },
+            cleric:       { name: 'Cleric',       icon: 'assets/icons/cleric.png',       weapons: ['mace'],                                     armorTypes: ['magical-chain', 'physical-chain'] },
+            chanter:      { name: 'Chanter',      icon: 'assets/icons/chanter.png',      weapons: ['staff'],                                    armorTypes: ['physical-chain', 'magical-chain'] },
+            aethertech:   { name: 'Aethertech',   icon: 'assets/icons/aethertech.png',   weapons: ['aetherKey'],                                armorTypes: ['magical-plate'] },
+            gunner:       { name: 'Gunner',       icon: 'assets/icons/gunner.png',       weapons: ['revolver', 'cannon'],                         armorTypes: ['magical-leather'] },
+            bard:         { name: 'Bard',         icon: 'assets/icons/bard.png',         weapons: ['harp'],                                     armorTypes: ['magical-cloth'] },
+            painter:      { name: 'Painter',      icon: 'assets/icons/painter.png',      weapons: ['paintRings'],                               armorTypes: ['physical-cloth'] }
         };
 
         var CLASS_ORDER = ['gladiator', 'templar', 'assassin', 'ranger', 'sorcerer', 'spiritmaster',
@@ -822,7 +822,7 @@
             // Off-hand row
             html += '<div class="gc-wc-row">';
             if (ohType === 'shield') {
-                html += '<div class="gc-slot-icon"><img src="https://aioncodex.com/items/icon_item_equip_shield_f01.png" alt="Shield"></div>';
+                html += '<div class="gc-slot-icon"><img src="assets/icons/icon_item_equip_shield_f01.png" alt="Shield"></div>';
             } else if (ohType === 'fuse') {
                 html += '<div class="gc-slot-icon"><img src="' + wt.icon + '" alt="Fuse"></div>';
             } else if (ohType === 'weapon') {
@@ -930,7 +930,7 @@
                 var ohType = weaponConfig.offHandType;
                 var ohIcon, ohLabel;
                 if (ohType === 'shield') {
-                    ohIcon = 'https://aioncodex.com/items/icon_item_equip_shield_f01.png';
+                    ohIcon = 'assets/icons/icon_item_equip_shield_f01.png';
                     ohLabel = 'Shield';
                 } else if (ohType === 'fuse') {
                     ohIcon = mwt.icon;

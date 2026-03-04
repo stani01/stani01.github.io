@@ -22,17 +22,17 @@
 
         <!-- Tab Navigation -->
         <div class="tabs-container">
-            <button class="tab-btn" onclick="switchTab('ultimate')"><img src="https://aioncodex.com/items/icon_item_equip_pl_torso_f01.png" alt="Armor" class="tab-label-icon"> Ultimate Gear</button>
-            <button class="tab-btn" onclick="switchTab('extreme')"><img src="https://aioncodex.com/items/icon_item_equip_pl_torso_f01.png" alt="Armor" class="tab-label-icon"> Extreme Gear</button>
+            <button class="tab-btn" onclick="switchTab('ultimate')"><img src="assets/icons/icon_item_equip_pl_torso_f01.png" alt="Armor" class="tab-label-icon"> Ultimate Gear</button>
+            <button class="tab-btn" onclick="switchTab('extreme')"><img src="assets/icons/icon_item_equip_pl_torso_f01.png" alt="Armor" class="tab-label-icon"> Extreme Gear</button>
             <button class="tab-btn rune-odian-tab" onclick="switchTab('rune')">
-                <img src="https://aioncodex.com/items/icon_item_equip_rune_att_01.png" alt="Rune" class="tab-icon">
-                <img src="https://aioncodex.com/items/icon_item_equip_rune_def_01.png" alt="Rune" class="tab-icon">
-                <img src="https://aioncodex.com/items/icon_item_equip_rune_alw_01.png" alt="Rune" class="tab-icon">
-                <img src="https://aioncodex.com/items/icon_item_equip_odian_red_03.png" alt="Odian" class="tab-icon">
-                <img src="https://aioncodex.com/items/icon_item_equip_odian_blue_03.png" alt="Odian" class="tab-icon">
-                <img src="https://aioncodex.com/items/icon_item_equip_odian_green_03.png" alt="Odian" class="tab-icon">
+                <img src="assets/icons/icon_item_equip_rune_att_01.png" alt="Rune" class="tab-icon">
+                <img src="assets/icons/icon_item_equip_rune_def_01.png" alt="Rune" class="tab-icon">
+                <img src="assets/icons/icon_item_equip_rune_alw_01.png" alt="Rune" class="tab-icon">
+                <img src="assets/icons/icon_item_equip_odian_red_03.png" alt="Odian" class="tab-icon">
+                <img src="assets/icons/icon_item_equip_odian_blue_03.png" alt="Odian" class="tab-icon">
+                <img src="assets/icons/icon_item_equip_odian_green_03.png" alt="Odian" class="tab-icon">
             </button>
-            <button class="tab-btn" onclick="switchTab('oath')"><img src="https://aioncodex.com/items/icon_item_equipment_skill_stone.png" alt="Pledge" class="tab-label-icon"> Ultimate Oath</button>
+            <button class="tab-btn" onclick="switchTab('oath')"><img src="assets/icons/icon_item_equipment_skill_stone.png" alt="Pledge" class="tab-label-icon"> Ultimate Oath</button>
         </div>
 
         <!-- EXTREME GEAR TAB -->
@@ -71,7 +71,7 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="sim-button" onclick="runExtremeSimulation()"><img src="https://aioncodex.com/items/icon_item_enchant_infinite_n_01.png" alt="Ultimate Extreme Enchantment Stone" class="sim-btn-icon"> Run Simulation</button>
+                    <button class="sim-button" onclick="runExtremeSimulation()"><img src="assets/icons/icon_item_enchant_infinite_n_01.png" alt="Ultimate Extreme Enchantment Stone" class="sim-btn-icon"> Run Simulation</button>
                     <button class="clear-button" onclick="clearExtremeOutput()">Clear Output</button>
                     <button class="info-button" onclick="toggleRates('extreme')" title="Show success and destruction rates">ℹ️ Rates</button>
                 </div>
@@ -137,7 +137,7 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="sim-button" onclick="runRuneSimulation()"><img src="https://aioncodex.com/items/icon_item_enchant_grind_item_01.png" alt="Ancient Polishing Stone" class="sim-btn-icon"> Run Simulation</button>
+                    <button class="sim-button" onclick="runRuneSimulation()"><img src="assets/icons/icon_item_enchant_grind_item_01.png" alt="Ancient Polishing Stone" class="sim-btn-icon"> Run Simulation</button>
                     <button class="clear-button" onclick="clearRuneOutput()">Clear Output</button>
                     <button class="info-button" onclick="toggleRates('rune')" title="Show contamination and failure rates">ℹ️ Rates</button>
                 </div>
@@ -186,15 +186,15 @@
                 <div class="ultimate-gear-attempts">
                     <div class="stone-usage-bar">Stones Used:
                         <div class="item-card stone-button" id="stone-ancient" onclick="selectUltimateStone('ancient')">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" alt="Ancient" class="sim-btn-icon">
+                            <img src="assets/icons/icon_item_enchant_pve_a01.png" alt="Ancient" class="sim-btn-icon">
                         </div>
                         <span id="ancient-counter" class="stone-counter">0</span>
                         <div class="item-card stone-button" id="stone-legendary" onclick="selectUltimateStone('legendary')">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" alt="Legendary" class="sim-btn-icon">
+                            <img src="assets/icons/icon_item_enchant_pve_r01.png" alt="Legendary" class="sim-btn-icon">
                         </div>
                         <span id="legendary-counter" class="stone-counter">0</span>
                         <div class="item-card stone-button" id="stone-ultimate" onclick="selectUltimateStone('ultimate')">
-                            <img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" alt="Ultimate" class="sim-btn-icon">
+                            <img src="assets/icons/icon_item_enchant_pve_f01.png" alt="Ultimate" class="sim-btn-icon">
                         </div>
                         <span id="ultimate-counter" class="stone-counter">0</span>
                     </div>
@@ -255,7 +255,7 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="sim-button" onclick="runOathSimulation()"><img src="https://aioncodex.com/items/icon_item_equipment_skill_stone.png" alt="Pledge" class="sim-btn-icon"> Run Simulation</button>
+                    <button class="sim-button" onclick="runOathSimulation()"><img src="assets/icons/icon_item_equipment_skill_stone.png" alt="Pledge" class="sim-btn-icon"> Run Simulation</button>
                     <button class="clear-button" onclick="clearOathOutput()">Clear Output</button>
                     <button class="info-button" onclick="toggleRates('oath')" title="Show enchantment rates">ℹ️ Rates</button>
                 </div>
@@ -353,9 +353,9 @@
                     <thead>
                         <tr>
                             <th>Level</th>
-                            <th><img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" width="24"><br><small style="color: #cd7f32;">Ancient</small></th>
-                            <th><img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" width="24"><br><small style="color: #a335ee;">Legendary</small></th>
-                            <th><img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" width="24"><br><small style="color: #ff4d4d;">Ultimate</small></th>
+                            <th><img src="assets/icons/icon_item_enchant_pve_a01.png" width="24"><br><small style="color: #cd7f32;">Ancient</small></th>
+                            <th><img src="assets/icons/icon_item_enchant_pve_r01.png" width="24"><br><small style="color: #a335ee;">Legendary</small></th>
+                            <th><img src="assets/icons/icon_item_enchant_pve_f01.png" width="24"><br><small style="color: #ff4d4d;">Ultimate</small></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -390,9 +390,9 @@
                     <p><strong style="color: #ffd700;">✨ Critical:</strong> 10% chance for +2 on success</p>
                     <p>
                         <strong style="color: #ff4d4d;">⚠️ Penalty:</strong> 
-                        <img src="https://aioncodex.com/items/icon_item_enchant_pve_a01.png" width="14"> / 
-                        <img src="https://aioncodex.com/items/icon_item_enchant_pve_r01.png" width="14"> : -1 or reset to +10. <br>
-                        <span class="rates-penalty-indent"><img src="https://aioncodex.com/items/icon_item_enchant_pve_f01.png" width="14"> : No penalty.</span>
+                        <img src="assets/icons/icon_item_enchant_pve_a01.png" width="14"> / 
+                        <img src="assets/icons/icon_item_enchant_pve_r01.png" width="14"> : -1 or reset to +10. <br>
+                        <span class="rates-penalty-indent"><img src="assets/icons/icon_item_enchant_pve_f01.png" width="14"> : No penalty.</span>
                     </p>
                 </div>
             </div>
@@ -420,14 +420,14 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g1.png" alt="Legendary" class="rates-icon"></td>
+                            <td><img src="assets/icons/vs_blending_passive_ef_g1.png" alt="Legendary" class="rates-icon"></td>
                             <td class="cell-legendary">Legendary</td>
                             <td class="cell-legendary">40%</td>
                             <td class="cell-legendary">30%</td>
                             <td class="cell-legendary">25%</td>
                         </tr>
                         <tr>
-                            <td><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g6.png" alt="Ultimate" class="rates-icon"></td>
+                            <td><img src="assets/icons/vs_blending_passive_ef_g6.png" alt="Ultimate" class="rates-icon"></td>
                             <td class="cell-danger-alt">Ultimate</td>
                             <td class="cell-danger-alt">2.5%</td>
                             <td class="cell-danger-alt">1.5%</td>
@@ -459,7 +459,7 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td><img src="https://aioncodex.com/skills/vs_weapon_a_g6.png" alt="Expose" class="rates-icon"></td>
+                                <td><img src="assets/icons/vs_weapon_a_g6.png" alt="Expose" class="rates-icon"></td>
                                 <td class="cell-white rates-name-cell">Expose Vulnerability</td>
                                 <td class="cell-legendary rates-level-col">6.6%</td>
                                 <td class="cell-legendary rates-level-col">5%</td>
@@ -469,7 +469,7 @@
                                 <td class="cell-danger-alt">0.2%</td>
                             </tr>
                             <tr>
-                                <td><img src="https://aioncodex.com/skills/vs_weapon_b_g6.png" alt="Corrosion" class="rates-icon"></td>
+                                <td><img src="assets/icons/vs_weapon_b_g6.png" alt="Corrosion" class="rates-icon"></td>
                                 <td class="cell-white rates-name-cell">Corrosion</td>
                                 <td class="cell-legendary rates-level-col">6.6%</td>
                                 <td class="cell-legendary rates-level-col">5%</td>
@@ -479,7 +479,7 @@
                                 <td class="cell-danger-alt">0.2%</td>
                             </tr>
                             <tr>
-                                <td><img src="https://aioncodex.com/skills/vs_weapon_c_g6.png" alt="Harden" class="rates-icon"></td>
+                                <td><img src="assets/icons/vs_weapon_c_g6.png" alt="Harden" class="rates-icon"></td>
                                 <td class="cell-white rates-name-cell">Harden</td>
                                 <td class="cell-legendary rates-level-col">6.6%</td>
                                 <td class="cell-legendary rates-level-col">5%</td>
@@ -489,7 +489,7 @@
                                 <td class="cell-danger-alt">0.2%</td>
                             </tr>
                             <tr>
-                                <td><img src="https://aioncodex.com/skills/vs_weapon_d_g6.png" alt="Wound Care" class="rates-icon"></td>
+                                <td><img src="assets/icons/vs_weapon_d_g6.png" alt="Wound Care" class="rates-icon"></td>
                                 <td class="cell-white rates-name-cell">Wound Care</td>
                                 <td class="cell-legendary rates-level-col">6.8%</td>
                                 <td class="cell-legendary rates-level-col">5%</td>
@@ -499,7 +499,7 @@
                                 <td class="cell-danger-alt">0.2%</td>
                             </tr>
                             <tr>
-                                <td><img src="https://aioncodex.com/skills/vs_weapon_e_g6.png" alt="Ignite" class="rates-icon"></td>
+                                <td><img src="assets/icons/vs_weapon_e_g6.png" alt="Ignite" class="rates-icon"></td>
                                 <td class="cell-white rates-name-cell">Ignite</td>
                                 <td class="cell-legendary rates-level-col">6.8%</td>
                                 <td class="cell-legendary rates-level-col">5%</td>
@@ -509,7 +509,7 @@
                                 <td class="cell-danger-alt">0.2%</td>
                             </tr>
                             <tr>
-                                <td><img src="https://aioncodex.com/skills/vs_weapon_f_g6.png" alt="Disease" class="rates-icon"></td>
+                                <td><img src="assets/icons/vs_weapon_f_g6.png" alt="Disease" class="rates-icon"></td>
                                 <td class="cell-white rates-name-cell">Disease</td>
                                 <td class="cell-legendary rates-level-col">6.6%</td>
                                 <td class="cell-legendary rates-level-col">5%</td>
@@ -550,14 +550,14 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g1.png" alt="Legendary" class="rates-icon"></td>
+                            <td><img src="assets/icons/vs_blending_passive_ef_g1.png" alt="Legendary" class="rates-icon"></td>
                             <td class="cell-legendary rates-name-cell">Legendary</td>
                             <td class="cell-success">40%</td>
                             <td class="cell-success">30%</td>
                             <td class="cell-success">25%</td>
                         </tr>
                         <tr>
-                            <td><img src="https://aioncodex.com/skills/vs_blending_passive_ef_g6.png" alt="Ultimate" class="rates-icon"></td>
+                            <td><img src="assets/icons/vs_blending_passive_ef_g6.png" alt="Ultimate" class="rates-icon"></td>
                             <td class="cell-gold rates-name-cell">Ultimate</td>
                             <td class="cell-gold">2.5%</td>
                             <td class="cell-gold">1.5%</td>
@@ -579,37 +579,37 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td><img src="https://aioncodex.com/skills/vs_weapon_a_g6.png" alt="Expose" class="rates-icon"></td>
+                                <td><img src="assets/icons/vs_weapon_a_g6.png" alt="Expose" class="rates-icon"></td>
                                 <td class="cell-white rates-name-cell">Expose Vulnerability</td>
                                 <td class="cell-legendary">4%</td>
                                 <td class="cell-danger-alt">0.2%</td>
                             </tr>
                             <tr>
-                                <td><img src="https://aioncodex.com/skills/vs_weapon_b_g6.png" alt="Corrosion" class="rates-icon"></td>
+                                <td><img src="assets/icons/vs_weapon_b_g6.png" alt="Corrosion" class="rates-icon"></td>
                                 <td class="cell-white rates-name-cell">Corrosion</td>
                                 <td class="cell-legendary">4%</td>
                                 <td class="cell-danger-alt">0.2%</td>
                             </tr>
                             <tr>
-                                <td><img src="https://aioncodex.com/skills/vs_weapon_c_g6.png" alt="Harden" class="rates-icon"></td>
+                                <td><img src="assets/icons/vs_weapon_c_g6.png" alt="Harden" class="rates-icon"></td>
                                 <td class="cell-white rates-name-cell">Harden</td>
                                 <td class="cell-legendary">4%</td>
                                 <td class="cell-danger-alt">0.2%</td>
                             </tr>
                             <tr>
-                                <td><img src="https://aioncodex.com/skills/vs_weapon_d_g6.png" alt="Wound Care" class="rates-icon"></td>
+                                <td><img src="assets/icons/vs_weapon_d_g6.png" alt="Wound Care" class="rates-icon"></td>
                                 <td class="cell-white rates-name-cell">Wound Care</td>
                                 <td class="cell-legendary">4%</td>
                                 <td class="cell-danger-alt">0.2%</td>
                             </tr>
                             <tr>
-                                <td><img src="https://aioncodex.com/skills/vs_weapon_e_g6.png" alt="Ignite" class="rates-icon"></td>
+                                <td><img src="assets/icons/vs_weapon_e_g6.png" alt="Ignite" class="rates-icon"></td>
                                 <td class="cell-white rates-name-cell">Ignite</td>
                                 <td class="cell-legendary">4%</td>
                                 <td class="cell-danger-alt">0.2%</td>
                             </tr>
                             <tr>
-                                <td><img src="https://aioncodex.com/skills/vs_weapon_f_g6.png" alt="Disease" class="rates-icon"></td>
+                                <td><img src="assets/icons/vs_weapon_f_g6.png" alt="Disease" class="rates-icon"></td>
                                 <td class="cell-white rates-name-cell">Disease</td>
                                 <td class="cell-legendary">4%</td>
                                 <td class="cell-danger-alt">0.2%</td>
@@ -1314,12 +1314,12 @@
 
         // --- Oath Administration System ---
         const OATH_ARMOR = {
-            'Ultimate L3': { rarity: 'ultimate', level: 3, icon: 'https://aioncodex.com/skills/vs_blending_passive_ef_g6.png', pct: 1 },
-            'Ultimate L2': { rarity: 'ultimate', level: 2, icon: 'https://aioncodex.com/skills/vs_blending_passive_ef_g6.png', pct: 1.5 },
-            'Ultimate L1': { rarity: 'ultimate', level: 1, icon: 'https://aioncodex.com/skills/vs_blending_passive_ef_g4.png', pct: 2.5 },
-            'Legendary L3': { rarity: 'legendary', level: 3, icon: 'https://aioncodex.com/skills/vs_blending_passive_ef_g1.png', pct: 25 },
-            'Legendary L2': { rarity: 'legendary', level: 2, icon: 'https://aioncodex.com/skills/vs_blending_passive_ef_g1.png', pct: 30 },
-            'Legendary L1': { rarity: 'legendary', level: 1, icon: 'https://aioncodex.com/skills/vs_blending_passive_ef_g1.png', pct: 40 }
+            'Ultimate L3': { rarity: 'ultimate', level: 3, icon: 'assets/icons/vs_blending_passive_ef_g6.png', pct: 1 },
+            'Ultimate L2': { rarity: 'ultimate', level: 2, icon: 'assets/icons/vs_blending_passive_ef_g6.png', pct: 1.5 },
+            'Ultimate L1': { rarity: 'ultimate', level: 1, icon: 'assets/icons/vs_blending_passive_ef_g4.png', pct: 2.5 },
+            'Legendary L3': { rarity: 'legendary', level: 3, icon: 'assets/icons/vs_blending_passive_ef_g1.png', pct: 25 },
+            'Legendary L2': { rarity: 'legendary', level: 2, icon: 'assets/icons/vs_blending_passive_ef_g1.png', pct: 30 },
+            'Legendary L1': { rarity: 'legendary', level: 1, icon: 'assets/icons/vs_blending_passive_ef_g1.png', pct: 40 }
         };
 
         // Item type dropdown toggle
@@ -1364,47 +1364,47 @@
 
         const OATH_WEAPONS = {
             // Expose Vulnerability - 6 outcomes
-            'Ultimate: Expose Vulnerability level 3': { skill: 'Expose Vulnerability', icon: 'https://aioncodex.com/skills/vs_weapon_a_g6.png', pct: 0.2 },
-            'Ultimate: Expose Vulnerability level 2': { skill: 'Expose Vulnerability', icon: 'https://aioncodex.com/skills/vs_weapon_a_g4.png', pct: 0.3 },
-            'Ultimate: Expose Vulnerability level 1': { skill: 'Expose Vulnerability', icon: 'https://aioncodex.com/skills/vs_weapon_a_g4.png', pct: 0.5 },
-            'Legendary: Expose Vulnerability level 3': { skill: 'Expose Vulnerability', icon: 'https://aioncodex.com/skills/vs_weapon_a_g1.png', pct: 4 },
-            'Legendary: Expose Vulnerability level 2': { skill: 'Expose Vulnerability', icon: 'https://aioncodex.com/skills/vs_weapon_a_g1.png', pct: 5 },
-            'Legendary: Expose Vulnerability level 1': { skill: 'Expose Vulnerability', icon: 'https://aioncodex.com/skills/vs_weapon_a_g1.png', pct: 6.6 },
+            'Ultimate: Expose Vulnerability level 3': { skill: 'Expose Vulnerability', icon: 'assets/icons/vs_weapon_a_g6.png', pct: 0.2 },
+            'Ultimate: Expose Vulnerability level 2': { skill: 'Expose Vulnerability', icon: 'assets/icons/vs_weapon_a_g4.png', pct: 0.3 },
+            'Ultimate: Expose Vulnerability level 1': { skill: 'Expose Vulnerability', icon: 'assets/icons/vs_weapon_a_g4.png', pct: 0.5 },
+            'Legendary: Expose Vulnerability level 3': { skill: 'Expose Vulnerability', icon: 'assets/icons/vs_weapon_a_g1.png', pct: 4 },
+            'Legendary: Expose Vulnerability level 2': { skill: 'Expose Vulnerability', icon: 'assets/icons/vs_weapon_a_g1.png', pct: 5 },
+            'Legendary: Expose Vulnerability level 1': { skill: 'Expose Vulnerability', icon: 'assets/icons/vs_weapon_a_g1.png', pct: 6.6 },
             // Corrosion - 6 outcomes
-            'Ultimate: Corrosion level 3': { skill: 'Corrosion', icon: 'https://aioncodex.com/skills/vs_weapon_b_g6.png', pct: 0.2 },
-            'Ultimate: Corrosion level 2': { skill: 'Corrosion', icon: 'https://aioncodex.com/skills/vs_weapon_b_g4.png', pct: 0.3 },
-            'Ultimate: Corrosion level 1': { skill: 'Corrosion', icon: 'https://aioncodex.com/skills/vs_weapon_b_g4.png', pct: 0.5 },
-            'Legendary: Corrosion level 3': { skill: 'Corrosion', icon: 'https://aioncodex.com/skills/vs_weapon_b_g1.png', pct: 4 },
-            'Legendary: Corrosion level 2': { skill: 'Corrosion', icon: 'https://aioncodex.com/skills/vs_weapon_b_g1.png', pct: 5 },
-            'Legendary: Corrosion level 1': { skill: 'Corrosion', icon: 'https://aioncodex.com/skills/vs_weapon_b_g1.png', pct: 6.6 },
+            'Ultimate: Corrosion level 3': { skill: 'Corrosion', icon: 'assets/icons/vs_weapon_b_g6.png', pct: 0.2 },
+            'Ultimate: Corrosion level 2': { skill: 'Corrosion', icon: 'assets/icons/vs_weapon_b_g4.png', pct: 0.3 },
+            'Ultimate: Corrosion level 1': { skill: 'Corrosion', icon: 'assets/icons/vs_weapon_b_g4.png', pct: 0.5 },
+            'Legendary: Corrosion level 3': { skill: 'Corrosion', icon: 'assets/icons/vs_weapon_b_g1.png', pct: 4 },
+            'Legendary: Corrosion level 2': { skill: 'Corrosion', icon: 'assets/icons/vs_weapon_b_g1.png', pct: 5 },
+            'Legendary: Corrosion level 1': { skill: 'Corrosion', icon: 'assets/icons/vs_weapon_b_g1.png', pct: 6.6 },
             // Harden - 6 outcomes
-            'Ultimate: Harden level 3': { skill: 'Harden', icon: 'https://aioncodex.com/skills/vs_weapon_c_g6.png', pct: 0.2 },
-            'Ultimate: Harden level 2': { skill: 'Harden', icon: 'https://aioncodex.com/skills/vs_weapon_c_g4.png', pct: 0.3 },
-            'Ultimate: Harden level 1': { skill: 'Harden', icon: 'https://aioncodex.com/skills/vs_weapon_c_g4.png', pct: 0.5 },
-            'Legendary: Harden level 3': { skill: 'Harden', icon: 'https://aioncodex.com/skills/vs_weapon_c_g1.png', pct: 4 },
-            'Legendary: Harden level 2': { skill: 'Harden', icon: 'https://aioncodex.com/skills/vs_weapon_c_g1.png', pct: 5 },
-            'Legendary: Harden level 1': { skill: 'Harden', icon: 'https://aioncodex.com/skills/vs_weapon_c_g1.png', pct: 6.6 },
+            'Ultimate: Harden level 3': { skill: 'Harden', icon: 'assets/icons/vs_weapon_c_g6.png', pct: 0.2 },
+            'Ultimate: Harden level 2': { skill: 'Harden', icon: 'assets/icons/vs_weapon_c_g4.png', pct: 0.3 },
+            'Ultimate: Harden level 1': { skill: 'Harden', icon: 'assets/icons/vs_weapon_c_g4.png', pct: 0.5 },
+            'Legendary: Harden level 3': { skill: 'Harden', icon: 'assets/icons/vs_weapon_c_g1.png', pct: 4 },
+            'Legendary: Harden level 2': { skill: 'Harden', icon: 'assets/icons/vs_weapon_c_g1.png', pct: 5 },
+            'Legendary: Harden level 1': { skill: 'Harden', icon: 'assets/icons/vs_weapon_c_g1.png', pct: 6.6 },
             // Wound Care - 6 outcomes (6.8% for L1)
-            'Ultimate: Wound Care level 3': { skill: 'Wound Care', icon: 'https://aioncodex.com/skills/vs_weapon_d_g6.png', pct: 0.2 },
-            'Ultimate: Wound Care level 2': { skill: 'Wound Care', icon: 'https://aioncodex.com/skills/vs_weapon_d_g4.png', pct: 0.3 },
-            'Ultimate: Wound Care level 1': { skill: 'Wound Care', icon: 'https://aioncodex.com/skills/vs_weapon_d_g4.png', pct: 0.5 },
-            'Legendary: Wound Care level 3': { skill: 'Wound Care', icon: 'https://aioncodex.com/skills/vs_weapon_d_g1.png', pct: 4 },
-            'Legendary: Wound Care level 2': { skill: 'Wound Care', icon: 'https://aioncodex.com/skills/vs_weapon_d_g1.png', pct: 5 },
-            'Legendary: Wound Care level 1': { skill: 'Wound Care', icon: 'https://aioncodex.com/skills/vs_weapon_d_g1.png', pct: 6.8 },
+            'Ultimate: Wound Care level 3': { skill: 'Wound Care', icon: 'assets/icons/vs_weapon_d_g6.png', pct: 0.2 },
+            'Ultimate: Wound Care level 2': { skill: 'Wound Care', icon: 'assets/icons/vs_weapon_d_g4.png', pct: 0.3 },
+            'Ultimate: Wound Care level 1': { skill: 'Wound Care', icon: 'assets/icons/vs_weapon_d_g4.png', pct: 0.5 },
+            'Legendary: Wound Care level 3': { skill: 'Wound Care', icon: 'assets/icons/vs_weapon_d_g1.png', pct: 4 },
+            'Legendary: Wound Care level 2': { skill: 'Wound Care', icon: 'assets/icons/vs_weapon_d_g1.png', pct: 5 },
+            'Legendary: Wound Care level 1': { skill: 'Wound Care', icon: 'assets/icons/vs_weapon_d_g1.png', pct: 6.8 },
             // Ignite - 6 outcomes (6.8% for L1)
-            'Ultimate: Ignite level 3': { skill: 'Ignite', icon: 'https://aioncodex.com/skills/vs_weapon_e_g6.png', pct: 0.2 },
-            'Ultimate: Ignite level 2': { skill: 'Ignite', icon: 'https://aioncodex.com/skills/vs_weapon_e_g4.png', pct: 0.3 },
-            'Ultimate: Ignite level 1': { skill: 'Ignite', icon: 'https://aioncodex.com/skills/vs_weapon_e_g4.png', pct: 0.5 },
-            'Legendary: Ignite level 3': { skill: 'Ignite', icon: 'https://aioncodex.com/skills/vs_weapon_e_g1.png', pct: 4 },
-            'Legendary: Ignite level 2': { skill: 'Ignite', icon: 'https://aioncodex.com/skills/vs_weapon_e_g1.png', pct: 5 },
-            'Legendary: Ignite level 1': { skill: 'Ignite', icon: 'https://aioncodex.com/skills/vs_weapon_e_g1.png', pct: 6.8 },
+            'Ultimate: Ignite level 3': { skill: 'Ignite', icon: 'assets/icons/vs_weapon_e_g6.png', pct: 0.2 },
+            'Ultimate: Ignite level 2': { skill: 'Ignite', icon: 'assets/icons/vs_weapon_e_g4.png', pct: 0.3 },
+            'Ultimate: Ignite level 1': { skill: 'Ignite', icon: 'assets/icons/vs_weapon_e_g4.png', pct: 0.5 },
+            'Legendary: Ignite level 3': { skill: 'Ignite', icon: 'assets/icons/vs_weapon_e_g1.png', pct: 4 },
+            'Legendary: Ignite level 2': { skill: 'Ignite', icon: 'assets/icons/vs_weapon_e_g1.png', pct: 5 },
+            'Legendary: Ignite level 1': { skill: 'Ignite', icon: 'assets/icons/vs_weapon_e_g1.png', pct: 6.8 },
             // Disease - 6 outcomes
-            'Ultimate: Disease level 3': { skill: 'Disease', icon: 'https://aioncodex.com/skills/vs_weapon_f_g6.png', pct: 0.2 },
-            'Ultimate: Disease level 2': { skill: 'Disease', icon: 'https://aioncodex.com/skills/vs_weapon_f_g4.png', pct: 0.3 },
-            'Ultimate: Disease level 1': { skill: 'Disease', icon: 'https://aioncodex.com/skills/vs_weapon_f_g4.png', pct: 0.5 },
-            'Legendary: Disease level 3': { skill: 'Disease', icon: 'https://aioncodex.com/skills/vs_weapon_f_g1.png', pct: 4 },
-            'Legendary: Disease level 2': { skill: 'Disease', icon: 'https://aioncodex.com/skills/vs_weapon_f_g1.png', pct: 5 },
-            'Legendary: Disease level 1': { skill: 'Disease', icon: 'https://aioncodex.com/skills/vs_weapon_f_g1.png', pct: 6.6 }
+            'Ultimate: Disease level 3': { skill: 'Disease', icon: 'assets/icons/vs_weapon_f_g6.png', pct: 0.2 },
+            'Ultimate: Disease level 2': { skill: 'Disease', icon: 'assets/icons/vs_weapon_f_g4.png', pct: 0.3 },
+            'Ultimate: Disease level 1': { skill: 'Disease', icon: 'assets/icons/vs_weapon_f_g4.png', pct: 0.5 },
+            'Legendary: Disease level 3': { skill: 'Disease', icon: 'assets/icons/vs_weapon_f_g1.png', pct: 4 },
+            'Legendary: Disease level 2': { skill: 'Disease', icon: 'assets/icons/vs_weapon_f_g1.png', pct: 5 },
+            'Legendary: Disease level 1': { skill: 'Disease', icon: 'assets/icons/vs_weapon_f_g1.png', pct: 6.6 }
         };
 
         // Update the skill/level options based on selected item type
