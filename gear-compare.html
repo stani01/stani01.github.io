@@ -717,6 +717,17 @@
                 base.accuracy    = EXTREME_WEAPON_BASE.baseAcc;
 
                 bonus.attack     = EXTREME_WEAPON_BASE.bonusAtk;
+                // Base bonus defence (same pattern as armor: acrimony +10, presumption +20)
+                if (setKey === 'acrimony') {
+                    bonus.physicalDef = 10;
+                    bonus.magicalDef  = 10;
+                    bonus.hp = 20;
+                    bonus.crit = 20;
+                } else {
+                    bonus.physicalDef = 20;
+                    bonus.magicalDef  = 20;
+                    bonus.hp = 20;
+                }
 
                 enchant.attack      = ench.attack;
                 enchant.physicalDef = ench.def;
@@ -1164,7 +1175,7 @@
                 var d = v.data;
                 var t3BaseAtk = d.baseAtk === 2250 ? 2000 : 4700;
                 return {
-                    label: v.label, data: d, tag: null, isT3: true,
+                    label: v.label, data: d, tag: d.tag || null, isT3: true,
                     t3BaseAtk: t3BaseAtk,
                     bonusAtk: d.bonusAtk, crit: d.crit, acc: 2568 + d.acc,
                     def: 170 + d.bonusDef + enchDef, hp: d.hp,
@@ -1224,23 +1235,42 @@
             });
 
             // T3 rows (cheaper alternatives)
+            var t3Best = {};
+            var t3AllSame = {};
+            statCols.forEach(function(col) {
+                var vals = t3Rows.map(function(r) { return r[col]; });
+                t3Best[col] = Math.max.apply(null, vals);
+                t3AllSame[col] = vals[0] === vals[1] && vals[1] === vals[2];
+            });
+
+            function t3HlClass(col, val) {
+                if (t3AllSame[col] || val <= 0) return '';
+                return val === t3Best[col] ? ' class="gc-jorgoth-highlight gc-jorgoth-highlight-dim"' : '';
+            }
+
             var colCount = hasHeal ? 8 : 7;
             html += '<tr class="gc-jorgoth-t3-separator"><td colspan="' + colCount + '"></td></tr>';
             t3Rows.forEach(function(r) {
-                var atkDiff = Math.floor(r.data.baseAtk / 10) - r.fuseAtk;
-                var fuseTag = atkDiff > 0 ? ('⚔ Fuse −' + atkDiff + ' atk') : '';
-                html += '<tr class="gc-jorgoth-row gc-jorgoth-row-t3">';
+                var isMasterpiece = r.tag === 'masterpiece';
+                var isExtended = r.tag === 'extended';
+                var rowClass = isMasterpiece ? ' gc-jorgoth-row-mp' : '';
+                html += '<tr class="gc-jorgoth-row gc-jorgoth-row-t3' + rowClass + '">';
                 html += '<td class="gc-jorgoth-variant">' + r.label + '</td>';
-                html += '<td>' + (r.bonusAtk || '—') + '</td>';
-                html += '<td>' + (r.crit || '—') + '</td>';
-                html += '<td>' + (r.acc || '—') + '</td>';
-                html += '<td>' + r.def + '</td>';
-                html += '<td>' + r.hp.toLocaleString() + '</td>';
+                html += '<td' + t3HlClass('bonusAtk', r.bonusAtk) + '>' + (r.bonusAtk || '—') + '</td>';
+                html += '<td' + t3HlClass('crit', r.crit) + '>' + (r.crit || '—') + '</td>';
+                html += '<td' + t3HlClass('acc', r.acc) + '>' + (r.acc || '—') + '</td>';
+                html += '<td' + t3HlClass('def', r.def) + '>' + r.def + '</td>';
+                html += '<td' + t3HlClass('hp', r.hp) + '>' + r.hp.toLocaleString() + '</td>';
                 if (hasHeal) {
-                    html += '<td>' + (r.heal || '—') + '</td>';
+                    html += '<td' + t3HlClass('heal', r.heal) + '>' + (r.heal || '—') + '</td>';
                 }
                 html += '<td class="gc-jorgoth-tags">';
-                if (fuseTag) html += '<span class="gc-jorgoth-tag-t3">' + fuseTag + '</span>';
+                if (isMasterpiece) html += '<span class="gc-jorgoth-tag-mp">✦ Masterpiece</span>';
+                if (isExtended) html += '<span class="gc-jorgoth-tag-ext">⟐ Extended</span>';
+                if (is2H) {
+                    var atkDiff = Math.floor(r.data.baseAtk / 10) - r.fuseAtk;
+                    if (atkDiff > 0) html += '<span class="gc-jorgoth-tag-t3">⚔ Fuse −' + atkDiff + ' atk</span>';
+                }
                 html += '</td>';
                 html += '</tr>';
             });

@@ -4651,6 +4651,11 @@ flex: 1;
     font-weight: 700;
 }
 
+.gc-jorgoth-highlight-dim {
+    color: rgba(255, 153, 68, 0.55) !important;
+    font-weight: 700;
+}
+
 .gc-jorgoth-variant {
     white-space: nowrap;
 }
