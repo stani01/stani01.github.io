@@ -4212,6 +4212,13 @@ flex: 1;
     min-width: 0;
 }
 
+.gc-set-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 1px;
+}
+
 .gc-set-trigger .gc-slot-icon {
     border: 2px solid rgba(200, 160, 60, 0.2);
     border-radius: 8px;
@@ -4318,11 +4325,9 @@ flex: 1;
     display: inline-flex;
     align-items: center;
     gap: 2px;
-    padding: 2px 4px;
+    padding: 0 2px;
     border-radius: 4px;
-    transition: all 0.2s ease;
     flex-shrink: 0;
-    margin-left: auto;
 }
 
 .gc-ms-ico {
@@ -4346,7 +4351,11 @@ flex: 1;
     opacity: 0.85;
 }
 
-/* ── Manastone Button (in profile header) ── */
+/* ── Manastone Button (in weapons section title row) ── */
+.gc-section-label-row .gc-ms-btn {
+    margin-left: auto;
+}
+
 .gc-ms-btn {
     display: inline-flex;
     align-items: center;
@@ -4366,6 +4375,77 @@ flex: 1;
     background: rgba(100, 200, 255, 0.12);
     border-color: rgba(100, 200, 255, 0.35);
     color: rgba(100, 200, 255, 1);
+}
+
+.gc-collapse-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.72em;
+    color: rgba(200, 180, 130, 0.8);
+    background: rgba(200, 180, 130, 0.06);
+    border: 1px solid rgba(200, 180, 130, 0.15);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.gc-collapse-all-btn:hover {
+    background: rgba(200, 180, 130, 0.12);
+    border-color: rgba(200, 180, 130, 0.35);
+    color: rgba(200, 180, 130, 1);
+}
+
+.gc-section-label-row .gc-collapse-all-btn {
+    margin-left: auto;
+}
+
+/* ── Accessory Bonus Trigger Button ── */
+.gc-acc-bonus-trigger {
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 0.68em;
+    color: rgba(200, 180, 130, 0.8);
+    background: rgba(200, 180, 130, 0.08);
+    border: 1px solid rgba(200, 180, 130, 0.2);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.gc-acc-bonus-trigger:hover {
+    background: rgba(200, 180, 130, 0.15);
+    border-color: rgba(200, 180, 130, 0.4);
+    color: rgba(200, 180, 130, 1);
+}
+
+/* ── Accessory Bonus Popup ── */
+.gc-acc-bonus-popup {
+    display: none;
+    position: fixed;
+    z-index: 9500;
+    background: var(--bg-panel-solid, #1a1a2e);
+    border: 1px solid rgba(200, 160, 60, 0.35);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.gc-acc-bonus-popup-title {
+    font-size: 0.78em;
+    font-weight: 600;
+    color: rgba(200, 180, 130, 0.9);
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(200, 160, 60, 0.15);
 }
 
 .gc-ms-btn img {
@@ -4393,7 +4473,6 @@ flex: 1;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
 }
 
 .gc-mana-dialog {
@@ -4497,9 +4576,45 @@ flex: 1;
     color: rgba(255, 100, 100, 1);
 }
 
+/* ── Section Label in Mana Modal ── */
+.gc-mana-section-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #c8a03c;
+    padding: 6px 16px 2px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* ── Scrollable body wrapper ── */
+.gc-mana-body {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 200, 255, 0.35) rgba(100, 200, 255, 0.06);
+}
+
+.gc-mana-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.gc-mana-body::-webkit-scrollbar-track {
+    background: rgba(100, 200, 255, 0.04);
+    border-radius: 6px;
+}
+
+.gc-mana-body::-webkit-scrollbar-thumb {
+    background: rgba(100, 200, 255, 0.25);
+    border-radius: 6px;
+}
+
+.gc-mana-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 200, 255, 0.45);
+}
+
 /* ── Gear List in Modal ── */
 .gc-mana-gear-list {
-    overflow-y: auto;
     padding: 10px 16px;
     display: flex;
     flex-direction: column;
@@ -4553,7 +4668,7 @@ flex: 1;
     padding: 5px 8px;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background 0.15s ease, border-color 0.15s ease;
     border: 1px solid transparent;
     flex: 1;
     min-width: 0;
@@ -5118,6 +5233,8 @@ flex: 1;
 
 .gc-comp-table {
     width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
     border-collapse: collapse;
     font-size: 0.9em;
 }
@@ -5190,6 +5307,139 @@ flex: 1;
 
 .gc-diff-zero {
     color: #555;
+}
+
+/* ── Summary Badges ── */
+.gc-comp-summary {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.gc-comp-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.78em;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.gc-comp-badge-1 {
+    background: rgba(77, 255, 77, 0.08);
+    border: 1px solid rgba(77, 255, 77, 0.25);
+    color: #4dff4d;
+}
+
+.gc-comp-badge-2 {
+    background: rgba(255, 77, 77, 0.08);
+    border: 1px solid rgba(255, 77, 77, 0.25);
+    color: #ff4d4d;
+}
+
+.gc-comp-badge-tie {
+    background: rgba(150, 150, 150, 0.08);
+    border: 1px solid rgba(150, 150, 150, 0.2);
+    color: rgba(200, 200, 200, 0.6);
+}
+
+/* ── Stat Bar Visualization ── */
+.gc-comp-bar-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 22px;
+}
+
+.gc-comp-bar {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 65%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.gc-comp-bar-1 {
+    background: rgba(100, 200, 255, 0.12);
+}
+
+.gc-comp-bar-2 {
+    background: rgba(181, 101, 245, 0.12);
+}
+
+.gc-comp-val-text {
+    position: relative;
+    z-index: 1;
+}
+
+.gc-comp-val-win {
+    font-weight: 700;
+}
+
+.gc-comp-val-win .gc-comp-val-text {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* ── Expandable Row + Chevron ── */
+.gc-comp-expandable {
+    cursor: pointer;
+}
+
+.gc-comp-expandable:hover td {
+    background: rgba(77, 184, 255, 0.06);
+}
+
+.gc-comp-chevron {
+    display: inline-block;
+    font-size: 0.7em;
+    color: rgba(100, 200, 255, 0.4);
+    transition: transform 0.2s ease;
+    margin-left: 4px;
+}
+
+.gc-comp-expanded .gc-comp-chevron {
+    transform: rotate(90deg);
+    color: rgba(100, 200, 255, 0.8);
+}
+
+/* ── Source Breakdown Rows ── */
+.gc-comp-source-row {
+    display: none;
+}
+
+.gc-comp-source-row.gc-comp-source-visible {
+    display: table-row;
+}
+
+.gc-comp-source-row td {
+    padding: 3px 12px;
+    border-bottom: 1px solid rgba(60, 60, 70, 0.15);
+    font-size: 0.82em;
+}
+
+.gc-comp-source-label {
+    color: rgba(200, 190, 170, 0.5);
+    text-align: left;
+    padding-left: 20px !important;
+}
+
+.gc-comp-source-val {
+    text-align: center;
+    color: rgba(200, 190, 170, 0.45);
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+.gc-comp-source-diff {
+    text-align: center;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-weight: 600;
+    font-size: 0.9em;
 }
 
 /* ── Tabs ── */
