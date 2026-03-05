@@ -3526,6 +3526,9 @@
         accBonusPopup.id = 'gc-acc-bonus-popup';
         accBonusPopup.className = 'gc-acc-bonus-popup';
         document.body.appendChild(accBonusPopup);
+        accBonusPopup.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
 
         // Event delegation: comparison row expand/collapse
         document.getElementById('comparison-panel').addEventListener('click', function(e) {
