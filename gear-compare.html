@@ -185,17 +185,18 @@
         ];
 
         var WEAPON_SETS = [
-            { key: 'spiked-helper',   name: 'Spiked/Helper' },
+            { key: 'acrimony',        name: 'Acrimony' },
+            { key: 'presumption',     name: 'Presumption' },
             { key: 'salvation',       name: 'Salvation (Upgraded FS)' },
             { key: 'fighting-spirit', name: 'Fighting Spirit' },
+            { key: 'spiked',          name: 'Spiked (PvP)' },
+            { key: 'ciclonica-helper',name: 'Ciclonica/Helper (PvE)' },
             { key: 'jorgoth-t4-v1',   name: 'Jorgoth T4 v1' },
             { key: 'jorgoth-t4-v2',   name: 'Jorgoth T4 v2' },
             { key: 'jorgoth-t4-v3',   name: 'Jorgoth T4 v3' },
             { key: 'jorgoth-t3-v1',   name: 'Jorgoth T3 v1' },
             { key: 'jorgoth-t3-v2',   name: 'Jorgoth T3 v2' },
             { key: 'jorgoth-t3-v3',   name: 'Jorgoth T3 v3' },
-            { key: 'acrimony',        name: 'Acrimony' },
-            { key: 'presumption',     name: 'Presumption' },
             { key: 'vision',          name: 'Vision' }
         ];
 
@@ -673,11 +674,31 @@
         // ═══════════════════════════════════════════════════════════
 
         // Fixed-stat weapons (stats baked in, only vary by 2h/1h)
+        // pvpStat/pveStat: which pvp/pve stat keys the bonus/enchant values map to
         var WEAPON_STATS_FIXED = {
-            'spiked-helper':   { baseAtk: 4796, bonusAtk: 275, typeBonusAtk2h: 176, typeBonusDef2h: 176, typeBonusAtk1h: 88, typeBonusDef1h: 88, enchAtk2h: 371,  enchDef2h: 101, enchAtk1h: 223,  enchDef1h: 61, enchHp: 1917, enchCrit: 363,  baseDef: 177, baseAcc: 2675, bonusAcc: 0 },
-            'fighting-spirit': { baseAtk: 5515, bonusAtk: 275, enchAtk2h: 350,  enchDef2h: 175, enchAtk1h: 230,  enchDef1h: 120, enchHp: 0,    enchCrit: 363,  baseDef: 0,   baseAcc: 2675, bonusAcc: 411 },
-            'vision':          { baseAtk: 4605, bonusAtk: 275, enchAtk2h: 554,  enchDef2h: 279, enchAtk1h: 315,  enchDef1h: 238, enchHp: 1917, enchCrit: 0,    baseDef: 170, baseAcc: 2568, bonusAcc: 411 },
-            'salvation':       { baseAtk: 5791, bonusAtk: 316, enchAtk2h: 350,  enchDef2h: 175, enchAtk1h: 230,  enchDef1h: 120, enchHp: 0,    enchCrit: 417,  baseDef: 112, baseAcc: 2729, bonusAcc: 473 }
+            'spiked':          { baseAtk: 4796, bonusAtk: 275, pvpStat: true, pvpPveAtk2h: 176, pvpPveDef2h: 176, pvpPveAtk1h: 88, pvpPveDef1h: 88, enchPvpPveAtk2h: 371, enchPvpPveDef2h: 101, enchPvpPveAtk1h: 223, enchPvpPveDef1h: 61, enchHp: 1917, enchCrit: 363, baseDef: 177, baseAcc: 2675, bonusAcc: 0 },
+            'ciclonica-helper':{ baseAtk: 4796, bonusAtk: 275, pveStat: true, pvpPveAtk2h: 176, pvpPveDef2h: 176, pvpPveAtk1h: 88, pvpPveDef1h: 88, enchPvpPveAtk2h: 371, enchPvpPveDef2h: 101, enchPvpPveAtk1h: 223, enchPvpPveDef1h: 61, enchHp: 1917, enchCrit: 363, baseDef: 177, baseAcc: 2675, bonusAcc: 0 },
+            'fighting-spirit': { baseAtk: 5515, enchAtk2h: 350, enchDef2h: 175, enchAtk1h: 230, enchDef1h: 120, enchHp: 0, baseDef: 0, baseAcc: 2675,
+                maxBonuses: 3,
+                bonuses: [
+                    { key: 'accuracy',     name: 'Accuracy',      stat: 'accuracy',     value: 411 },
+                    { key: 'crit',         name: 'Crit',          stat: 'crit',          value: 363 },
+                    { key: 'attack',       name: 'Attack',        stat: 'attack',        value: 275 },
+                    { key: 'healingBoost', name: 'Healing Boost',  stat: 'healingBoost',  value: 183 },
+                    { key: 'parry',        name: 'Parry',         stat: 'parry',         value: 716 }
+                ]
+            },
+            'vision':          { baseAtk: 4605, bonusAtk: 275, pveStat: true, pvpPveAtk2h: 176, pvpPveDef2h: 176, pvpPveAtk1h: 88, pvpPveDef1h: 88, enchPvpPveAtk2h: 378, enchPvpPveDef2h: 103, enchPvpPveAtk1h: 227, enchPvpPveDef1h: 62, enchHp: 1917, enchCrit: 0, baseDef: 170, baseAcc: 2568, bonusAcc: 411 },
+            'salvation':       { baseAtk: 5791, enchAtk2h: 350, enchDef2h: 175, enchAtk1h: 230, enchDef1h: 120, enchHp: 0, baseDef: 112, baseAcc: 2729,
+                maxBonuses: 3,
+                bonuses: [
+                    { key: 'accuracy',     name: 'Accuracy',      stat: 'accuracy',     value: 473 },
+                    { key: 'crit',         name: 'Crit',          stat: 'crit',          value: 417 },
+                    { key: 'attack',       name: 'Attack',        stat: 'attack',        value: 316 },
+                    { key: 'healingBoost', name: 'Healing Boost',  stat: 'healingBoost',  value: 187 },
+                    { key: 'parry',        name: 'Parry',         stat: 'parry',         value: 730 }
+                ]
+            }
         };
 
         // Jorgoth: shared enchant bonuses (applied on top of per-weapon data)
@@ -826,11 +847,11 @@
         //   bonus   = inherent weapon bonuses (always transfer, including from fuse)
         //   enchant = enchant-level or enchant-like bonuses (transfer for dual wield, NOT for fuse)
         //   baseAtk = raw base attack value (used for fuse 10% calculation)
-        function getWeaponParts(setKey, weaponType, enchantLevel) {
+        function getWeaponParts(setKey, weaponType, enchantLevel, selectedBonuses) {
             var base = emptyStats(), bonus = emptyStats(), enchant = emptyStats();
             var is2H = WEAPON_TYPES[weaponType].twoHanded;
 
-            // Fixed-stat sets (spiked-helper, fighting-spirit, vision, salvation)
+            // Fixed-stat sets (spiked, ciclonica-helper, fighting-spirit, vision, salvation)
             var fixed = WEAPON_STATS_FIXED[setKey];
             if (fixed) {
                 base.attack      = fixed.baseAtk;
@@ -839,16 +860,33 @@
                 base.accuracy    = fixed.baseAcc;
                 base.parry       = fixed.baseAcc;
 
-                bonus.attack     = fixed.bonusAtk + (is2H ? (fixed.typeBonusAtk2h || 0) : (fixed.typeBonusAtk1h || 0));
-                bonus.physicalDef = is2H ? (fixed.typeBonusDef2h || 0) : (fixed.typeBonusDef1h || 0);
-                bonus.magicalDef  = bonus.physicalDef;
-                bonus.accuracy   = fixed.bonusAcc;
-                bonus.hp         = fixed.enchHp;
-                bonus.crit       = fixed.enchCrit;
+                bonus.attack     = fixed.bonusAtk || 0;
+                bonus.accuracy   = fixed.bonusAcc || 0;
+                bonus.hp         = fixed.enchHp || 0;
+                bonus.crit       = fixed.enchCrit || 0;
 
-                enchant.attack      = is2H ? fixed.enchAtk2h : fixed.enchAtk1h;
-                enchant.physicalDef = is2H ? fixed.enchDef2h : fixed.enchDef1h;
-                enchant.magicalDef  = enchant.physicalDef;
+                // Selectable bonuses (fighting-spirit, salvation)
+                if (fixed.bonuses && selectedBonuses) {
+                    selectedBonuses.forEach(function(bKey) {
+                        var b = fixed.bonuses.find(function(x) { return x.key === bKey; });
+                        if (b) bonus[b.stat] += b.value;
+                    });
+                }
+
+                if (fixed.pvpStat || fixed.pveStat) {
+                    // Spiked (PvP), Ciclonica/Helper (PvE), Vision (PvE)
+                    var atkKey = fixed.pvpStat ? 'pvpAttack' : 'pveAttack';
+                    var defKey = fixed.pvpStat ? 'pvpDefense' : 'pveDefense';
+                    bonus[atkKey]   = is2H ? fixed.pvpPveAtk2h : fixed.pvpPveAtk1h;
+                    bonus[defKey]   = is2H ? fixed.pvpPveDef2h : fixed.pvpPveDef1h;
+                    enchant[atkKey] = is2H ? fixed.enchPvpPveAtk2h : fixed.enchPvpPveAtk1h;
+                    enchant[defKey] = is2H ? fixed.enchPvpPveDef2h : fixed.enchPvpPveDef1h;
+                } else {
+                    // Fighting Spirit, Salvation: regular attack/def enchant
+                    enchant.attack      = is2H ? fixed.enchAtk2h : fixed.enchAtk1h;
+                    enchant.physicalDef = is2H ? fixed.enchDef2h : fixed.enchDef1h;
+                    enchant.magicalDef  = enchant.physicalDef;
+                }
 
                 return { baseAtk: fixed.baseAtk, base: base, bonus: bonus, enchant: enchant };
             }
@@ -927,31 +965,62 @@
         // ═══════════════════════════════════════════════════════════
 
         var SHIELD_SETS = [
-            { key: 'spiked-ciclonica', name: 'Spiked/Ciclonica' },
+            { key: 'spiked',          name: 'Spiked (PvP)' },
+            { key: 'ciclonica',       name: 'Ciclonica (PvE)' },
             { key: 'fighting-spirit',  name: 'Fighting Spirit' },
             { key: 'salvation',        name: 'Salvation' }
         ];
         var SHIELD_SET_KEYS = SHIELD_SETS.map(function(s) { return s.key; });
 
-        // Each shield set defines: base stats, enchant bonuses (per level above 0),
-        // selectable bonuses (max picks), and whether PvP/PvE variant exists.
+        // Each shield set defines: base stats, enchant bonuses (flat totals),
+        // selectable bonuses (max picks), and optional pvp/pve base stats.
         // battle vs scale: pDef↔mDef swapped in base, accuracy→accuracy stays same key,
         //   but attack→attack stays same key (unified). The BONUS list differs:
         //   battle: accuracy + attack (physical), scale: accuracy + attack (magical)
         //   We store them in the same unified keys since class context determines interpretation.
         var SHIELD_STATS = {
-            'spiked-ciclonica': {
+            'spiked': {
                 maxBonuses: 4,
-                hasPvpPve: true,  // spiked = pvp, ciclonica = pve
                 base: {
                     battle: { hp: 2213, physicalDef: 592, magicalDef: 296, block: 2675 },
                     scale:  { hp: 2213, physicalDef: 296, magicalDef: 592, block: 2675 }
                 },
                 pvpBase: { pvpAttack: 88, pvpDefense: 88 },
+                enchant: {
+                    flat: { pvpAttack: 36, pvpDefense: 158 }
+                },
+                bonuses: {
+                    battle: [
+                        { key: 'hp', name: 'HP', value: 1344 },
+                        { key: 'block', name: 'Block', value: 1433 },
+                        { key: 'accuracy', name: 'Accuracy', value: 288 },
+                        { key: 'crit', name: 'Crit', value: 254 },
+                        { key: 'attack', name: 'Attack', value: 210 },
+                        { key: 'healingBoost', name: 'Healing Boost', value: 183 },
+                        { key: 'physicalDef', name: 'Physical Def', value: 210 },
+                        { key: 'magicalDef', name: 'Magical Def', value: 210 }
+                    ],
+                    scale: [
+                        { key: 'hp', name: 'HP', value: 1344 },
+                        { key: 'block', name: 'Block', value: 1433 },
+                        { key: 'accuracy', name: 'Accuracy', value: 288 },
+                        { key: 'crit', name: 'Crit', value: 254 },
+                        { key: 'attack', name: 'Attack', value: 210 },
+                        { key: 'healingBoost', name: 'Healing Boost', value: 183 },
+                        { key: 'physicalDef', name: 'Physical Def', value: 210 },
+                        { key: 'magicalDef', name: 'Magical Def', value: 210 }
+                    ]
+                }
+            },
+            'ciclonica': {
+                maxBonuses: 4,
+                base: {
+                    battle: { hp: 2213, physicalDef: 592, magicalDef: 296, block: 2675 },
+                    scale:  { hp: 2213, physicalDef: 296, magicalDef: 592, block: 2675 }
+                },
                 pveBase: { pveAttack: 88, pveDefense: 88 },
                 enchant: {
-                    pvp: { pvpAttack: 36, pvpDefense: 158 },
-                    pve: { pveAttack: 36, pveDefense: 158 }
+                    flat: { pveAttack: 36, pveDefense: 158 }
                 },
                 bonuses: {
                     battle: [
@@ -978,7 +1047,6 @@
             },
             'fighting-spirit': {
                 maxBonuses: 3,
-                hasPvpPve: false,
                 base: {
                     battle: { physicalDef: 829, magicalDef: 414, block: 2675 },
                     scale:  { physicalDef: 414, magicalDef: 829, block: 2675 }
@@ -1013,7 +1081,6 @@
             },
             'salvation': {
                 maxBonuses: 3,
-                hasPvpPve: false,
                 base: {
                     battle: { physicalDef: 870, magicalDef: 434, block: 2809 },
                     scale:  { physicalDef: 434, magicalDef: 870, block: 2809 }
@@ -1052,7 +1119,7 @@
         // classPhysical: true if class is physical, false if magical
         //   battle shield → attack/crit/accuracy are physical; if class is magical → zero them
         //   scale shield  → attack/crit/accuracy are magical; if class is physical → zero them
-        function getShieldStats(shieldSet, shieldType, variant, selectedBonuses, classPhysical) {
+        function getShieldStats(shieldSet, shieldType, selectedBonuses, classPhysical) {
             var stats = emptyStats();
             var data = SHIELD_STATS[shieldSet];
             if (!data) return stats;
@@ -1067,23 +1134,18 @@
                 STAT_KEYS.forEach(function(k) { stats[k] += (base[k] || 0); });
             }
 
-            // PvP/PvE base (spiked-ciclonica only)
-            if (data.hasPvpPve) {
-                var pvpPveBase = variant === 'pve' ? data.pveBase : data.pvpBase;
-                if (pvpPveBase) {
-                    STAT_KEYS.forEach(function(k) { stats[k] += (pvpPveBase[k] || 0); });
-                }
+            // PvP/PvE base (spiked or ciclonica)
+            if (data.pvpBase) {
+                STAT_KEYS.forEach(function(k) { stats[k] += (data.pvpBase[k] || 0); });
+            }
+            if (data.pveBase) {
+                STAT_KEYS.forEach(function(k) { stats[k] += (data.pveBase[k] || 0); });
             }
 
-            // Enchant bonuses (flat totals, not multiplied by level)
-            if (data.enchant) {
-                if (data.hasPvpPve && data.enchant[variant || 'pvp']) {
-                    var enchVals = data.enchant[variant || 'pvp'];
-                    STAT_KEYS.forEach(function(k) { stats[k] += (enchVals[k] || 0); });
-                } else if (data.enchant.flat) {
-                    var flatVals = data.enchant.flat;
-                    STAT_KEYS.forEach(function(k) { stats[k] += (flatVals[k] || 0); });
-                }
+            // Enchant bonuses (flat totals)
+            if (data.enchant && data.enchant.flat) {
+                var flatVals = data.enchant.flat;
+                STAT_KEYS.forEach(function(k) { stats[k] += (flatVals[k] || 0); });
             }
 
             // Zero out attack/crit/accuracy if shield type doesn't match class type
@@ -1115,6 +1177,12 @@
             return bonusList.slice(0, data.maxBonuses).map(function(b) { return b.key; });
         }
 
+        function getDefaultWeaponBonuses(setKey) {
+            var fixed = WEAPON_STATS_FIXED[setKey];
+            if (!fixed || !fixed.bonuses) return [];
+            return fixed.bonuses.slice(0, fixed.maxBonuses).map(function(b) { return b.key; });
+        }
+
         // ═══════════════════════════════════════════════════════════
         // STATE
         // ═══════════════════════════════════════════════════════════
@@ -1133,9 +1201,9 @@
             var profile = {
                 armorType: CLASS_DATA[className].armorTypes[0],
                 armor: {},
-                mainWeapon: { set: 'fighting-spirit', enchant: 9 },
-                offHand: { set: 'fighting-spirit', enchant: 9 },
-                shield: { set: 'fighting-spirit', type: 'battle', variant: 'pvp', bonuses: getDefaultShieldBonuses('fighting-spirit', 'battle') },
+                mainWeapon: { set: 'fighting-spirit', enchant: 9, bonuses: getDefaultWeaponBonuses('fighting-spirit') },
+                offHand: { set: 'fighting-spirit', enchant: 9, bonuses: getDefaultWeaponBonuses('fighting-spirit') },
+                shield: { set: 'fighting-spirit', type: 'battle', bonuses: getDefaultShieldBonuses('fighting-spirit', 'battle') },
                 oath: { shoulders: 'silent-skill', helmet: 'silent-skill', chest: 'ultimate-3', pants: 'ultimate-3', gloves: 'ultimate-3', boots: 'ultimate-3' },
                 manastones: {},
                 transform: 'none',
@@ -1203,32 +1271,49 @@
                         });
                     }
                     if (saved.mainWeapon) {
-                        if (saved.mainWeapon.set && WEAPON_SET_KEYS.indexOf(saved.mainWeapon.set) !== -1 && MAINHAND_EXCLUDED_SETS.indexOf(saved.mainWeapon.set) === -1) p.mainWeapon.set = saved.mainWeapon.set;
+                        var mwSet = saved.mainWeapon.set;
+                        // Map legacy spiked-helper to separate sets
+                        if (mwSet === 'spiked-helper') mwSet = (saved.mainWeapon.variant === 'pve') ? 'ciclonica-helper' : 'spiked';
+                        if (mwSet && WEAPON_SET_KEYS.indexOf(mwSet) !== -1 && MAINHAND_EXCLUDED_SETS.indexOf(mwSet) === -1) p.mainWeapon.set = mwSet;
                         if (typeof saved.mainWeapon.enchant === 'number' && saved.mainWeapon.enchant >= 8 && saved.mainWeapon.enchant <= 15) p.mainWeapon.enchant = saved.mainWeapon.enchant;
+                        if (Array.isArray(saved.mainWeapon.bonuses)) {
+                            var mwFixed = WEAPON_STATS_FIXED[p.mainWeapon.set];
+                            if (mwFixed && mwFixed.bonuses) {
+                                var mwValidKeys = mwFixed.bonuses.map(function(b) { return b.key; });
+                                p.mainWeapon.bonuses = saved.mainWeapon.bonuses.filter(function(k) { return mwValidKeys.indexOf(k) !== -1; }).slice(0, mwFixed.maxBonuses);
+                            }
+                        }
                     }
                     if (saved.offHand) {
-                        if (saved.offHand.set && WEAPON_SET_KEYS.indexOf(saved.offHand.set) !== -1 && OFFHAND_EXCLUDED_SETS.indexOf(saved.offHand.set) === -1) {
-                            p.offHand.set = saved.offHand.set;
+                        var ohSet = saved.offHand.set;
+                        // Map legacy spiked-helper to separate sets
+                        if (ohSet === 'spiked-helper') ohSet = (saved.offHand.variant === 'pve') ? 'ciclonica-helper' : 'spiked';
+                        if (ohSet && WEAPON_SET_KEYS.indexOf(ohSet) !== -1 && OFFHAND_EXCLUDED_SETS.indexOf(ohSet) === -1) {
+                            p.offHand.set = ohSet;
                         }
                         if (typeof saved.offHand.enchant === 'number' && saved.offHand.enchant >= 8 && saved.offHand.enchant <= 15) p.offHand.enchant = saved.offHand.enchant;
+                        if (Array.isArray(saved.offHand.bonuses)) {
+                            var ohFixed = WEAPON_STATS_FIXED[p.offHand.set];
+                            if (ohFixed && ohFixed.bonuses) {
+                                var ohValidKeys = ohFixed.bonuses.map(function(b) { return b.key; });
+                                p.offHand.bonuses = saved.offHand.bonuses.filter(function(k) { return ohValidKeys.indexOf(k) !== -1; }).slice(0, ohFixed.maxBonuses);
+                            }
+                        }
                     }
                     if (saved.shield) {
-                        if (saved.shield.set && SHIELD_SET_KEYS.indexOf(saved.shield.set) !== -1) p.shield.set = saved.shield.set;
+                        var savedShieldSet = saved.shield.set;
+                        // Map legacy spiked-ciclonica to separate sets
+                        if (savedShieldSet === 'spiked-ciclonica') {
+                            savedShieldSet = (saved.shield.variant === 'pve') ? 'ciclonica' : 'spiked';
+                        }
+                        if (savedShieldSet && SHIELD_SET_KEYS.indexOf(savedShieldSet) !== -1) p.shield.set = savedShieldSet;
                         if (saved.shield.type === 'battle' || saved.shield.type === 'scale') p.shield.type = saved.shield.type;
-                        if (saved.shield.variant === 'pvp' || saved.shield.variant === 'pve') p.shield.variant = saved.shield.variant;
                         if (Array.isArray(saved.shield.bonuses)) {
                             var shData = SHIELD_STATS[p.shield.set];
                             var typeKey = p.shield.type === 'scale' ? 'scale' : 'battle';
                             var validBonusKeys = shData ? shData.bonuses[typeKey].map(function(b) { return b.key; }) : [];
                             var maxB = shData ? shData.maxBonuses : 0;
                             p.shield.bonuses = saved.shield.bonuses.filter(function(k) { return validBonusKeys.indexOf(k) !== -1; }).slice(0, maxB);
-                            // Ensure exact bonus count
-                            if (p.shield.bonuses.length < maxB) {
-                                var defaults = getDefaultShieldBonuses(p.shield.set, typeKey);
-                                for (var di = 0; di < defaults.length && p.shield.bonuses.length < maxB; di++) {
-                                    if (p.shield.bonuses.indexOf(defaults[di]) === -1) p.shield.bonuses.push(defaults[di]);
-                                }
-                            }
                         }
                     }
                     if (saved.oath) {
@@ -1293,7 +1378,7 @@
             // ── Weapon stats (base/bonus/enchant split) ──
             var mwSet = profile.mainWeapon.set;
             var mwType = weaponConfig.mainType;
-            var mainParts = getWeaponParts(mwSet, mwType, profile.mainWeapon.enchant);
+            var mainParts = getWeaponParts(mwSet, mwType, profile.mainWeapon.enchant, profile.mainWeapon.bonuses);
             var ohType = weaponConfig.offHandType;
             var ohSet = profile.offHand.set;
 
@@ -1309,14 +1394,14 @@
                     totals[k] += mainParts.base[k] + mainParts.bonus[k] + mainParts.enchant[k];
                 });
                 var sh = profile.shield;
-                var sStats = getShieldStats(sh.set, sh.type, sh.variant, sh.bonuses, isPhysicalClass(selectedClass));
+                var sStats = getShieldStats(sh.set, sh.type, sh.bonuses, isPhysicalClass(selectedClass));
                 STAT_KEYS.forEach(function(k) { totals[k] += (sStats[k] || 0); });
 
             } else if (ohType === 'fuse') {
                 // 2H + fuse: main base + main bonus + main enchant
                 //            + fuse bonus only (no fuse enchant)
                 //            + floor(fuse.baseAtk / 10) as bonus attack
-                var fuseParts = getWeaponParts(ohSet, mwType, profile.offHand.enchant);
+                var fuseParts = getWeaponParts(ohSet, mwType, profile.offHand.enchant, profile.offHand.bonuses);
                 STAT_KEYS.forEach(function(k) {
                     totals[k] += mainParts.base[k] + mainParts.bonus[k] + mainParts.enchant[k] + fuseParts.bonus[k];
                 });
@@ -1324,7 +1409,7 @@
 
             } else if (ohType === 'weapon') {
                 // 1H dual-wield: base = max per-stat (except gunner: always main hand)
-                var ohParts = getWeaponParts(ohSet, weaponConfig.offHandWeaponType, profile.offHand.enchant);
+                var ohParts = getWeaponParts(ohSet, weaponConfig.offHandWeaponType, profile.offHand.enchant, profile.offHand.bonuses);
                 if (selectedClass === 'gunner') {
                     // Gunner exception: base always from main hand
                     STAT_KEYS.forEach(function(k) { totals[k] += mainParts.base[k]; });
@@ -1861,6 +1946,25 @@
             }
             html += msIndicator(id, 'mainWeapon', profile.mainWeapon.set, profile);
             html += '</div>';
+            // Main weapon bonus picker
+            var mwFixed = WEAPON_STATS_FIXED[profile.mainWeapon.set];
+            if (mwFixed && mwFixed.bonuses) {
+                var mwMaxB = mwFixed.maxBonuses;
+                var mwPicked = profile.mainWeapon.bonuses || [];
+                html += '<div class="gc-shield-bonuses">';
+                html += '<span class="gc-section-label" style="font-size:0.72em">Bonuses (' + mwPicked.length + '/' + mwMaxB + ')</span>';
+                html += '<div class="gc-shield-bonus-grid">';
+                mwFixed.bonuses.forEach(function(b) {
+                    var isOn = mwPicked.indexOf(b.key) !== -1;
+                    var cls = 'gc-shield-bonus-btn' + (isOn ? ' gc-shield-bonus-on' : '');
+                    html += '<div class="' + cls + '" onclick="GC.toggleWeaponBonus(' + id + ',\'mainWeapon\',\'' + b.key + '\')">'; 
+                    html += '<span class="gc-shield-bonus-name">' + b.name + '</span>';
+                    html += '<span class="gc-shield-bonus-val">+' + b.value.toLocaleString() + '</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+                html += '</div>';
+            }
             html += '</div>';
             // ── Right: Off-Hand / Shield / Fuse ──
             html += '<div class="gc-armor-col">';
@@ -1880,14 +1984,6 @@
                     html += '</div>';
                     html += '<span class="gc-enchant-trigger gc-shield-trigger" onclick="GC.openShieldTypePicker(' + id + ',this)">' + shTypeLabel + '</span>';
                     html += '</div>';
-
-                    // PvP/PvE variant (spiked-ciclonica only)
-                    if (shData && shData.hasPvpPve) {
-                        var varLabel = sh.variant === 'pve' ? 'Ciclonica (PvE)' : 'Spiked (PvP)';
-                        html += '<div class="gc-shield-variant-row">';
-                        html += '<span class="gc-enchant-trigger gc-shield-trigger" onclick="GC.openShieldVariantPicker(' + id + ',this)">' + varLabel + '</span>';
-                        html += '</div>';
-                    }
 
                     // Bonus picker
                     if (shData) {
@@ -1934,6 +2030,25 @@
                     }
                     html += msIndicator(id, 'offHand', profile.offHand.set, profile);
                     html += '</div>';
+                    // Off-hand weapon bonus picker
+                    var ohFixed = WEAPON_STATS_FIXED[profile.offHand.set];
+                    if (ohFixed && ohFixed.bonuses) {
+                        var ohMaxB = ohFixed.maxBonuses;
+                        var ohPicked = profile.offHand.bonuses || [];
+                        html += '<div class="gc-shield-bonuses">';
+                        html += '<span class="gc-section-label" style="font-size:0.72em">Bonuses (' + ohPicked.length + '/' + ohMaxB + ')</span>';
+                        html += '<div class="gc-shield-bonus-grid">';
+                        ohFixed.bonuses.forEach(function(b) {
+                            var isOn = ohPicked.indexOf(b.key) !== -1;
+                            var cls = 'gc-shield-bonus-btn' + (isOn ? ' gc-shield-bonus-on' : '');
+                            html += '<div class="' + cls + '" onclick="GC.toggleWeaponBonus(' + id + ',\'offHand\',\'' + b.key + '\')">'; 
+                            html += '<span class="gc-shield-bonus-name">' + b.name + '</span>';
+                            html += '<span class="gc-shield-bonus-val">+' + b.value.toLocaleString() + '</span>';
+                            html += '</div>';
+                        });
+                        html += '</div>';
+                        html += '</div>';
+                    }
                 }
             }
             html += '</div>';
@@ -2329,15 +2444,14 @@
                 closeSetPopup();
                 if (slotType === 'main-weapon') {
                     state[pid].mainWeapon.set = setKey;
+                    state[pid].mainWeapon.bonuses = getDefaultWeaponBonuses(setKey);
                 } else if (slotType === 'off-weapon') {
                     state[pid].offHand.set = setKey;
+                    state[pid].offHand.bonuses = getDefaultWeaponBonuses(setKey);
                 } else if (slotType === 'shield') {
                     state[pid].shield.set = setKey;
                     // Reset bonuses when changing shield set (different max)
                     state[pid].shield.bonuses = getDefaultShieldBonuses(setKey, state[pid].shield.type === 'scale' ? 'scale' : 'battle');
-                    if (!SHIELD_STATS[setKey].hasPvpPve) {
-                        state[pid].shield.variant = 'pvp';
-                    }
                 } else if (slotType.indexOf('armor:') === 0) {
                     state[pid].armor[slotType.substring(6)].set = setKey;
                 }
@@ -2461,49 +2575,6 @@
                 saveState();
             },
 
-            openShieldVariantPicker: function(pid, triggerEl) {
-                var popup = document.getElementById('gc-enchant-popup');
-                var isOpen = popup.style.display === 'flex';
-                document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
-                closeOathPopup();
-                closeSetPopup();
-                closeEnchantPopup();
-                if (isOpen && popup.dataset.pid == pid && popup.dataset.slot === 'shield-variant') return;
-
-                var current = state[pid].shield.variant || 'pvp';
-                var html = '';
-                var variants = [{key: 'pvp', name: 'Spiked (PvP)'}, {key: 'pve', name: 'Ciclonica (PvE)'}];
-                variants.forEach(function(v) {
-                    var sel = current === v.key ? ' gc-set-option-selected' : '';
-                    html += '<div class="gc-set-option' + sel + '" onclick="GC.pickShieldVariant(' + pid + ',\'' + v.key + '\')">';
-                    html += '<span class="gc-set-option-label">' + v.name + '</span>';
-                    html += '</div>';
-                });
-                popup.innerHTML = html;
-                popup.dataset.pid = pid;
-                popup.dataset.slot = 'shield-variant';
-
-                var rect = triggerEl.getBoundingClientRect();
-                popup.style.display = 'flex';
-                var popH = popup.offsetHeight;
-                var popW = popup.offsetWidth;
-                var top = rect.top - popH - 6;
-                if (top < 4) top = rect.bottom + 6;
-                var left = rect.left + rect.width / 2 - popW / 2;
-                if (left < 4) left = 4;
-                if (left + popW > window.innerWidth - 4) left = window.innerWidth - popW - 4;
-                popup.style.top = top + 'px';
-                popup.style.left = left + 'px';
-            },
-
-            pickShieldVariant: function(pid, variant) {
-                closeEnchantPopup();
-                state[pid].shield.variant = variant;
-                renderProfile(pid);
-                updateComparison();
-                saveState();
-            },
-
             toggleShieldBonus: function(pid, bonusKey) {
                 var sh = state[pid].shield;
                 var shData = SHIELD_STATS[sh.set];
@@ -2511,15 +2582,36 @@
                 var maxB = shData.maxBonuses;
                 var idx = sh.bonuses.indexOf(bonusKey);
                 if (idx !== -1) {
-                    // Deselecting: only allow if clicking a different one to replace
-                    // (direct deselect not allowed — must stay at exactly maxBonuses)
-                    return;
+                    // Deselect (toggle off)
+                    sh.bonuses.splice(idx, 1);
                 } else if (sh.bonuses.length < maxB) {
                     // Under max: just add
                     sh.bonuses.push(bonusKey);
                 } else {
                     // At max: replace the first-selected bonus with the new one
                     sh.bonuses[0] = bonusKey;
+                }
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
+            toggleWeaponBonus: function(pid, slot, bonusKey) {
+                var weapon = state[pid][slot];
+                var fixed = WEAPON_STATS_FIXED[weapon.set];
+                if (!fixed || !fixed.bonuses) return;
+                var maxB = fixed.maxBonuses;
+                if (!weapon.bonuses) weapon.bonuses = [];
+                var idx = weapon.bonuses.indexOf(bonusKey);
+                if (idx !== -1) {
+                    // Deselect (toggle off)
+                    weapon.bonuses.splice(idx, 1);
+                } else if (weapon.bonuses.length < maxB) {
+                    // Under max: just add
+                    weapon.bonuses.push(bonusKey);
+                } else {
+                    // At max: replace the first-selected bonus
+                    weapon.bonuses[0] = bonusKey;
                 }
                 renderProfile(pid);
                 updateComparison();
@@ -2860,12 +2952,12 @@
         var SH_WTYPES    = ['dagger','sword','mace','revolver','greatsword','polearm','bow','staff','paintRings','orb','spellbook','aetherKey','cannon','harp'];
         var SH_OHTYPES   = ['none','shield','fuse','weapon'];
         var SH_SHIELDS   = ['scale-phys','scale-mag'];
-        var SH_SHIELDSETS = ['spiked-ciclonica','fighting-spirit','salvation']; // 3
+        var SH_SHIELDSETS = ['spiked-ciclonica','fighting-spirit','salvation','spiked','ciclonica']; // 5 (append-only; 0=legacy)
         var SH_SHIELDTYPES = ['battle','scale']; // 2
-        var SH_SHIELDVARS = ['pvp','pve']; // 2
+        var SH_SHIELDVARS = ['pvp','pve']; // 2 (legacy, for v6-v8 decode)
         var SH_ATYPES    = ARMOR_TYPE_OPTIONS.map(function(o) { return o.key; }); // 8 entries
         var SH_ASETS     = ['fighting-spirit','acrimony','presumption']; // 3
-        var SH_WSETS     = ['spiked-helper','salvation','fighting-spirit','jorgoth-t4-v1','jorgoth-t4-v2','jorgoth-t4-v3','jorgoth-t3-v1','jorgoth-t3-v2','jorgoth-t3-v3','acrimony','presumption','vision']; // 12
+        var SH_WSETS     = ['spiked-helper','salvation','fighting-spirit','jorgoth-t4-v1','jorgoth-t4-v2','jorgoth-t4-v3','jorgoth-t3-v1','jorgoth-t3-v2','jorgoth-t3-v3','acrimony','presumption','vision','spiked','ciclonica-helper']; // 14 (append-only; 0=legacy)
         var SH_OATHS     = ['none','silent-skill','legendary-1','legendary-2','legendary-3','ultimate-1','ultimate-2','ultimate-3']; // 8
         var SH_MANAS     = ['none','attack','crit','accuracy','hp','evasion','healBoost','pdef','mdef','magicResist','block','parry']; // 12
         // Armor slot order (fixed)
@@ -2879,7 +2971,7 @@
 
         function encodeShareString() {
             // Header: version(1) + class(1) + mainType(1) + ohType(1) + ohWeaponType(1) = 5
-            var s = '7'; // version
+            var s = 'a'; // version
             s += shEnc(SH_CLASSES, selectedClass);
             s += shEnc(SH_WTYPES, weaponConfig.mainType);
             s += shEnc(SH_OHTYPES, weaponConfig.offHandType);
@@ -2909,11 +3001,10 @@
                 // Transform (1 char) + enchant (1 char)
                 s += shEnc(SH_TRANSFORMS, p.transform || 'none');
                 s += (p.transformEnchant || 0).toString(36);
-                // Shield: set(1) + type(1) + variant(1) + bonusMask(2) = 5 chars
+                // Shield: set(1) + type(1) + bonusMask(2) = 4 chars
                 var sh = p.shield;
                 s += shEnc(SH_SHIELDSETS, sh.set);
                 s += shEnc(SH_SHIELDTYPES, sh.type);
-                s += shEnc(SH_SHIELDVARS, sh.variant);
                 var shData = SHIELD_STATS[sh.set];
                 var typeKey = sh.type === 'scale' ? 'scale' : 'battle';
                 var bonusList = shData ? shData.bonuses[typeKey] : [];
@@ -2925,6 +3016,20 @@
                 // Encode mask as 2 base36 chars (max 1296, need 512)
                 s += Math.floor(mask / 36).toString(36);
                 s += (mask % 36).toString(36);
+                // Weapon bonuses: 1 char each for mainWeapon and offHand (5 bonuses → bitmask 0-31, fits in 1 base36 char)
+                [p.mainWeapon, p.offHand].forEach(function(w) {
+                    var wFixed = WEAPON_STATS_FIXED[w.set];
+                    if (wFixed && wFixed.bonuses) {
+                        var wMask = 0;
+                        (w.bonuses || []).forEach(function(bk) {
+                            var bi = wFixed.bonuses.findIndex(function(b) { return b.key === bk; });
+                            if (bi >= 0) wMask |= (1 << bi);
+                        });
+                        s += wMask.toString(36);
+                    } else {
+                        s += '0';
+                    }
+                });
             });
             return s;
         }
@@ -2935,7 +3040,7 @@
             function next() { return s.charAt(pos++); }
 
             var ver = next();
-            if (ver !== '7' && ver !== '6' && ver !== '5' && ver !== '4' && ver !== '3' && ver !== '2') return false;
+            if (ver !== 'a' && ver !== '9' && ver !== '8' && ver !== '7' && ver !== '6' && ver !== '5' && ver !== '4' && ver !== '3' && ver !== '2') return false;
 
             var cls = shDec(SH_CLASSES, next());
             if (!CLASS_DATA[cls]) return false;
@@ -3008,11 +3113,18 @@
                 if (ver >= '6' && pos < s.length) {
                     var shSet = shDec(SH_SHIELDSETS, next());
                     var shType = shDec(SH_SHIELDTYPES, next());
-                    var shVar = shDec(SH_SHIELDVARS, next());
+                    var shVar = 'pvp';
+                    if (ver <= '8') {
+                        // v6-v8: consume legacy variant char and map old spiked-ciclonica → spiked/ciclonica
+                        shVar = shDec(SH_SHIELDVARS, next());
+                    }
                     if (ver === '6') { next(); /* consume legacy enchant char */ }
+                    // Map legacy spiked-ciclonica to separate sets
+                    if (shSet === 'spiked-ciclonica') {
+                        shSet = shVar === 'pve' ? 'ciclonica' : 'spiked';
+                    }
                     if (SHIELD_SET_KEYS.indexOf(shSet) !== -1) p.shield.set = shSet;
                     if (shType === 'battle' || shType === 'scale') p.shield.type = shType;
-                    if (shVar === 'pvp' || shVar === 'pve') p.shield.variant = shVar;
                     // Decode bonus bitmask (2 chars)
                     var maskHi = parseInt(next(), 36);
                     var maskLo = parseInt(next(), 36);
@@ -3025,13 +3137,38 @@
                     for (var bi = 0; bi < bonusList.length && p.shield.bonuses.length < maxB; bi++) {
                         if (bonusMask & (1 << bi)) p.shield.bonuses.push(bonusList[bi].key);
                     }
-                    // Ensure exact bonus count (pad with defaults if needed)
-                    if (p.shield.bonuses.length < maxB) {
-                        var defaults = getDefaultShieldBonuses(p.shield.set, typeKey);
-                        for (var di = 0; di < defaults.length && p.shield.bonuses.length < maxB; di++) {
-                            if (p.shield.bonuses.indexOf(defaults[di]) === -1) p.shield.bonuses.push(defaults[di]);
-                        }
+                }
+
+                // v8: consume legacy weapon variant chars
+                if (ver === '8' && pos < s.length) {
+                    var mwVar = shDec(SH_SHIELDVARS, next()); // reuse same 2-entry array
+                    var ohVar = shDec(SH_SHIELDVARS, next());
+                    // Map legacy spiked-helper + variant to separate weapon sets
+                    if (p.mainWeapon.set === 'spiked-helper') {
+                        p.mainWeapon.set = mwVar === 'pve' ? 'ciclonica-helper' : 'spiked';
                     }
+                    if (p.offHand.set === 'spiked-helper') {
+                        p.offHand.set = ohVar === 'pve' ? 'ciclonica-helper' : 'spiked';
+                    }
+                }
+                // v7 and below: spiked-helper maps to spiked (pvp was default)
+                if (ver <= '7') {
+                    if (p.mainWeapon.set === 'spiked-helper') p.mainWeapon.set = 'spiked';
+                    if (p.offHand.set === 'spiked-helper') p.offHand.set = 'spiked';
+                }
+
+                // Weapon bonuses (v10/a+)
+                if (ver >= 'a' && pos < s.length) {
+                    [p.mainWeapon, p.offHand].forEach(function(w) {
+                        var wMask = parseInt(next(), 36);
+                        var wFixed = WEAPON_STATS_FIXED[w.set];
+                        if (wFixed && wFixed.bonuses) {
+                            w.bonuses = [];
+                            for (var wi = 0; wi < wFixed.bonuses.length && w.bonuses.length < wFixed.maxBonuses; wi++) {
+                                if (wMask & (1 << wi)) w.bonuses.push(wFixed.bonuses[wi].key);
+                            }
+                        }
+                    });
                 }
 
                 state[id] = p;
