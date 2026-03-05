@@ -5390,6 +5390,75 @@ flex: 1;
     opacity: 0.35;
 }
 
+/* ── Shield Bonus Picker ── */
+.gc-shield-variant-row {
+    margin: 6px 0 2px;
+}
+
+.gc-shield-bonuses {
+    margin-top: 8px;
+}
+
+.gc-shield-bonus-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.gc-shield-bonus-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 7px;
+    font-size: 0.72em;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid rgba(100, 140, 180, 0.15);
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(180, 200, 220, 0.65);
+    min-width: 90px;
+}
+
+.gc-shield-bonus-btn:hover {
+    border-color: rgba(181, 101, 245, 0.3);
+    background: rgba(181, 101, 245, 0.08);
+    color: rgba(220, 220, 240, 0.9);
+}
+
+.gc-shield-bonus-on {
+    border-color: rgba(200, 160, 60, 0.4);
+    background: rgba(200, 160, 60, 0.12);
+    color: rgba(255, 220, 140, 0.95);
+}
+
+.gc-shield-bonus-on:hover {
+    border-color: rgba(220, 80, 80, 0.4);
+    background: rgba(220, 80, 80, 0.1);
+}
+
+.gc-shield-bonus-disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
+}
+
+.gc-shield-bonus-name {
+    font-weight: 600;
+}
+
+.gc-shield-bonus-val {
+    font-variant-numeric: tabular-nums;
+    color: rgba(160, 230, 160, 0.85);
+    font-weight: 600;
+}
+
+.gc-shield-bonus-on .gc-shield-bonus-val {
+    color: rgba(160, 230, 160, 0.95);
+}
+
 /* ── Gear Compare Responsive ── */
 @media (max-width: 1024px) {
     .gc-profiles {
