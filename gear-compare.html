@@ -172,6 +172,9 @@
             { key: 'jorgoth-t4-v1',   name: 'Jorgoth T4 v1' },
             { key: 'jorgoth-t4-v2',   name: 'Jorgoth T4 v2' },
             { key: 'jorgoth-t4-v3',   name: 'Jorgoth T4 v3' },
+            { key: 'jorgoth-t3-v1',   name: 'Jorgoth T3 v1' },
+            { key: 'jorgoth-t3-v2',   name: 'Jorgoth T3 v2' },
+            { key: 'jorgoth-t3-v3',   name: 'Jorgoth T3 v3' },
             { key: 'acrimony',        name: 'Acrimony' },
             { key: 'presumption',     name: 'Presumption' },
             { key: 'vision',          name: 'Vision' },
@@ -180,6 +183,9 @@
 
         // Sets that are main-hand exclusive (not available for off-hand/fuse)
         var OFFHAND_EXCLUDED_SETS = ['acrimony', 'presumption', 'vision'];
+
+        // Sets available only for off-hand/fuse (not main-hand)
+        var MAINHAND_EXCLUDED_SETS = ['jorgoth-t3-v1', 'jorgoth-t3-v2', 'jorgoth-t3-v3'];
 
         var OATH_OPTIONS = [
             { key: 'none',         name: 'None',         rank: 0 },
@@ -490,7 +496,7 @@
 
         // Fixed-stat weapons (stats baked in, only vary by 2h/1h)
         var WEAPON_STATS_FIXED = {
-            'spiked-helper':   { baseAtk: 4796, bonusAtk: 275, enchAtk2h: 547,  enchDef2h: 277, enchAtk1h: 311,  enchDef1h: 237, enchHp: 1917, enchCrit: 363,  baseDef: 177, baseAcc: 2675, bonusAcc: 0 },
+            'spiked-helper':   { baseAtk: 4796, bonusAtk: 275, typeBonusAtk2h: 176, typeBonusDef2h: 176, typeBonusAtk1h: 88, typeBonusDef1h: 88, enchAtk2h: 371,  enchDef2h: 101, enchAtk1h: 223,  enchDef1h: 61, enchHp: 1917, enchCrit: 363,  baseDef: 177, baseAcc: 2675, bonusAcc: 0 },
             'fighting-spirit': { baseAtk: 5515, bonusAtk: 275, enchAtk2h: 350,  enchDef2h: 175, enchAtk1h: 230,  enchDef1h: 120, enchHp: 0,    enchCrit: 363,  baseDef: 0,   baseAcc: 2675, bonusAcc: 411 },
             'vision':          { baseAtk: 4605, bonusAtk: 275, enchAtk2h: 554,  enchDef2h: 279, enchAtk1h: 315,  enchDef1h: 238, enchHp: 1917, enchCrit: 0,    baseDef: 170, baseAcc: 2568, bonusAcc: 411 },
             'salvation':       { baseAtk: 5791, bonusAtk: 316, enchAtk2h: 350,  enchDef2h: 175, enchAtk1h: 230,  enchDef1h: 120, enchHp: 0,    enchCrit: 417,  baseDef: 112, baseAcc: 2729, bonusAcc: 473 }
@@ -578,7 +584,10 @@
 
         // Helper: get Jorgoth tag for display
         function getJorgothTag(weaponType, setKey) {
-            var vKey = setKey === 'jorgoth-t4-v1' ? 'v1' : setKey === 'jorgoth-t4-v2' ? 'v2' : setKey === 'jorgoth-t4-v3' ? 'v3' : null;
+            var vKey = null;
+            if (setKey === 'jorgoth-t4-v1' || setKey === 'jorgoth-t3-v1') vKey = 'v1';
+            else if (setKey === 'jorgoth-t4-v2' || setKey === 'jorgoth-t3-v2') vKey = 'v2';
+            else if (setKey === 'jorgoth-t4-v3' || setKey === 'jorgoth-t3-v3') vKey = 'v3';
             if (!vKey || !JORGOTH_WEAPONS[weaponType]) return null;
             var w = JORGOTH_WEAPONS[weaponType][vKey];
             return w ? (w.tag || null) : null;
@@ -627,52 +636,98 @@
 
         // Calculate weapon stats for any set + weapon type + enchant level
         function getWeaponStats(setKey, weaponType, enchantLevel) {
+            var p = getWeaponParts(setKey, weaponType, enchantLevel);
             var s = emptyStats();
+            STAT_KEYS.forEach(function(k) { s[k] = p.base[k] + p.bonus[k] + p.enchant[k]; });
+            return s;
+        }
+
+        // Split weapon stats into base / bonus / enchant components
+        // Returns: { baseAtk: number, base: stats, bonus: stats, enchant: stats }
+        //   base    = stats that count once (highest-base-wins for dual wield)
+        //   bonus   = inherent weapon bonuses (always transfer, including from fuse)
+        //   enchant = enchant-level or enchant-like bonuses (transfer for dual wield, NOT for fuse)
+        //   baseAtk = raw base attack value (used for fuse 10% calculation)
+        function getWeaponParts(setKey, weaponType, enchantLevel) {
+            var base = emptyStats(), bonus = emptyStats(), enchant = emptyStats();
             var is2H = WEAPON_TYPES[weaponType].twoHanded;
 
             // Fixed-stat sets (spiked-helper, fighting-spirit, vision, salvation)
             var fixed = WEAPON_STATS_FIXED[setKey];
             if (fixed) {
-                s.attack      = fixed.baseAtk + fixed.bonusAtk + (is2H ? fixed.enchAtk2h : fixed.enchAtk1h);
-                s.physicalDef = fixed.baseDef + (is2H ? fixed.enchDef2h : fixed.enchDef1h);
-                s.magicalDef  = s.physicalDef;
-                s.accuracy    = fixed.baseAcc + fixed.bonusAcc;
-                s.hp          = fixed.enchHp;
-                s.crit        = fixed.enchCrit;
-                return s;
+                base.attack      = fixed.baseAtk;
+                base.physicalDef = fixed.baseDef;
+                base.magicalDef  = fixed.baseDef;
+                base.accuracy    = fixed.baseAcc;
+
+                bonus.attack     = fixed.bonusAtk + (is2H ? (fixed.typeBonusAtk2h || 0) : (fixed.typeBonusAtk1h || 0));
+                bonus.physicalDef = is2H ? (fixed.typeBonusDef2h || 0) : (fixed.typeBonusDef1h || 0);
+                bonus.magicalDef  = bonus.physicalDef;
+                bonus.accuracy   = fixed.bonusAcc;
+                bonus.hp         = fixed.enchHp;
+                bonus.crit       = fixed.enchCrit;
+
+                enchant.attack      = is2H ? fixed.enchAtk2h : fixed.enchAtk1h;
+                enchant.physicalDef = is2H ? fixed.enchDef2h : fixed.enchDef1h;
+                enchant.magicalDef  = enchant.physicalDef;
+
+                return { baseAtk: fixed.baseAtk, base: base, bonus: bonus, enchant: enchant };
             }
 
-            // Jorgoth variants (per weapon-type × variant data)
-            var vKey = setKey === 'jorgoth-t4-v1' ? 'v1' : setKey === 'jorgoth-t4-v2' ? 'v2' : setKey === 'jorgoth-t4-v3' ? 'v3' : null;
+            // Jorgoth variants (T4 and T3)
+            var isT3 = setKey.indexOf('jorgoth-t3-') === 0;
+            var vKey = null;
+            if (setKey === 'jorgoth-t4-v1' || setKey === 'jorgoth-t3-v1') vKey = 'v1';
+            else if (setKey === 'jorgoth-t4-v2' || setKey === 'jorgoth-t3-v2') vKey = 'v2';
+            else if (setKey === 'jorgoth-t4-v3' || setKey === 'jorgoth-t3-v3') vKey = 'v3';
             if (vKey && JORGOTH_WEAPONS[weaponType]) {
                 var w = JORGOTH_WEAPONS[weaponType][vKey];
                 if (w) {
                     var je = JORGOTH_ENCHANT;
-                    s.attack      = w.baseAtk + w.bonusAtk + (is2H ? je.enchAtk2h : je.enchAtk1h);
-                    s.physicalDef = 170 + w.bonusDef + (is2H ? je.enchDef2h : je.enchDef1h);
-                    s.magicalDef  = s.physicalDef;
-                    s.accuracy    = 2568 + w.acc;
-                    s.hp          = w.hp;
-                    s.crit        = w.crit;
-                    s.healingBoost = w.healingBoost || 0;
+                    // T3: override baseAtk (5200→4700, 2250→2000)
+                    var effectiveBaseAtk = isT3 ? (w.baseAtk === 2250 ? 2000 : 4700) : w.baseAtk;
+                    base.attack      = effectiveBaseAtk;
+                    base.physicalDef = 170;
+                    base.magicalDef  = 170;
+                    base.accuracy    = 2568;
+
+                    bonus.attack      = w.bonusAtk;
+                    bonus.physicalDef = w.bonusDef;
+                    bonus.magicalDef  = w.bonusDef;
+                    bonus.accuracy    = w.acc;
+                    bonus.hp          = w.hp;
+                    bonus.crit        = w.crit;
+                    bonus.healingBoost = w.healingBoost || 0;
+
+                    enchant.attack      = is2H ? je.enchAtk2h : je.enchAtk1h;
+                    enchant.physicalDef = is2H ? je.enchDef2h : je.enchDef1h;
+                    enchant.magicalDef  = enchant.physicalDef;
                 }
-                return s;
+                var retBaseAtk = w ? (isT3 ? (w.baseAtk === 2250 ? 2000 : 4700) : w.baseAtk) : 0;
+                return { baseAtk: retBaseAtk, base: base, bonus: bonus, enchant: enchant };
             }
 
             // Acrimony / Presumption (enchant-level scaling)
             var enchTable = (setKey === 'acrimony') ? ACRI_WEAPON_ENCHANT : (setKey === 'presumption') ? PRES_WEAPON_ENCHANT : null;
             if (enchTable) {
                 var ench = enchTable[enchantLevel] || enchTable[8];
-                s.attack      = EXTREME_WEAPON_BASE.baseAtk + EXTREME_WEAPON_BASE.bonusAtk + ench.attack;
-                s.physicalDef = EXTREME_WEAPON_BASE.baseDef + ench.def;
-                s.magicalDef  = s.physicalDef;
-                s.accuracy    = EXTREME_WEAPON_BASE.baseAcc;
-                s.hp          = ench.hp;
-                s.crit        = ench.crit;
-                return s;
+                base.attack      = EXTREME_WEAPON_BASE.baseAtk;
+                base.physicalDef = EXTREME_WEAPON_BASE.baseDef;
+                base.magicalDef  = EXTREME_WEAPON_BASE.baseDef;
+                base.accuracy    = EXTREME_WEAPON_BASE.baseAcc;
+
+                bonus.attack     = EXTREME_WEAPON_BASE.bonusAtk;
+
+                enchant.attack      = ench.attack;
+                enchant.physicalDef = ench.def;
+                enchant.magicalDef  = ench.def;
+                enchant.hp          = ench.hp;
+                enchant.crit        = ench.crit;
+
+                return { baseAtk: EXTREME_WEAPON_BASE.baseAtk, base: base, bonus: bonus, enchant: enchant };
             }
 
-            return s;
+            return { baseAtk: 0, base: base, bonus: bonus, enchant: enchant };
         }
 
         // ── Dummy shield data ──
@@ -779,7 +834,7 @@
                         });
                     }
                     if (saved.mainWeapon) {
-                        if (saved.mainWeapon.set && WEAPON_SET_KEYS.indexOf(saved.mainWeapon.set) !== -1) p.mainWeapon.set = saved.mainWeapon.set;
+                        if (saved.mainWeapon.set && WEAPON_SET_KEYS.indexOf(saved.mainWeapon.set) !== -1 && MAINHAND_EXCLUDED_SETS.indexOf(saved.mainWeapon.set) === -1) p.mainWeapon.set = saved.mainWeapon.set;
                         if (typeof saved.mainWeapon.enchant === 'number' && saved.mainWeapon.enchant >= 8 && saved.mainWeapon.enchant <= 15) p.mainWeapon.enchant = saved.mainWeapon.enchant;
                     }
                     if (saved.offHand) {
@@ -837,26 +892,56 @@
                 STAT_KEYS.forEach(function(k) { totals[k] += (armorStats[k] || 0); });
             });
 
-            // Main weapon (type from shared weaponConfig)
+            // ── Weapon stats (base/bonus/enchant split) ──
             var mwSet = profile.mainWeapon.set;
             var mwType = weaponConfig.mainType;
-            var wStats = getWeaponStats(mwSet, mwType, profile.mainWeapon.enchant);
-            STAT_KEYS.forEach(function(k) { totals[k] += (wStats[k] || 0); });
-
-            // Off-hand (type from shared weaponConfig)
+            var mainParts = getWeaponParts(mwSet, mwType, profile.mainWeapon.enchant);
             var ohType = weaponConfig.offHandType;
             var ohSet = profile.offHand.set;
-            if (ohType === 'shield') {
+
+            if (ohType === 'none') {
+                // Solo weapon: base + bonus + enchant
+                STAT_KEYS.forEach(function(k) {
+                    totals[k] += mainParts.base[k] + mainParts.bonus[k] + mainParts.enchant[k];
+                });
+
+            } else if (ohType === 'shield') {
+                // 1H + shield: main hand provides base + bonus + enchant; shield adds bonus-only stats
+                STAT_KEYS.forEach(function(k) {
+                    totals[k] += mainParts.base[k] + mainParts.bonus[k] + mainParts.enchant[k];
+                });
                 if (ITEM_DB.shield[ohSet] && ITEM_DB.shield[ohSet][weaponConfig.shieldType]) {
                     var sStats = ITEM_DB.shield[ohSet][weaponConfig.shieldType];
                     STAT_KEYS.forEach(function(k) { totals[k] += (sStats[k] || 0); });
                 }
+
             } else if (ohType === 'fuse') {
-                var fStats = getWeaponStats(ohSet, mwType, profile.offHand.enchant);
-                STAT_KEYS.forEach(function(k) { totals[k] += (fStats[k] || 0); });
+                // 2H + fuse: main base + main bonus + main enchant
+                //            + fuse bonus only (no fuse enchant)
+                //            + floor(fuse.baseAtk / 10) as bonus attack
+                var fuseParts = getWeaponParts(ohSet, mwType, profile.offHand.enchant);
+                STAT_KEYS.forEach(function(k) {
+                    totals[k] += mainParts.base[k] + mainParts.bonus[k] + mainParts.enchant[k] + fuseParts.bonus[k];
+                });
+                totals.attack += Math.floor(fuseParts.baseAtk / 10);
+
             } else if (ohType === 'weapon') {
-                var owStats = getWeaponStats(ohSet, weaponConfig.offHandWeaponType, profile.offHand.enchant);
-                STAT_KEYS.forEach(function(k) { totals[k] += (owStats[k] || 0); });
+                // 1H dual-wield: base = max per-stat (except gunner: always main hand)
+                var ohParts = getWeaponParts(ohSet, weaponConfig.offHandWeaponType, profile.offHand.enchant);
+                if (selectedClass === 'gunner') {
+                    // Gunner exception: base always from main hand
+                    STAT_KEYS.forEach(function(k) { totals[k] += mainParts.base[k]; });
+                } else {
+                    // Normal: pick highest base per stat
+                    STAT_KEYS.forEach(function(k) {
+                        totals[k] += Math.max(mainParts.base[k], ohParts.base[k]);
+                    });
+                }
+                // Bonus + enchant from both weapons
+                STAT_KEYS.forEach(function(k) {
+                    totals[k] += mainParts.bonus[k] + mainParts.enchant[k]
+                              +  ohParts.bonus[k]   + ohParts.enchant[k];
+                });
             }
 
             // Oath pair bonuses
@@ -909,12 +994,15 @@
             var ms = profile.manastones[gearKey] || [];
             var filled = 0;
             for (var i = 0; i < slots; i++) { if (ms[i] && ms[i] !== 'none') filled++; }
-            var dots = '';
+            var icons = '';
             for (var j = 0; j < slots; j++) {
-                dots += (ms[j] && ms[j] !== 'none') ? '●' : '○';
+                var isFilled = ms[j] && ms[j] !== 'none';
+                var src = isFilled ? MANASTONE_ICON : EMPTY_SLOT_ICON;
+                var imgCls = isFilled ? 'gc-ms-ico gc-ms-ico-filled' : 'gc-ms-ico';
+                icons += '<img src="' + src + '" class="' + imgCls + '" alt="">';
             }
             var cls = filled === slots ? ' gc-ms-full' : filled > 0 ? ' gc-ms-partial' : '';
-            return '<span class="gc-ms-indicator' + cls + '" title="Manastones: ' + filled + '/' + slots + '">' + dots + '</span>';
+            return '<span class="gc-ms-indicator' + cls + '" title="Manastones: ' + filled + '/' + slots + '">' + icons + '</span>';
         }
 
         // ── Manastone Modal ──
@@ -994,12 +1082,12 @@
                     var currentMana = (ms[i] && ms[i] !== 'none') ? ms[i] : 'none';
                     var manaDef = MANASTONES.find(function(m) { return m.key === currentMana; });
                     if (manaDef) {
-                        html += '<div class="gc-mana-slot gc-mana-slot-filled" onclick="GC.openManaSlotPicker(' + pid + ',\'' + gk + '\',' + i + ',this)">';
+                        html += '<div class="gc-mana-slot gc-mana-slot-filled" data-pid="' + pid + '" data-gear="' + gk + '" data-slot="' + i + '">';
                         html += '<img src="' + MANASTONE_ICON + '" class="gc-mana-slot-icon" alt="">';
                         html += '<span class="gc-mana-slot-label">' + manaDef.name + ' +' + manaDef.value + '</span>';
                         html += '</div>';
                     } else {
-                        html += '<div class="gc-mana-slot gc-mana-slot-empty" onclick="GC.openManaSlotPicker(' + pid + ',\'' + gk + '\',' + i + ',this)">';
+                        html += '<div class="gc-mana-slot gc-mana-slot-empty" data-pid="' + pid + '" data-gear="' + gk + '" data-slot="' + i + '">';
                         html += '<img src="' + EMPTY_SLOT_ICON + '" class="gc-mana-slot-icon gc-mana-slot-icon-empty" alt="">';
                         html += '<span class="gc-mana-slot-empty-label">Empty</span>';
                         html += '</div>';
@@ -1048,24 +1136,44 @@
             var enchDef = is2H ? je.enchDef2h : je.enchDef1h;
             var hasHeal = data.v1.healingBoost || data.v2.healingBoost || data.v3.healingBoost;
 
+            // Build T4 variants
             var variants = [
                 { key: 'v1', label: 'T4 v1', data: data.v1 },
                 { key: 'v2', label: 'T4 v2', data: data.v2 },
                 { key: 'v3', label: 'T4 v3', data: data.v3 }
             ];
 
-            // Compute per-variant display values
+            // T3 alternatives for all variants (baseAtk: 5200→4700, 2250→2000)
+            var t3Variants = ['v1', 'v2', 'v3'].map(function(vk) {
+                return { key: vk, label: 'T3 ' + vk, data: data[vk], isT3: true };
+            });
+
+            // Compute per-variant display values (T4 only for highlighting)
             var rows = variants.map(function(v) {
                 var d = v.data;
                 return {
-                    label: v.label, data: d, tag: d.tag || null,
+                    label: v.label, data: d, tag: d.tag || null, isT3: false,
                     bonusAtk: d.bonusAtk, crit: d.crit, acc: 2568 + d.acc,
                     def: 170 + d.bonusDef + enchDef, hp: d.hp,
                     heal: d.healingBoost || 0
                 };
             });
 
-            // For each stat column, find the max and whether values differ
+            // T3 display rows (same bonus stats, lower baseAtk)
+            var t3Rows = t3Variants.map(function(v) {
+                var d = v.data;
+                var t3BaseAtk = d.baseAtk === 2250 ? 2000 : 4700;
+                return {
+                    label: v.label, data: d, tag: null, isT3: true,
+                    t3BaseAtk: t3BaseAtk,
+                    bonusAtk: d.bonusAtk, crit: d.crit, acc: 2568 + d.acc,
+                    def: 170 + d.bonusDef + enchDef, hp: d.hp,
+                    heal: d.healingBoost || 0,
+                    fuseAtk: Math.floor(t3BaseAtk / 10)
+                };
+            });
+
+            // For each stat column, find the max and whether values differ (T4 only)
             var statCols = ['bonusAtk', 'crit', 'acc', 'def', 'hp'];
             if (hasHeal) statCols.push('heal');
             var best = {};
@@ -1111,6 +1219,28 @@
                 if (isMasterpiece) html += '<span class="gc-jorgoth-tag-mp">✦ Masterpiece</span>';
                 if (isExtended) html += '<span class="gc-jorgoth-tag-ext">⟐ Extended</span>';
                 if (isHighAtk && is2H) html += '<span class="gc-jorgoth-tag-fuse">⚔ Best Fuse</span>';
+                html += '</td>';
+                html += '</tr>';
+            });
+
+            // T3 rows (cheaper alternatives)
+            var colCount = hasHeal ? 8 : 7;
+            html += '<tr class="gc-jorgoth-t3-separator"><td colspan="' + colCount + '"></td></tr>';
+            t3Rows.forEach(function(r) {
+                var atkDiff = Math.floor(r.data.baseAtk / 10) - r.fuseAtk;
+                var fuseTag = atkDiff > 0 ? ('⚔ Fuse −' + atkDiff + ' atk') : '';
+                html += '<tr class="gc-jorgoth-row gc-jorgoth-row-t3">';
+                html += '<td class="gc-jorgoth-variant">' + r.label + '</td>';
+                html += '<td>' + (r.bonusAtk || '—') + '</td>';
+                html += '<td>' + (r.crit || '—') + '</td>';
+                html += '<td>' + (r.acc || '—') + '</td>';
+                html += '<td>' + r.def + '</td>';
+                html += '<td>' + r.hp.toLocaleString() + '</td>';
+                if (hasHeal) {
+                    html += '<td>' + (r.heal || '—') + '</td>';
+                }
+                html += '<td class="gc-jorgoth-tags">';
+                if (fuseTag) html += '<span class="gc-jorgoth-tag-t3">' + fuseTag + '</span>';
                 html += '</td>';
                 html += '</tr>';
             });
@@ -1178,7 +1308,6 @@
             // ── Jorgoth Weapon Stats Legend ──
             html += buildJorgothLegend(mainType);
 
-            html += '<div class="gc-weapon-notice">⚠️ Weapon stats are under construction — armor comparison is accurate.</div>';
             el.innerHTML = html;
         }
 
@@ -1589,7 +1718,7 @@
 
                 var sets, currentSet;
                 if (slotType === 'main-weapon') {
-                    sets = WEAPON_SETS;
+                    sets = WEAPON_SETS.filter(function(ws) { return MAINHAND_EXCLUDED_SETS.indexOf(ws.key) === -1; });
                     currentSet = state[pid].mainWeapon.set;
                 } else if (slotType === 'off-weapon') {
                     sets = WEAPON_SETS.filter(function(ws) { return OFFHAND_EXCLUDED_SETS.indexOf(ws.key) === -1; });
@@ -1915,14 +2044,14 @@
                 var html = '';
                 // None option
                 var nSel = currentMana === 'none' ? ' gc-set-option-selected' : '';
-                html += '<div class="gc-set-option gc-mana-option-none' + nSel + '" onclick="GC.setManastone(' + pid + ',\'' + gearKey + '\',' + slotIdx + ',\'none\')">';
+                html += '<div class="gc-set-option gc-mana-option-none' + nSel + '" data-mana="none">';
                 html += '<span class="gc-mana-option-icon"><img src="' + EMPTY_SLOT_ICON + '" class="gc-mana-slot-icon-empty" alt=""></span>';
                 html += '<span class="gc-set-option-label">Empty</span>';
                 html += '</div>';
 
                 MANASTONES.forEach(function(m) {
                     var sel = currentMana === m.key ? ' gc-set-option-selected' : '';
-                    html += '<div class="gc-set-option' + sel + '" onclick="GC.setManastone(' + pid + ',\'' + gearKey + '\',' + slotIdx + ',\'' + m.key + '\')">';
+                    html += '<div class="gc-set-option' + sel + '" data-mana="' + m.key + '">';
                     html += '<span class="gc-mana-option-icon"><img src="' + MANASTONE_ICON + '" alt=""></span>';
                     html += '<span class="gc-set-option-label">' + m.name + ' +' + m.value + '</span>';
                     html += '</div>';
@@ -2000,6 +2129,35 @@
         manaSlotPopup.id = 'gc-mana-slot-popup';
         manaSlotPopup.className = 'gc-set-popup gc-mana-slot-popup';
         document.body.appendChild(manaSlotPopup);
+
+        // Event delegation: mana slot clicks inside modal
+        manaModal.addEventListener('click', function(e) {
+            var slotEl = e.target.closest('.gc-mana-slot');
+            if (slotEl && slotEl.dataset.pid) {
+                e.stopPropagation();
+                GC.openManaSlotPicker(
+                    parseInt(slotEl.dataset.pid),
+                    slotEl.dataset.gear,
+                    parseInt(slotEl.dataset.slot),
+                    slotEl
+                );
+            }
+        });
+
+        // Event delegation: mana option clicks inside slot picker popup
+        manaSlotPopup.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var optEl = e.target.closest('.gc-set-option');
+            if (optEl && optEl.dataset.mana !== undefined) {
+                var popup = document.getElementById('gc-mana-slot-popup');
+                GC.setManastone(
+                    parseInt(popup.dataset.pid),
+                    popup.dataset.gearKey,
+                    parseInt(popup.dataset.slotIdx),
+                    optEl.dataset.mana
+                );
+            }
+        });
 
         // Close pickers on outside click
         document.addEventListener('click', function(e) {

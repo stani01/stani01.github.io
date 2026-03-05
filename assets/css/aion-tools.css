@@ -4272,28 +4272,33 @@ flex: 1;
 .gc-ms-indicator {
     display: inline-flex;
     align-items: center;
-    gap: 1px;
-    font-size: 0.65em;
-    color: rgba(150, 140, 120, 0.45);
+    gap: 2px;
     padding: 2px 4px;
     border-radius: 4px;
     transition: all 0.2s ease;
-    letter-spacing: 1px;
     flex-shrink: 0;
     margin-left: auto;
 }
 
-.gc-ms-partial {
-    color: rgba(100, 200, 255, 0.55);
+.gc-ms-ico {
+    width: 10px;
+    height: 10px;
+    opacity: 0.35;
+    filter: grayscale(1);
+    transition: opacity 0.2s ease, filter 0.2s ease;
 }
 
-.gc-ms-full {
-    color: rgba(100, 220, 160, 0.7);
+.gc-ms-ico-filled {
+    opacity: 0.7;
+    filter: none;
 }
 
-.gc-ms-full:hover {
-    color: rgba(100, 220, 160, 0.9);
-    background: rgba(100, 220, 160, 0.08);
+.gc-ms-partial .gc-ms-ico-filled {
+    opacity: 0.75;
+}
+
+.gc-ms-full .gc-ms-ico-filled {
+    opacity: 0.85;
 }
 
 /* ── Manastone Button (in profile header) ── */
@@ -4689,6 +4694,28 @@ flex: 1;
     color: #ff9944;
     background: rgba(255, 153, 68, 0.1);
     border: 1px solid rgba(255, 153, 68, 0.2);
+    border-radius: 4px;
+    padding: 1px 5px;
+    white-space: nowrap;
+}
+
+.gc-jorgoth-t3-separator td {
+    border-top: 1px dashed rgba(200, 160, 60, 0.25);
+    padding: 0;
+    height: 4px;
+}
+
+.gc-jorgoth-row-t3 {
+    opacity: 0.7;
+}
+
+.gc-jorgoth-tag-t3 {
+    display: inline-block;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: rgba(180, 160, 120, 0.85);
+    background: rgba(180, 160, 120, 0.08);
+    border: 1px solid rgba(180, 160, 120, 0.18);
     border-radius: 4px;
     padding: 1px 5px;
     white-space: nowrap;
