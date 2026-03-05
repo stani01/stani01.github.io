@@ -10,7 +10,7 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="assets/css/aion-tools.css?v=3.5">
+    <link rel="stylesheet" href="assets/css/aion-tools.css?v=3.8">
 </head>
 <body class="page-gear-compare">
 
@@ -25,16 +25,30 @@
         <!-- Shared Class Selector -->
         <div class="gc-class-selector" id="class-selector"></div>
 
-        <!-- Shared Weapon Setup -->
-        <div class="gc-weapon-config" id="weapon-config"></div>
-
-        <!-- Two profiles side by side -->
-        <div class="gc-profiles">
-            <div class="gc-profile" id="profile-1"></div>
-            <div class="gc-profile" id="profile-2"></div>
+        <!-- Tab Bar -->
+        <div class="gc-tab-bar" id="gc-tab-bar">
+            <button class="gc-tab gc-tab-active" data-tab="equipment">⚔️ Equipment</button>
+            <button class="gc-tab" data-tab="transforms">✨ Transformations</button>
         </div>
 
-        <!-- Stats Comparison Table -->
+        <!-- Equipment Tab -->
+        <div class="gc-tab-panel gc-tab-panel-active" id="tab-equipment">
+            <div class="gc-weapon-config" id="weapon-config"></div>
+            <div class="gc-profiles">
+                <div class="gc-profile" id="profile-1"></div>
+                <div class="gc-profile" id="profile-2"></div>
+            </div>
+        </div>
+
+        <!-- Transformations Tab -->
+        <div class="gc-tab-panel" id="tab-transforms">
+            <div class="gc-profiles">
+                <div class="gc-profile" id="transform-1"></div>
+                <div class="gc-profile" id="transform-2"></div>
+            </div>
+        </div>
+
+        <!-- Stats Comparison Table (always visible) -->
         <div class="gc-comparison" id="comparison-panel"></div>
 
         <div id="site-footer"></div>
@@ -345,6 +359,161 @@
         ];
 
         var STAT_KEYS = COMPARISON_STATS.map(function(s) { return s.key; });
+
+        // ═══════════════════════════════════════════════════════════
+        // TRANSFORMATION DATA
+        // ═══════════════════════════════════════════════════════════
+
+        // Stat display definitions — [base, perEnchant] format in each transform
+        // Physical stats: accuracy, critStrike → map to comparison 'accuracy', 'crit'
+        // Magical stats:  magicAccuracy, critSpell → map to comparison 'accuracy', 'crit' for magic classes
+        // Display-only: attackSpeed, castSpeed, moveSpeed (not enchantable)
+        var TRANSFORM_STAT_DEFS = [
+            { key: 'attackSpeed',   name: 'Atk. Speed',      unit: '%',  display: true },
+            { key: 'castSpeed',     name: 'Cast Speed',      unit: '%',  display: true },
+            { key: 'moveSpeed',     name: 'Speed',           unit: '%',  display: true },
+            { key: 'accuracy',      name: 'Accuracy',        unit: '',   display: false },
+            { key: 'magicAccuracy', name: 'Magical Acc.',     unit: '',  display: false },
+            { key: 'critStrike',    name: 'Crit Strike',     unit: '',   display: false },
+            { key: 'critSpell',     name: 'Crit Spell',      unit: '',   display: false },
+            { key: 'hp',            name: 'HP',              unit: '',   display: false },
+            { key: 'healingBoost',  name: 'Healing Boost',   unit: '',   display: false },
+            { key: 'pvpAttack',     name: 'Add. PvP Atk',   unit: '',   display: false },
+            { key: 'pveAttack',     name: 'Add. PvE Atk',   unit: '',   display: false },
+            { key: 'pvpDefense',    name: 'Add. PvP Def',   unit: '',   display: false },
+            { key: 'pveDefense',    name: 'Add. PvE Def',   unit: '',   display: false },
+            { key: 'magicResist',   name: 'Magic Resist',   unit: '',   display: false },
+            { key: 'evasion',       name: 'Evasion',        unit: '',   display: false }
+        ];
+
+        // Physical classes use accuracy + critStrike; magical classes use magicAccuracy + critSpell
+        var PHYSICAL_CLASSES = ['gladiator', 'templar', 'assassin', 'ranger', 'chanter'];
+        function isPhysicalClass(cls) { return PHYSICAL_CLASSES.indexOf(cls) !== -1; }
+
+        var TF_NONE_ICON = 'assets/icons/icon_frame_2.png';
+
+        // All 14 ultimate transforms (display order: Kaisinel → Dark Dragon King)
+        // Stats format: [base, perEnchant] — total at enchant N = base + perEnchant × N
+        // Display-only speeds are flat numbers (no enchant scaling)
+        var TRANSFORMS = [
+            { key: 'none', name: 'None', icon: TF_NONE_ICON, stats: {} },
+            { key: 'kaisinel', name: 'Kaisinel', icon: 'assets/icons/trans_finality_kaisinel.png', stats: {
+                attackSpeed: 60, castSpeed: 45, moveSpeed: 100,
+                accuracy: [378, 19], magicAccuracy: [378, 19], critStrike: [331, 17], critSpell: [331, 17],
+                healingBoost: [80, 4], pvpAttack: [236, 12], pveAttack: [236, 12],
+                pvpDefense: [241, 12], pveDefense: [241, 12]
+            }},
+            { key: 'marchutan', name: 'Marchutan', icon: 'assets/icons/trans_finality_marchutan.png', stats: {
+                attackSpeed: 50, castSpeed: 55, moveSpeed: 100,
+                accuracy: [378, 19], magicAccuracy: [378, 19], critStrike: [331, 17], critSpell: [331, 17],
+                healingBoost: [80, 4], pvpAttack: [236, 12], pveAttack: [236, 12],
+                pvpDefense: [241, 12], pveDefense: [241, 12]
+            }},
+            { key: 'ereshkigal', name: 'Ereshkigal', icon: 'assets/icons/trans_finality_eresh.png', stats: {
+                attackSpeed: 55, castSpeed: 50, moveSpeed: 100,
+                accuracy: [378, 19], magicAccuracy: [378, 19], critStrike: [331, 17], critSpell: [331, 17],
+                healingBoost: [80, 4], pvpAttack: [472, 24], pveAttack: [180, 9],
+                pveDefense: [180, 9]
+            }},
+            { key: 'tiamat', name: 'Tiamat', icon: 'assets/icons/trans_finality_tiamat.png', stats: {
+                attackSpeed: 55, castSpeed: 50, moveSpeed: 100,
+                accuracy: [378, 19], magicAccuracy: [378, 19], critStrike: [331, 17], critSpell: [331, 17],
+                healingBoost: [80, 4], pvpAttack: [180, 9], pveAttack: [472, 24],
+                pvpDefense: [180, 9]
+            }},
+            { key: 'nezekan', name: 'Nezekan', icon: 'assets/icons/trans_finality_nejakan.png', stats: {
+                attackSpeed: 50, castSpeed: 55, moveSpeed: 100,
+                critStrike: [331, 17], critSpell: [331, 17],
+                healingBoost: [80, 4], hp: [4400, 220], magicResist: [341, 17],
+                pvpAttack: [236, 11], pveAttack: [236, 11],
+                pvpDefense: [241, 12], pveDefense: [241, 12]
+            }},
+            { key: 'zikel', name: 'Zikel', icon: 'assets/icons/trans_finality_zikel.png', stats: {
+                attackSpeed: 60, castSpeed: 45, moveSpeed: 100,
+                critStrike: [420, 21], critSpell: [420, 21],
+                healingBoost: [80, 4], pvpAttack: [236, 11], pveAttack: [236, 11],
+                pvpDefense: [241, 12], pveDefense: [241, 12]
+            }},
+            { key: 'lumiel', name: 'Lumiel', icon: 'assets/icons/trans_finality_lumiel.png', stats: {
+                attackSpeed: 50, castSpeed: 55, moveSpeed: 100,
+                accuracy: [378, 19], magicAccuracy: [520, 26], critStrike: [420, 21], critSpell: [420, 21],
+                healingBoost: [80, 4], pvpAttack: [620, 31], pveAttack: [420, 21],
+                pvpDefense: [170, 9], pveDefense: [170, 9]
+            }},
+            { key: 'yustiel', name: 'Yustiel', icon: 'assets/icons/trans_finality_yustiel.png', stats: {
+                attackSpeed: 55, castSpeed: 50, moveSpeed: 100,
+                accuracy: [520, 26], magicAccuracy: [378, 19], critStrike: [420, 21], critSpell: [420, 21],
+                healingBoost: [90, 5], pvpAttack: [620, 31], pveAttack: [420, 21],
+                pvpDefense: [170, 9], pveDefense: [170, 9]
+            }},
+            { key: 'vaizel', name: 'Vaizel', icon: 'assets/icons/trans_finality_vaizel.png', stats: {
+                attackSpeed: 55, castSpeed: 50, moveSpeed: 100,
+                accuracy: [361, 19], critStrike: [350, 18], critSpell: [330, 17],
+                pvpAttack: [378, 19], pveAttack: [189, 10],
+                pvpDefense: [217, 11], pveDefense: [193, 10],
+                evasion: [352, 18], magicResist: [341, 18]
+            }},
+            { key: 'triniel', name: 'Triniel', icon: 'assets/icons/trans_finality_triniel.png', stats: {
+                attackSpeed: 55, castSpeed: 50, moveSpeed: 100,
+                magicAccuracy: [361, 19], critStrike: [330, 17], critSpell: [350, 18],
+                pvpAttack: [378, 19], pveAttack: [189, 10],
+                pvpDefense: [217, 11], pveDefense: [193, 10],
+                evasion: [341, 18], magicResist: [352, 18]
+            }},
+            { key: 'ariel', name: 'Ariel', icon: 'assets/icons/trans_finality_ariel.png', stats: {
+                attackSpeed: 60, castSpeed: 55, moveSpeed: 100,
+                accuracy: [378, 19], magicAccuracy: [413, 21], critStrike: [365, 19], critSpell: [415, 21],
+                healingBoost: [82, 4], pvpAttack: [420, 21], pveAttack: [620, 31],
+                pvpDefense: [217, 11], pveDefense: [217, 11]
+            }},
+            { key: 'azphel', name: 'Azphel', icon: 'assets/icons/trans_finality_azphel.png', stats: {
+                attackSpeed: 60, castSpeed: 55, moveSpeed: 100,
+                accuracy: [413, 21], magicAccuracy: [378, 19], critStrike: [415, 21], critSpell: [365, 19],
+                healingBoost: [82, 4], pvpAttack: [420, 21], pveAttack: [620, 31],
+                pvpDefense: [217, 11], pveDefense: [217, 11]
+            }},
+            { key: 'firedragon', name: 'Fire Dragon King', icon: 'assets/icons/trans_finality_firedragon.png', stats: {
+                attackSpeed: 60, castSpeed: 55, moveSpeed: 100,
+                accuracy: [520, 26], magicAccuracy: [520, 26], critStrike: [420, 21], critSpell: [420, 21],
+                healingBoost: [90, 5], pvpAttack: [620, 31], pveAttack: [620, 31],
+                pvpDefense: [241, 12], pveDefense: [241, 12]
+            }},
+            { key: 'darkdragon', name: 'Dark Dragon King', icon: 'assets/icons/trans_finality_darkdragon.png', stats: {
+                attackSpeed: 60, castSpeed: 55, moveSpeed: 100,
+                accuracy: [520, 26], magicAccuracy: [520, 26], critStrike: [420, 21], critSpell: [420, 21],
+                healingBoost: [90, 5], pvpAttack: [620, 31], pveAttack: [620, 31],
+                pvpDefense: [241, 12], pveDefense: [241, 12]
+            }}
+        ];
+        var TRANSFORM_KEYS = TRANSFORMS.map(function(t) { return t.key; });
+
+        // Get a transform stat value at a given enchant level
+        // Stats are either flat numbers (speeds) or [base, perEnchant] arrays
+        function tfStatVal(raw, enchLvl) {
+            if (Array.isArray(raw)) return raw[0] + raw[1] * enchLvl;
+            return raw || 0;
+        }
+
+        // Map transform stats to comparison stats, based on class type and enchant
+        function getTransformComparisonStats(transformKey, className, enchantLevel) {
+            var tf = TRANSFORMS.find(function(t) { return t.key === transformKey; });
+            var out = emptyStats();
+            if (!tf || !tf.stats) return out;
+            var s = tf.stats;
+            var e = enchantLevel || 0;
+            var phys = isPhysicalClass(className);
+            out.accuracy     = phys ? tfStatVal(s.accuracy, e) : tfStatVal(s.magicAccuracy, e);
+            out.crit         = phys ? tfStatVal(s.critStrike, e) : tfStatVal(s.critSpell, e);
+            out.hp           = tfStatVal(s.hp, e);
+            out.healingBoost = tfStatVal(s.healingBoost, e);
+            out.pvpAttack    = tfStatVal(s.pvpAttack, e);
+            out.pveAttack    = tfStatVal(s.pveAttack, e);
+            out.pvpDefense   = tfStatVal(s.pvpDefense, e);
+            out.pveDefense   = tfStatVal(s.pveDefense, e);
+            out.magicResist  = tfStatVal(s.magicResist, e);
+            out.evasion      = tfStatVal(s.evasion, e);
+            return out;
+        }
 
         // ═══════════════════════════════════════════════════════════
         // ITEM DATABASE (dummy data — replace with real values)
@@ -784,7 +953,9 @@
                 mainWeapon: { set: 'fighting-spirit', enchant: 9 },
                 offHand: { set: 'fighting-spirit', enchant: 9 },
                 oath: { shoulders: 'silent-skill', helmet: 'silent-skill', chest: 'ultimate-3', pants: 'ultimate-3', gloves: 'ultimate-3', boots: 'ultimate-3' },
-                manastones: {}
+                manastones: {},
+                transform: 'none',
+                transformEnchant: 10
             };
             ARMOR_SLOTS.forEach(function(slot) {
                 profile.armor[slot.key] = { set: 'fighting-spirit', enchant: 9 };
@@ -804,7 +975,7 @@
 
         function saveState() {
             try {
-                var data = { selectedClass: selectedClass, weaponConfig: weaponConfig, profiles: { 1: state[1], 2: state[2] } };
+                var data = { selectedClass: selectedClass, weaponConfig: weaponConfig, profiles: { 1: state[1], 2: state[2] }, activeTab: activeTab };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             } catch (e) { /* quota exceeded or private mode */ }
         }
@@ -879,8 +1050,17 @@
                             }
                         });
                     }
+                    if (saved.transform && TRANSFORM_KEYS.indexOf(saved.transform) !== -1) {
+                        p.transform = saved.transform;
+                    }
+                    if (typeof saved.transformEnchant === 'number' && saved.transformEnchant >= 0 && saved.transformEnchant <= 20) {
+                        p.transformEnchant = saved.transformEnchant;
+                    }
                     state[id] = p;
                 });
+                if (data.activeTab === 'equipment' || data.activeTab === 'transformations') {
+                    activeTab = data.activeTab;
+                }
                 return true;
             } catch (e) { return false; }
         }
@@ -996,6 +1176,12 @@
                     }
                 }
             });
+
+            // Transformation stats
+            if (profile.transform && profile.transform !== 'none') {
+                var tfStats = getTransformComparisonStats(profile.transform, selectedClass, profile.transformEnchant != null ? profile.transformEnchant : 0);
+                STAT_KEYS.forEach(function(k) { totals[k] += (tfStats[k] || 0); });
+            }
 
             return totals;
         }
@@ -1122,7 +1308,96 @@
             renderWeaponConfig();
             renderProfile(1);
             renderProfile(2);
+            renderTransform(1);
+            renderTransform(2);
             updateComparison();
+        }
+
+        // ── Tab switching ──
+        var activeTab = 'equipment';
+        function activateTab(tab) {
+            activeTab = tab;
+            document.querySelectorAll('.gc-tab').forEach(function(b) { b.classList.remove('gc-tab-active'); });
+            var btn = document.querySelector('.gc-tab[data-tab="' + tab + '"]');
+            if (btn) btn.classList.add('gc-tab-active');
+            document.querySelectorAll('.gc-tab-panel').forEach(function(p) { p.classList.remove('gc-tab-panel-active'); });
+            document.getElementById('tab-' + tab).classList.add('gc-tab-panel-active');
+        }
+        document.getElementById('gc-tab-bar').addEventListener('click', function(e) {
+            var btn = e.target.closest('.gc-tab');
+            if (!btn) return;
+            var tab = btn.getAttribute('data-tab');
+            if (tab === activeTab) return;
+            activateTab(tab);
+            saveState();
+        });
+
+        // ── Transform rendering ──
+        function renderTransform(pid) {
+            var el = document.getElementById('transform-' + pid);
+            var profile = state[pid];
+            var currentKey = profile.transform || 'none';
+            var currentTf = TRANSFORMS.find(function(t) { return t.key === currentKey; }) || TRANSFORMS[0];
+            var enchLvl = profile.transformEnchant != null ? profile.transformEnchant : 0;
+
+            var html = '<div class="gc-profile-header">';
+            html += '<span class="gc-set-title">SET ' + pid + '</span>';
+            html += '<button class="gc-reset-btn" onclick="GC.resetTransform(' + pid + ')" title="Reset transform">↺</button>';
+            html += '</div>';
+
+            // Icon picker grid
+            html += '<div class="gc-section-label" style="margin-bottom:8px">Select Transformation</div>';
+            html += '<div class="gc-tf-grid">';
+            TRANSFORMS.forEach(function(tf) {
+                var sel = currentKey === tf.key ? ' gc-tf-icon-selected' : '';
+                var noneCls = tf.key === 'none' ? ' gc-tf-icon-none' : '';
+                html += '<div class="gc-tf-icon' + sel + noneCls + '" onclick="GC.setTransform(' + pid + ',\'' + tf.key + '\')" title="' + tf.name + '">';
+                if (tf.key === 'none') {
+                    html += '<span class="gc-tf-none-dash">—</span>';
+                } else {
+                    html += '<img src="' + tf.icon + '" alt="' + tf.name + '">';
+                    html += '<span class="gc-tf-icon-label">' + tf.name + '</span>';
+                }
+                html += '</div>';
+            });
+            html += '</div>';
+
+            // Enchant + stat preview (only when a transform is selected)
+            if (currentKey !== 'none') {
+                // Enchant row
+                html += '<div class="gc-tf-enchant-row">';
+                html += '<span class="gc-tf-enchant-label">Enchant</span>';
+                html += '<span class="gc-enchant-trigger" onclick="GC.openEnchantPicker(' + pid + ',\'tf\',this)">+' + enchLvl + '</span>';
+                html += '</div>';
+
+                // Stat preview
+                html += '<div class="gc-tf-stats">';
+                html += '<div class="gc-tf-stats-title">';
+                html += '<img src="' + currentTf.icon + '" class="gc-tf-stats-icon" alt=""> ';
+                html += currentTf.name + ' +' + enchLvl;
+                html += '</div>';
+                var phys = isPhysicalClass(selectedClass);
+                TRANSFORM_STAT_DEFS.forEach(function(sd) {
+                    var raw = currentTf.stats[sd.key];
+                    if (raw === undefined) return;
+                    var val = tfStatVal(raw, enchLvl);
+                    if (val === 0) return;
+                    var dimmed = '';
+                    if ((sd.key === 'accuracy' && !phys) || (sd.key === 'magicAccuracy' && phys) ||
+                        (sd.key === 'critStrike' && !phys) || (sd.key === 'critSpell' && phys)) {
+                        dimmed = ' gc-tf-stat-dimmed';
+                    }
+                    var displayVal = sd.unit === '%' ? val + '%' : val.toLocaleString();
+                    var perEnch = Array.isArray(raw) && raw[1] ? ' <span class="gc-tf-stat-per">(+' + raw[1] + '/ench)</span>' : '';
+                    html += '<div class="gc-tf-stat-row' + dimmed + '">';
+                    html += '<span class="gc-tf-stat-name">' + sd.name + '</span>';
+                    html += '<span class="gc-tf-stat-val">+' + displayVal + perEnch + '</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+
+            el.innerHTML = html;
         }
 
         function renderClassSelector() {
@@ -1676,6 +1951,30 @@
             resetProfile: function(pid) {
                 state[pid] = createDefaultProfile(selectedClass);
                 renderProfile(pid);
+                renderTransform(pid);
+                updateComparison();
+                saveState();
+            },
+
+            setTransform: function(pid, tfKey) {
+                state[pid].transform = tfKey;
+                if (tfKey === 'none') state[pid].transformEnchant = 0;
+                renderTransform(pid);
+                updateComparison();
+                saveState();
+            },
+
+            setTransformEnchant: function(pid, lvl) {
+                state[pid].transformEnchant = lvl;
+                renderTransform(pid);
+                updateComparison();
+                saveState();
+            },
+
+            resetTransform: function(pid) {
+                state[pid].transform = 'none';
+                state[pid].transformEnchant = 0;
+                renderTransform(pid);
                 updateComparison();
                 saveState();
             },
@@ -1811,17 +2110,25 @@
                 closeEnchantPopup();
                 if (isOpen && popup.dataset.pid == pid && popup.dataset.slot === slotType) return;
 
-                var currentEnchant;
+                var currentEnchant, minLvl, maxLvl;
                 if (slotType === 'main-weapon') {
                     currentEnchant = state[pid].mainWeapon.enchant;
+                    minLvl = 8; maxLvl = 15;
                 } else if (slotType === 'off-weapon') {
                     currentEnchant = state[pid].offHand.enchant;
+                    minLvl = 8; maxLvl = 15;
                 } else if (slotType.indexOf('armor:') === 0) {
                     currentEnchant = state[pid].armor[slotType.substring(6)].enchant;
+                    minLvl = 8; maxLvl = 15;
+                } else if (slotType === 'tf') {
+                    currentEnchant = state[pid].transformEnchant != null ? state[pid].transformEnchant : 0;
+                    minLvl = 0; maxLvl = 20;
                 } else { return; }
 
+                popup.classList.toggle('gc-enchant-popup-wrap', slotType === 'tf');
+
                 var html = '';
-                for (var lvl = 8; lvl <= 15; lvl++) {
+                for (var lvl = minLvl; lvl <= maxLvl; lvl++) {
                     var sel = currentEnchant === lvl ? ' gc-set-option-selected' : '';
                     html += '<div class="gc-set-option' + sel + '" onclick="GC.pickEnchant(' + pid + ',\'' + slotType + '\',' + lvl + ')">';
                     html += '<span class="gc-set-option-label">+' + lvl + '</span>';
@@ -1852,8 +2159,14 @@
                     state[pid].offHand.enchant = level;
                 } else if (slotType.indexOf('armor:') === 0) {
                     state[pid].armor[slotType.substring(6)].enchant = level;
+                } else if (slotType === 'tf') {
+                    state[pid].transformEnchant = level;
                 }
-                renderProfile(pid);
+                if (slotType === 'tf') {
+                    renderTransform(pid);
+                } else {
+                    renderProfile(pid);
+                }
                 updateComparison();
                 saveState();
             },
@@ -2126,6 +2439,7 @@
             var popup = document.getElementById('gc-enchant-popup');
             popup.style.display = 'none';
             popup.innerHTML = '';
+            popup.classList.remove('gc-enchant-popup-wrap');
         }
 
         function closeManaSlotPopup() {
@@ -2244,13 +2558,14 @@
         var SH_ASLOTS    = ['helmet','shoulders','chest','pants','gloves','boots'];
         // Gear order for manastones: 6 armor + mainWeapon + offHand = 8 × 3 = 24 chars
         var SH_GEARKEYS  = SH_ASLOTS.concat(['mainWeapon','offHand']);
+        var SH_TRANSFORMS = TRANSFORM_KEYS; // append-only
 
         function shEnc(arr, val) { var i = arr.indexOf(val); return (i >= 0 ? i : 0).toString(36); }
         function shDec(arr, ch)  { var i = parseInt(ch, 36); return (i >= 0 && i < arr.length) ? arr[i] : arr[0]; }
 
         function encodeShareString() {
             // Header: version(1) + class(1) + mainType(1) + ohType(1) + ohWeaponType(1) + shieldType(1) = 6
-            var s = '2'; // version
+            var s = '5'; // version
             s += shEnc(SH_CLASSES, selectedClass);
             s += shEnc(SH_WTYPES, weaponConfig.mainType);
             s += shEnc(SH_OHTYPES, weaponConfig.offHandType);
@@ -2278,6 +2593,9 @@
                         s += shEnc(SH_MANAS, ms[i] || 'none');
                     }
                 });
+                // Transform (1 char) + enchant (1 char: 1-20 → 0-19)
+                s += shEnc(SH_TRANSFORMS, p.transform || 'none');
+                s += (p.transformEnchant || 0).toString(36);
             });
             return s;
         }
@@ -2288,7 +2606,7 @@
             function next() { return s.charAt(pos++); }
 
             var ver = next();
-            if (ver !== '2') return false;
+            if (ver !== '5' && ver !== '4' && ver !== '3' && ver !== '2') return false;
 
             var cls = shDec(SH_CLASSES, next());
             if (!CLASS_DATA[cls]) return false;
@@ -2344,6 +2662,18 @@
                     }
                 });
 
+                // Transform (v3+)
+                if (ver >= '3' && pos < s.length) {
+                    var tf = shDec(SH_TRANSFORMS, next());
+                    if (TRANSFORM_KEYS.indexOf(tf) !== -1) p.transform = tf;
+                }
+                // Transform enchant (v4+)
+                if (ver >= '4' && pos < s.length) {
+                    var raw = parseInt(next(), 36);
+                    var te = ver === '4' ? raw + 1 : raw;
+                    if (te >= 0 && te <= 20) p.transformEnchant = te;
+                }
+
                 state[id] = p;
             });
             return true;
@@ -2397,6 +2727,7 @@
             loadState();
         }
         renderAll();
+        if (activeTab !== 'equipment') activateTab(activeTab);
 
     })();
     </script>

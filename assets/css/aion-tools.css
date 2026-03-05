@@ -5192,6 +5192,204 @@ flex: 1;
     color: #555;
 }
 
+/* ── Tabs ── */
+.gc-tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(100, 180, 255, 0.1);
+    padding-bottom: 0;
+}
+
+.gc-tab {
+    background: transparent;
+    border: none;
+    color: rgba(180, 200, 220, 0.5);
+    font-family: inherit;
+    font-size: 0.95em;
+    font-weight: 600;
+    padding: 10px 22px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+    letter-spacing: 0.3px;
+}
+
+.gc-tab:hover {
+    color: rgba(180, 215, 255, 0.8);
+}
+
+.gc-tab-active {
+    color: rgba(140, 200, 255, 1);
+    border-bottom-color: rgba(100, 180, 255, 0.7);
+}
+
+.gc-tab-panel {
+    display: none;
+}
+
+.gc-tab-panel-active {
+    display: block;
+}
+
+/* ── Transform Icon Grid ── */
+.gc-tf-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.gc-tf-icon {
+    width: 64px;
+    border-radius: 10px;
+    border: 2px solid var(--border-dim);
+    background: rgba(20, 20, 30, 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px 4px 4px;
+    gap: 3px;
+}
+
+.gc-tf-icon img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.gc-tf-icon-label {
+    font-size: 0.55em;
+    color: var(--text-dim);
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.gc-tf-none-dash {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    font-size: 1.6em;
+    font-weight: 700;
+    color: rgba(180, 200, 220, 0.35);
+    line-height: 1;
+}
+
+.gc-tf-icon:hover {
+    border-color: rgba(255, 153, 68, 0.5);
+    transform: scale(1.06);
+    box-shadow: 0 0 8px rgba(255, 153, 68, 0.25);
+}
+
+.gc-tf-icon:hover .gc-tf-icon-label {
+    color: var(--text-primary);
+}
+
+.gc-tf-icon-selected {
+    border-color: #ff9944;
+    background: rgba(255, 153, 68, 0.15);
+    box-shadow: 0 0 12px rgba(255, 153, 68, 0.35);
+}
+
+.gc-tf-icon-selected .gc-tf-icon-label {
+    color: #ff9944;
+    font-weight: 700;
+}
+
+/* ── Transform Enchant Row ── */
+.gc-tf-enchant-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.gc-tf-enchant-label {
+    font-size: 0.82em;
+    font-weight: 600;
+    color: rgba(180, 200, 220, 0.75);
+}
+
+.gc-tf-enchant-select {
+    width: 75px;
+}
+
+/* ── Enchant Popup Wrap (for 0-20 transform range) ── */
+.gc-enchant-popup-wrap {
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 280px;
+    min-width: auto;
+}
+.gc-enchant-popup-wrap .gc-set-option {
+    min-width: 52px;
+    justify-content: center;
+}
+
+/* ── Transform Stat Preview ── */
+.gc-tf-stats {
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(100, 140, 180, 0.1);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-top: 10px;
+}
+
+.gc-tf-stats-title {
+    font-size: 0.85em;
+    font-weight: 700;
+    color: #ff9944;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(100, 140, 180, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gc-tf-stats-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+}
+
+.gc-tf-stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    font-size: 0.8em;
+}
+
+.gc-tf-stat-name {
+    color: rgba(180, 200, 220, 0.75);
+}
+
+.gc-tf-stat-val {
+    color: rgba(160, 230, 160, 0.9);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.gc-tf-stat-per {
+    font-weight: 400;
+    color: rgba(180, 200, 220, 0.4);
+    font-size: 0.88em;
+}
+
+.gc-tf-stat-dimmed {
+    opacity: 0.35;
+}
+
 /* ── Gear Compare Responsive ── */
 @media (max-width: 1024px) {
     .gc-profiles {
@@ -5266,5 +5464,25 @@ flex: 1;
     .gc-mana-preset-btn {
         font-size: 0.65em;
         padding: 3px 7px;
+    }
+    .gc-tab {
+        padding: 8px 14px;
+        font-size: 0.85em;
+    }
+    .gc-tf-icon {
+        width: 52px;
+        padding: 4px 3px 3px;
+    }
+    .gc-tf-icon img {
+        width: 34px;
+        height: 34px;
+    }
+    .gc-tf-none-dash {
+        width: 34px;
+        height: 34px;
+        font-size: 1.3em;
+    }
+    .gc-tf-icon-label {
+        font-size: 0.48em;
     }
 }
