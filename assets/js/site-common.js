@@ -49,7 +49,9 @@
         html += '<div class="footer-actions">';
         html += '<a href="https://discordapp.com/users/158658357606088704" target="_blank" class="discord-button">';
         html += DISCORD_SVG + ' Support &amp; Feedback</a>';
-        html += '<button onclick="copyToClipboard()" class="share-btn" id="shareBtn">\uD83D\uDD17 Copy Share Link</button>';
+        if (currentPage !== 'gear-compare.html') {
+            html += '<button onclick="copyToClipboard()" class="share-btn" id="shareBtn">\uD83D\uDD17 Copy Share Link</button>';
+        }
         html += '</div>';
         html += '<div class="copyright">';
         html += '\u00A9 <span id="copyright-year"></span> <a href="myAionProfiles.html"><strong>15TAN</strong></a> - AION Tools Hub<br>';

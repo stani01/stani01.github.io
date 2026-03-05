@@ -17,6 +17,10 @@
     <div class="container">
         <h1>AION Gear Comparison</h1>
         <div class="subtitle">Compare two gear loadouts side by side | AION Retail 8.x</div>
+        <div class="gc-share-bar">
+            <button class="gc-share-btn" id="gc-share-btn" title="Copy shareable link to clipboard">🔗 Share Setup</button>
+            <span class="gc-share-toast" id="gc-share-toast"></span>
+        </div>
 
         <!-- Shared Class Selector -->
         <div class="gc-class-selector" id="class-selector"></div>
@@ -2223,10 +2227,175 @@
         });
 
         // ═══════════════════════════════════════════════════════════
+        // SHARE LINK (compact positional encoding)
+        // ═══════════════════════════════════════════════════════════
+
+        // Fixed lookup tables for encoding — order must never change (append only)
+        var SH_CLASSES   = ['gladiator','templar','assassin','ranger','sorcerer','spiritmaster','cleric','chanter','aethertech','gunner','bard','painter'];
+        var SH_WTYPES    = ['dagger','sword','mace','revolver','greatsword','polearm','bow','staff','paintRings','orb','spellbook','aetherKey','cannon','harp'];
+        var SH_OHTYPES   = ['none','shield','fuse','weapon'];
+        var SH_SHIELDS   = ['scale-phys','scale-mag'];
+        var SH_ATYPES    = ARMOR_TYPE_OPTIONS.map(function(o) { return o.key; }); // 8 entries
+        var SH_ASETS     = ['fighting-spirit','acrimony','presumption']; // 3
+        var SH_WSETS     = ['spiked-helper','salvation','fighting-spirit','jorgoth-t4-v1','jorgoth-t4-v2','jorgoth-t4-v3','jorgoth-t3-v1','jorgoth-t3-v2','jorgoth-t3-v3','acrimony','presumption','vision']; // 12
+        var SH_OATHS     = ['none','silent-skill','legendary-1','legendary-2','legendary-3','ultimate-1','ultimate-2','ultimate-3']; // 8
+        var SH_MANAS     = ['none','attack','crit','accuracy','hp','evasion','healBoost','pdef','mdef','magicResist']; // 10
+        // Armor slot order (fixed)
+        var SH_ASLOTS    = ['helmet','shoulders','chest','pants','gloves','boots'];
+        // Gear order for manastones: 6 armor + mainWeapon + offHand = 8 × 3 = 24 chars
+        var SH_GEARKEYS  = SH_ASLOTS.concat(['mainWeapon','offHand']);
+
+        function shEnc(arr, val) { var i = arr.indexOf(val); return (i >= 0 ? i : 0).toString(36); }
+        function shDec(arr, ch)  { var i = parseInt(ch, 36); return (i >= 0 && i < arr.length) ? arr[i] : arr[0]; }
+
+        function encodeShareString() {
+            // Header: version(1) + class(1) + mainType(1) + ohType(1) + ohWeaponType(1) + shieldType(1) = 6
+            var s = '2'; // version
+            s += shEnc(SH_CLASSES, selectedClass);
+            s += shEnc(SH_WTYPES, weaponConfig.mainType);
+            s += shEnc(SH_OHTYPES, weaponConfig.offHandType);
+            s += shEnc(SH_WTYPES, weaponConfig.offHandWeaponType);
+            s += shEnc(SH_SHIELDS, weaponConfig.shieldType);
+
+            // Encode each profile: armorType(1) + 6×armor(set+ench=2) + mw(2) + oh(2) + 6×oath(1) + 24×mana(1) = 47
+            [1, 2].forEach(function(id) {
+                var p = state[id];
+                s += shEnc(SH_ATYPES, p.armorType);
+                SH_ASLOTS.forEach(function(sk) {
+                    s += shEnc(SH_ASETS, p.armor[sk].set);
+                    s += (p.armor[sk].enchant - 8).toString(36); // 0-7
+                });
+                s += shEnc(SH_WSETS, p.mainWeapon.set);
+                s += (p.mainWeapon.enchant - 8).toString(36);
+                s += shEnc(SH_WSETS, p.offHand.set);
+                s += (p.offHand.enchant - 8).toString(36);
+                SH_ASLOTS.forEach(function(sk) {
+                    s += shEnc(SH_OATHS, p.oath[sk]);
+                });
+                SH_GEARKEYS.forEach(function(gk) {
+                    var ms = p.manastones[gk] || [];
+                    for (var i = 0; i < 3; i++) {
+                        s += shEnc(SH_MANAS, ms[i] || 'none');
+                    }
+                });
+            });
+            return s;
+        }
+
+        function decodeShareString(s) {
+            if (!s || s.length < 6) return false;
+            var pos = 0;
+            function next() { return s.charAt(pos++); }
+
+            var ver = next();
+            if (ver !== '2') return false;
+
+            var cls = shDec(SH_CLASSES, next());
+            if (!CLASS_DATA[cls]) return false;
+            selectedClass = cls;
+
+            weaponConfig = createDefaultWeaponConfig(cls);
+            var mt = shDec(SH_WTYPES, next());
+            if (CLASS_DATA[cls].weapons.indexOf(mt) !== -1) weaponConfig.mainType = mt;
+            var ot = shDec(SH_OHTYPES, next());
+            weaponConfig.offHandType = ot;
+            weaponConfig.offHandWeaponType = shDec(SH_WTYPES, next());
+            weaponConfig.shieldType = shDec(SH_SHIELDS, next());
+
+            var allowed = getAllowedOffHand(weaponConfig.mainType, cls);
+            if (allowed.indexOf(weaponConfig.offHandType) === -1) {
+                weaponConfig.offHandType = getDefaultOffHand(weaponConfig.mainType, cls);
+            }
+
+            [1, 2].forEach(function(id) {
+                var p = createDefaultProfile(cls);
+                if (pos >= s.length) { state[id] = p; return; }
+
+                var at = shDec(SH_ATYPES, next());
+                if (CLASS_DATA[cls].armorTypes.indexOf(at) !== -1) p.armorType = at;
+
+                SH_ASLOTS.forEach(function(sk) {
+                    var aset = shDec(SH_ASETS, next());
+                    var aench = parseInt(next(), 36) + 8;
+                    if (ARMOR_SET_KEYS.indexOf(aset) !== -1) p.armor[sk].set = aset;
+                    if (aench >= 8 && aench <= 15) p.armor[sk].enchant = aench;
+                });
+
+                var mwSet = shDec(SH_WSETS, next());
+                var mwEnch = parseInt(next(), 36) + 8;
+                if (WEAPON_SET_KEYS.indexOf(mwSet) !== -1 && MAINHAND_EXCLUDED_SETS.indexOf(mwSet) === -1) p.mainWeapon.set = mwSet;
+                if (mwEnch >= 8 && mwEnch <= 15) p.mainWeapon.enchant = mwEnch;
+
+                var ohSet = shDec(SH_WSETS, next());
+                var ohEnch = parseInt(next(), 36) + 8;
+                if (WEAPON_SET_KEYS.indexOf(ohSet) !== -1 && OFFHAND_EXCLUDED_SETS.indexOf(ohSet) === -1) p.offHand.set = ohSet;
+                if (ohEnch >= 8 && ohEnch <= 15) p.offHand.enchant = ohEnch;
+
+                SH_ASLOTS.forEach(function(sk) {
+                    var o = shDec(SH_OATHS, next());
+                    if (SH_OATHS.indexOf(o) !== -1) p.oath[sk] = o;
+                });
+
+                SH_GEARKEYS.forEach(function(gk) {
+                    if (!p.manastones[gk]) p.manastones[gk] = ['none','none','none'];
+                    for (var i = 0; i < 3; i++) {
+                        var m = shDec(SH_MANAS, next());
+                        p.manastones[gk][i] = m;
+                    }
+                });
+
+                state[id] = p;
+            });
+            return true;
+        }
+
+        function generateShareLink() {
+            return window.location.origin + window.location.pathname + '#s=' + encodeShareString();
+        }
+
+        function loadShareFromURL() {
+            var hash = window.location.hash;
+            if (hash.indexOf('#s=') !== 0) return false;
+            try {
+                var code = hash.substring(3);
+                var ok = decodeShareString(code);
+                if (ok && history.replaceState) {
+                    history.replaceState(null, '', window.location.pathname);
+                }
+                return ok;
+            } catch (e) { return false; }
+        }
+
+        function showShareToast(message, isError) {
+            var toast = document.getElementById('gc-share-toast');
+            toast.textContent = message;
+            toast.className = 'gc-share-toast' + (isError ? ' gc-share-toast-error' : '') + ' gc-share-toast-show';
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(function() {
+                toast.className = 'gc-share-toast';
+            }, 2500);
+        }
+
+        document.getElementById('gc-share-btn').addEventListener('click', function() {
+            var link = generateShareLink();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(link).then(function() {
+                    showShareToast('✓ Link copied to clipboard!');
+                }, function() {
+                    prompt('Copy this share link:', link);
+                });
+            } else {
+                prompt('Copy this share link:', link);
+            }
+        });
+
+        // ═══════════════════════════════════════════════════════════
         // INIT
         // ═══════════════════════════════════════════════════════════
 
-        loadState();
+        if (!loadShareFromURL()) {
+            loadState();
+        }
         renderAll();
 
     })();
