@@ -523,7 +523,7 @@
         }
 
         // ═══════════════════════════════════════════════════════════
-        // ITEM DATABASE (dummy data — replace with real values)
+        // ITEM DATABASE
         // ═══════════════════════════════════════════════════════════
 
         function emptyStats() {
@@ -564,10 +564,30 @@
 
         // Fighting Spirit: common stats by tier (same for all armor types)
         var FS_COMMON = {
-            high: { hp: 3712, attack: 1676, crit: 249, accuracy: 288, bonusDef: 210, enchDef: 175, enchAtk: 175, evasion: 356, magicResist: 356, increasedRegen: 30 },
-            low:  { hp: 0,    attack: 1200, crit: 127, accuracy: 144, bonusDef: 210, enchDef: 175, enchAtk: 175, evasion: 178, magicResist: 178, increasedRegen: 10 }
+            high: { hp: 3712, attack: 1676, enchDef: 175, enchAtk: 175 },
+            low:  { hp: 0,    attack: 1200, enchDef: 175, enchAtk: 175 }
         };
 
+        var FS_BONUSES_HIGH = [
+            { key: 'hp', name: 'HP', stat: 'hp', value: 1344 },
+            { key: 'accuracy', name: 'Accuracy', stat: 'accuracy', value: 288 },
+            { key: 'crit',     name: 'Crit', stat: 'crit', value: 254 },
+            { key: 'physicalDef',   name: 'Physical Def', stat: 'physicalDef', value: 210 },
+            { key: 'magicalDef',   name: 'Magical Def', stat: 'magicalDef', value: 210 },
+            { key: 'evasion',   name: 'Evasion', stat: 'evasion', value: 356 },
+            { key: 'magicResist',   name: 'Magic Resist', stat: 'magicResist', value: 356 },
+            { key: 'increasedRegen', name: 'Increased Regen', stat: 'increasedRegen', value: 30 }
+        ];
+
+        var FS_BONUSES_LOW = [
+            { key: 'accuracy', name: 'Accuracy', stat: 'accuracy', value: 144 },
+            { key: 'crit',     name: 'Crit', stat: 'crit', value: 127 },
+            { key: 'physicalDef',   name: 'Physical Def', stat: 'physicalDef', value: 210 },
+            { key: 'magicalDef',   name: 'Magical Def', stat: 'magicalDef', value: 210 },
+            { key: 'evasion',   name: 'Evasion', stat: 'evasion', value: 178 },
+            { key: 'magicResist',   name: 'Magic Resist', stat: 'magicResist', value: 178 },
+            { key: 'increasedRegen', name: 'Increased Regen', stat: 'increasedRegen', value: 10 }
+        ];
         // Extreme gear (Acrimony/Presumption): slot tier mapping
         var EX_TIER = {
             helmet: 'high', chest: 'high',
@@ -619,7 +639,7 @@
         };
 
         // Calculate actual stats for one armor slot
-        function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel) {
+        function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBonuses) {
             var s = emptyStats();
 
             if (setKey === 'fighting-spirit') {
@@ -628,15 +648,22 @@
                 if (!def) return s;
                 var d = def[tier];
                 var c = FS_COMMON[tier];
-                s.physicalDef = d[0] + c.bonusDef + c.enchDef;
-                s.magicalDef = d[1] + c.bonusDef + c.enchDef;
                 s.hp = c.hp;
                 s.attack = c.attack + c.enchAtk;
-                s.crit = c.crit;
-                s.accuracy = c.accuracy;
-                s.evasion = c.evasion;
-                s.magicResist = c.magicResist;
-                s.increasedRegen = c.increasedRegen;
+                s.physicalDef = d[0] + c.enchDef;
+                s.magicalDef = d[1] + c.enchDef;
+
+                // All other stats come from selected bonuses
+                if (selectedBonuses && selectedBonuses.length > 0) {
+                    var isHigh = (slotKey === 'helmet' || slotKey === 'chest' || slotKey === 'pants');
+                    var bonusList = isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+                    selectedBonuses.forEach(function(bKey) {
+                        var found = bonusList.find(function(b) { return b.key === bKey; });
+                        if (found && found.stat) {
+                            s[found.stat] += found.value;
+                        }
+                    });
+                }
             } else if (setKey === 'acrimony' || setKey === 'presumption') {
                 var tier = EX_TIER[slotKey];
                 var baseDef = EX_BASE_DEF[armorType];
@@ -1311,6 +1338,18 @@
             return ['hp', 'crit', 'attack', 'accuracy'].slice(0, slotData.maxBonuses);
         }
 
+        function getDefaultArmorBonuses(slotKey) {
+            // High: helmet, chest, pants; Low: shoulders, gloves, boots
+            var isHigh = (slotKey === 'helmet' || slotKey === 'chest' || slotKey === 'pants');
+            if (isHigh) {
+                // hp, crit, physicalDef, magicalDef
+                return ['hp', 'crit', 'physicalDef', 'magicalDef'];
+            } else {
+                // crit, physicalDef, magicalDef, increasedRegen
+                return ['crit', 'physicalDef', 'magicalDef', 'increasedRegen'];
+            }
+        }
+
         // ═══════════════════════════════════════════════════════════
         // STATE
         // ═══════════════════════════════════════════════════════════
@@ -1340,7 +1379,10 @@
                 accessories: {}
             };
             ARMOR_SLOTS.forEach(function(slot) {
-                profile.armor[slot.key] = { set: 'fighting-spirit', enchant: 9 };
+                profile.armor[slot.key] = {
+                set: 'fighting-spirit',
+                bonuses: getDefaultArmorBonuses(slot.key)
+            };
             });
             // Initialize accessories
             ALL_ACCESSORY_KEYS.forEach(function(accKey) {
@@ -1546,7 +1588,7 @@
             // Sum armor stats across all 6 slots
             ARMOR_SLOTS.forEach(function(slot) {
                 var piece = profile.armor[slot.key];
-                var armorStats = getArmorSlotStats(profile.armorType, piece.set, slot.key, piece.enchant);
+                var armorStats = getArmorSlotStats(profile.armorType, piece.set, slot.key, piece.enchant, piece.bonuses);
                 STAT_KEYS.forEach(function(k) { sources.armor[k] += (armorStats[k] || 0); });
             });
 
@@ -2451,6 +2493,12 @@
             if (hasArmorEnchant) {
                 html += '<span class="gc-enchant-trigger" onclick="GC.openEnchantPicker(' + pid + ',\'armor:' + slot.key + '\',this)">+' + armor.enchant + '</span>';
             }
+            // Bonus popup trigger (only for fighting spirit, which has selectable bonuses)
+            if (armor.set === 'fighting-spirit') {
+                var picked = armor.bonuses || [];
+                var label = 'Bonuses (' + picked.length + '/4)';
+                html += '<span class="gc-acc-bonus-trigger" onclick="GC.openArmorBonusPopup(' + pid + ',\'' + slot.key + '\',this)" title="Click to edit bonuses">' + label + '</span>';
+            }
             // Oath icon trigger
             html += '<div class="gc-oath-picker-wrap">';
             if (oathIconUrl) {
@@ -2462,7 +2510,6 @@
                 html += '<div class="gc-icon-picker gc-oath-pick gc-icon-picker-empty" onclick="GC.openOathPicker(' + pid + ',\'' + slot.key + '\',this)">';
                 html += '</div>';
             }
-
             html += '</div>';
 
             html += '</div>';
@@ -2862,7 +2909,13 @@
                     state[pid].shield.bonuses = getDefaultShieldBonuses(setKey, state[pid].shield.type === 'scale' ? 'scale' : 'battle');
                     bc.shield = false;
                 } else if (slotType.indexOf('armor:') === 0) {
-                    state[pid].armor[slotType.substring(6)].set = setKey;
+                    var slotKey = slotType.substring(6);
+                    state[pid].armor[slotKey].set = setKey;
+                    if (setKey === 'fighting-spirit') {
+                        state[pid].armor[slotKey].bonuses = getDefaultArmorBonuses(slotKey);
+                    } else {
+                        state[pid].armor[slotKey].bonuses = [];
+                    }
                 } else if (slotType.indexOf('acc:') === 0) {
                     var accKey = slotType.substring(4);
                     state[pid].accessories[accKey].set = setKey;
@@ -3160,6 +3213,74 @@
                 if (popup && popup.style.display === 'block' && popup.dataset.pid == pid && popup.dataset.slotKey === slotKey) {
                     renderAccBonusPopupContent(popup, pid, slotKey);
                 }
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
+            // Open the popup for armor
+            openArmorBonusPopup: function(pid, slotKey, triggerEl) {
+                var popup = document.getElementById('gc-acc-bonus-popup');
+                closeAccBonusPopup(); // Close existing popups
+
+                popup.dataset.pid = pid;
+                popup.dataset.slotKey = slotKey;
+                popup.dataset.bonusType = 'armor';
+                
+                // 1. Identify tier: Chest/Pants = High, others = Low
+                var isHigh = (slotKey === 'helmet' || slotKey === 'chest' || slotKey === 'pants');
+                var bonusOptions = isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+                
+                var armor = state[pid].armor[slotKey];
+                if (!armor.bonuses || !armor.bonuses.length) {
+                    armor.bonuses = getDefaultArmorBonuses(slotKey);
+                }
+                var picked = armor.bonuses;
+                
+                var html = '<div class="gc-acc-bonus-popup-title">Armor Bonus (Max 4)</div>';
+                html += '<div class="gc-shield-bonus-grid">';
+                
+                bonusOptions.forEach(function(b) {
+                    var isOn = picked.indexOf(b.key) !== -1;
+                    var cls = 'gc-shield-bonus-btn' + (isOn ? ' gc-shield-bonus-on' : '');
+                    html += '<div class="' + cls + '" onclick="GC.toggleArmorBonus(' + pid + ',\'' + slotKey + '\',\'' + b.key + '\')">';
+                    html += '<span class="gc-shield-bonus-name">' + b.name + '</span>';
+                    html += '<span class="gc-shield-bonus-val">+' + b.value + '</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+                
+                popup.innerHTML = html;
+                popup.style.display = 'block';
+                
+                // Positioning logic
+                var rect = triggerEl.getBoundingClientRect();
+                popup.style.display = 'block';
+                var popH = popup.offsetHeight;
+                var popW = popup.offsetWidth;
+                var top = rect.bottom + 4;
+                if (top + popH > window.innerHeight - 4) top = rect.top - popH - 4;
+                var left = rect.left;
+                if (left + popW > window.innerWidth - 4) left = window.innerWidth - popW - 4;
+                if (left < 4) left = 4;
+                popup.style.top = top + 'px';
+                popup.style.left = left + 'px';
+            },
+
+            // Toggle the selected bonus
+            toggleArmorBonus: function(pid, slotKey, bonusKey) {
+                var armor = state[pid].armor[slotKey];
+                if (!armor.bonuses) armor.bonuses = [];
+
+                var idx = armor.bonuses.indexOf(bonusKey);
+                if (idx !== -1) {
+                    armor.bonuses.splice(idx, 1);
+                } else if (armor.bonuses.length < 4) {
+                    armor.bonuses.push(bonusKey);
+                }
+
+                // Refresh UI
+                this.openArmorBonusPopup(pid, slotKey, document.querySelector(`[onclick*="openArmorBonusPopup(${pid},'${slotKey}'"]`));
                 renderProfile(pid);
                 updateComparison();
                 saveState();
