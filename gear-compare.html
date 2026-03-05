@@ -192,6 +192,41 @@
             { key: 'ultimate-3',   name: 'Ultimate 3',   rank: 6 }
         ];
 
+        // ── Manastone System ──
+        var MANASTONE_ICON = 'assets/icons/icon_item_matter_option_f01.png';
+        var EMPTY_SLOT_ICON = 'assets/icons/icon_option_slot.png';
+
+        var MANASTONES = [
+            { key: 'attack',      name: 'Attack',       stat: 'attack',      value: 23 },
+            { key: 'crit',        name: 'Crit',         stat: 'crit',        value: 86 },
+            { key: 'accuracy',    name: 'Accuracy',     stat: 'accuracy',    value: 94 },
+            { key: 'hp',          name: 'HP',            stat: 'hp',          value: 290 },
+            { key: 'evasion',     name: 'Evasion',      stat: 'evasion',     value: 94 },
+            { key: 'healBoost',   name: 'Healing Boost', stat: 'healingBoost', value: 12 },
+            { key: 'pdef',        name: 'Physical Def',  stat: 'physicalDef', value: 24 },
+            { key: 'mdef',        name: 'Magical Def',   stat: 'magicalDef',  value: 24 },
+            { key: 'magicResist', name: 'Magic Resist',  stat: 'magicResist', value: 94 }
+        ];
+
+        var MANASTONE_KEYS = MANASTONES.map(function(m) { return m.key; });
+
+        var MANASTONE_PRESETS = [
+            { key: 'full-attack',   name: 'Full Attack',      mana: 'attack' },
+            { key: 'full-crit',     name: 'Full Crit',        mana: 'crit' },
+            { key: 'full-accuracy', name: 'Full Accuracy',    mana: 'accuracy' },
+            { key: 'full-hp',       name: 'Full HP',          mana: 'hp' },
+            { key: 'full-evasion',  name: 'Full Evasion',     mana: 'evasion' },
+            { key: 'full-mresist',  name: 'Full Magic Resist', mana: 'magicResist' },
+            { key: 'full-pdef',     name: 'Full Phys. Def',   mana: 'pdef' },
+            { key: 'full-mdef',     name: 'Full Mag. Def',    mana: 'mdef' }
+        ];
+
+        // Get number of manastone slots for a gear piece
+        function getManastoneSlotCount(setKey) {
+            if (setKey === 'acrimony' || setKey === 'presumption') return 1;
+            return 3;
+        }
+
         // Oath stat bonuses per pair type
         // shoulders+helmet → HP + ACC (accuracy + magicalAccuracy)
         // chest+pants      → HP + DEF (physicalDef + magicalDef)
@@ -265,15 +300,15 @@
 
         var CLASS_DATA = {
             gladiator:    { name: 'Gladiator',    icon: 'assets/icons/gladiator.png',    weapons: ['dagger', 'sword', 'greatsword', 'polearm'], armorTypes: ['physical-plate'] },
-            templar:      { name: 'Templar',      icon: 'assets/icons/templar.png',      weapons: ['sword', 'greatsword'],              armorTypes: ['physical-plate'] },
+            templar:      { name: 'Templar',      icon: 'assets/icons/templar.png',      weapons: ['sword', 'greatsword'],                      armorTypes: ['physical-plate'] },
             assassin:     { name: 'Assassin',     icon: 'assets/icons/assassin.png',     weapons: ['dagger', 'sword'],                          armorTypes: ['physical-leather', 'magical-leather'] },
             ranger:       { name: 'Ranger',       icon: 'assets/icons/ranger.png',       weapons: ['bow'],                                      armorTypes: ['physical-leather'] },
             sorcerer:     { name: 'Sorcerer',     icon: 'assets/icons/sorcerer.png',     weapons: ['orb', 'spellbook'],                         armorTypes: ['magical-cloth'] },
             spiritmaster: { name: 'Spiritmaster', icon: 'assets/icons/spiritmaster.png', weapons: ['orb', 'spellbook'],                         armorTypes: ['magical-cloth'] },
             cleric:       { name: 'Cleric',       icon: 'assets/icons/cleric.png',       weapons: ['mace'],                                     armorTypes: ['magical-chain', 'physical-chain'] },
-            chanter:      { name: 'Chanter',      icon: 'assets/icons/chanter.png',      weapons: ['staff'],                                    armorTypes: ['physical-chain', 'magical-chain'] },
+            chanter:      { name: 'Chanter',      icon: 'assets/icons/chanter.png',      weapons: ['staff', 'mace'],                            armorTypes: ['physical-chain', 'magical-chain'] },
             aethertech:   { name: 'Aethertech',   icon: 'assets/icons/aethertech.png',   weapons: ['aetherKey'],                                armorTypes: ['magical-plate'] },
-            gunner:       { name: 'Gunner',       icon: 'assets/icons/gunner.png',       weapons: ['revolver', 'cannon'],                         armorTypes: ['magical-leather'] },
+            gunner:       { name: 'Gunner',       icon: 'assets/icons/gunner.png',       weapons: ['revolver', 'cannon'],                       armorTypes: ['magical-leather'] },
             bard:         { name: 'Bard',         icon: 'assets/icons/bard.png',         weapons: ['harp'],                                     armorTypes: ['magical-cloth'] },
             painter:      { name: 'Painter',      icon: 'assets/icons/painter.png',      weapons: ['paintRings'],                               armorTypes: ['physical-cloth'] }
         };
@@ -678,15 +713,24 @@
                 armor: {},
                 mainWeapon: { set: 'fighting-spirit', enchant: 9 },
                 offHand: { set: 'fighting-spirit', enchant: 9 },
-                oath: { shoulders: 'silent-skill', helmet: 'silent-skill', chest: 'ultimate-3', pants: 'ultimate-3', gloves: 'ultimate-3', boots: 'ultimate-3' }
+                oath: { shoulders: 'silent-skill', helmet: 'silent-skill', chest: 'ultimate-3', pants: 'ultimate-3', gloves: 'ultimate-3', boots: 'ultimate-3' },
+                manastones: {}
             };
             ARMOR_SLOTS.forEach(function(slot) {
                 profile.armor[slot.key] = { set: 'fighting-spirit', enchant: 9 };
             });
+            // Initialize manastone arrays for all gear slots
+            // Default: Full Crit for all classes, Full Attack for assassin/ranger
+            var defaultMana = (className === 'assassin' || className === 'ranger') ? 'attack' : 'crit';
+            ARMOR_SLOTS.forEach(function(slot) {
+                profile.manastones[slot.key] = [defaultMana, defaultMana, defaultMana];
+            });
+            profile.manastones.mainWeapon = [defaultMana, defaultMana, defaultMana];
+            profile.manastones.offHand = [defaultMana, defaultMana, defaultMana];
             return profile;
         }
 
-        var STORAGE_KEY = 'gc-state-v2';
+        var STORAGE_KEY = 'gc-state-v3';
 
         function saveState() {
             try {
@@ -749,6 +793,19 @@
                         ARMOR_SLOTS.forEach(function(slot) {
                             if (saved.oath[slot.key] && oathKeys.indexOf(saved.oath[slot.key]) !== -1) {
                                 p.oath[slot.key] = saved.oath[slot.key];
+                            }
+                        });
+                    }
+                    if (saved.manastones) {
+                        var allGearKeys = ARMOR_SLOT_KEYS.concat(['mainWeapon', 'offHand']);
+                        allGearKeys.forEach(function(gk) {
+                            if (saved.manastones[gk] && Array.isArray(saved.manastones[gk])) {
+                                var arr = saved.manastones[gk];
+                                for (var mi = 0; mi < 3; mi++) {
+                                    if (arr[mi] && (arr[mi] === 'none' || MANASTONE_KEYS.indexOf(arr[mi]) !== -1)) {
+                                        p.manastones[gk][mi] = arr[mi];
+                                    }
+                                }
                             }
                         });
                     }
@@ -822,12 +879,140 @@
                 }
             });
 
+            // Manastone bonuses
+            var allGearKeys = ARMOR_SLOT_KEYS.concat(['mainWeapon', 'offHand']);
+            allGearKeys.forEach(function(gk) {
+                var setKey;
+                if (gk === 'mainWeapon') setKey = profile.mainWeapon.set;
+                else if (gk === 'offHand') setKey = profile.offHand.set;
+                else setKey = profile.armor[gk].set;
+                var slotCount = getManastoneSlotCount(setKey);
+                var ms = profile.manastones[gk] || [];
+                for (var si = 0; si < slotCount; si++) {
+                    var mKey = ms[si];
+                    if (mKey && mKey !== 'none') {
+                        var mDef = MANASTONES.find(function(m) { return m.key === mKey; });
+                        if (mDef) totals[mDef.stat] += mDef.value;
+                    }
+                }
+            });
+
             return totals;
         }
 
         // ═══════════════════════════════════════════════════════════
         // RENDERING
         // ═══════════════════════════════════════════════════════════
+
+        function msIndicator(pid, gearKey, setKey, profile) {
+            var slots = getManastoneSlotCount(setKey);
+            var ms = profile.manastones[gearKey] || [];
+            var filled = 0;
+            for (var i = 0; i < slots; i++) { if (ms[i] && ms[i] !== 'none') filled++; }
+            var dots = '';
+            for (var j = 0; j < slots; j++) {
+                dots += (ms[j] && ms[j] !== 'none') ? '●' : '○';
+            }
+            var cls = filled === slots ? ' gc-ms-full' : filled > 0 ? ' gc-ms-partial' : '';
+            return '<span class="gc-ms-indicator' + cls + '" title="Manastones: ' + filled + '/' + slots + '">' + dots + '</span>';
+        }
+
+        // ── Manastone Modal ──
+        function getGearLabel(gearKey) {
+            if (gearKey === 'mainWeapon') return 'Main Weapon';
+            if (gearKey === 'offHand') return 'Off-Hand';
+            var slot = ARMOR_SLOTS.find(function(s) { return s.key === gearKey; });
+            return slot ? gearKey.charAt(0).toUpperCase() + gearKey.slice(1) : gearKey;
+        }
+
+        function getGearIcon(pid, gearKey) {
+            var profile = state[pid];
+            var material = getArmorMaterial(profile.armorType);
+            if (gearKey === 'mainWeapon') {
+                return WEAPON_TYPES[weaponConfig.mainType].icon;
+            }
+            if (gearKey === 'offHand') {
+                if (weaponConfig.offHandType === 'shield') return 'assets/icons/icon_item_equip_shield_f01.png';
+                if (weaponConfig.offHandType === 'fuse') return WEAPON_TYPES[weaponConfig.mainType].icon;
+                if (weaponConfig.offHandType === 'weapon') return WEAPON_TYPES[weaponConfig.offHandWeaponType].icon;
+                return '';
+            }
+            var slot = ARMOR_SLOTS.find(function(s) { return s.key === gearKey; });
+            if (slot) return getArmorIcon(material, slot.iconKey);
+            return '';
+        }
+
+        function getGearSetKey(pid, gearKey) {
+            var profile = state[pid];
+            if (gearKey === 'mainWeapon') return profile.mainWeapon.set;
+            if (gearKey === 'offHand') return profile.offHand.set;
+            if (profile.armor[gearKey]) return profile.armor[gearKey].set;
+            return 'fighting-spirit';
+        }
+
+        function renderManaModal(pid, scrollToGear) {
+            var profile = state[pid];
+            var allGearKeys = ['mainWeapon'];
+            if (weaponConfig.offHandType !== 'none') allGearKeys.push('offHand');
+            ARMOR_SLOTS.forEach(function(s) { allGearKeys.push(s.key); });
+
+            var html = '<div class="gc-mana-overlay" onclick="GC.closeManaModal()"></div>';
+            html += '<div class="gc-mana-dialog">';
+
+            // Title bar
+            html += '<div class="gc-mana-titlebar">';
+            html += '<img src="' + MANASTONE_ICON + '" class="gc-mana-title-icon" alt="">';
+            html += '<span class="gc-mana-title">Manastones — SET ' + pid + '</span>';
+            html += '<span class="gc-mana-close" onclick="GC.closeManaModal()">✕</span>';
+            html += '</div>';
+
+            // Presets
+            html += '<div class="gc-mana-presets">';
+            MANASTONE_PRESETS.forEach(function(preset) {
+                html += '<button class="gc-mana-preset-btn" onclick="GC.applyManaPreset(' + pid + ',\'' + preset.mana + '\')">' + preset.name + '</button>';
+            });
+            html += '<button class="gc-mana-preset-btn gc-mana-clear-btn" onclick="GC.clearManastones(' + pid + ')">Clear All</button>';
+            html += '</div>';
+
+            // Gear rows
+            html += '<div class="gc-mana-gear-list">';
+            allGearKeys.forEach(function(gk) {
+                var setKey = getGearSetKey(pid, gk);
+                var slotCount = getManastoneSlotCount(setKey);
+                var ms = profile.manastones[gk] || [];
+                var icon = getGearIcon(pid, gk);
+                var label = getGearLabel(gk);
+
+                html += '<div class="gc-mana-gear-row" id="gc-mana-row-' + gk + '">';
+                html += '<div class="gc-mana-gear-info">';
+                if (icon) html += '<img src="' + icon + '" class="gc-mana-gear-icon" alt="">';
+                html += '<span class="gc-mana-gear-name">' + label + '</span>';
+                html += '<span class="gc-mana-slot-count">(' + slotCount + ' slot' + (slotCount > 1 ? 's' : '') + ')</span>';
+                html += '</div>';
+                html += '<div class="gc-mana-slots">';
+                for (var i = 0; i < slotCount; i++) {
+                    var currentMana = (ms[i] && ms[i] !== 'none') ? ms[i] : 'none';
+                    var manaDef = MANASTONES.find(function(m) { return m.key === currentMana; });
+                    if (manaDef) {
+                        html += '<div class="gc-mana-slot gc-mana-slot-filled" onclick="GC.openManaSlotPicker(' + pid + ',\'' + gk + '\',' + i + ',this)">';
+                        html += '<img src="' + MANASTONE_ICON + '" class="gc-mana-slot-icon" alt="">';
+                        html += '<span class="gc-mana-slot-label">' + manaDef.name + ' +' + manaDef.value + '</span>';
+                        html += '</div>';
+                    } else {
+                        html += '<div class="gc-mana-slot gc-mana-slot-empty" onclick="GC.openManaSlotPicker(' + pid + ',\'' + gk + '\',' + i + ',this)">';
+                        html += '<img src="' + EMPTY_SLOT_ICON + '" class="gc-mana-slot-icon gc-mana-slot-icon-empty" alt="">';
+                        html += '<span class="gc-mana-slot-empty-label">Empty</span>';
+                        html += '</div>';
+                    }
+                }
+                html += '</div>';
+                html += '</div>';
+            });
+            html += '</div>';
+
+            html += '</div>'; // dialog
+            return html;
+        }
 
         function renderAll() {
             renderClassSelector();
@@ -851,6 +1036,88 @@
             });
             html += '</div>';
             el.innerHTML = html;
+        }
+
+        // ── Jorgoth Weapon Stats Legend ──
+        function buildJorgothLegend(weaponType) {
+            var data = JORGOTH_WEAPONS[weaponType];
+            if (!data) return '';
+            var je = JORGOTH_ENCHANT;
+            var is2H = WEAPON_TYPES[weaponType].twoHanded;
+            var enchAtk = is2H ? je.enchAtk2h : je.enchAtk1h;
+            var enchDef = is2H ? je.enchDef2h : je.enchDef1h;
+            var hasHeal = data.v1.healingBoost || data.v2.healingBoost || data.v3.healingBoost;
+
+            var variants = [
+                { key: 'v1', label: 'T4 v1', data: data.v1 },
+                { key: 'v2', label: 'T4 v2', data: data.v2 },
+                { key: 'v3', label: 'T4 v3', data: data.v3 }
+            ];
+
+            // Compute per-variant display values
+            var rows = variants.map(function(v) {
+                var d = v.data;
+                return {
+                    label: v.label, data: d, tag: d.tag || null,
+                    bonusAtk: d.bonusAtk, crit: d.crit, acc: 2568 + d.acc,
+                    def: 170 + d.bonusDef + enchDef, hp: d.hp,
+                    heal: d.healingBoost || 0
+                };
+            });
+
+            // For each stat column, find the max and whether values differ
+            var statCols = ['bonusAtk', 'crit', 'acc', 'def', 'hp'];
+            if (hasHeal) statCols.push('heal');
+            var best = {};
+            var allSame = {};
+            statCols.forEach(function(col) {
+                var vals = rows.map(function(r) { return r[col]; });
+                best[col] = Math.max.apply(null, vals);
+                allSame[col] = vals[0] === vals[1] && vals[1] === vals[2];
+            });
+
+            function hlClass(col, val) {
+                if (allSame[col] || val <= 0) return '';
+                return val === best[col] ? ' class="gc-jorgoth-highlight"' : '';
+            }
+
+            var html = '<div class="gc-jorgoth-legend">';
+            html += '<div class="gc-jorgoth-legend-title">Jorgoth Variants — ' + WEAPON_TYPES[weaponType].name + '</div>';
+            html += '<table class="gc-jorgoth-table">';
+            html += '<thead><tr>';
+            html += '<th></th><th>Bonus Atk</th><th>Crit</th><th>Acc</th><th>Def</th><th>HP</th>';
+            if (hasHeal) html += '<th>Heal</th>';
+            html += '<th></th>';
+            html += '</tr></thead><tbody>';
+
+            rows.forEach(function(r) {
+                var isMasterpiece = r.tag === 'masterpiece';
+                var isExtended = r.tag === 'extended';
+                var isHighAtk = !allSame.bonusAtk && r.bonusAtk > 0 && r.bonusAtk === best.bonusAtk;
+
+                var rowClass = isMasterpiece ? ' gc-jorgoth-row-mp' : '';
+                html += '<tr class="gc-jorgoth-row' + rowClass + '">';
+                html += '<td class="gc-jorgoth-variant">' + r.label + '</td>';
+                html += '<td' + hlClass('bonusAtk', r.bonusAtk) + '>' + (r.bonusAtk || '—') + '</td>';
+                html += '<td' + hlClass('crit', r.crit) + '>' + (r.crit || '—') + '</td>';
+                html += '<td' + hlClass('acc', r.acc) + '>' + (r.acc || '—') + '</td>';
+                html += '<td' + hlClass('def', r.def) + '>' + r.def + '</td>';
+                html += '<td' + hlClass('hp', r.hp) + '>' + r.hp.toLocaleString() + '</td>';
+                if (hasHeal) {
+                    html += '<td' + hlClass('heal', r.heal) + '>' + (r.heal || '—') + '</td>';
+                }
+                // Tags
+                html += '<td class="gc-jorgoth-tags">';
+                if (isMasterpiece) html += '<span class="gc-jorgoth-tag-mp">✦ Masterpiece</span>';
+                if (isExtended) html += '<span class="gc-jorgoth-tag-ext">⟐ Extended</span>';
+                if (isHighAtk && is2H) html += '<span class="gc-jorgoth-tag-fuse">⚔ Best Fuse</span>';
+                html += '</td>';
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            html += '</div>';
+            return html;
         }
 
         function renderWeaponConfig() {
@@ -907,6 +1174,10 @@
             html += '</div>';
 
             html += '</div>';
+
+            // ── Jorgoth Weapon Stats Legend ──
+            html += buildJorgothLegend(mainType);
+
             html += '<div class="gc-weapon-notice">⚠️ Weapon stats are under construction — armor comparison is accurate.</div>';
             el.innerHTML = html;
         }
@@ -921,6 +1192,7 @@
             // ── Header ──
             html += '<div class="gc-profile-header">';
             html += '<span class="gc-set-title">SET ' + id + '</span>';
+            html += '<span class="gc-ms-btn" onclick="GC.openManaModal(' + id + ')" title="Manastones"><img src="' + MANASTONE_ICON + '" alt="Manastones"> Manastones</span>';
             html += '<button class="gc-reset-btn" onclick="GC.resetProfile(' + id + ')" title="Reset SET ' + id + ' to defaults">↺</button>';
             html += '</div>';
 
@@ -932,31 +1204,22 @@
             html += '<div class="gc-armor-col">';
             var mwt = WEAPON_TYPES[weaponConfig.mainType];
             html += '<div class="gc-armor-row">';
-            html += '<div class="gc-slot-icon"><img src="' + mwt.icon + '" alt="' + mwt.name + '"></div>';
-            html += '<div class="gc-slot-label">' + mwt.name + '</div>';
-            html += '<select class="gc-select" onchange="GC.setWeaponSet(' + id + ',\'main\',this.value)">';
-            WEAPON_SETS.forEach(function(set) {
-                var s = profile.mainWeapon.set === set.key ? ' selected' : '';
-                html += '<option value="' + set.key + '"' + s + '>' + set.name + '</option>';
-            });
-            html += '</select>';
+            var mwSetObj = WEAPON_SETS.find(function(s){return s.key===profile.mainWeapon.set;});
+            html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + id + ',\'main-weapon\',this)">';
+            html += '<div class="gc-slot-icon"><img src="' + mwt.icon + '" alt="' + mwt.name + '" title="' + mwt.name + '"></div>';
+            html += '<span class="gc-set-name">' + mwSetObj.name + '</span>';
+            html += '</div>';
             var hasMwEnchant = (profile.mainWeapon.set === 'acrimony' || profile.mainWeapon.set === 'presumption');
-            html += '<select class="gc-select gc-select-sm"' + (hasMwEnchant ? '' : ' disabled') + ' onchange="GC.setWeaponEnchant(' + id + ',\'main\',this.value)">';
             if (hasMwEnchant) {
-                for (var ei = 8; ei <= 15; ei++) {
-                    var es = profile.mainWeapon.enchant === ei ? ' selected' : '';
-                    html += '<option value="' + ei + '"' + es + '>+' + ei + '</option>';
-                }
-            } else {
-                html += '<option value="15">+15</option>';
+                html += '<span class="gc-enchant-trigger" onclick="GC.openEnchantPicker(' + id + ',\'main-weapon\',this)">+' + profile.mainWeapon.enchant + '</span>';
             }
-            html += '</select>';
             var mwTag = getJorgothTag(weaponConfig.mainType, profile.mainWeapon.set);
             if (mwTag) {
                 var tagClass = mwTag === 'masterpiece' ? 'gc-weapon-tag-masterpiece' : 'gc-weapon-tag-extended';
                 var tagLabel = mwTag === 'masterpiece' ? '✦ Masterpiece' : '⟐ Extended';
                 html += '<span class="gc-weapon-tag ' + tagClass + '">' + tagLabel + '</span>';
             }
+            html += msIndicator(id, 'mainWeapon', profile.mainWeapon.set, profile);
             html += '</div>';
             html += '</div>';
             // ── Right: Off-Hand / Shield / Fuse ──
@@ -977,29 +1240,20 @@
                 }
                 var ohSets = WEAPON_SETS.filter(function(ws) { return OFFHAND_EXCLUDED_SETS.indexOf(ws.key) === -1; });
                 html += '<div class="gc-armor-row">';
-                html += '<div class="gc-slot-icon"><img src="' + ohIcon + '" alt="' + ohLabel + '"></div>';
-                html += '<div class="gc-slot-label">' + ohLabel + '</div>';
-                html += '<select class="gc-select" onchange="GC.setWeaponSet(' + id + ',\'offHand\',this.value)">';
-                ohSets.forEach(function(set) {
-                    var s = profile.offHand.set === set.key ? ' selected' : '';
-                    html += '<option value="' + set.key + '"' + s + '>' + set.name + '</option>';
-                });
-                html += '</select>';
+                var ohSetObj = ohSets.find(function(s){return s.key===profile.offHand.set;}) || ohSets[0];
+                html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + id + ',\'off-weapon\',this)">';
+                html += '<div class="gc-slot-icon"><img src="' + ohIcon + '" alt="' + ohLabel + '" title="' + ohLabel + '"></div>';
+                html += '<span class="gc-set-name">' + ohSetObj.name + '</span>';
+                html += '</div>';
                 if (ohType === 'shield') {
-                    html += '<select class="gc-select" onchange="GC.setShieldType(this.value)">';
-                    html += '<option value="scale-phys"' + (weaponConfig.shieldType === 'scale-phys' ? ' selected' : '') + '>Battle (Physical)</option>';
-                    html += '<option value="scale-mag"' + (weaponConfig.shieldType === 'scale-mag' ? ' selected' : '') + '>Scale (Magical)</option>';
-                    html += '</select>';
+                    var shieldLabel = weaponConfig.shieldType === 'scale-mag' ? 'Scale (Magical)' : 'Battle (Physical)';
+                    html += '<span class="gc-enchant-trigger gc-shield-trigger" onclick="GC.openShieldPicker(' + id + ',this)">' + shieldLabel + '</span>';
                 } else if (ohType === 'fuse' || ohType === 'weapon') {
                     // No enchant for fuse
                 } else {
-                    html += '<select class="gc-select gc-select-sm" onchange="GC.setWeaponEnchant(' + id + ',\'offHand\',this.value)">';
-                    for (var oi = 8; oi <= 15; oi++) {
-                        var os = profile.offHand.enchant === oi ? ' selected' : '';
-                        html += '<option value="' + oi + '"' + os + '>+' + oi + '</option>';
-                    }
-                    html += '</select>';
+                    html += '<span class="gc-enchant-trigger" onclick="GC.openEnchantPicker(' + id + ',\'off-weapon\',this)">+' + profile.offHand.enchant + '</span>';
                 }
+                html += msIndicator(id, 'offHand', profile.offHand.set, profile);
                 html += '</div>';
             }
             html += '</div>';
@@ -1010,13 +1264,8 @@
             html += '<div class="gc-section-label-row">';
             html += '<span class="gc-section-label">🛡️ Armor</span>';
             if (classInfo.armorTypes.length > 1) {
-                html += '<select class="gc-select gc-select-inline" onchange="GC.setArmorType(' + id + ',this.value)">';
-                classInfo.armorTypes.forEach(function(atKey) {
-                    var opt = ARMOR_TYPE_OPTIONS.find(function(o) { return o.key === atKey; });
-                    var s = profile.armorType === atKey ? ' selected' : '';
-                    html += '<option value="' + atKey + '"' + s + '>' + opt.name + '</option>';
-                });
-                html += '</select>';
+                var currentAtOpt = ARMOR_TYPE_OPTIONS.find(function(o) { return o.key === profile.armorType; });
+                html += '<span class="gc-enchant-trigger gc-shield-trigger" onclick="GC.openArmorTypePicker(' + id + ',this)">' + currentAtOpt.name + '</span>';
             } else {
                 var singleOpt = ARMOR_TYPE_OPTIONS.find(function(o) { return o.key === classInfo.armorTypes[0]; });
                 html += '<span class="gc-armor-type-badge">' + singleOpt.name + '</span>';
@@ -1049,27 +1298,17 @@
             var oathIconUrl = getOathIcon(slot.key, slotOath);
             var html = '<div class="gc-armor-row">';
 
-            // Armor icon
-            html += '<div class="gc-slot-icon"><img src="' + iconUrl + '" alt="' + slot.key + '"></div>';
-            // Set
-            html += '<select class="gc-select" onchange="GC.setArmor(' + pid + ',\'' + slot.key + '\',this.value)">';
-            ARMOR_SETS.forEach(function(set) {
-                var s = armor.set === set.key ? ' selected' : '';
-                html += '<option value="' + set.key + '"' + s + '>' + set.name + '</option>';
-            });
-            html += '</select>';
-            // Enchant (always rendered for consistent layout)
+            // Armor set picker (icon + name)
+            var armorSetObj = ARMOR_SETS.find(function(s){return s.key===armor.set;});
+            html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + pid + ',\'armor:' + slot.key + '\',this)">';
+            html += '<div class="gc-slot-icon"><img src="' + iconUrl + '" alt="' + slot.key + '" title="' + armorSetObj.name + '"></div>';
+            html += '<span class="gc-set-name">' + armorSetObj.name + '</span>';
+            html += '</div>';
+            // Enchant (only for acrimony/presumption)
             var hasArmorEnchant = (armor.set === 'acrimony' || armor.set === 'presumption');
-            html += '<select class="gc-select gc-select-sm"' + (hasArmorEnchant ? '' : ' disabled') + ' onchange="GC.setArmorEnchant(' + pid + ',\'' + slot.key + '\',this.value)">';
             if (hasArmorEnchant) {
-                for (var i = 8; i <= 15; i++) {
-                    var s = armor.enchant === i ? ' selected' : '';
-                    html += '<option value="' + i + '"' + s + '>+' + i + '</option>';
-                }
-            } else {
-                html += '<option value="15">+15</option>';
+                html += '<span class="gc-enchant-trigger" onclick="GC.openEnchantPicker(' + pid + ',\'armor:' + slot.key + '\',this)">+' + armor.enchant + '</span>';
             }
-            html += '</select>';
             // Oath icon trigger
             html += '<div class="gc-oath-picker-wrap">';
             if (oathIconUrl) {
@@ -1083,6 +1322,9 @@
             }
 
             html += '</div>';
+
+            // Manastone indicator
+            html += msIndicator(pid, slot.key, armor.set, profile);
 
             html += '</div>';
             return html;
@@ -1254,6 +1496,7 @@
                 } else {
                     state[pid].offHand.enchant = parseInt(level);
                 }
+                renderProfile(pid);
                 updateComparison();
                 saveState();
             },
@@ -1287,6 +1530,8 @@
             pickMainWeapon: function(wKey) {
                 document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
                 closeOathPopup();
+                closeSetPopup();
+                closeEnchantPopup();
                 weaponConfig.mainType = wKey;
                 var allowed = getAllowedOffHand(wKey, selectedClass);
                 if (allowed.indexOf(weaponConfig.offHandType) === -1) {
@@ -1303,6 +1548,8 @@
             pickOffHand: function(choiceKey) {
                 document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
                 closeOathPopup();
+                closeSetPopup();
+                closeEnchantPopup();
                 if (choiceKey.indexOf('weapon:') === 0) {
                     var wType = choiceKey.substring(7);
                     weaponConfig.offHandType = 'weapon';
@@ -1331,12 +1578,218 @@
                 saveState();
             },
 
+            openSetPicker: function(pid, slotType, triggerEl) {
+                var popup = document.getElementById('gc-set-popup');
+                var isOpen = popup.style.display === 'flex';
+                document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
+                closeOathPopup();
+                closeSetPopup();
+                closeEnchantPopup();
+                if (isOpen && popup.dataset.pid == pid && popup.dataset.slot === slotType) return;
+
+                var sets, currentSet;
+                if (slotType === 'main-weapon') {
+                    sets = WEAPON_SETS;
+                    currentSet = state[pid].mainWeapon.set;
+                } else if (slotType === 'off-weapon') {
+                    sets = WEAPON_SETS.filter(function(ws) { return OFFHAND_EXCLUDED_SETS.indexOf(ws.key) === -1; });
+                    currentSet = state[pid].offHand.set;
+                } else if (slotType.indexOf('armor:') === 0) {
+                    sets = ARMOR_SETS;
+                    currentSet = state[pid].armor[slotType.substring(6)].set;
+                } else {
+                    return;
+                }
+
+                var html = '';
+                sets.forEach(function(set) {
+                    var sel = currentSet === set.key ? ' gc-set-option-selected' : '';
+                    html += '<div class="gc-set-option' + sel + '" onclick="GC.pickSet(' + pid + ',\'' + slotType + '\',\'' + set.key + '\')">';
+                    html += '<span class="gc-set-option-label">' + set.name + '</span>';
+                    html += '</div>';
+                });
+                popup.innerHTML = html;
+                popup.dataset.pid = pid;
+                popup.dataset.slot = slotType;
+
+                var rect = triggerEl.getBoundingClientRect();
+                popup.style.display = 'flex';
+                var popH = popup.offsetHeight;
+                var popW = popup.offsetWidth;
+                var top = rect.top - popH - 6;
+                if (top < 4) top = rect.bottom + 6;
+                var left = rect.left + rect.width / 2 - popW / 2;
+                if (left < 4) left = 4;
+                if (left + popW > window.innerWidth - 4) left = window.innerWidth - popW - 4;
+                popup.style.top = top + 'px';
+                popup.style.left = left + 'px';
+            },
+
+            pickSet: function(pid, slotType, setKey) {
+                closeSetPopup();
+                if (slotType === 'main-weapon') {
+                    state[pid].mainWeapon.set = setKey;
+                } else if (slotType === 'off-weapon') {
+                    state[pid].offHand.set = setKey;
+                } else if (slotType.indexOf('armor:') === 0) {
+                    state[pid].armor[slotType.substring(6)].set = setKey;
+                }
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
+            openEnchantPicker: function(pid, slotType, triggerEl) {
+                var popup = document.getElementById('gc-enchant-popup');
+                var isOpen = popup.style.display === 'flex';
+                document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
+                closeOathPopup();
+                closeSetPopup();
+                closeEnchantPopup();
+                if (isOpen && popup.dataset.pid == pid && popup.dataset.slot === slotType) return;
+
+                var currentEnchant;
+                if (slotType === 'main-weapon') {
+                    currentEnchant = state[pid].mainWeapon.enchant;
+                } else if (slotType === 'off-weapon') {
+                    currentEnchant = state[pid].offHand.enchant;
+                } else if (slotType.indexOf('armor:') === 0) {
+                    currentEnchant = state[pid].armor[slotType.substring(6)].enchant;
+                } else { return; }
+
+                var html = '';
+                for (var lvl = 8; lvl <= 15; lvl++) {
+                    var sel = currentEnchant === lvl ? ' gc-set-option-selected' : '';
+                    html += '<div class="gc-set-option' + sel + '" onclick="GC.pickEnchant(' + pid + ',\'' + slotType + '\',' + lvl + ')">';
+                    html += '<span class="gc-set-option-label">+' + lvl + '</span>';
+                    html += '</div>';
+                }
+                popup.innerHTML = html;
+                popup.dataset.pid = pid;
+                popup.dataset.slot = slotType;
+
+                var rect = triggerEl.getBoundingClientRect();
+                popup.style.display = 'flex';
+                var popH = popup.offsetHeight;
+                var popW = popup.offsetWidth;
+                var top = rect.top - popH - 6;
+                if (top < 4) top = rect.bottom + 6;
+                var left = rect.left + rect.width / 2 - popW / 2;
+                if (left < 4) left = 4;
+                if (left + popW > window.innerWidth - 4) left = window.innerWidth - popW - 4;
+                popup.style.top = top + 'px';
+                popup.style.left = left + 'px';
+            },
+
+            pickEnchant: function(pid, slotType, level) {
+                closeEnchantPopup();
+                if (slotType === 'main-weapon') {
+                    state[pid].mainWeapon.enchant = level;
+                } else if (slotType === 'off-weapon') {
+                    state[pid].offHand.enchant = level;
+                } else if (slotType.indexOf('armor:') === 0) {
+                    state[pid].armor[slotType.substring(6)].enchant = level;
+                }
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
+            openShieldPicker: function(pid, triggerEl) {
+                var popup = document.getElementById('gc-enchant-popup');
+                var isOpen = popup.style.display === 'flex';
+                document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
+                closeOathPopup();
+                closeSetPopup();
+                closeEnchantPopup();
+                if (isOpen && popup.dataset.pid == pid && popup.dataset.slot === 'shield-type') return;
+
+                var html = '';
+                var shields = [{key: 'scale-phys', name: 'Battle (Physical)'}, {key: 'scale-mag', name: 'Scale (Magical)'}];
+                shields.forEach(function(s) {
+                    var sel = weaponConfig.shieldType === s.key ? ' gc-set-option-selected' : '';
+                    html += '<div class="gc-set-option' + sel + '" onclick="GC.pickShieldType(\'' + s.key + '\')">';
+                    html += '<span class="gc-set-option-label">' + s.name + '</span>';
+                    html += '</div>';
+                });
+                popup.innerHTML = html;
+                popup.dataset.pid = pid;
+                popup.dataset.slot = 'shield-type';
+
+                var rect = triggerEl.getBoundingClientRect();
+                popup.style.display = 'flex';
+                var popH = popup.offsetHeight;
+                var popW = popup.offsetWidth;
+                var top = rect.top - popH - 6;
+                if (top < 4) top = rect.bottom + 6;
+                var left = rect.left + rect.width / 2 - popW / 2;
+                if (left < 4) left = 4;
+                if (left + popW > window.innerWidth - 4) left = window.innerWidth - popW - 4;
+                popup.style.top = top + 'px';
+                popup.style.left = left + 'px';
+            },
+
+            pickShieldType: function(type) {
+                closeEnchantPopup();
+                weaponConfig.shieldType = type;
+                renderWeaponConfig();
+                renderProfile(1);
+                renderProfile(2);
+                updateComparison();
+                saveState();
+            },
+
+            openArmorTypePicker: function(pid, triggerEl) {
+                var popup = document.getElementById('gc-enchant-popup');
+                var isOpen = popup.style.display === 'flex';
+                document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
+                closeOathPopup();
+                closeSetPopup();
+                closeEnchantPopup();
+                if (isOpen && popup.dataset.pid == pid && popup.dataset.slot === 'armor-type') return;
+
+                var classInfo = CLASS_DATA[selectedClass];
+                var currentType = state[pid].armorType;
+                var html = '';
+                classInfo.armorTypes.forEach(function(atKey) {
+                    var opt = ARMOR_TYPE_OPTIONS.find(function(o) { return o.key === atKey; });
+                    var sel = currentType === atKey ? ' gc-set-option-selected' : '';
+                    html += '<div class="gc-set-option' + sel + '" onclick="GC.pickArmorType(' + pid + ',\'' + atKey + '\')">';
+                    html += '<span class="gc-set-option-label">' + opt.name + '</span>';
+                    html += '</div>';
+                });
+                popup.innerHTML = html;
+                popup.dataset.pid = pid;
+                popup.dataset.slot = 'armor-type';
+
+                var rect = triggerEl.getBoundingClientRect();
+                popup.style.display = 'flex';
+                var popH = popup.offsetHeight;
+                var popW = popup.offsetWidth;
+                var top = rect.top - popH - 6;
+                if (top < 4) top = rect.bottom + 6;
+                var left = rect.left + rect.width / 2 - popW / 2;
+                if (left < 4) left = 4;
+                if (left + popW > window.innerWidth - 4) left = window.innerWidth - popW - 4;
+                popup.style.top = top + 'px';
+                popup.style.left = left + 'px';
+            },
+
+            pickArmorType: function(pid, armorType) {
+                closeEnchantPopup();
+                state[pid].armorType = armorType;
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
             openOathPicker: function(pid, slotKey, triggerEl) {
                 var popup = document.getElementById('gc-oath-popup');
                 var isOpen = popup.style.display === 'flex';
                 // Close all other pickers
                 document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
                 closeOathPopup();
+                closeSetPopup();
                 if (isOpen && popup.dataset.pid == pid && popup.dataset.slot === slotKey) return;
 
                 var currentOath = state[pid].oath[slotKey] || 'none';
@@ -1371,6 +1824,126 @@
                 if (left + popW > window.innerWidth - 4) left = window.innerWidth - popW - 4;
                 popup.style.top = top + 'px';
                 popup.style.left = left + 'px';
+            },
+
+            // ── Manastone Modal Handlers ──
+            openManaModal: function(pid, scrollToGear) {
+                closeOathPopup();
+                closeSetPopup();
+                closeEnchantPopup();
+                var modal = document.getElementById('gc-mana-modal');
+                modal.innerHTML = renderManaModal(pid, scrollToGear);
+                modal.style.display = 'block';
+                modal.dataset.pid = pid;
+                document.body.style.overflow = 'hidden';
+                if (scrollToGear) {
+                    setTimeout(function() {
+                        var row = document.getElementById('gc-mana-row-' + scrollToGear);
+                        if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 50);
+                }
+            },
+
+            closeManaModal: function() {
+                var modal = document.getElementById('gc-mana-modal');
+                modal.style.display = 'none';
+                modal.innerHTML = '';
+                document.body.style.overflow = '';
+                closeManaSlotPopup();
+            },
+
+            applyManaPreset: function(pid, manaKey) {
+                var profile = state[pid];
+                var allGearKeys = ['mainWeapon'];
+                if (weaponConfig.offHandType !== 'none') allGearKeys.push('offHand');
+                ARMOR_SLOTS.forEach(function(s) { allGearKeys.push(s.key); });
+                allGearKeys.forEach(function(gk) {
+                    var setKey = getGearSetKey(pid, gk);
+                    var slotCount = getManastoneSlotCount(setKey);
+                    if (!profile.manastones[gk]) profile.manastones[gk] = ['none', 'none', 'none'];
+                    for (var i = 0; i < slotCount; i++) {
+                        profile.manastones[gk][i] = manaKey;
+                    }
+                });
+                // Re-render modal content
+                var modal = document.getElementById('gc-mana-modal');
+                modal.innerHTML = renderManaModal(pid);
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
+            clearManastones: function(pid) {
+                var profile = state[pid];
+                var allGearKeys = ['mainWeapon', 'offHand'];
+                ARMOR_SLOTS.forEach(function(s) { allGearKeys.push(s.key); });
+                allGearKeys.forEach(function(gk) {
+                    if (!profile.manastones[gk]) profile.manastones[gk] = ['none', 'none', 'none'];
+                    for (var i = 0; i < 3; i++) {
+                        profile.manastones[gk][i] = 'none';
+                    }
+                });
+                var modal = document.getElementById('gc-mana-modal');
+                modal.innerHTML = renderManaModal(pid);
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
+            setManastone: function(pid, gearKey, slotIdx, manaKey) {
+                var profile = state[pid];
+                if (!profile.manastones[gearKey]) profile.manastones[gearKey] = ['none', 'none', 'none'];
+                profile.manastones[gearKey][slotIdx] = manaKey;
+                closeManaSlotPopup();
+                // Re-render modal
+                var modal = document.getElementById('gc-mana-modal');
+                modal.innerHTML = renderManaModal(pid);
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+
+            openManaSlotPicker: function(pid, gearKey, slotIdx, triggerEl) {
+                var popup = document.getElementById('gc-mana-slot-popup');
+                var isOpen = popup.style.display === 'flex';
+                closeManaSlotPopup();
+                if (isOpen && popup.dataset.pid == pid && popup.dataset.gearKey === gearKey && popup.dataset.slotIdx == slotIdx) return;
+
+                var profile = state[pid];
+                var currentMana = (profile.manastones[gearKey] && profile.manastones[gearKey][slotIdx]) || 'none';
+
+                var html = '';
+                // None option
+                var nSel = currentMana === 'none' ? ' gc-set-option-selected' : '';
+                html += '<div class="gc-set-option gc-mana-option-none' + nSel + '" onclick="GC.setManastone(' + pid + ',\'' + gearKey + '\',' + slotIdx + ',\'none\')">';
+                html += '<span class="gc-mana-option-icon"><img src="' + EMPTY_SLOT_ICON + '" class="gc-mana-slot-icon-empty" alt=""></span>';
+                html += '<span class="gc-set-option-label">Empty</span>';
+                html += '</div>';
+
+                MANASTONES.forEach(function(m) {
+                    var sel = currentMana === m.key ? ' gc-set-option-selected' : '';
+                    html += '<div class="gc-set-option' + sel + '" onclick="GC.setManastone(' + pid + ',\'' + gearKey + '\',' + slotIdx + ',\'' + m.key + '\')">';
+                    html += '<span class="gc-mana-option-icon"><img src="' + MANASTONE_ICON + '" alt=""></span>';
+                    html += '<span class="gc-set-option-label">' + m.name + ' +' + m.value + '</span>';
+                    html += '</div>';
+                });
+
+                popup.innerHTML = html;
+                popup.dataset.pid = pid;
+                popup.dataset.gearKey = gearKey;
+                popup.dataset.slotIdx = slotIdx;
+
+                var rect = triggerEl.getBoundingClientRect();
+                popup.style.display = 'flex';
+                var popH = popup.offsetHeight;
+                var popW = popup.offsetWidth;
+                var top = rect.bottom + 4;
+                if (top + popH > window.innerHeight - 4) top = rect.top - popH - 4;
+                var left = rect.left;
+                if (left + popW > window.innerWidth - 4) left = window.innerWidth - popW - 4;
+                if (left < 4) left = 4;
+                popup.style.top = top + 'px';
+                popup.style.left = left + 'px';
             }
         };
 
@@ -1380,11 +1953,53 @@
             popup.innerHTML = '';
         }
 
+        function closeSetPopup() {
+            var popup = document.getElementById('gc-set-popup');
+            popup.style.display = 'none';
+            popup.innerHTML = '';
+        }
+
+        function closeEnchantPopup() {
+            var popup = document.getElementById('gc-enchant-popup');
+            popup.style.display = 'none';
+            popup.innerHTML = '';
+        }
+
+        function closeManaSlotPopup() {
+            var popup = document.getElementById('gc-mana-slot-popup');
+            if (popup) {
+                popup.style.display = 'none';
+                popup.innerHTML = '';
+            }
+        }
+
         // Shared oath popup (appended to body to escape overflow:hidden)
         var oathPopup = document.createElement('div');
         oathPopup.id = 'gc-oath-popup';
         oathPopup.className = 'gc-oath-popup';
         document.body.appendChild(oathPopup);
+
+        var setPopup = document.createElement('div');
+        setPopup.id = 'gc-set-popup';
+        setPopup.className = 'gc-set-popup';
+        document.body.appendChild(setPopup);
+
+        var enchantPopup = document.createElement('div');
+        enchantPopup.id = 'gc-enchant-popup';
+        enchantPopup.className = 'gc-set-popup';
+        document.body.appendChild(enchantPopup);
+
+        // Manastone modal container
+        var manaModal = document.createElement('div');
+        manaModal.id = 'gc-mana-modal';
+        manaModal.className = 'gc-mana-modal';
+        document.body.appendChild(manaModal);
+
+        // Manastone slot picker popup
+        var manaSlotPopup = document.createElement('div');
+        manaSlotPopup.id = 'gc-mana-slot-popup';
+        manaSlotPopup.className = 'gc-set-popup gc-mana-slot-popup';
+        document.body.appendChild(manaSlotPopup);
 
         // Close pickers on outside click
         document.addEventListener('click', function(e) {
@@ -1396,10 +2011,28 @@
             if (!e.target.closest('.gc-oath-popup') && !e.target.closest('.gc-oath-pick')) {
                 closeOathPopup();
             }
+            if (!e.target.closest('.gc-set-popup') && !e.target.closest('.gc-set-trigger') && !e.target.closest('.gc-enchant-trigger') && !e.target.closest('#gc-enchant-popup')) {
+                closeSetPopup();
+                closeEnchantPopup();
+            }
+            // Close mana slot popup on outside click
+            if (!e.target.closest('#gc-mana-slot-popup') && !e.target.closest('.gc-mana-slot')) {
+                closeManaSlotPopup();
+            }
         });
 
         // Close oath popup on scroll
-        window.addEventListener('scroll', function() { closeOathPopup(); }, true);
+        window.addEventListener('scroll', function() { closeOathPopup(); closeSetPopup(); closeEnchantPopup(); }, true);
+
+        // Close mana modal on Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                var modal = document.getElementById('gc-mana-modal');
+                if (modal && modal.style.display === 'block') {
+                    GC.closeManaModal();
+                }
+            }
+        });
 
         // ═══════════════════════════════════════════════════════════
         // INIT
