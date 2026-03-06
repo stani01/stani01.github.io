@@ -27,8 +27,10 @@
 
         <!-- Tab Bar -->
         <div class="gc-tab-bar" id="gc-tab-bar">
-            <button class="gc-tab gc-tab-active" data-tab="equipment">⚔️ Equipment</button>
-            <button class="gc-tab" data-tab="transforms">✨ Transformations</button>
+            <button class="gc-tab gc-tab-active" data-tab="equipment"><img src="assets/icons/icon_ui_equipment.png" class="gc-tab-icon" alt="">Equipment</button>
+            <button class="gc-tab" data-tab="transforms"><img src="assets/icons/icon_ui_transforms.png" class="gc-tab-icon" alt="">Transformations</button>
+            <button class="gc-tab" data-tab="collections"><img src="assets/icons/icon_ui_collections.png" class="gc-tab-icon" alt="">Collections</button>
+            <button class="gc-tab" data-tab="relic"><img src="assets/icons/icon_ui_relic.png" class="gc-tab-icon" alt="">Relic</button>
         </div>
 
         <!-- Equipment Tab -->
@@ -45,6 +47,22 @@
             <div class="gc-profiles">
                 <div class="gc-profile" id="transform-1"></div>
                 <div class="gc-profile" id="transform-2"></div>
+            </div>
+        </div>
+
+        <!-- Collections Tab -->
+        <div class="gc-tab-panel" id="tab-collections">
+            <div class="gc-profiles">
+                <div class="gc-profile" id="collections-1"></div>
+                <div class="gc-profile" id="collections-2"></div>
+            </div>
+        </div>
+
+        <!-- Relic Tab -->
+        <div class="gc-tab-panel" id="tab-relic">
+            <div class="gc-profiles">
+                <div class="gc-profile" id="relic-1"></div>
+                <div class="gc-profile" id="relic-2"></div>
             </div>
         </div>
 
@@ -347,22 +365,48 @@
 
         // Stats that items provide (used for comparison)
         var COMPARISON_STATS = [
-            { key: 'attack',          name: 'Attack' },
-            { key: 'physicalDef',     name: 'Physical Def' },
-            { key: 'magicalDef',      name: 'Magical Def' },
-            { key: 'crit',            name: 'Crit' },
             { key: 'hp',              name: 'HP' },
+            { key: 'attack',          name: 'Attack' },
             { key: 'accuracy',        name: 'Accuracy' },
-            { key: 'block',           name: 'Block' },
-            { key: 'parry',           name: 'Parry' },
+            { key: 'crit',            name: 'Crit' },
+            { key: 'critDmg',         name: 'Crit Dmg' },
             { key: 'healingBoost',    name: 'Healing Boost' },
-            { key: 'increasedRegen',  name: 'Increased Regeneration' },
             { key: 'pvpAttack',       name: 'Add. PvP Atk' },
             { key: 'pveAttack',       name: 'Add. PvE Atk' },
+
+            { key: 'physicalDef',     name: 'Physical Def' },
+            { key: 'strikeFortitude', name: 'Strike Fortitude' },
+            { key: 'evasion',         name: 'Evasion' },
+            { key: 'increasedRegen',  name: 'Increased Regeneration' },
+            { key: 'magicalDef',      name: 'Magical Def' },
+            { key: 'spellFortitude',  name: 'Spell Fortitude' },
+            { key: 'magicResist',     name: 'Magic Resist' },
+            { key: 'block',           name: 'Block' },
+            { key: 'parry',           name: 'Parry' },
             { key: 'pvpDefense',      name: 'Add. PvP Def' },
             { key: 'pveDefense',      name: 'Add. PvE Def' },
-            { key: 'magicResist',     name: 'Magic Resist' },
-            { key: 'evasion',         name: 'Evasion' }
+
+            { key: 'dp',              name: 'DP' },
+        ];
+
+        const STAT_GROUPS = [
+            {
+                label : "Vitality",
+                keys: ["hp"]
+
+            },
+            {
+                label: "Offensive",
+                keys: ["attack", "accuracy", "crit", "critDmg", "healingBoost", "pvpAttack", "pveAttack"]
+            },
+            {
+                label: "Defensive",
+                keys: ["physicalDef", "strikeFortitude", "evasion", "increasedRegen", "magicalDef", "spellFortitude", "magicResist", "block", "parry", "pvpDefense", "pveDefense"]
+            },
+            {
+                label: "Others",
+                keys: ["dp"]
+            }
         ];
 
         var STAT_KEYS = COMPARISON_STATS.map(function(s) { return s.key; });
@@ -530,6 +574,234 @@
             var s = {};
             STAT_KEYS.forEach(function(k) { s[k] = 0; });
             return s;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // COLLECTIONS DATA
+        // ═══════════════════════════════════════════════════════════
+
+        // Transformation Collection buttons — each entry is a toggleable bonus.
+        // Stat categories represented: 'attack', 'crit', 'physicalDef'+'magicalDef' (add both),
+        // 'physicalDef', 'magicalDef', or any other COMPARISON_STATS key.
+        // For collections that boost both defences use two entries with the same visual grouping.
+        // Add new entries by appending — do NOT remove or reorder existing entries.
+        //
+        // Format: { key, name, stat, value }
+        //   key   — unique identifier (string, append-only)
+        //   name  — label shown on the toggle button
+        //   stat  — comparison stat key the bonus is added to
+        //   value — flat bonus applied when toggled ON
+        //
+        // Example:
+        //   { key: 'tf-atk-1', name: 'Fighter Coll. I',  stat: 'attack',      value:  50 },
+        //   { key: 'tf-def-1', name: 'Guardian Coll. I', stat: 'physicalDef', value: 100 },
+        var TF_COLLECTIONS = [
+            // Format: { key, name, stat, value }
+            // stat must be a key from COMPARISON_STATS (e.g. 'attack', 'crit', 'parry', 'physicalDef', ...)
+            // Append-only — do NOT remove or reorder existing entries.
+            //{ key: 'tf-coll-dog-bunny', name: 'Time of Dog and Bunny', stat: 'parry', value: 108 },
+            { key: 'tf-col-tin-bunny', name: 'Tin Man with Bunny', stat: 'physicalDef', value: 38 },
+            { key: 'tf-col-gift-set', name: 'Full Gift Set', stat: 'magicalDef', value: 38 },
+            { key: 'tf-col-archon-shorty', name: 'Archon and Shorty Legions', stat: 'magicalDef', value: 76 },
+            { key: 'tf-col-wretched-minion', name: 'Wretched Minions Assembly', stat: 'physicalDef', value: 76 },
+            { key: 'tf-col-transfor-into', name: 'Now Transform into Me', stat: 'attack', value: 78 },
+            { key: 'tf-col-famous-women', name: 'Famous Women', stat: 'physicalDef', value: 190 },
+            { key: 'tf-col-old-boss', name: 'The Old Boss', stat: 'critStrike', value: 308 },
+            { key: 'tf-col-im-legendary', name: 'I\'m Legendary', stat: 'magicalDef', value: 190 },
+            { key: 'tf-col-lords-favourite', name: 'Lord\'s Favourite', stat: 'critStrike', value: 513 },
+            { key: 'tf-col-legendary-class-conqueror', name: 'Legendary Class Conqueror', stat: 'attack', value: 195 },
+            { key: 'tf-col-another-pixel', name: 'Another Pixel after 100 days of prayer', stat: 'attack', value: 152 },
+            { key: 'tf-col-archers-attack', name: 'Archers, attack!', stat: 'attack', value: 171 },
+            { key: 'tf-col-pretty-redhead', name: 'Pretty redhead...?', stat: 'crit', value: 154 },
+            { key: 'tf-col-i-call-the-shots', name: 'I call the shots around here', stat: 'critDmg', value: 30 },
+            { key: 'tf-col-agent-of-light', name: 'Agent of Light', stat: 'spellFortitude', value: 50 },
+            { key: 'tf-col-agent-of-darkness', name: 'Agent of Darkness', stat: 'strikeFortitude', value: 50 },
+            { key: 'tf-col-battle-elyos-asmo', name: 'Battle between Elyos and Asmodians', stat: 'critDmg', value: 80 },
+            { key: 'tf-col-ethernal-death', name: 'Ethernal Death', stat: 'spellFortitude', value: 30 },
+            { key: 'tf-col-muscles-complement-outfit', name: 'Muscles complement the outfit perfectly', stat: 'strikeFortitude', value: 30 },
+            { key: 'tf-col-black-white-theory', name: 'Black & White Theory', stat: 'critDmg', value: 50 },
+            { key: 'tf-col-polyamorous', name: 'Polyamorous', stat: 'magicalDef', value: 171 },
+            { key: 'tf-col-kaisinel-forti', name: 'Gods and Apostles of Fantasy', stat: 'spellFortitude', value: 80 },
+            { key: 'tf-col-marchutan-forti', name: 'Gods and Apostles of Fate', stat: 'strikeFortitude', value: 80 },
+            { key: 'tf-col-ereshkigal-critdmg', name: 'Ereshkigal Legion', stat: 'critDmg', value: 20 },
+            { key: 'tf-col-tiamat-critdmg', name: 'Tiamat Legion', stat: 'critDmg', value: 20 },
+            { key: 'tf-col-eresh-tiamat-critdmg', name: 'Here for Raid', stat: 'critDmg', value: 40 },
+            { key: 'tf-col-cat-pdef', name: 'Kitten', stat: 'physicalDef', value: 152 },
+            { key: 'tf-col-cat-mdef', name: 'The Cat and Her Butler', stat: 'magicalDef', value: 152 },
+            { key: 'tf-col-cat-hp', name: 'Kitty Practice', stat: 'hp', value: 6600 },
+            { key: 'tf-col-baa-pdef', name: 'Cuddly Baa', stat: 'physicalDef', value: 152 },
+            { key: 'tf-col-baa-mdef', name: 'Cuddly Moo', stat: 'magicalDef', value: 152 },
+            { key: 'tf-col-baa-hp', name: 'Cuddly Mau', stat: 'hp', value: 5000 },
+            { key: 'tf-col-fox-hp', name: 'Perfect Winter', stat: 'hp', value: 5000 },
+            { key: 'tf-col-fox-pdef', name: 'Warm Winter', stat: 'physicalDef', value: 152 },
+            { key: 'tf-col-fox-mdef', name: 'Beautiful Winter', stat: 'magicalDef', value: 152 },
+            { key: 'tf-col-zikel-forti', name: 'Ultimate Assassin', stat: 'strikeFortitude', value: 60 },
+            { key: 'tf-col-nezekan-forti', name: 'Ultimate Protector', stat: 'spellFortitude', value: 60 },
+            { key: 'tf-col-nezekan-zikel-critdmg', name: 'Clash', stat: 'critDmg', value: 40 },
+            { key: 'tf-col-vaizel-forti', name: 'Tyrant', stat: 'strikeFortitude', value: 60 },
+            { key: 'tf-col-triniel-forti', name: 'Life and Death', stat: 'spellFortitude', value: 60 },
+            { key: 'tf-col-vaizel-triniel-atk', name: 'Promising Encounter', stat: 'attack', value: 419 },
+            { key: 'tf-col-ariel-forti', name: 'Time of Light', stat: 'spellFortitude', value: 70 },
+            { key: 'tf-col-azphel-forti', name: 'Time of Shadows', stat: 'strikeFortitude', value: 70 },
+            { key: 'tf-col-pixel-pdef', name: 'We are one, though we are not the same', stat: 'physicalDef', value: 152 },
+            { key: 'tf-col-pixel-mdef', name: 'What is a Pixel anyway?', stat: 'magicalDef', value: 152 },
+            { key: 'tf-col-pixels-crit', name: 'Welcome! You don\'t know Hanbok yet, right?', stat: 'crit', value: 411 },
+            { key: 'tf-col-pixels-critdmg', name: 'Ours are the best!', stat: 'critDmg', value: 20 },
+            { key: 'tf-col-halloween-attack', name: 'Halloween 4', stat: 'attack', value: 156 },
+            { key: 'tf-col-rangers-crit', name: 'Ready Player Four', stat: 'crit', value: 205 },
+            { key: 'tf-col-yustiel-atk', name: 'Hand of Life', stat: 'attack', value: 391 },
+            { key: 'tf-col-lumiel-atk', name: 'Wise Ones', stat: 'attack', value: 391 },
+            { key: 'tf-col-yustiel-lumiel-critdmg', name: 'Magnificent', stat: 'critDmg', value: 120 },
+            { key: 'tf-col-ariel-yustiel-atk', name: 'Lady of Elysea', stat: 'attack', value: 350 },
+            { key: 'tf-col-azphel-lumiel-def', name: 'Lord of Asmodae', stat: 'defence', value: 350 },
+            { key: 'tf-col-fire-dragon-atk', name: 'Spread of the Red Flame', stat: 'physicalAttack', value: 200 },
+            { key: 'tf-col-fire-dragon-forti', name: 'Time of Shadows', stat: 'strikeFortitude', value: 70 },
+        ];
+
+        // Item Collection stat inputs.
+        // Each entry defines one numeric input field in the Item Collections panel.
+        // The collected value is clamped to [0, max] and added to the comparison stat
+        // identified by statKey.  Both physicalAttack and magicAttack map to 'attack';
+        // critStrike and critSpell both map to 'crit'.  Add new rows by appending.
+        //
+        // Format: { key, name, max, statKey }
+        //   key     — unique identifier used in state storage
+        //   name    — label shown next to the input
+        //   max     — maximum allowed value (enforced on input)
+        //   statKey — comparison stat key this input feeds into
+        var ITEM_COLL_STATS = [
+            { key: 'physicalAttack', name: 'Physical Attack',  max: 307,  statKey: 'attack'      },
+            { key: 'physicalDef',    name: 'Physical Defence', max: 415,  statKey: 'physicalDef' },
+            { key: 'critStrike',     name: 'Crit Strike',      max: 1090, statKey: 'crit'        },
+            { key: 'magicAttack',    name: 'Magic Attack',     max: 307,  statKey: 'attack'      },
+            { key: 'magicalDef',     name: 'Magical Defence',  max: 415,  statKey: 'magicalDef'  },
+            { key: 'critSpell',      name: 'Crit Spell',       max: 1090, statKey: 'crit'        },
+        ];
+
+        // ═══════════════════════════════════════════════════════════
+        // RELIC DATA
+        // ═══════════════════════════════════════════════════════════
+
+        var RELIC_LEVEL_STAT_RANGES = [
+            { from: 1, to: 50, stats: { hp: 100, attack: 3, crit: 2 } },
+            { from: 51, to: 100, stats: { crit: 2, magicalDef: 3, physicalDef: 3 } },
+            { from: 101, to: 150, stats: { accuracy: 2, hp: 40 } },
+            { from: 151, to: 200, stats: { evasion: 6, magicResist: 6 } },
+            { from: 201, to: 250, stats: { magicalDef: 2, physicalDef: 2, hp: 40 } },
+            { from: 251, to: 300, stats: { crit: 4, attack: 2} },
+        ];
+
+        // Expand ranges into flat array
+        function expandRelicLevelStats(ranges) {
+            var arr = [];
+            ranges.forEach(function(r) {
+                for (var lvl = r.from; lvl <= r.to; lvl++) {
+                    for (var stat in r.stats) {
+                        arr.push({ level: lvl, stat: stat, value: r.stats[stat] });
+                    }
+                }
+            });
+            return arr;
+        }
+
+        var RELIC_LEVEL_STATS = expandRelicLevelStats(RELIC_LEVEL_STAT_RANGES);
+
+        // Milestone bonuses unlocked when a specific relic level is reached.
+        // Active milestones (≤ current level) are shown with their icons.
+        // Upcoming milestones (> current level) appear greyed-out.
+        // Append-only — do NOT remove or reorder existing entries.
+        //
+        // Format: { level, name, icon, stats }
+        //   level — relic level required to unlock this bonus
+        //   name  — milestone label
+        //   icon  — URL string for the buff icon (use 'assets/icons/...' paths)
+        //   stats — object { statKey: value } added to the comparison totals
+        //           (may be omitted if the milestone is display-only)
+        //
+        // Example:
+        //   { level:  50, name: 'Relic Awakening I',  icon: 'assets/icons/relic_buff_01.png', stats: { attack: 100, crit: 200 } },
+        //   { level: 100, name: 'Relic Awakening II', icon: 'assets/icons/relic_buff_02.png', stats: { physicalDef: 150, magicalDef: 150 } },
+        // Stat caps for the relic progress bars (max value achievable at level 300)
+        // These are used only for the progress bar display inside renderRelic.
+        var RELIC_STAT_DEFS = [
+            { stat: 'hp',          name: 'HP',               max: 9000 },
+            { stat: 'crit',        name: 'Crit',             max: 400  },
+            { stat: 'attack',      name: 'Attack',           max: 250  },
+            { stat: 'magicResist', name: 'Magic Resist',     max: 300  },
+            { stat: 'accuracy',    name: 'Accuracy',         max: 100  },
+            { stat: 'evasion',     name: 'Evasion',          max: 300  },
+            { stat: 'physicalDef', name: 'Physical Defence', max: 250  },
+            { stat: 'magicalDef',  name: 'Magical Defence',  max: 250  },
+        ];
+        
+        var RELIC_MILESTONES = [
+            // Format: { level, name, icon, stats }
+            { level: 15, name: 'Relic: Increased physical attack I', icon: 'assets/icons/sacredstone_phy_atk_lv1.png', stats: { attack: 250 }, type: 'physical' },
+            { level: 15, name: 'Relic: Increased magical attack I', icon: 'assets/icons/sacredstone_mag_atk_lv1.png', stats: { attack: 250 }, type: 'magical' },
+            { level: 30, name: 'Relic: Increased physical crit hit I', icon: 'assets/icons/sacredstone_phy_cri_lv1.png', stats: { crit: 400 }, type: 'physical' },
+            { level: 30, name: 'Relic: Increased magical crit hit I', icon: 'assets/icons/sacredstone_mag_cri_lv1.png', stats: { crit: 400 }, type: 'magical' },
+            { level: 45, name: 'Relic: Increased physical defence I', icon: 'assets/icons/sacredstone_phy_def_lv1.png', stats: { physicalDef: 250 }, type: 'both' },
+            { level: 60, name: 'Relic: Increased magical defence I', icon: 'assets/icons/sacredstone_mag_def_lv1.png', stats: { magicalDef: 250 }, type: 'both' },
+            { level: 75, name: 'Relic: Increased max HP II', icon: 'assets/icons/sacredstone_maxhp_lv2.png', stats: { hp: 4000 }, type: 'both' },
+            { level: 90, name: 'Relic: Increased resist magic I', icon: 'assets/icons/sacredstone_resist_lv1.png', stats: { magicResist: 200 }, type: 'both' },
+            { level: 105, name: 'Relic: Increased evasion I', icon: 'assets/icons/sacredstone_dodge_lv1.png', stats: { evasion: 200 }, type: 'both' },
+            { level: 120, name: 'Relic: Increased physical defence II', icon: 'assets/icons/sacredstone_phy_def_lv2.png', stats: { physicalDef: 150 }, type: 'both' },
+            { level: 135, name: 'Relic: Increased magical defence II', icon: 'assets/icons/sacredstone_mag_def_lv2.png', stats: { magicalDef: 150 }, type: 'both' },
+            { level: 150, name: 'Relic: Increased physical attack II', icon: 'assets/icons/sacredstone_phy_atk_lv2.png', stats: { attack: 100 }, type: 'physical' },
+            { level: 150, name: 'Relic: Increased magical attack II', icon: 'assets/icons/sacredstone_mag_atk_lv2.png', stats: { attack: 100 }, type: 'magical' },
+            { level: 165, name: 'Relic: Increased physical crit hit II', icon: 'assets/icons/sacredstone_phy_cri_lv2.png', stats: { crit: 200 }, type: 'physical' },
+            { level: 165, name: 'Relic: Increased magical crit hit II', icon: 'assets/icons/sacredstone_mag_cri_lv2.png', stats: { crit: 200 }, type: 'magical' },
+            { level: 180, name: 'Relic: Increased max HP I', icon: 'assets/icons/sacredstone_maxhp_lv1.png', stats: { hp: 2000 }, type: 'both' },
+            { level: 210, name: 'Relic: Increased accuracy I', icon: 'assets/icons/sacredstone_phy_acc_lv1.png', stats: { accuracy: 300 }, type: 'physical' },
+            { level: 210, name: 'Relic: Increased magical accuracy I', icon: 'assets/icons/sacredstone_mag_acc_lv1.png', stats: { magicAccuracy: 300 }, type: 'magical' },
+            { level: 240, name: 'Relic: Increased max DP I', icon: 'assets/icons/sacredstone_maxdp_lv1.png', stats: { dp: 1000 }, type: 'both' },
+            { level: 270, name: 'Relic: Increased physical attack III', icon: 'assets/icons/sacredstone_phy_atk_lv3.png', stats: { attack: 50 }, type: 'physical' },
+            { level: 270, name: 'Relic: Increased magical attack III', icon: 'assets/icons/sacredstone_mag_atk_lv3.png', stats: { attack: 50 }, type: 'magical' },
+            { level: 300, name: 'Relic: Increased max DP II', icon: 'assets/icons/sacredstone_maxdp_lv2.png', stats: { dp: 1000 }, type: 'both' },
+        ];
+
+        // Calculate cumulative relic stats for a given level (sums all entries ≤ level)
+        // Sums only RELIC_LEVEL_STATS thresholds — used for the stats bars display.
+        function getRelicLevelStats(level) {
+            var out = emptyStats();
+            RELIC_LEVEL_STATS.forEach(function(entry) {
+                if (entry.level <= level && out[entry.stat] !== undefined) {
+                    out[entry.stat] += entry.value;
+                }
+            });
+            return out;
+        }
+
+        // Full relic stats (level thresholds + milestone skills) — used for comparison totals.
+        function getRelicStats(level, isPhy) {
+            var out = getRelicLevelStats(level);
+            RELIC_MILESTONES.forEach(function(ms) {
+                // Only apply milestones for this class type or for both
+                if (
+                    ms.level <= level && ms.stats &&
+                    (
+                        !ms.type || ms.type === 'both' ||
+                        (ms.type === 'physical' && isPhy) ||
+                        (ms.type === 'magical' && !isPhy)
+                    )
+                ) {
+                    for (var k in ms.stats) {
+                        if (out[k] !== undefined) out[k] += ms.stats[k];
+                    }
+                }
+            });
+            return out;
+        }
+
+        // Returns only the milestones whose level is ≤ the supplied level and match class type
+        function getActiveMilestones(level, isPhy) {
+            return RELIC_MILESTONES.filter(function(ms) {
+                return ms.level <= level && (
+                    !ms.type || ms.type === 'both' ||
+                    (ms.type === 'physical' && isPhy) ||
+                    (ms.type === 'magical' && !isPhy)
+                );
+            });
         }
 
 
@@ -1403,6 +1675,11 @@
             ALL_ACCESSORY_KEYS.forEach(function(accKey) {
                 profile.manastones[accKey] = [defaultMana, defaultMana, defaultMana];
             });
+            // Initialize collections state
+            profile.collections = { tfToggled: {}, itemColl: {} };
+            ITEM_COLL_STATS.forEach(function(cs) { profile.collections.itemColl[cs.key] = 0; });
+            // Initialize relic state
+            profile.relic = { level: 1 };
             return profile;
         }
 
@@ -1548,9 +1825,36 @@
                             }
                         });
                     }
+                    // Restore collections state
+                    if (saved.collections) {
+                        // TF collection toggles
+                        if (saved.collections.tfToggled && typeof saved.collections.tfToggled === 'object') {
+                            var validTFKeys = TF_COLLECTIONS.map(function(c) { return c.key; });
+                            validTFKeys.forEach(function(k) {
+                                if (typeof saved.collections.tfToggled[k] === 'boolean') {
+                                    p.collections.tfToggled[k] = saved.collections.tfToggled[k];
+                                }
+                            });
+                        }
+                        // Item collection inputs
+                        if (saved.collections.itemColl && typeof saved.collections.itemColl === 'object') {
+                            ITEM_COLL_STATS.forEach(function(cs) {
+                                var val = parseInt(saved.collections.itemColl[cs.key]);
+                                if (!isNaN(val)) {
+                                    p.collections.itemColl[cs.key] = Math.max(0, Math.min(cs.max, val));
+                                }
+                            });
+                        }
+                    }
+                    // Restore relic state
+                    if (saved.relic && typeof saved.relic.level === 'number') {
+                        var relicLvl = Math.max(1, Math.min(300, saved.relic.level));
+                        p.relic.level = relicLvl;
+                    }
                     state[id] = p;
                 });
-                if (data.activeTab === 'equipment' || data.activeTab === 'transforms') {
+                if (data.activeTab === 'equipment' || data.activeTab === 'transforms' ||
+                    data.activeTab === 'collections' || data.activeTab === 'relic') {
                     activeTab = data.activeTab;
                 }
                 return true;
@@ -1582,7 +1886,9 @@
                 oaths: emptyStats(),
                 manastones: emptyStats(),
                 transforms: emptyStats(),
-                accessories: emptyStats()
+                accessories: emptyStats(),
+                collections: emptyStats(),
+                relic: emptyStats()
             };
 
             // Sum armor stats across all 6 slots
@@ -1715,6 +2021,61 @@
             if (hasStarEarring && profile.accessories.necklace.set === 'starshine' &&
                 hasStarRing && profile.accessories.belt.set === 'starshine') {
                 sources.accessories.attack += 335;
+            }
+
+            // ── Transformation Collection bonuses (toggle-based) ──
+            var tfToggled = (profile.collections && profile.collections.tfToggled) ? profile.collections.tfToggled : {};
+            TF_COLLECTIONS.forEach(function(coll) {
+                if (!tfToggled[coll.key]) return;
+                // Handle crit/attack split by class type
+                if (coll.stat === 'critStrike' && isPhys) {
+                    sources.collections.crit += coll.value;
+                } else if (coll.stat === 'critSpell' && !isPhys) {
+                    sources.collections.crit += coll.value;
+                } else if (coll.stat === 'physicalAttack' && isPhys) {
+                    sources.collections.attack += coll.value;
+                } else if (coll.stat === 'magicAttack' && !isPhys) {
+                    sources.collections.attack += coll.value;
+                } else if (coll.stat === 'defence' && isPhys) {
+                    sources.collections.physicalDef += coll.value;
+                } else if (coll.stat === 'defence' && !isPhys) {
+                    sources.collections.magicalDef += coll.value;
+                } else if (
+                    coll.stat !== 'critStrike' && coll.stat !== 'critSpell' &&
+                    coll.stat !== 'physicalAttack' && coll.stat !== 'magicAttack'
+                ) {
+                    if (sources.collections[coll.stat] !== undefined) {
+                        sources.collections[coll.stat] += coll.value;
+                    }
+                }
+            });
+
+            // ── Item Collection bonuses (numeric input) ──
+            var itemColl = (profile.collections && profile.collections.itemColl) ? profile.collections.itemColl : {};
+
+            ITEM_COLL_STATS.forEach(function(cs) {
+                var val = parseInt(itemColl[cs.key]) || 0;
+                // Handle crit/attack/accuracy split by class type
+                if (cs.key === 'critStrike' && isPhys) {
+                    sources.collections[cs.statKey] += val;
+                } else if (cs.key === 'critSpell' && !isPhys) {
+                    sources.collections[cs.statKey] += val;
+                } else if (cs.key === 'physicalAttack' && isPhys) {
+                    sources.collections[cs.statKey] += val;
+                } else if (cs.key === 'magicAttack' && !isPhys) {
+                    sources.collections[cs.statKey] += val;
+                } else if (
+                    cs.key !== 'critStrike' && cs.key !== 'critSpell' &&
+                    cs.key !== 'physicalAttack' && cs.key !== 'magicAttack'
+                ) {
+                    sources.collections[cs.statKey] += val;
+                }
+            });
+
+            // ── Relic stats ──
+            if (profile.relic && profile.relic.level > 0) {
+                var relicStats = getRelicStats(profile.relic.level, isPhys);
+                STAT_KEYS.forEach(function(k) { sources.relic[k] += (relicStats[k] || 0); });
             }
 
             // Compute totals from sources
@@ -1938,6 +2299,10 @@
             renderProfile(2);
             renderTransform(1);
             renderTransform(2);
+            renderCollections(1);
+            renderCollections(2);
+            renderRelic(1);
+            renderRelic(2);
             updateComparison();
         }
 
@@ -2025,6 +2390,146 @@
                 html += '</div>';
             }
 
+            el.innerHTML = html;
+        }
+
+        // ── Collections rendering ──
+        function renderCollections(pid) {
+            var el = document.getElementById('collections-' + pid);
+            var profile = state[pid];
+            if (!profile.collections) {
+                profile.collections = { tfToggled: {}, itemColl: {} };
+                ITEM_COLL_STATS.forEach(function(cs) { profile.collections.itemColl[cs.key] = cs.max; });
+                TF_COLLECTIONS.forEach(function(coll) { profile.collections.tfToggled[coll.key] = true; });
+            }
+            var tfToggled = profile.collections.tfToggled;
+            var itemColl  = profile.collections.itemColl;
+
+            var html = '<div class="gc-profile-header">';
+            html += '<span class="gc-set-title">SET ' + pid + '</span>';
+            html += '<button class="gc-reset-btn" onclick="GC.resetCollections(' + pid + ')" title="Reset collections">&#x21BA;</button>';
+            html += '</div>';
+
+            // ── Item Collections ──
+            html += '<div class="gc-section-label gc-coll-section-label">\uD83C\uDF92 Item Collections</div>';
+            html += '<div class="gc-coll-item-grid">';
+            ITEM_COLL_STATS.forEach(function(cs) {
+                var currentVal = parseInt(itemColl[cs.key]) || 0;
+                html += '<div class="gc-coll-item-row">';
+                html += '<label class="gc-coll-item-label" for="ic-' + pid + '-' + cs.key + '">' + cs.name + '</label>';
+                html += '<input type="number" id="ic-' + pid + '-' + cs.key + '" class="gc-coll-item-input"';
+                html += ' min="0" max="' + cs.max + '" value="' + currentVal + '"';
+                html += ' oninput="GC.setItemColl(' + pid + ',\'' + cs.key + '\',this.value)"';
+                html += ' onblur="GC.clampItemCollDisplay(' + pid + ',\'' + cs.key + '\',this)">';
+                html += '<span class="gc-coll-item-max">/ ' + cs.max + '</span>';
+                html += '</div>';
+            });
+            html += '</div>';
+
+            // ── Transformation Collections ──
+            var allOn = TF_COLLECTIONS.every(function(coll) { return tfToggled[coll.key]; });
+            html += '<div class="warning-box">⚠️ Under development.<br>Only relatable stats added for now (hp, attack, crit, critDmg, pdef, strike forti, mdef, spell forti).</div>';
+            html += '<div class="gc-section-label gc-coll-section-label" style="margin-top:16px">\uD83D\uDD2E Transformation Collections';
+            html += '<button class="gc-ms-btn" onclick="GC.toggleAllTFCollections(' + pid + ',' + (!allOn) + ')" title="' + (allOn ? 'Deselect' : 'Select') + ' all transformation collections">' + (allOn ? 'Deselect All' : 'Select All') + '</button>';
+            html += '</div>';
+            html += '<div class="gc-coll-tf-scroll">';
+            html += '<div class="gc-coll-tf-grid">';
+            TF_COLLECTIONS.forEach(function(coll) {
+                var isOn = !!tfToggled[coll.key];
+                var statDef = COMPARISON_STATS.find(function(s) { return s.key === coll.stat; });
+                var statName = statDef ? statDef.name : coll.stat;
+                html += '<div class="gc-coll-btn' + (isOn ? ' gc-coll-btn-on' : '') + '"';
+                html += ' onclick="GC.toggleTFCollection(' + pid + ',\'' + coll.key + '\')"';
+                html += ' title="' + (isOn ? 'Active — click to deactivate' : 'Inactive — click to activate') + '">';
+                html += '<span class="gc-coll-btn-title">' + coll.name + '</span>';
+                html += '<span class="gc-coll-btn-stat">+' + coll.value.toLocaleString() + ' ' + statName + '</span>';
+                html += '</div>';
+            });
+            html += '</div></div>';
+
+            el.innerHTML = html;
+        }
+
+        // ── Relic rendering (in-game style) ──
+        function renderRelic(pid) {
+            var isPhy = isPhysicalClass(selectedClass);
+            var el = document.getElementById('relic-' + pid);
+            var profile = state[pid];
+            if (!profile.relic) profile.relic = { level: 0 };
+            var level = profile.relic.level || 0;
+            var relicStats = getRelicLevelStats(level);
+
+            var html = '<div class="gc-relic-panel">';
+
+            // ─── Header: stone icon + title + reset ───
+            html += '<div class="gc-relic-header">';
+            html += '<img src="assets/icons/icon_item_sacredstone_levelup.png" class="gc-relic-header-icon" alt="Relic">';
+            html += '<div class="gc-relic-header-info">';
+            html += '<span class="gc-relic-header-title">Lord\'s Relic</span>';
+            html += '<span class="gc-relic-header-subtitle">SET ' + pid +'</span>';
+            html += '</div>';
+            html += '<button class="gc-reset-btn" onclick="GC.resetRelic(' + pid + ')" title="Reset relic">&#x21BA;</button>';
+            html += '</div>';
+
+            // ─── Level row: number input + slider ───
+            html += '<div class="gc-relic-level-row">';
+            html += '<span class="gc-relic-level-label">Level</span>';
+            html += '<input type="number" class="gc-relic-level-input" min="0" max="300" value="' + level + '"';
+            html += ' oninput="GC.setRelicLevelLight(' + pid + ',this.value)"';
+            html += ' onblur="GC.finalizeRelicLevel(' + pid + ',this)">';
+            html += '<input type="range" class="gc-relic-level-slider" min="0" max="300" value="' + level + '"';
+            html += ' oninput="GC.setRelicLevelSliderLight(' + pid + ',this.value)"';
+            html += ' onchange="GC.finalizeRelicSlider(' + pid + ',this.value)">';
+            html += '<span class="gc-relic-level-max">/ 300</span>';
+            html += '</div>';
+
+            // ─── Special skills row ───
+            html += '<div class="gc-relic-skills-label">Relic Skill</div>';
+            html += '<div class="gc-relic-skills-row">';
+            RELIC_MILESTONES.filter(function(ms) {
+                return (
+                    !ms.type || ms.type === 'both' ||
+                    (ms.type === 'physical' && isPhy) ||
+                    (ms.type === 'magical' && !isPhy)
+                );
+            }).forEach(function(ms) {
+                var isActive = level >= ms.level;
+                var tooltip = ms.name + '\nLv. ' + ms.level;
+                if (ms.stats) {
+                    var statStrs = [];
+                    COMPARISON_STATS.forEach(function(st) {
+                        if (ms.stats[st.key]) statStrs.push('+' + ms.stats[st.key].toLocaleString() + ' ' + st.name);
+                    });
+                    if (statStrs.length) tooltip += '\n' + statStrs.join(', ');
+                }
+                //html += '<div class="gc-relic-skill' + (isActive ? ' gc-relic-skill-active' : ' gc-relic-skill-locked') + '" title="' + tooltip + '">';
+                html += '<div class="gc-relic-skill' + (isActive ? ' gc-relic-skill-active' : ' gc-relic-skill-locked') + '" data-tooltip="' + tooltip + '">';
+                if (ms.icon) {
+                    html += '<img src="' + ms.icon + '" class="gc-relic-skill-icon' + (isActive ? '' : ' gc-relic-skill-icon-dim') + '" alt="' + ms.name + '">';
+                }
+                html += '<span class="gc-relic-skill-lvl">' + ms.level + '</span>';
+                html += '</div>';
+            });
+            html += '</div>';
+
+            // ─── Stats grid ───
+            html += '<div class="warning-box">⚠️ Per level stats under development.</div>';
+            html += '<div class="gc-relic-stats-label">Stats at Level ' + level + '</div>';
+            html += '<div class="gc-relic-stats-grid">';
+            RELIC_STAT_DEFS.forEach(function(def) {
+                var val = relicStats[def.stat] || 0;
+                var pct = def.max > 0 ? Math.min(100, Math.round(val / def.max * 100)) : 0;
+                html += '<div class="gc-relic-stat-row">';
+                html += '<span class="gc-relic-stat-name">' + def.name + '</span>';
+                html += '<div class="gc-relic-stat-bar-wrap">';
+                html += '<div class="gc-relic-stat-bar" style="width:' + pct + '%"></div>';
+                html += '</div>';
+                html += '<span class="gc-relic-stat-val">' + val.toLocaleString() + '<span class="gc-relic-stat-max"> / ' + def.max.toLocaleString() + '</span></span>';
+                html += '</div>';
+            });
+            html += '</div>';
+
+            html += '</div>'; // gc-relic-panel
             el.innerHTML = html;
         }
 
@@ -2526,7 +3031,9 @@
             { key: 'oaths',       icon: '⚔️', name: 'Oaths' },
             { key: 'manastones',  icon: '💎', name: 'Manastones' },
             { key: 'accessories', icon: '📿', name: 'Accessories' },
-            { key: 'transforms',  icon: '✨', name: 'Transforms' }
+            { key: 'transforms',  icon: '✨', name: 'Transforms' },
+            { key: 'collections', icon: '📦', name: 'Collections' },
+            { key: 'relic',       icon: '🏛️', name: 'Relic' }
         ];
 
         function updateComparison() {
@@ -2548,73 +3055,92 @@
             html += '<h2>📈 Stat Comparison</h2>';
             html += '</div>';
 
-            // Summary badges
-            html += '<div class="gc-comp-summary">';
-            html += '<span class="gc-comp-badge gc-comp-badge-1">' + wins1 + ' SET 1</span>';
-            if (ties > 0) html += '<span class="gc-comp-badge gc-comp-badge-tie">' + ties + ' Tied</span>';
-            html += '<span class="gc-comp-badge gc-comp-badge-2">' + wins2 + ' SET 2</span>';
-            html += '</div>';
-
+            // Start the table immediately
             html += '<table class="gc-comp-table">';
-            html += '<thead><tr>';
+            html += '<thead>';
+
+            // 1. New Row for Summary Badges (Aligned to columns)
+            html += '<tr class="gc-comp-summary-row">';
+            html += '<th></th>'; // Empty cell over the 'Stat' column to shift everything right
+            html += '<th class="gc-comp-summary-cell" style="text-align: center; padding-bottom: 15px;"><span class="gc-comp-badge gc-comp-badge-1">' + wins1 + ' SET 1</span></th>';
+
+            html += '<th class="gc-comp-summary-cell" style="text-align: center; padding-bottom: 15px;">';
+            if (ties > 0) html += '<span class="gc-comp-badge gc-comp-badge-tie">' + ties + ' Tied</span>';
+            html += '</th>';
+
+            html += '<th class="gc-comp-summary-cell" style="text-align: center; padding-bottom: 15px;"><span class="gc-comp-badge gc-comp-badge-2">' + wins2 + ' SET 2</span></th>';
+            html += '</tr>';
+
+            // 2. Standard Column Headers
+            html += '<tr>';
             html += '<th class="gc-comp-th-stat">Stat</th>';
             html += '<th class="gc-comp-th-val">SET 1</th>';
             html += '<th class="gc-comp-th-diff">DIFF</th>';
             html += '<th class="gc-comp-th-val">SET 2</th>';
-            html += '</tr></thead>';
+            html += '<th class="gc-comp-ghost"></th>';
+            html += '</tr>';
+            html += '</thead>';
             html += '<tbody>';
 
-            COMPARISON_STATS.forEach(function(stat) {
-                var v1 = stats1[stat.key];
-                var v2 = stats2[stat.key];
-                var diff = v1 - v2;
-                var maxVal = Math.max(v1, v2, 1);
-                var pct1 = Math.round((v1 / maxVal) * 100);
-                var pct2 = Math.round((v2 / maxVal) * 100);
-
-                var diffClass = 'gc-diff-zero';
-                var diffText = '0';
-                if (diff > 0) {
-                    diffClass = 'gc-diff-positive';
-                    diffText = '+' + formatNum(diff);
-                } else if (diff < 0) {
-                    diffClass = 'gc-diff-negative';
-                    diffText = formatNum(diff);
-                }
-
-                var winCls1 = v1 > v2 ? ' gc-comp-val-win' : '';
-                var winCls2 = v2 > v1 ? ' gc-comp-val-win' : '';
-
-                // Check if any source has nonzero diff for this stat
-                var hasBreakdown = false;
-                SOURCE_LABELS.forEach(function(sl) {
-                    if (src1[sl.key][stat.key] !== 0 || src2[sl.key][stat.key] !== 0) hasBreakdown = true;
-                });
-
-                html += '<tr class="gc-comp-row' + (hasBreakdown ? ' gc-comp-expandable' : '') + '" data-stat="' + stat.key + '">';
-                html += '<td class="gc-comp-stat">' + stat.name + (hasBreakdown ? ' <span class="gc-comp-chevron">▸</span>' : '') + '</td>';
-                html += '<td class="gc-comp-val' + winCls1 + '"><div class="gc-comp-bar-wrap"><div class="gc-comp-bar gc-comp-bar-1" style="width:' + pct1 + '%"></div><span class="gc-comp-val-text">' + formatNum(v1) + '</span></div></td>';
-                html += '<td class="gc-comp-diff ' + diffClass + '">' + diffText + '</td>';
-                html += '<td class="gc-comp-val' + winCls2 + '"><div class="gc-comp-bar-wrap"><div class="gc-comp-bar gc-comp-bar-2" style="width:' + pct2 + '%"></div><span class="gc-comp-val-text">' + formatNum(v2) + '</span></div></td>';
+            STAT_GROUPS.forEach(function(group) {
+                html += '<tr class="gc-comp-group-row">';
+                html += '<td></td>'; 
+                html += '<td class="gc-comp-group-label" colspan="3">' + group.label + '</td>'; 
                 html += '</tr>';
-
-                // Source breakdown rows (hidden by default)
-                if (hasBreakdown) {
+                group.keys.forEach(function(statKey) {
+                    var stat = COMPARISON_STATS.find(function(s) { return s.key === statKey; });
+                    if (!stat) return;
+                    var v1 = stats1[stat.key];
+                    var v2 = stats2[stat.key];
+                    var diff = v1 - v2;
+                    var maxVal = Math.max(v1, v2, 1);
+                    var pct1 = Math.round((v1 / maxVal) * 100);
+                    var pct2 = Math.round((v2 / maxVal) * 100);
+            
+                    var diffClass = 'gc-diff-zero';
+                    var diffText = '0';
+                    if (diff > 0) {
+                        diffClass = 'gc-diff-positive';
+                        diffText = '+' + formatNum(diff);
+                    } else if (diff < 0) {
+                        diffClass = 'gc-diff-negative';
+                        diffText = formatNum(diff);
+                    }
+            
+                    var winCls1 = v1 > v2 ? ' gc-comp-val-win' : '';
+                    var winCls2 = v2 > v1 ? ' gc-comp-val-win' : '';
+            
+                    // Check if any source has nonzero diff for this stat
+                    var hasBreakdown = false;
                     SOURCE_LABELS.forEach(function(sl) {
-                        var sv1 = src1[sl.key][stat.key];
-                        var sv2 = src2[sl.key][stat.key];
-                        if (sv1 === 0 && sv2 === 0) return;
-                        var sd = sv1 - sv2;
-                        var sdClass = sd > 0 ? 'gc-diff-positive' : sd < 0 ? 'gc-diff-negative' : 'gc-diff-zero';
-                        var sdText = sd > 0 ? '+' + formatNum(sd) : sd < 0 ? formatNum(sd) : '—';
-                        html += '<tr class="gc-comp-source-row" data-parent="' + stat.key + '">';
-                        html += '<td class="gc-comp-source-label">' + sl.icon + ' ' + sl.name + '</td>';
-                        html += '<td class="gc-comp-source-val">' + formatNum(sv1) + '</td>';
-                        html += '<td class="gc-comp-source-diff ' + sdClass + '">' + sdText + '</td>';
-                        html += '<td class="gc-comp-source-val">' + formatNum(sv2) + '</td>';
-                        html += '</tr>';
+                        if (src1[sl.key][stat.key] !== 0 || src2[sl.key][stat.key] !== 0) hasBreakdown = true;
                     });
-                }
+            
+                    html += '<tr class="gc-comp-row' + (hasBreakdown ? ' gc-comp-expandable' : '') + '" data-stat="' + stat.key + '">';
+                    html += '<td class="gc-comp-stat">' + stat.name + (hasBreakdown ? ' <span class="gc-comp-chevron">▸</span>' : '') + '</td>';
+                    html += '<td class="gc-comp-val' + winCls1 + '"><div class="gc-comp-bar-wrap"><div class="gc-comp-bar gc-comp-bar-1" style="width:' + pct1 + '%"></div><span class="gc-comp-val-text">' + formatNum(v1) + '</span></div></td>';
+                    html += '<td class="gc-comp-diff ' + diffClass + '">' + diffText + '</td>';
+                    html += '<td class="gc-comp-val' + winCls2 + '"><div class="gc-comp-bar-wrap"><div class="gc-comp-bar gc-comp-bar-2" style="width:' + pct2 + '%"></div><span class="gc-comp-val-text">' + formatNum(v2) + '</span></div></td>';
+                    html += '</tr>';
+            
+                    // Source breakdown rows (hidden by default)
+                    if (hasBreakdown) {
+                        SOURCE_LABELS.forEach(function(sl) {
+                            var sv1 = src1[sl.key][stat.key];
+                            var sv2 = src2[sl.key][stat.key];
+                            if (sv1 === 0 && sv2 === 0) return;
+                            var sd = sv1 - sv2;
+                            var sdClass = sd > 0 ? 'gc-diff-positive' : sd < 0 ? 'gc-diff-negative' : 'gc-diff-zero';
+                            var sdText = sd > 0 ? '+' + formatNum(sd) : sd < 0 ? formatNum(sd) : '—';
+                            html += '<tr class="gc-comp-source-row" data-parent="' + stat.key + '">';
+                            html += '<td class="gc-comp-source-label">' + sl.icon + ' ' + sl.name + '</td>';
+                            html += '<td class="gc-comp-source-val">' + formatNum(sv1) + '</td>';
+                            html += '<td class="gc-comp-source-diff ' + sdClass + '">' + sdText + '</td>';
+                            html += '<td class="gc-comp-source-val">' + formatNum(sv2) + '</td>';
+                            html += '</tr>';
+                        });
+                    }
+                });
             });
 
             html += '</tbody></table>';
@@ -2773,6 +3299,100 @@
                 state[pid].transform = 'none';
                 state[pid].transformEnchant = 0;
                 renderTransform(pid);
+                updateComparison();
+                saveState();
+            },
+
+            // ── Collections handlers ──
+            toggleTFCollection: function(pid, key) {
+                var p = state[pid];
+                if (!p.collections) { p.collections = { tfToggled: {}, itemColl: {} }; }
+                p.collections.tfToggled[key] = !p.collections.tfToggled[key];
+                renderCollections(pid);
+                updateComparison();
+                saveState();
+            },
+
+            setItemColl: function(pid, key, rawVal) {
+                var p = state[pid];
+                if (!p.collections) { p.collections = { tfToggled: {}, itemColl: {} }; }
+                var cs  = ITEM_COLL_STATS.find(function(c) { return c.key === key; });
+                var max = cs ? cs.max : 9999;
+                var val = Math.max(0, Math.min(max, parseInt(rawVal) || 0));
+                p.collections.itemColl[key] = val;
+                updateComparison();
+                saveState();
+            },
+
+            clampItemCollDisplay: function(pid, key, el) {
+                var p = state[pid];
+                var stored = (p && p.collections && p.collections.itemColl) ? (p.collections.itemColl[key] || 0) : 0;
+                el.value = stored;
+            },
+
+            resetCollections: function(pid) {
+                var p = state[pid];
+                p.collections = { tfToggled: {}, itemColl: {} };
+                ITEM_COLL_STATS.forEach(function(cs) { p.collections.itemColl[cs.key] = cs.max; });
+                TF_COLLECTIONS.forEach(function(coll) { p.collections.tfToggled[coll.key] = true; });
+                renderCollections(pid);
+                updateComparison();
+                saveState();
+            },
+
+            toggleAllTFCollections: function(pid, on) {
+                var p = state[pid];
+                if (!p.collections) p.collections = { tfToggled: {}, itemColl: {} };
+                TF_COLLECTIONS.forEach(function(coll) {
+                    p.collections.tfToggled[coll.key] = !!on;
+                });
+                renderCollections(pid);
+                updateComparison();
+                saveState();
+            },
+
+            // ── Relic handlers ──
+            // Light: syncs sibling control + comparison, no DOM rebuild (keeps focus)
+            setRelicLevelLight: function(pid, rawVal) {
+                var val = Math.max(0, Math.min(300, parseInt(rawVal) || 0));
+                state[pid].relic.level = val;
+                var slider = document.querySelector('#relic-' + pid + ' .gc-relic-level-slider');
+                if (slider) slider.value = val;
+                updateComparison();
+            },
+
+            setRelicLevelSliderLight: function(pid, rawVal) {
+                var val = Math.max(0, Math.min(300, parseInt(rawVal) || 0));
+                state[pid].relic.level = val;
+                var numInput = document.querySelector('#relic-' + pid + ' .gc-relic-level-input');
+                if (numInput) numInput.value = val;
+                updateComparison();
+            },
+
+            // Final: clamp display, full re-render, save (called on blur / slider release)
+            finalizeRelicLevel: function(pid, el) {
+                var val = Math.max(0, Math.min(300, parseInt(el.value) || 0));
+                state[pid].relic.level = val;
+                renderRelic(pid);
+                updateComparison();
+                saveState();
+            },
+
+            finalizeRelicSlider: function(pid, rawVal) {
+                var val = Math.max(0, Math.min(300, parseInt(rawVal) || 0));
+                state[pid].relic.level = val;
+                renderRelic(pid);
+                updateComparison();
+                saveState();
+            },
+
+            // Legacy aliases kept in case called from older saved state / share links
+            setRelicLevel: function(pid, rawVal) { this.finalizeRelicLevel(pid, { value: rawVal }); },
+            setRelicLevelSlider: function(pid, rawVal) { this.finalizeRelicSlider(pid, rawVal); },
+
+            resetRelic: function(pid) {
+                state[pid].relic = { level: 300 };
+                renderRelic(pid);
                 updateComparison();
                 saveState();
             },

@@ -3921,7 +3921,7 @@ flex: 1;
     padding: 14px;
     box-shadow: var(--shadow-md);
     min-width: 0;
-    overflow: hidden;
+    overflow: visibile !important;
 }
 
 .gc-profile-header {
@@ -3977,6 +3977,15 @@ flex: 1;
     font-size: 0.95em;
     margin-bottom: 10px;
     padding-left: 4px;
+}
+
+.gc-section-label.gc-coll-section-label {
+    display: flex;
+    align-items: center;
+}
+
+.gc-section-label.gc-coll-section-label .gc-ms-btn {
+    margin-left: auto;
 }
 
 /* ── Shared Class Selector ── */
@@ -5232,8 +5241,9 @@ flex: 1;
 }
 
 .gc-comp-table {
+    table-layout: fixed;
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
     border-collapse: collapse;
     font-size: 0.9em;
@@ -5249,15 +5259,33 @@ flex: 1;
 
 .gc-comp-th-stat {
     text-align: left !important;
-    width: 40%;
+    width: 25%;
 }
 
 .gc-comp-th-val {
-    width: 20%;
+    width: 25%;
 }
 
 .gc-comp-th-diff {
-    width: 20%;
+    width: 25%;
+}
+
+.gc-comp-ghost {
+    width: 0%; 
+    padding: 0 !important;
+    border: none !important;
+}
+
+.gc-comp-group-row {
+    background: none;
+}
+.gc-comp-group-label {
+    text-align: center;
+    font-weight: bold;
+    color: #db822a;
+    font-size: 1em;
+    padding: 10px 0 4px 0;
+    background: none;
 }
 
 .gc-comp-category-row td {
@@ -5348,11 +5376,13 @@ flex: 1;
 
 /* ── Stat Bar Visualization ── */
 .gc-comp-bar-wrap {
+    width: 100%;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 22px;
+    overflow: hidden;
 }
 
 .gc-comp-bar {
@@ -5370,6 +5400,8 @@ flex: 1;
 }
 
 .gc-comp-bar-2 {
+    left: auto;
+    right: auto;
     background: rgba(181, 101, 245, 0.12);
 }
 
@@ -5452,27 +5484,47 @@ flex: 1;
 }
 
 .gc-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     background: transparent;
     border: none;
-    color: rgba(180, 200, 220, 0.5);
+    color: rgba(180, 200, 220, 0.45);
     font-family: inherit;
-    font-size: 0.95em;
+    font-size: 0.78em;
     font-weight: 600;
-    padding: 10px 22px;
+    padding: 8px 16px 9px;
     cursor: pointer;
     border-bottom: 2px solid transparent;
     margin-bottom: -2px;
     transition: color 0.2s, border-color 0.2s;
     letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.gc-tab-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    opacity: 0.45;
+    transition: opacity 0.2s;
+    filter: drop-shadow(0 0 0px transparent);
 }
 
 .gc-tab:hover {
-    color: rgba(180, 215, 255, 0.8);
+    color: rgba(180, 215, 255, 0.85);
+}
+.gc-tab:hover .gc-tab-icon {
+    opacity: 0.75;
 }
 
 .gc-tab-active {
     color: rgba(140, 200, 255, 1);
     border-bottom-color: rgba(100, 180, 255, 0.7);
+}
+.gc-tab-active .gc-tab-icon {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(100, 190, 255, 0.55));
 }
 
 .gc-tab-panel {
@@ -5861,5 +5913,411 @@ flex: 1;
     }
     .gc-tf-icon-label {
         font-size: 0.48em;
+    }
+}
+/* ============================================
+   GEAR COMPARE — COLLECTIONS TAB
+   ============================================ */
+
+.gc-coll-section-label {
+    font-size: 0.82em;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--accent-purple);
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(181, 101, 245, 0.2);
+}
+
+/* Empty notice (shown while data arrays are unpopulated) */
+.gc-coll-empty-notice {
+    font-size: 0.82em;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.04);
+    border: 1px dashed rgba(181,101,245,0.25);
+    border-radius: 8px;
+    padding: 12px 14px;
+    line-height: 1.6;
+}
+.gc-coll-empty-notice code {
+    color: var(--accent);
+    background: rgba(77,184,255,0.12);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 0.95em;
+}
+
+/* Transformation collection toggle buttons grid */
+.gc-coll-tf-scroll {
+    max-height: 270px;
+    overflow-y: auto;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background: rgba(30, 30, 50, 0.18);
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.07);
+    padding-right: 2px;
+}
+
+.gc-coll-tf-scroll::-webkit-scrollbar { width: 8px; }
+.gc-coll-tf-scroll::-webkit-scrollbar-track { background: rgba(181, 101, 245, 0.08); border-radius: 10px; }
+.gc-coll-tf-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(181, 101, 245, 0.5) 0%, rgba(181, 101, 245, 0.7) 100%); border-radius: 10px; border: 2px solid rgba(181, 101, 245, 0.08); }
+.gc-coll-tf-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(181, 101, 245, 0.7) 0%, rgba(181, 101, 245, 0.9) 100%); }
+
+.gc-coll-tf-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 0 8px 0;
+}
+
+.gc-coll-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(181,101,245,0.2);
+    background: rgba(255,255,255,0.04);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+}
+.gc-coll-btn:hover {
+    background: rgba(181,101,245,0.1);
+    border-color: rgba(181,101,245,0.45);
+}
+.gc-coll-btn-on {
+    background: rgba(77,255,77,0.08);
+    border-color: rgba(77,255,77,0.5);
+}
+.gc-coll-btn-on:hover {
+    background: rgba(77,255,77,0.13);
+}
+.gc-coll-btn-title {
+    font-size: 0.84em;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.gc-coll-btn-on .gc-coll-btn-title {
+    color: #7dffb0;
+}
+.gc-coll-btn-stat {
+    font-size: 0.75em;
+    color: var(--accent);
+}
+
+/* Item collections grid — CSS grid keeps all inputs column-aligned */
+.gc-coll-item-grid {
+    display: grid;
+    grid-template-columns: 1fr 72px 52px;
+    align-items: center;
+    gap: 7px 8px;
+}
+
+.gc-coll-item-row {
+    display: contents;
+}
+
+.gc-coll-item-label {
+    font-size: 0.82em;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.gc-coll-item-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: flex-end;
+}
+
+.gc-coll-item-input {
+    width: 72px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(181,101,245,0.3);
+    background: rgba(255,255,255,0.06);
+    color: var(--text-primary);
+    font-size: 0.82em;
+    text-align: right;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+}
+.gc-coll-item-input:focus {
+    outline: none;
+    border-color: rgba(181,101,245,0.7);
+}
+.gc-coll-item-input::-webkit-inner-spin-button,
+.gc-coll-item-input::-webkit-outer-spin-button {
+    opacity: 0.5;
+}
+
+.gc-coll-item-max {
+    font-size: 0.72em;
+    color: var(--text-dim);
+    white-space: nowrap;
+    text-align: left;
+}
+
+/* ============================================
+   GEAR COMPARE — RELIC TAB (in-game style)
+   ============================================ */
+
+/* Outer panel — sits inside .gc-profile */
+.gc-relic-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* ── Header ── */
+.gc-relic-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px 10px;
+    background: linear-gradient(135deg, rgba(50,35,80,0.6) 0%, rgba(20,20,35,0.4) 100%);
+    border-bottom: 1px solid rgba(181,101,245,0.2);
+    border-radius: 10px 10px 0 0;
+    margin-bottom: 0;
+}
+.gc-relic-header-icon {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(181,101,245,0.5));
+    flex-shrink: 0;
+}
+.gc-relic-header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+.gc-relic-header-title {
+    font-size: 1em;
+    font-weight: 700;
+    color: var(--accent-purple);
+    letter-spacing: 0.5px;
+}
+.gc-relic-header-subtitle {
+    font-size: 0.72em;
+    color: var(--text-dim);
+    letter-spacing: 0.3px;
+}
+
+.gc-relic-header .gc-reset-btn {
+    position: static;
+    margin-left: auto;
+    right: unset;
+    top: unset;
+    transform: none;
+}
+
+/* ── Level row ── */
+.gc-relic-level-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.025);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.gc-relic-level-label {
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    min-width: 38px;
+}
+.gc-relic-level-input {
+    width: 58px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(181,101,245,0.35);
+    background: rgba(255,255,255,0.07);
+    color: var(--text-primary);
+    font-size: 0.9em;
+    font-weight: 700;
+    text-align: center;
+    transition: border-color 0.15s;
+}
+.gc-relic-level-input:focus {
+    outline: none;
+    border-color: rgba(181,101,245,0.8);
+}
+.gc-relic-level-input::-webkit-inner-spin-button,
+.gc-relic-level-input::-webkit-outer-spin-button { opacity: 0.4; }
+.gc-relic-level-slider {
+    flex: 1;
+    min-width: 80px;
+    accent-color: var(--accent-purple);
+    cursor: pointer;
+    height: 4px;
+}
+.gc-relic-level-max {
+    font-size: 0.72em;
+    color: var(--text-dim);
+    white-space: nowrap;
+}
+
+/* ── Special Skills row ── */
+.gc-relic-skills-label {
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    padding: 8px 14px 4px;
+}
+.gc-relic-skills-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 4px 14px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    min-height: 62px;
+    align-items: flex-start;
+}
+.gc-relic-skills-empty {
+    font-size: 0.75em;
+    color: var(--text-dim);
+    align-self: center;
+}
+
+/* Each special skill button */
+.gc-relic-skill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: default;
+    user-select: none;
+    position: relative;
+}
+.gc-relic-skill-icon {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    border-radius: 6px;
+    border: 2px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.4);
+    transition: border-color 0.2s, filter 0.2s;
+}
+.gc-relic-skill-active .gc-relic-skill-icon {
+    border-color: rgba(255, 200, 80, 0.7);
+    filter: drop-shadow(0 0 6px rgba(255,190,60,0.55));
+}
+.gc-relic-skill-icon-dim {
+    filter: grayscale(1) brightness(0.45);
+    border-color: rgba(255,255,255,0.05) !important;
+}
+.gc-relic-skill-lvl {
+    font-size: 0.62em;
+    font-weight: 700;
+    color: var(--text-dim);
+    line-height: 1;
+}
+.gc-relic-skill-active .gc-relic-skill-lvl {
+    color: rgba(255, 200, 80, 0.85);
+}
+
+.gc-relic-skill:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    
+    background: rgba(15, 15, 20, 0.95);
+    color: #eee;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    
+    font-size: 14px; 
+    line-height: 1.4;
+    width: 220px;
+    white-space: pre-wrap;
+    pointer-events: none;
+    
+    overflow: visible !important;
+}
+
+/* ── Stats section ── */
+.gc-relic-stats-label {
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    padding: 10px 14px 4px;
+}
+.gc-relic-stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 4px 14px 14px;
+}
+
+.gc-relic-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gc-relic-stat-name {
+    font-size: 0.78em;
+    color: var(--text-secondary);
+    min-width: 120px;
+    white-space: nowrap;
+}
+
+.gc-relic-stat-bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    min-width: 40px;
+}
+
+.gc-relic-stat-bar {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(100,180,255,0.7) 0%, rgba(181,101,245,0.8) 100%);
+    border-radius: 3px;
+    transition: width 0.25s ease;
+}
+
+.gc-relic-stat-val {
+    font-size: 0.78em;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    min-width: 72px;
+    text-align: right;
+}
+
+.gc-relic-stat-max {
+    font-weight: 400;
+    color: var(--text-dim);
+    font-size: 0.9em;
+}
+
+@media (max-width: 600px) {
+    .gc-coll-item-label {
+        min-width: 110px;
+        font-size: 0.78em;
+    }
+    .gc-relic-stat-name {
+        min-width: 90px;
+        font-size: 0.72em;
+    }
+    .gc-relic-stat-val {
+        min-width: 56px;
+        font-size: 0.72em;
     }
 }
