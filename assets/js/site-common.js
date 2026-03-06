@@ -41,7 +41,7 @@
         html += '<div class="discord-ad-icon">\uD83C\uDFAE</div>';
         html += '<h3 class="discord-ad-title">Join Aion EU Shugo Tavern</h3>';
         html += '<p class="discord-ad-text">Discord server with tutorials and information about most of the important things in Retail AION</p>';
-        html += '<a href="https://discord.gg/mkU2DK9Q" target="_blank" class="discord-ad-btn">Join Discord Server</a>';
+        html += '<a href="https://discord.gg/tAFp8zwaCs" target="_blank" class="discord-ad-btn">Join Discord Server</a>';
         html += '</div>';
 
         /* Footer block */
