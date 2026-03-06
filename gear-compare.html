@@ -10,7 +10,7 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="assets/css/aion-tools.css?v=4.2">
+    <link rel="stylesheet" href="assets/css/aion-tools.css?v=4.3">
 </head>
 <body class="page-gear-compare">
 
@@ -2397,6 +2397,8 @@
         // ── Collections rendering ──
         function renderCollections(pid) {
             var el = document.getElementById('collections-' + pid);
+            var scrollParent = el.querySelector('.gc-coll-tf-scroll');
+            var scrollTop = scrollParent ? scrollParent.scrollTop : 0;
             var profile = state[pid];
             if (!profile.collections) {
                 profile.collections = { tfToggled: {}, itemColl: {} };
@@ -2429,8 +2431,10 @@
 
             // ── Transformation Collections ──
             var allOn = TF_COLLECTIONS.every(function(coll) { return tfToggled[coll.key]; });
+            var tfOnCount = TF_COLLECTIONS.filter(function(coll) { return tfToggled[coll.key]; }).length;
+            var tfMax = TF_COLLECTIONS.length;
             html += '<div class="warning-box">⚠️ Under development.<br>Only relatable stats added for now (hp, attack, crit, critDmg, pdef, strike forti, mdef, spell forti).</div>';
-            html += '<div class="gc-section-label gc-coll-section-label" style="margin-top:16px">\uD83D\uDD2E Transformation Collections';
+            html += '<div class="gc-section-label gc-coll-section-label" style="margin-top:16px">\uD83D\uDD2E Transformation Collections <span class="gc-coll-count">(' + tfOnCount + '/' + tfMax + ')</span>';
             html += '<button class="gc-ms-btn" onclick="GC.toggleAllTFCollections(' + pid + ',' + (!allOn) + ')" title="' + (allOn ? 'Deselect' : 'Select') + ' all transformation collections">' + (allOn ? 'Deselect All' : 'Select All') + '</button>';
             html += '</div>';
             html += '<div class="gc-coll-tf-scroll">';
@@ -2449,6 +2453,8 @@
             html += '</div></div>';
 
             el.innerHTML = html;
+            var newScrollParent = el.querySelector('.gc-coll-tf-scroll');
+            if (newScrollParent) newScrollParent.scrollTop = scrollTop;
         }
 
         // ── Relic rendering (in-game style) ──

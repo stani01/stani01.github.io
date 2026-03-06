@@ -3988,6 +3988,13 @@ flex: 1;
     margin-left: auto;
 }
 
+.gc-coll-count {
+    color: #8fd0ff;
+    font-weight: 600;
+    font-size: 0.95em;
+    margin-left: 4px;
+}
+
 /* ── Shared Class Selector ── */
 .gc-class-selector {
     background: var(--bg-panel-solid);
