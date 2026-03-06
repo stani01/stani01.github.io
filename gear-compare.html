@@ -1677,9 +1677,10 @@
             });
             // Initialize collections state
             profile.collections = { tfToggled: {}, itemColl: {} };
-            ITEM_COLL_STATS.forEach(function(cs) { profile.collections.itemColl[cs.key] = 0; });
+            ITEM_COLL_STATS.forEach(function(cs) { profile.collections.itemColl[cs.key] = cs.max; });
+            TF_COLLECTIONS.forEach(function(coll) { profile.collections.tfToggled[coll.key] = true; });
             // Initialize relic state
-            profile.relic = { level: 1 };
+            profile.relic = { level: 300 };
             return profile;
         }
 
