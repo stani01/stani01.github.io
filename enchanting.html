@@ -792,56 +792,61 @@
         // Single Extreme Enchanting Simulation (Version 2 logic)
         function simulateExtremeEnchanting(startLevel, endLevel) {
             let enchantLevel = startLevel;
-            let itemsWasted = 0;
+            let itemsDestroyed = 0;
             let totalStones = 0;
+            let attempts = 0;
             let lastItemStones = 0;
-            let details = [];
 
-            while (enchantLevel < endLevel) {
+            // Use a safety break to prevent infinite loops in browser
+            while (enchantLevel < endLevel && attempts < 1000000000) {
+                attempts++;
                 totalStones++;
                 lastItemStones++;
 
-                const levelIndex = enchantLevel - 5;
-                const random = Math.floor(Math.random() * 1000);
+                // Fix 1: Correct indexing (Level 1 is index 0)
+                const levelIndex = enchantLevel - 1; 
                 
+                // Safety check for array bounds
+                if (levelIndex < 0 || levelIndex >= EXTREME_SUCCESS.length) break;
+
                 const successChance = EXTREME_SUCCESS[levelIndex];
                 const destroyChance = EXTREME_DESTROY[levelIndex];
+                
+                const roll = Math.floor(Math.random() * 1000);
 
-                // 1. Check for Success first
-                if (random < successChance) {
+                // Fix 2: Mutual Exclusivity Logic
+                // In these systems, Success and Failure are the primary check (summing to 100%)
+                // Destruction is usually checked IF the success roll fails.
+                
+                if (roll < successChance) {
+                    // SUCCESS
                     enchantLevel++;
-                    details.push({
-                        type: 'success',
-                        message: `Roll: ${random} — Success! Level: ${enchantLevel}`
-                    });
-                } 
-                // 2. If not success, check if it falls within the Destroy range
-                // We check if the roll is between the Success threshold and the Destroy threshold
-                else if (random < (successChance + destroyChance)) {
-                    enchantLevel = startLevel;
-                    lastItemStones = 0;
-                    itemsWasted++;
-                    details.push({
-                        type: 'destroy',
-                        message: `Roll: ${random} — CRITICAL FAILURE: Item Destroyed! Total wasted: ${itemsWasted}`
-                    });
-                } 
-                // 3. If it's outside both ranges, it's a simple fail (Stone lost, no level change)
-                else {
-                    details.push({
-                        type: 'fail',
-                        message: `Roll: ${random} — Failed. No change. Level: ${enchantLevel}`
-                    });
+                } else {
+                    // FAILURE - Now check if the failure results in destruction
+                    // We use a fresh roll for the Destruction check to match the 
+                    // "Absolute Rate" provided in your table.
+                    const destroyRoll = Math.floor(Math.random() * 1000);
+                    
+                    if (destroyRoll < destroyChance) {
+                        // ITEM DESTROYED
+                        itemsDestroyed++;
+                        enchantLevel = startLevel; // Reset to the very beginning
+                        lastItemStones = 0; // Reset stone count for new item
+                    } else {
+                        // SAFE FAIL
+                        // Level stays the same, stones are lost.
+                    }
                 }
             }
 
             return {
+                success: enchantLevel >= endLevel,
                 totalStones: totalStones,
-                itemsWasted: itemsWasted,
-                itemsDestroyed: itemsWasted,
-                itemsUsed: 1 + itemsWasted,
+                itemsDestroyed: itemsDestroyed,
+                finalLevel: enchantLevel,
+                totalAttempts: attempts,
                 lastItemStones: lastItemStones,
-                details: details
+                itemsUsed: 1 + itemsDestroyed
             };
         }
 
