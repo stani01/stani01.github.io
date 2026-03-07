@@ -2213,7 +2213,7 @@
 
             var mStats = getMinionStats(profile.minions.main, profile.minions.secondary);
             STAT_KEYS.forEach(function(k) { 
-                sources.permanent[k] += (mStats[k] || 0); 
+                sources.minion[k] += (mStats[k] || 0); 
             });
 
             // ── Transformation Collection bonuses (toggle-based) ──
@@ -3281,7 +3281,8 @@
             { key: 'transforms',  icon: '✨', name: 'Transforms' },
             { key: 'collections', icon: '📦', name: 'Collections' },
             { key: 'relic',       icon: '🏛️', name: 'Relic' },
-            { key: 'permanent',   icon: '🔹', name: 'Miscellaneous' },
+            { key: 'minion',      icon: '🔹', name: 'Minion' },
+            { key: 'permanent',   icon: '🔹', name: 'Cubes' },
         ];
 
         function updateComparison() {
