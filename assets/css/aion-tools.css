@@ -4471,6 +4471,188 @@ flex: 1;
     filter: drop-shadow(0 0 3px rgba(100, 200, 255, 0.3));
 }
 
+/* ============================================
+   GLYPH ACCESSORY STYLES (Overrides)
+   ============================================ */
+
+/* Transform the generic armor row into a dedicated Glyph panel layout */
+.gc-armor-row:has(.gc-glyph-label) {
+    display: grid;
+    grid-template-columns: 1fr max-content;
+    gap: 10px 20px;
+    padding: 10px 14px 14px;
+    background: rgba(15, 15, 25, 0.6);
+    align-items: start;
+    border: 1px solid rgba(200, 160, 60, 0.15);
+}
+
+.gc-glyph-label {
+    grid-column: 1 / -1;
+    border-bottom: 1px dashed rgba(200, 160, 60, 0.25);
+    padding-bottom: 8px;
+    width: 100%;
+}
+
+/* ── Bonus Radio Grid (Left Side) ── */
+.gc-glyph-bonus-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+}
+
+.gc-glyph-bonus-label {
+    width: 100%;
+    font-size: 0.72em;
+    font-weight: 700;
+    color: rgba(200, 180, 130, 0.9);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.gc-glyph-enchant-label {
+    display: flex;
+    width: 100%;
+    font-size: 0.72em;
+    font-weight: 700;
+    color: rgba(200, 180, 130, 0.9);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Mimic .gc-shield-bonus-btn for radio buttons */
+.gc-glyph-bonus-radio {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 7px;
+    font-size: 0.72em;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid rgba(100, 140, 180, 0.15);
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(180, 200, 220, 0.65);
+    flex: 1 1 calc(50% - 6px); /* Creates a neat 2-column flow */
+    min-width: 110px;
+    font-family: inherit;
+    user-select: none;
+}
+
+.gc-glyph-bonus-radio input[type="radio"] {
+    display: none; /* Hide default radio circle */
+}
+
+.gc-glyph-bonus-radio span {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
+.gc-glyph-bonus-radio b {
+    font-variant-numeric: tabular-nums;
+    color: rgba(160, 230, 160, 0.85);
+}
+
+.gc-glyph-bonus-radio:hover {
+    border-color: rgba(181, 101, 245, 0.3);
+    background: rgba(181, 101, 245, 0.08);
+    color: rgba(220, 220, 240, 0.9);
+}
+
+/* Checked state mimics .gc-shield-bonus-on */
+.gc-glyph-bonus-radio:has(input[type="radio"]:checked) {
+    border-color: rgba(200, 160, 60, 0.4);
+    background: rgba(200, 160, 60, 0.12);
+    color: rgba(255, 220, 140, 0.95);
+}
+
+.gc-glyph-bonus-radio:has(input[type="radio"]:checked) b {
+    color: rgba(160, 230, 160, 0.95);
+}
+
+/* ── Extra Stats Inputs (Right Side) ── */
+.gc-glyph-extra-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding-left: 20px;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    min-width: 130px;
+    margin-top: 18px; /* Aligns neatly with the buttons below the header */
+}
+
+.gc-glyph-extra-label {
+    font-size: 0.75em;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+
+.gc-glyph-extra-label input[type="number"] {
+    width: 52px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(200, 160, 60, 0.25);
+    background: rgba(10, 10, 15, 0.6);
+    color: var(--text-primary);
+    font-size: 1em;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-weight: 700;
+    text-align: center;
+    transition: all 0.15s ease;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.gc-glyph-extra-label input[type="number"]:focus {
+    border-color: rgba(200, 160, 60, 0.6);
+    background: rgba(200, 160, 60, 0.15);
+    box-shadow: 0 0 8px rgba(200, 160, 60, 0.2);
+}
+
+/* Remove up/down arrows for a cleaner input look */
+.gc-glyph-extra-label input[type="number"]::-webkit-inner-spin-button,
+.gc-glyph-extra-label input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.gc-glyph-extra-label input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    .gc-armor-row:has(.gc-glyph-label) {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .gc-glyph-extra-row {
+        padding-left: 0;
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 14px;
+        margin-top: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .gc-glyph-extra-label {
+        flex: 1 1 calc(33% - 8px); /* Line inputs up horizontally on mobile */
+    }
+    .gc-glyph-bonus-radio {
+        flex: 1 1 100%;
+    }
+}
+
 /* ── Manastone Modal ── */
 .gc-mana-modal {
     display: none;
@@ -4762,6 +4944,78 @@ flex: 1;
 .gc-mana-slot-icon-empty {
     opacity: 0.35;
     filter: grayscale(0.5);
+}
+
+/* --- Fancy Minion Selector Styles --- */
+.gc-minion-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.gc-minion-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.gc-minion-opt:hover {
+    background: rgba(181, 101, 245, 0.1);
+    border-color: rgba(181, 101, 245, 0.3);
+    transform: translateY(-1px);
+}
+
+.gc-minion-opt.selected {
+    background: rgba(200, 160, 60, 0.15);
+    border-color: rgba(200, 160, 60, 0.5);
+    box-shadow: inset 0 0 10px rgba(200, 160, 60, 0.1);
+}
+
+.gc-minion-opt img {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.gc-minion-opt-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.gc-minion-name {
+    font-size: 0.85em;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.gc-minion-type {
+    font-size: 0.65em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+}
+
+/* Checkmark for selected */
+.gc-minion-opt.selected::after {
+    content: '✓';
+    position: absolute;
+    right: 10px;
+    color: #ffcc00;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+@media (max-width: 500px) {
+    .gc-minion-selection-grid { grid-template-columns: 1fr; }
 }
 
 /* ── Jorgoth Weapon Stats Legend ── */

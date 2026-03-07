@@ -566,6 +566,110 @@
             return out;
         }
 
+        // Get minion stats based on equipped minions
+        function getMinionStats(m1Key, m2Key) {
+            // 1. Universal Base Stats (Apply from any combination)
+            var stats = { 
+                hp: 18000, 
+                attack: 460, 
+                accuracy: 530, 
+                crit: 480, 
+                pveAttack: 0, pvpAttack: 0, 
+                pveDefense: 0, pvpDefense: 0, 
+                healingBoost: 0, 
+                evasion: 0, magicResist: 0 
+            };
+
+            var m1 = MINIONS.find(function(m) { return m.key === m1Key; });
+            var m2 = MINIONS.find(function(m) { return m.key === m2Key; });
+
+            // 2. MAIN SLOT LOGIC
+            // The "Extra Stats" are strictly determined by the MAIN minion (m1).
+            // The Secondary minion (m2) only acts as a multiplier if it matches m1.
+
+            // --- Kromede (Attack) ---
+            if (m1.type === 'kromede') {
+                if (m2.type === 'kromede') {
+                    // Synergy: Both are Kromede
+                    if (m1.variant === m2.variant) {
+                        stats[m1.variant + 'Attack'] += 380;
+                    } else {
+                        // One PvE, One PvP
+                        stats.pveAttack += 190;
+                        stats.pvpAttack += 190;
+                    }
+                } else {
+                    // Solo: Only Main is Kromede
+                    stats[m1.variant + 'Attack'] += 190;
+                }
+            }
+
+            // --- Hyperion (Defense) ---
+            else if (m1.type === 'hyperion') {
+                if (m2.type === 'hyperion') {
+                    // Synergy: Both are Hyperion
+                    if (m1.variant === m2.variant) {
+                        stats[m1.variant + 'Defense'] += 380;
+                    } else {
+                        stats.pveDefense += 190;
+                        stats.pvpDefense += 190;
+                    }
+                } else {
+                    // Solo: Only Main is Hyperion
+                    stats[m1.variant + 'Defense'] += 190;
+                }
+            }
+
+            // --- Weda (HP/Heal) ---
+            else if (m1.type === 'weda') {
+                stats.hp = 20500; // Standard Main Weda HP
+                if (m1.variant === 'heal') stats.healingBoost += 95;
+
+                if (m2.type === 'weda') {
+                    // Synergy: Double Weda
+                    if (m1.key === 'hp-weda' && m2.key === 'hp-weda') stats.hp = 23000;
+                    if (m2.variant === 'heal') stats.healingBoost += 95;
+                }
+            }
+
+            // --- Sita (Crit/Acc) ---
+            else if (m1.type === 'sita') {
+                if (m1.variant === 'crit') stats.crit = 860;
+                else stats.accuracy = 1190;
+
+                if (m2.type === 'sita') {
+                    // Synergy: Double Sita
+                    if (m1.variant === 'crit' && m2.variant === 'crit') stats.crit = 1240;
+                    else if (m1.variant === 'acc' && m2.variant === 'acc') stats.accuracy = 1850;
+                    else {
+                        // One Crit, One Acc
+                        stats.crit = 860;
+                        stats.accuracy = 1190;
+                    }
+                }
+            }
+
+            // --- Grendal (Eva/MR) ---
+            else if (m1.type === 'grendal') {
+                if (m1.variant === 'eva') stats.evasion += 660;
+                else stats.magicResist += 660;
+
+                if (m2.type === 'grendal') {
+                    // Synergy: Double Grendal
+                    if (m1.variant === m2.variant) {
+                        if (m1.variant === 'eva') stats.evasion += 660; // Total 1320
+                        else stats.magicResist += 660; // Total 1320
+                    } else {
+                        // One Evasion, One Resist
+                        if (m1.variant === 'eva') stats.magicResist += 660;
+                        else stats.evasion += 660;
+                    }
+                }
+            }
+
+            return stats;
+        }
+
         // ═══════════════════════════════════════════════════════════
         // ITEM DATABASE
         // ═══════════════════════════════════════════════════════════
@@ -759,6 +863,19 @@
             { level: 270, name: 'Relic: Increased physical attack III', icon: 'assets/icons/sacredstone_phy_atk_lv3.png', stats: { attack: 50 }, type: 'physical' },
             { level: 270, name: 'Relic: Increased magical attack III', icon: 'assets/icons/sacredstone_mag_atk_lv3.png', stats: { attack: 50 }, type: 'magical' },
             { level: 300, name: 'Relic: Increased max DP II', icon: 'assets/icons/sacredstone_maxdp_lv2.png', stats: { dp: 1000 }, type: 'both' },
+        ];
+
+        var MINIONS = [
+            { key: 'pve-kromede',   name: 'Kromede of Challenge (PvE)',   type: 'kromede', variant: 'pve', icon: 'assets/icons/icon_familiar_s_kromede_01.png' },
+            { key: 'pvp-kromede',   name: 'Kromede of Challenge (PvP)',   type: 'kromede', variant: 'pvp', icon: 'assets/icons/icon_familiar_s_kromede_01.png' },
+            { key: 'pve-hyperion',  name: 'Hyperion of Challenge (PvE)',  type: 'hyperion', variant: 'pve', icon: 'assets/icons/icon_familiar_s_hyperion_01.png' },
+            { key: 'pvp-hyperion',  name: 'Hyperion of Challenge (PvP)',  type: 'hyperion', variant: 'pvp', icon: 'assets/icons/icon_familiar_s_hyperion_01.png' },
+            { key: 'crit-sita',     name: 'Sita of Death (crit)',     type: 'sita', variant: 'crit', icon: 'assets/icons/icon_familiar_s_sita_01.png' },
+            { key: 'acc-sita',      name: 'Sita of Change (accuracy)', type: 'sita', variant: 'acc', icon: 'assets/icons/icon_familiar_s_sita_01.png' },
+            { key: 'eva-grendal',   name: 'Evading Grendal', type: 'grendal', variant: 'eva', icon: 'assets/icons/icon_familiar_s_grendal_01.png' },
+            { key: 'res-grendal',   name: 'Resist Grendal',    type: 'grendal', variant: 'res', icon: 'assets/icons/icon_familiar_s_grendal_01.png' },
+            { key: 'hp-weda',       name: 'Weda of Life (HP)',       type: 'weda', variant: 'hp', icon: 'assets/icons/icon_familiar_s_weda_01.png' },
+            { key: 'heal-weda',     name: 'Healing Weda (HB)',  type: 'weda', variant: 'heal', icon: 'assets/icons/icon_familiar_s_weda_01.png' }
         ];
 
         // Calculate cumulative relic stats for a given level (sums all entries ≤ level)
@@ -1152,6 +1269,7 @@
             { key: 'belt',     name: 'Belt',    icon: 'assets/icons/icon_item_equip_belt_f01.png' },
             { key: 'ring2',    name: 'Ring',     icon: 'assets/icons/icon_item_equip_ring_f01.png' }
         ];
+
         var ALL_ACCESSORY_KEYS = ['feather','wings','bracelet','earring1','necklace','ring1','earring2','belt','ring2'];
 
         var ACCESSORY_SETS = [
@@ -1209,6 +1327,16 @@
             { key: 'magicResist',  name: 'Magic Resist',   stat: 'magicResist',  value: 178 },
             { key: 'parry',        name: 'Parry',         stat: 'parry',        value: 356 },
             { key: 'block',        name: 'Block',         stat: 'block',        value: 356 }
+        ];
+        var ACC_BONUSES_GLYPH = [
+            { key: 'physicalDef',  name: 'Physical Def', stat: 'physicalDef', value: 210 },
+            { key: 'magicalDef',   name: 'Magical Def',  stat: 'magicalDef',  value: 210 },
+            { key: 'accuracy',     name: 'Accuracy',     stat: 'accuracy',    value: 411 },
+            { key: 'attack',       name: 'Attack',       stat: 'attack',      value: 210 },
+            { key: 'evasion',      name: 'Evasion',      stat: 'evasion',     value: 415 },
+            { key: 'magicResist',  name: 'Magic Resist', stat: 'magicResist', value: 415 },
+            { key: 'parry',        name: 'Parry',        stat: 'parry',       value: 670 },
+            { key: 'block',        name: 'Block',        stat: 'block',       value: 670 }
         ];
 
         var ACCESSORY_STATS = {
@@ -1639,6 +1767,7 @@
 
         function createDefaultProfile(className) {
             var profile = {
+                minions: { main: 'crit-sita', secondary: 'crit-sita' },
                 armorType: CLASS_DATA[className].armorTypes[0],
                 armor: {},
                 mainWeapon: { set: 'fighting-spirit', enchant: 9, bonuses: getDefaultWeaponBonuses('fighting-spirit') },
@@ -1649,7 +1778,15 @@
                 transform: 'none',
                 transformEnchant: 10,
                 bonusCollapsed: { mainWeapon: false, offHand: false, shield: false },
-                accessories: {}
+                accessories: {},
+                glyph: {
+                    bonuses: ['attack'], 
+                    extra: {
+                        attack: 210,      // Enchant Attack
+                        physicalDef: 150, // Enchant P.Def
+                        magicalDef: 150   // Enchant M.Def
+                    }
+                },
             };
             ARMOR_SLOTS.forEach(function(slot) {
                 profile.armor[slot.key] = {
@@ -1883,6 +2020,7 @@
         function calculateDetailedStats(profileId) {
             var profile = state[profileId];
             var sources = {
+                permanent: emptyStats(),
                 weapons: emptyStats(),
                 armor: emptyStats(),
                 oaths: emptyStats(),
@@ -1890,8 +2028,40 @@
                 transforms: emptyStats(),
                 accessories: emptyStats(),
                 collections: emptyStats(),
-                relic: emptyStats()
+                relic: emptyStats(),
+                glyph: emptyStats(),
+                minion: emptyStats(),
+                pasive: emptyStats()
             };
+            if (['gladiator', 'templar'].includes(selectedClass)) {
+                sources.permanent.attack += 45;
+            }
+            if (selectedClass === 'chanter') {
+                sources.permanent.attack += 18;
+            }
+            if (selectedClass === 'sorcerer') {
+                sources.permanent.attack += 543;
+            }
+            if (selectedClass === 'bard') {
+                sources.permanent.attack += 300;
+            }
+
+            // -- glyph base
+            sources.glyph.attack += 50;
+            sources.glyph.physicalDef += 50;
+            sources.glyph.magicalDef += 50;
+
+            // -- cubes
+            sources.permanent.hp += 5500;
+            sources.permanent.healingBoost += 133;
+            sources.permanent.attack += 417;
+            sources.permanent.physicalDef += 417;
+            sources.permanent.magicalDef += 417;
+            sources.permanent.accuracy += 606;
+            sources.permanent.evasion += 1210;
+            sources.permanent.parry += 1210;
+            sources.permanent.block += 1210;
+            sources.permanent.magicResist += 1210;
 
             // Sum armor stats across all 6 slots
             ARMOR_SLOTS.forEach(function(slot) {
@@ -2024,6 +2194,27 @@
                 hasStarRing && profile.accessories.belt.set === 'starshine') {
                 sources.accessories.attack += 335;
             }
+
+            // Glyph special handling
+            var glyph = profile.glyph;
+            if (glyph) {
+                // Apply selected bonus
+                if (glyph.bonuses && glyph.bonuses.length) {
+                    var b = ACC_BONUSES_GLYPH.find(function(x) { return x.key === glyph.bonuses[0]; });
+                    if (b) sources.glyph[b.stat] += b.value;
+                }
+                // Apply extra stats
+                if (glyph.extra) {
+                    ['attack', 'physicalDef', 'magicalDef'].forEach(function(stat) {
+                        sources.glyph[stat] += glyph.extra[stat] || 0;
+                    });
+                }
+            }
+
+            var mStats = getMinionStats(profile.minions.main, profile.minions.secondary);
+            STAT_KEYS.forEach(function(k) { 
+                sources.permanent[k] += (mStats[k] || 0); 
+            });
 
             // ── Transformation Collection bonuses (toggle-based) ──
             var tfToggled = (profile.collections && profile.collections.tfToggled) ? profile.collections.tfToggled : {};
@@ -2777,6 +2968,7 @@
             html += '<div class="gc-section">';
             html += '<div class="gc-section-label-row">';
             html += '<span class="gc-section-label">🗡️ Weapons</span>';
+            html += '<button class="gc-ms-btn" onclick="GC.openMinionModal(' + id + ')">Minions</button>';
             html += '<span class="gc-ms-btn" onclick="GC.openManaModal(' + id + ')" title="Manastones"><img src="' + MANASTONE_ICON + '" alt="Manastones"> Manastones</span>';
             html += '</div>';
             html += '<div class="gc-armor-columns">';
@@ -2934,6 +3126,7 @@
             });
             html += '</div>';
             html += '</div>';
+            html += renderGlyphSlot(id, { key: 'glyph', name: 'Glyph', icon: 'assets/icons/icon_item_equip_badge_a01.png' }, profile.glyph, profile);
             // Starshine set bonus indicators (both below all accessories)
             if (profile.accessories.feather.set === 'starshine' &&
                 profile.accessories.wings.set === 'starshine' &&
@@ -2983,6 +3176,52 @@
             }
             html += '</div>'; // close gc-armor-row
             return html;
+        }
+
+        function renderGlyphSlot(pid, slotDef, accState, profile)
+        {
+            // Special handling for glyph
+            if (slotDef.key === 'glyph') {
+                var html = '<div class="gc-armor-row">';
+                html += '<div class="gc-set-trigger gc-glyph-label">';
+                html += '<div class="gc-slot-icon"><img src="' + slotDef.icon + '" alt="Glyph" title="Glyph"></div>';
+                html += '<div class="gc-set-text">';
+                html += '<span class="gc-set-name">Glyph</span>';
+                html += '</div>';
+                html += '</div>';
+
+                // Single selectable bonus (radio-style)
+                var glyphBonuses = ACC_BONUSES_GLYPH; // already defined in your file
+                var picked = accState.bonuses && accState.bonuses.length ? accState.bonuses[0] : null;
+                html += '<div class="gc-glyph-bonus-row">';
+                html += '<span class="gc-glyph-bonus-label">Bonus:</span>';
+                glyphBonuses.forEach(function(b) {
+                    var isOn = picked === b.key;
+                    html += '<label class="gc-glyph-bonus-radio">';
+                    html += '<input type="radio" name="glyph-bonus-' + pid + '" value="' + b.key + '"'
+                        + (isOn ? ' checked' : '')
+                        + ' onchange="GC.setGlyphBonus(' + pid + ',\'' + b.key + '\')">';
+                    html += '<span>' + b.name + ' <b>+' + b.value + '</b></span>';
+                    html += '</label>';
+                });
+                html += '</div>';
+
+                // Extra numeric inputs for attack, physicalDef, magicalDef
+                var glyphExtra = accState.extra || { attack: 0, physicalDef: 0, magicalDef: 0 };
+                html += '<div class="gc-glyph-extra-row">';
+                html += '<span class="gc-glyph-bonus-label">Enchant:</span>';
+                ['attack', 'physicalDef', 'magicalDef'].forEach(function(stat) {
+                    var label = stat === 'attack' ? 'Attack' : (stat === 'physicalDef' ? 'Phys. Def' : 'Mag. Def');
+                    var val = glyphExtra[stat] || 0;
+                    html += '<label class="gc-glyph-extra-label">' + label +
+                        ' <input type="number" min="0" max="250" value="' + val + '"'
+                        + ' oninput="GC.setGlyphExtra(' + pid + ',\'' + stat + '\',this.value)"></label>';
+                });
+                html += '</div>';
+
+                html += '</div>'; // close gc-armor-row
+                return html;
+            }
         }
 
         function renderArmorSlot(pid, slot, armor, profile, material) {
@@ -3038,9 +3277,11 @@
             { key: 'oaths',       icon: '⚔️', name: 'Oaths' },
             { key: 'manastones',  icon: '💎', name: 'Manastones' },
             { key: 'accessories', icon: '📿', name: 'Accessories' },
+            { key: 'glyph',       icon: '📿', name: 'Glyph' },
             { key: 'transforms',  icon: '✨', name: 'Transforms' },
             { key: 'collections', icon: '📦', name: 'Collections' },
-            { key: 'relic',       icon: '🏛️', name: 'Relic' }
+            { key: 'relic',       icon: '🏛️', name: 'Relic' },
+            { key: 'permanent',   icon: '🔹', name: 'Miscellaneous' },
         ];
 
         function updateComparison() {
@@ -4132,6 +4373,70 @@
                 if (left < 4) left = 4;
                 popup.style.top = top + 'px';
                 popup.style.left = left + 'px';
+            },
+
+            setGlyphBonus: function(pid, bonusKey) {
+                var acc = state[pid].glyph;
+                acc.bonuses = [bonusKey];
+                renderProfile(pid);
+                updateComparison();
+                saveState();
+            },
+            setGlyphExtra: function(pid, stat, val) {
+                var acc = state[pid].glyph;
+                if (!acc.extra) acc.extra = { attack: 0, physicalDef: 0, magicalDef: 0 };
+                acc.extra[stat] = Math.max(0, Math.min(250, parseInt(val) || 0));
+                updateComparison();
+                saveState();
+            },
+
+            openMinionModal: function(pid) {
+                var profile = state[pid];
+                var html = '<div class="gc-mana-overlay" onclick="GC.closeMinionModal()"></div>';
+                html += '<div class="gc-mana-dialog" style="max-width: 550px; width: 95%;">';
+                html += '<div class="gc-mana-titlebar"><span>🐾 MINION LOADOUT - SET ' + pid + '</span><span onclick="GC.closeMinionModal()" style="cursor:pointer">✕</span></div>';
+                
+                html += '<div class="gc-mana-body" style="padding: 16px; max-height: 80vh; overflow-y: auto;">';
+
+                ['main', 'secondary'].forEach(function(slot) {
+                    var currentKey = profile.minions[slot];
+                    
+                    html += '<div style="margin-bottom: 24px;">';
+                    html += '<div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom:6px; margin-bottom:10px;">';
+                    html += '<span style="color:var(--text-dim); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px;">' + slot + ' Slot</span>';
+                    
+                    // Show current selection summary
+                    var current = MINIONS.find(m => m.key === currentKey);
+                    html += '<span style="color:#ffcc00; font-size:11px; font-weight:700;">ACTIVE: ' + current.name.toUpperCase() + '</span>';
+                    html += '</div>';
+
+                    html += '<div class="gc-minion-selection-grid">';
+                    MINIONS.forEach(function(m) {
+                        var isSelected = (currentKey === m.key) ? 'selected' : '';
+                        html += '<div class="gc-minion-opt ' + isSelected + '" onclick="GC.setMinion(' + pid + ', \'' + slot + '\', \'' + m.key + '\')">';
+                        html += '<img src="' + m.icon + '" alt="">';
+                        html += '<div class="gc-minion-opt-info">';
+                        html += '<span class="gc-minion-name">' + m.name + '</span>';
+                        html += '<span class="gc-minion-type">' + m.type + ' (' + m.variant + ')</span>';
+                        html += '</div></div>';
+                    });
+                    html += '</div></div>';
+                });
+
+                html += '</div></div>';
+
+                var container = document.getElementById('gc-mana-modal'); 
+                container.innerHTML = html;
+                container.style.display = 'flex';
+            },
+            setMinion: function(pid, slot, val) {
+                state[pid].minions[slot] = val;
+                saveState();
+                renderAll();
+                this.openMinionModal(pid); // Refresh icons in modal
+            },
+            closeMinionModal: function() {
+                document.getElementById('gc-mana-modal').style.display = 'none';
             }
         };
 
