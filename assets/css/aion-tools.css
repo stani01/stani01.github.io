@@ -6345,39 +6345,54 @@ flex: 1;
 /* Dropdown Container */
 .gc-coll-levels {
     display: flex;
-    gap: 8px;
-    align-items: center;
+    gap: 15px;
+    justify-content: center;
+    width: 100%;
 }
-
-/* Modernized Dropdown Styling - Grey Palette */
-.gc-coll-levels select {
+/* The Dropdown - Closed (Pill) State */
+.gc-coll-select {
     appearance: none;
     -webkit-appearance: none;
-    
-    /* Using your theme's secondary grey background */
-    background-color: var(--bg-secondary); 
-    
-    /* Custom Purple Arrow - Kept as the 'interactive' accent */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23b565f5' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: calc(100% - 10px) center;
-    
-    color: var(--text-secondary); /* Darker white/Silver text */
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px; /* Modern Pill Shape */
+    border-radius: 20px; /* Fully rounded ends */
     
-    padding: 4px 28px 4px 12px;
+    width: 38px; /* Narrow enough for one or two digits */
+    padding: 3px 0;
     font-size: 11px;
-    font-weight: 700;
-    font-family: inherit;
+    font-weight: 800;
+    text-align: center;
+    text-align-last: center; /* Centers the number in the pill */
     
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s;
     outline: none;
 }
 
+/* Label above the pill */
+.gc-coll-level-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* The Dropdown - Open (Detailed) State */
+.gc-coll-select:focus {
+    width: 155px; /* Expands to fit the descriptive text */
+    text-align: left;
+    text-align-last: left;
+    padding-left: 12px;
+    border-radius: 8px; /* Slightly squarer when expanded */
+    background-color: #25252b;
+    border-color: var(--primary-purple);
+    box-shadow: 0 0 10px rgba(181, 101, 245, 0.2);
+}
+
 /* Hover State - Slight Purple Tint */
-.gc-coll-levels select:hover {
+/* .gc-coll-levels select:hover {
     border-color: rgba(181, 101, 245, 0.5);
     background-color: #25252b; /* Slightly lighter grey (var--bg-panel-solid) */
     color: var(--text-primary); /* Brighten text only on hover */
@@ -6393,7 +6408,7 @@ flex: 1;
 .gc-coll-levels select option {
     background: var(--bg-secondary);
     color: var(--text-secondary);
-}
+} */
 
 /* ============================================
    GEAR COMPARE — RELIC TAB (in-game style)

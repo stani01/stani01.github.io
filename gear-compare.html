@@ -1815,6 +1815,7 @@
             });
             // Initialize collections state
             profile.collections = { tfToggled: {}, itemColl: {} };
+            profile.collLevels = { normal: 6, large: 6, powerful: 6 };
             ITEM_COLL_STATS.forEach(function(cs) { profile.collections.itemColl[cs.key] = cs.max; });
             TF_COLLECTIONS.forEach(function(coll) { profile.collections.tfToggled[coll.key] = true; });
             // Initialize relic state
@@ -1985,6 +1986,14 @@
                             });
                         }
                     }
+                    // item collection levels
+                    if (saved.collLevels) {
+                        ['normal', 'large', 'powerful'].forEach(function(levelKey) {
+                            if (typeof saved.collLevels[levelKey] === 'number') {
+                                p.collLevels[levelKey] = Math.max(0, Math.min(10, saved.collLevels[levelKey]));
+                            }
+                        });
+                    }
                     // Restore relic state
                     if (saved.relic && typeof saved.relic.level === 'number') {
                         var relicLvl = Math.max(1, Math.min(300, saved.relic.level));
@@ -2028,6 +2037,7 @@
                 transforms: emptyStats(),
                 accessories: emptyStats(),
                 collections: emptyStats(),
+                collLevels: emptyStats(),
                 relic: emptyStats(),
                 glyph: emptyStats(),
                 minion: emptyStats(),
@@ -2268,7 +2278,7 @@
                 }
             });
 
-            var lv = profile.collections.collLevels || {normal:6,large:6,powerful:6};
+            var lv = profile.collLevels || {normal:6,large:6,powerful:6};
 
             function sum(arr,l){
                 var s=0;
@@ -2277,15 +2287,15 @@
             }
 
             /* NORMAL (accuracy) */
-            sources.collections.accuracy += sum([0,10,15,20,30,45],lv.normal);
+            sources.collLevels.accuracy += sum([0,10,15,20,30,45],lv.normal);
 
             /* LARGE (defences) */
             var defSum = sum([0,6,10,12,14,18],lv.large);
-            sources.collections.physicalDef += defSum;
-            sources.collections.magicalDef  += defSum;
+            sources.collLevels.physicalDef += defSum;
+            sources.collLevels.magicalDef  += defSum;
 
             /* POWERFUL (attack) */
-            sources.collections.attack += sum([0,8,12,16,20,24],lv.powerful);
+            sources.collLevels.attack += sum([0,8,12,16,20,24],lv.powerful);
 
             // ── Relic stats ──
             if (profile.relic && profile.relic.level > 0) {
@@ -2615,15 +2625,15 @@
             var scrollTop = scrollParent ? scrollParent.scrollTop : 0;
             var profile = state[pid];
             if (!profile.collections) {
-                profile.collections = { tfToggled: {}, itemColl: {}, collLevels: {normal: 6, large: 6, powerful: 6} };
+                profile.collections = { tfToggled: {}, itemColl: {}};
                 ITEM_COLL_STATS.forEach(function(cs) { profile.collections.itemColl[cs.key] = cs.max; });
                 TF_COLLECTIONS.forEach(function(coll) { profile.collections.tfToggled[coll.key] = true; });
             }
             var tfToggled = profile.collections.tfToggled;
             var itemColl  = profile.collections.itemColl;
 
-            if (!profile.collections.collLevels) {
-                profile.collections.collLevels = { normal: 6, large: 6, powerful: 6 };
+            if (!profile.collLevels) {
+                profile.collLevels = { normal: 6, large: 6, powerful: 6 };
             }
 
             var html = '<div class="gc-profile-header">';
@@ -2924,19 +2934,66 @@
             return html;
         }
 
-        function buildCollDropdown(pid,key,label){
-            var lvl = (state[pid].collections.collLevels && state[pid].collections.collLevels[key]) || 6;
-            var html = '<div class="gc-coll-level-box">';
-            html += '<span class="gc-coll-level-label">'+label+'</span>';
-            html += '<select class="gc-coll-level-select" onchange="GC.setCollectionLevel('+pid+',\''+key+'\',this.value)">';
-            for(var i=1;i<=6;i++){
-                var sel = (i==lvl)?' selected':'';
-                html += '<option value="'+i+'"'+sel+'>Lv. '+i+'</option>';
+        function buildCollDropdown(pid, key, label) {
+            var lvl = (state[pid].collLevels && state[pid].collLevels[key]) || 6;
+            
+            var html = '<div class="gc-coll-level-box" style="display:flex; flex-direction:column; align-items:center; gap:4px;">';
+            html += '<span class="gc-coll-level-label">' + label + '</span>';
+            
+            // Added gc-coll-select class and data-type
+            html += '<select class="gc-coll-select gc-coll-level-select" data-type="' + key + '" onchange="GC.setCollectionLevel(' + pid + ',\'' + key + '\',this.value)">';
+            
+            for (var i = 1; i <= 6; i++) {
+                var sel = (i == lvl) ? ' selected' : '';
+                // Initially show ONLY the level number for the closed state
+                html += '<option value="' + i + '"' + sel + '>' + i + '</option>';
             }
+            
             html += '</select>';
             html += '</div>';
             return html;
         }
+
+        // Helper to get Aion-specific collection stats based on your calculation arrays
+        function getCollectionStatDescription(type, level) {
+            // These match your sources.collections logic exactly
+            var statsMap = {
+                'normal':   { name: 'Accuracy', values: [0, 10, 15, 20, 30, 45] },
+                'large':    { name: 'Defences', values: [0, 6, 10, 12, 14, 18] },
+                'powerful': { name: 'Attack',   values: [0, 8, 12, 16, 20, 24] }
+            };
+            
+            var data = statsMap[type];
+            if (!data) return "Lv. " + level;
+
+            // Conver level to a Number to be safe
+            var lvlIdx = parseInt(level);
+
+            // level is 1-6, but array is 0-indexed. 
+            // If level is 1, it takes values[1], which is the first non-zero bonus.
+            var bonus = data.values[level-1] || 0;
+            
+            return "Lv. " + lvlIdx + " (+" + bonus + " " + data.name + ")";
+        }
+
+        // Listener to swap text when clicking the dropdown
+        document.addEventListener('focusin', function(e) {
+            if (e.target.classList.contains('gc-coll-select')) {
+                var type = e.target.getAttribute('data-type');
+                Array.from(e.target.options).forEach(function(opt) {
+                    opt.text = getCollectionStatDescription(type, opt.value);
+                });
+            }
+        });
+
+        // Listener to revert to just the number when closed
+        document.addEventListener('focusout', function(e) {
+            if (e.target.classList.contains('gc-coll-select')) {
+                Array.from(e.target.options).forEach(function(opt) {
+                    opt.text = opt.value; 
+                });
+            }
+        });
 
         function renderWeaponConfig() {
             var el = document.getElementById('weapon-config');
@@ -3328,6 +3385,7 @@
             { key: 'glyph',       icon: '📿', name: 'Glyph' },
             { key: 'transforms',  icon: '✨', name: 'Transforms' },
             { key: 'collections', icon: '📦', name: 'Collections' },
+            { key: 'collLevels',  icon: '📦', name: 'Item Col Levels' },
             { key: 'relic',       icon: '🏛️', name: 'Relic' },
             { key: 'minion',      icon: '🔹', name: 'Minion' },
             { key: 'permanent',   icon: '🔹', name: 'Cube / Passive' },
@@ -3630,6 +3688,7 @@
             resetCollections: function(pid) {
                 var p = state[pid];
                 p.collections = { tfToggled: {}, itemColl: {} };
+                p.collLevels = { normal: 6, large: 6, powerful: 6 };
                 ITEM_COLL_STATS.forEach(function(cs) { p.collections.itemColl[cs.key] = cs.max; });
                 TF_COLLECTIONS.forEach(function(coll) { p.collections.tfToggled[coll.key] = true; });
                 renderCollections(pid);
@@ -4492,7 +4551,7 @@
 
             setCollectionLevel:function(pid,key,val){
                 val=parseInt(val);
-                state[pid].collections.collLevels[key]=val;
+                state[pid].collLevels[key]=val;
                 renderCollections(pid);
                 updateComparison();
                 saveState();
