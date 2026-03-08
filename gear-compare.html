@@ -31,6 +31,8 @@
             <button class="gc-tab" data-tab="transforms"><img src="assets/icons/icon_ui_transforms.png" class="gc-tab-icon" alt="">Transformations</button>
             <button class="gc-tab" data-tab="collections"><img src="assets/icons/icon_ui_collections.png" class="gc-tab-icon" alt="">Collections</button>
             <button class="gc-tab" data-tab="relic"><img src="assets/icons/icon_ui_relic.png" class="gc-tab-icon" alt="">Relic</button>
+            <button class="gc-tab" data-tab="trait"><img src="assets/icons/icon_ui_trait.png" class="gc-tab-icon" alt="">Daevanion Trait</button>
+            <button class="gc-tab" data-tab="skill-buffs"><img src="assets/icons/icon_ui_skills.png" class="gc-tab-icon" alt="">Skill Buffs & Debuffs</button>
         </div>
 
         <!-- Equipment Tab -->
@@ -63,6 +65,22 @@
             <div class="gc-profiles">
                 <div class="gc-profile" id="relic-1"></div>
                 <div class="gc-profile" id="relic-2"></div>
+            </div>
+        </div>
+
+        <!-- Trait Tab -->
+        <div class="gc-tab-panel" id="tab-trait">
+            <div class="gc-profiles">
+                <div class="gc-profile" id="trait-1"></div>
+                <div class="gc-profile" id="trait-2"></div>
+            </div>
+        </div>
+
+        <!-- Buffs Tab -->
+        <div class="gc-tab-panel" id="tab-buffs">
+            <div class="gc-profiles">
+                <div class="gc-profile" id="buffs-1"></div>
+                <div class="gc-profile" id="buffs-2"></div>
             </div>
         </div>
 
@@ -922,6 +940,39 @@
             });
         }
 
+        function getTraitStats(pid) {
+            let totals = { 
+                hp: 0, attack: 0, physicalDef: 0, magicalDef: 0, 
+                accuracy: 0, crit: 0, evasion: 0, parry: 0, 
+                magicResist: 0, dp: 0 
+            };
+
+            const className = (typeof selectedClass === 'string' ? selectedClass.toLowerCase() : "gladiator");
+            const classSkills = DAEVANION_SKILLS[className];
+            const selections = traitSelections[pid];
+
+            if (!classSkills) return totals;
+
+            // Check each level (81-85)
+            Object.keys(selections).forEach(lvl => {
+                const selectedIdx = selections[lvl];
+                if (selectedIdx !== null && classSkills[lvl]) {
+                    const skillName = classSkills[lvl][selectedIdx];
+                    const bonuses = TRAIT_STAT_DATA[skillName];
+
+                    if (bonuses) {
+                        for (const stat in bonuses) {
+                            if (totals.hasOwnProperty(stat)) {
+                                totals[stat] += bonuses[stat];
+                            }
+                        }
+                    }
+                }
+            });
+
+            return totals;
+        }
+
 
         // Build keys lists
         var ARMOR_TYPE_KEYS = ARMOR_TYPE_OPTIONS.map(function(o) { return o.key; });
@@ -1379,6 +1430,389 @@
             }
         };
 
+        // ═══════════════════════════════════════════════════════════
+        // DAEVA TRAITS DATABASE
+        // ═══════════════════════════════════════════════════════════
+
+        // DAEVANION_SKILLS: Each skill has id, stats, and icon
+        const DAEVANION_SKILLS = {
+            "gladiator": {
+                81: [
+                    { id: "Increased parry", stats: {parry: 2300}, icon: "assets/icons/p_statparry_g1.png" },
+                    { id: "Increased physical defence", stats: {physicalDef: 230}, icon: "assets/icons/p_statphydef_g1.png" },
+                    { id: "Max. HP Boost I", stats: {hp: 3000}, icon: "assets/icons/p_statmaxhp1_g1.png" }
+                ],
+                82: [
+                    { id: "Increased accuracy", stats: {accuracy:1200}, icon: "assets/icons/p_statacc_g1.png" },
+                    { id: "Increased physical crit hit", stats: {crit: 1000}, icon: "assets/icons/p_statcrit_g1.png" },
+                    { id: "Increased physical attack", stats: {attack: 220}, icon: "assets/icons/p_statphyatk_g1.png" }
+                ],
+                83: [
+                    { id: "Increased magical defence", stats: {magicalDef: 230}, icon: "assets/icons/p_statmagdef_g1.png" },
+                    { id: "Max. HP Boost II", stats: {hp: 3000 }, icon: "assets/icons/p_statmaxhp1_g1.png" },
+                    { id: "Increased weapon attack", stats: {weaponAttack: 1200 }, icon: "assets/icons/cbt_fi_seraphicpower_g1.png" }
+                ],
+                84: [
+                    { id: "Enhanced Fury Absorption", stats: {}, icon: "assets/icons/live_fi_seismicdrain_g1.png" },
+                    { id: "Enhanced Unwavering Devotion", stats: {}, icon: "assets/icons/cbt_wa_steadiness_g1.png" },
+                    { id: "Enhanced Second Wind", stats: {}, icon: "assets/icons/live_fi_survivorstance_g1.png" }
+                ],
+                85: [
+                    { id: "Increased max. DP", stats: {dp: 2000}, icon: "assets/icons/p_statmaxdp_g1.png" },
+                    { id: "DP recovery: parry", stats: {}, icon: "assets/icons/p_successparry_g1.png" },
+                    { id: "DP recovery: crit hit", stats: {}, icon: "assets/icons/ap_proc_criticalbuff_phy_g1.png" }
+                ]
+            },
+            "templar": {
+                81: [
+                    { id: "Increased block", stats: {block: 2300}, icon: "assets/icons/p_statblock_g1.png" },
+                    { id: "Increased resist magic", stats: {magicResist: 800}, icon: "assets/icons/p_statresist_g1.png" },
+                    { id: "Max. HP Boost I", stats: {hp: 3000}, icon: "assets/icons/p_statmaxhp1_g1.png" }
+                ],
+                82: [
+                    { id: "Increased accuracy", stats: {accuracy: 1200}, icon: "assets/icons/p_statacc_g1.png" },
+                    { id: "Increased physical crit hit", stats: {crit: 1000}, icon: "assets/icons/p_statcrit_g1.png" },
+                    { id: "Increased physical attack", stats: {attack: 220}, icon: "assets/icons/p_statphyatk_g1.png" }
+                ],
+                83: [
+                    { id: "Increased physical defence", stats: {physicalDef: 230}, icon: "assets/icons/p_statphydef_g1.png" },
+                    { id: "Increased magical defence", stats: {magicalDef: 230}, icon: "assets/icons/p_statmagdef_g1.png" },
+                    { id: "Increased weapon attack", stats: {weaponAttack: 1200 }, icon: "assets/icons/cbt_fi_seraphicpower_g1.png" }
+                ],
+                84: [
+                    { id: "Enhanced Swift Divine Grasp", stats: {}, icon: "assets/icons/live_kn_triplesnacher_g1.png" },
+                    { id: "Enhanced Unwavering Devotion", stats: {}, icon: "assets/icons/cbt_wa_steadiness_g1.png" },
+                    { id: "Enhanced Bloodthirster Strike", stats: {}, icon: "assets/icons/cbt_kn_avengingblade_g1.png" }
+                ],
+                85: [
+                    { id: "Increased max. DP", stats: {dp: 2000}, icon: "assets/icons/p_statmaxdp_g1.png" },
+                    { id: "DP recovery: block", stats: {}, icon: "assets/icons/p_successblock_g1.png" },
+                    { id: "DP recovery: resist", stats: {}, icon: "assets/icons/p_successresist_g1.png" }
+                ]
+            },
+            "assassin": {
+                81: [
+                    { id: "Increased evasion", stats: {evasion: 800}, icon: "assets/icons/p_statdodge_g1.png" },
+                    { id: "Increased physical defence", stats: {physicalDef: 230}, icon: "assets/icons/p_statphydef_g1.png" },
+                    { id: "Increased magical defence", stats: {magicalDef: 230}, icon: "assets/icons/p_statmagdef_g1.png" }
+                ],
+                82: [
+                    { id: "Increased accuracy", stats: {accuracy: 1200}, icon: "assets/icons/p_statacc_g1.png" },
+                    { id: "Increased physical crit hit", stats: {crit: 1000}, icon: "assets/icons/p_statcrit_g1.png" },
+                    { id: "Increased physical attack", stats: {attack: 220}, icon: "assets/icons/p_statphyatk_g1.png" }
+                ],
+                83: [
+                    { id: "Increased weapon attack", stats: {weaponAttack: 1200 }, icon: "assets/icons/cbt_fi_seraphicpower_g1.png" },
+                    { id: "Max. HP Boost I", stats: {hp: 3000}, icon: "assets/icons/p_statmaxhp1_g1.png" },
+                    { id: "Increased resist magic", stats: {magicResist: 800}, icon: "assets/icons/p_statresist_g1.png" }
+                ],
+                84: [
+                    { id: "Enhanced Stealth Mode II", stats: {}, icon: "assets/icons/cbt_sc_hide_g1.png" },
+                    { id: "Enhanced Blinding Burst", stats: {}, icon: "assets/icons/cbt_as_blindingburst_g1.png" },
+                    { id: "Enhanced Dash Attack", stats: {}, icon: "assets/icons/cbt_as_dashattack_g1.png" }
+                ],
+                85: [
+                    { id: "Increased max. DP", stats: {dp: 2000}, icon: "assets/icons/p_statmaxdp_g1.png" },
+                    { id: "DP recovery: standard attack", stats: {}, icon: "assets/icons/cbt_p_statboostphysicaloffense_g1.png" },
+                    { id: "DP recovery: crit hit", stats: {}, icon: "assets/icons/ap_proc_criticalbuff_phy_g1.png" }
+                ]
+            },
+            "ranger": {
+                81: [
+                    { id: "Increased evasion", stats: {evasion: 800}, icon: "assets/icons/p_statdodge_g1.png" },
+                    { id: "Increased physical defence", stats: {physicalDef: 230}, icon: "assets/icons/p_statphydef_g1.png" },
+                    { id: "Increased magical defence", stats: {magicalDef: 230}, icon: "assets/icons/p_statmagdef_g1.png" }
+                ],
+                82: [
+                    { id: "Increased accuracy", stats: {accuracy: 1200}, icon: "assets/icons/p_statacc_g1.png" },
+                    { id: "Increased physical crit hit", stats: {crit: 1000}, icon: "assets/icons/p_statcrit_g1.png" },
+                    { id: "Increased physical attack", stats: {attack: 220}, icon: "assets/icons/p_statphyatk_g1.png" }
+                ],
+                83: [
+                    { id: "Increased weapon attack", stats: {weaponAttack: 1200 }, icon: "assets/icons/cbt_fi_seraphicpower_g1.png" },
+                    { id: "Max. HP Boost I", stats: {hp: 3000}, icon: "assets/icons/p_statmaxhp1_g1.png" },
+                    { id: "Increased resist magic", stats: {magicResist: 800}, icon: "assets/icons/p_statresist_g1.png" }
+                ],
+                84: [
+                    { id: "Enhanced Stealth Mode I", stats: {}, icon: "assets/icons/cbt_sc_hide_g1.png" },
+                    { id: "Enhanced Spiral Arrow", stats: {}, icon: "assets/icons/cbt_ra_spiralarrow_g1.png" },
+                    { id: "Enhanced Nature's Blessing", stats: {}, icon: "assets/icons/cbt_ra_breathofnature_g1.png" }
+                ],
+                85: [
+                    { id: "Increased max. DP", stats: {dp: 2000}, icon: "assets/icons/p_statmaxdp_g1.png" },
+                    { id: "DP recovery: evasion", stats: {}, icon: "assets/icons/p_successdodge_g1.png" },
+                    { id: "DP recovery: crit hit", stats: {}, icon: "assets/icons/ap_proc_criticalbuff_phy_g1.png" }
+                ]
+            },
+            "sorcerer": {
+                81: [
+                    { id: "Increased resist magic", stats: {magicResist: 800}, icon: "assets/icons/p_statresist_g1.png" },
+                    { id: "Increased physical defence", stats: {physicalDef: 230}, icon: "assets/icons/p_statphydef_g1.png" },
+                    { id: "Increased magical defence", stats: {magicalDef: 230}, icon: "assets/icons/p_statmagdef_g1.png" }
+                ],
+                82: [
+                    { id: "Increased magical accuracy", stats: {accuracy: 1200}, icon: "assets/icons/p_statmagacc_g1.png" },
+                    { id: "Increased magical crit hit", stats: {crit: 1000}, icon: "assets/icons/p_statcrit_g1.png" },
+                    { id: "Increased magic attack", stats: {attack: 220}, icon: "assets/icons/p_statmagatk_g1.png" }
+                ],
+                83: [
+                    { id: "Increased concentration", stats: {concentration: 300}, icon: "assets/icons/p_statconcentrate_g1.png" },
+                    { id: "Max. HP Boost I", stats: {hp: 3000}, icon: "assets/icons/p_statmaxhp1_g1.png" },
+                    { id: "Increased evasion", stats: {evasion: 800}, icon: "assets/icons/p_statdodge_g1.png" }
+                ],
+                84: [
+                    { id: "Enhanced Stone Skin", stats: {}, icon: "assets/icons/cbt_ma_stoneskin_g1.png" },
+                    { id: "Enhanced Hell Flame of Wrath", stats: {}, icon: "assets/icons/wi_magicalflame_g1.png" },
+                    { id: "Enhanced Graspbreaker", stats: {}, icon: "assets/icons/live_wi_crystalmirror_g1.png" }
+                ],
+                85: [
+                    { id: "Increased max. DP", stats: {dp: 2000}, icon: "assets/icons/p_statmaxdp_g1.png" },
+                    { id: "DP recovery: resist magic", stats: {}, icon: "assets/icons/p_successresist_g1.png" },
+                    { id: "DP recovery: crit hit", stats: {}, icon: "assets/icons/ap_proc_criticalbuff_phy_g1.png" }
+                ]
+            },
+            "spiritmaster": {
+                81: [
+                    { id: "Increased resist magic", stats: {magicResist: 800}, icon: "assets/icons/p_statresist_g1.png" },
+                    { id: "Increased physical defence", stats: {physicalDef: 230}, icon: "assets/icons/p_statphydef_g1.png" },
+                    { id: "Increased magical defence", stats: {magicalDef: 230}, icon: "assets/icons/p_statmagdef_g1.png" }
+                ],
+                82: [
+                    { id: "Increased magical accuracy", stats: {accuracy: 1200}, icon: "assets/icons/p_statmagacc_g1.png" },
+                    { id: "Increased magical crit hit", stats: {crit: 1000}, icon: "assets/icons/p_statcrit_g1.png" },
+                    { id: "Increased magic attack", stats: {attack: 220}, icon: "assets/icons/p_statmagatk_g1.png" }
+                ],
+                83: [
+                    { id: "Increased concentration", stats: {concentration: 300}, icon: "assets/icons/p_statconcentrate_g1.png" },
+                    { id: "Max. HP Boost I", stats: {hp: 3000}, icon: "assets/icons/p_statmaxhp1_g1.png" },
+                    { id: "Increased evasion", stats: {evasion: 800}, icon: "assets/icons/p_statdodge_g1.png" }
+                ],
+                84: [
+                    { id: "Enhanced Stone Skin", stats: {}, icon: "assets/icons/cbt_ma_stoneskin_g1.png" },
+                    { id: "Enhanced Ignite Aether", stats: {}, icon: "assets/icons/cbt_el_enchantmentburst_g1.png" },
+                    { id: "Enhanced Major Erosion", stats: {}, icon: "assets/icons/cbt_el_areacage_g1.png" }
+                ],
+                85: [
+                    { id: "Increased max. DP", stats: {dp: 2000}, icon: "assets/icons/p_statmaxdp_g1.png" },
+                    { id: "DP recovery: resist magic", stats: {}, icon: "assets/icons/p_successresist_g1.png" },
+                    { id: "DP recovery: crit hit", stats: {}, icon: "assets/icons/ap_proc_criticalbuff_phy_g1.png" }
+                ]
+            },
+            "cleric": {
+                81: [
+                    { id: "Increased block", stats: {block: 2300}, icon: "assets/icons/p_statblock_g1.png" },
+                    { id: "Increased resist magic", stats: {magicResist: 800}, icon: "assets/icons/p_statresist_g1.png" },
+                    { id: "Increased magical accuracy", stats: {accuracy: 1200}, icon: "assets/icons/p_statmagacc_g1.png" }
+                ],
+                82: [
+                    { id: "Increased physical defence", stats: {physicalDef: 230}, icon: "assets/icons/p_statphydef_g1.png" },
+                    { id: "Increased magical defence", stats: {magicalDef: 230}, icon: "assets/icons/p_statmagdef_g1.png" },
+                    { id: "Healing Boost", stats: {healingBoost: 120}, icon: "assets/icons/p_statheal_g1.png" }
+                ],
+                83: [
+                    { id: "Increased concentration", stats: {concentration: 300}, icon: "assets/icons/p_statconcentrate_g1.png" },
+                    { id: "Max. HP Boost I", stats: {hp: 3000}, icon: "assets/icons/p_statmaxhp1_g1.png" },
+                    { id: "Increased magic attack", stats: {attackL: 220}, icon: "assets/icons/p_statmagatk_g1.png" }
+                ],
+                84: [
+                    { id: "Enhanced Healing Grace", stats: {}, icon: "assets/icons/cbt_pr_greatheal_g1.png" },
+                    { id: "Enhanced Power Smash Strike", stats: {}, icon: "assets/icons/pr_holyexplosion_g1.png" },
+                    { id: "Enhanced Amplification", stats: {}, icon: "assets/icons/live_pr_prepareholywar_g1.png" }
+                ],
+                85: [
+                    { id: "Increased max. DP", stats: {dp: 2000}, icon: "assets/icons/p_statmaxdp_g1.png" },
+                    { id: "DP recovery: block", stats: {}, icon: "assets/icons/p_successblock_g1.png" },
+                    { id: "DP recovery: resist", stats: {}, icon: "assets/icons/p_successresist_g1.png" }
+                ]
+            },
+            "chanter": {
+                81: [
+                    { id: "Increased parry", stats: {parry: 2300}, icon: "assets/icons/p_statparry_g1.png" },
+                    { id: "Increased resist magic", stats: {magicResist: 800}, icon: "assets/icons/p_statresist_g1.png" },
+                    { id: "Increased physical crit hit", stats: {crit: 1000}, icon: "assets/icons/p_statcrit_g1.png" }
+                ],
+                82: [
+                    { id: "Increased physical defence", stats: {physicalDef: 230}, icon: "assets/icons/p_statphydef_g1.png" },
+                    { id: "Increased magical defence", stats: {magicalDef: 230}, icon: "assets/icons/p_statmagdef_g1.png" },
+                    { id: "Increased physical attack", stats: {attack: 220}, icon: "assets/icons/p_statphyatk_g1.png" }
+                ],
+                83: [
+                    { id: "Healing Boost", stats: {healingBoost: 120}, icon: "assets/icons/p_statheal_g1.png" },
+                    { id: "Max. HP Boost I", stats: {hp: 3000}, icon: "assets/icons/cbt_p_statboostmaxhp_g1.png" },
+                    { id: "Increased weapon attack", stats: {weaponAttack: 1200 }, icon: "assets/icons/cbt_fi_seraphicpower_g1.png" }
+                ],
+                84: [
+                    { id: "Enhanced Vehemence Strike", stats: {}, icon: "assets/icons/ch_tearingcrash_g1.png" },
+                    { id: "Enhanced Stamina Restoration", stats: {}, icon: "assets/icons/live_ch_chakra_g1.png" },
+                    { id: "Enhanced Divine Curtain", stats: {}, icon: "assets/icons/live_ch_stigma_angelicwall_g1.png" }
+                ],
+                85: [
+                    { id: "Increased max. DP", stats: {dp: 2000}, icon: "assets/icons/p_statmaxdp_g1.png" },
+                    { id: "DP recovery: parry", stats: {}, icon: "assets/icons/p_successparry_g1.png" },
+                    { id: "DP recovery: resist magic", stats: {}, icon: "assets/icons/p_successresist_g1.png" }
+                ]
+            },
+            "aethertech": {
+                81: [
+                    { id: "Increased parry", stats: {parry: 2300}, icon: "assets/icons/p_statparry_g1.png" },
+                    { id: "Increased resist magic", stats: {magicResist: 800}, icon: "assets/icons/p_statresist_g1.png" },
+                    { id: "Max. HP Boost I", stats: {hp: 3000}, icon: "assets/icons/cbt_p_statboostmaxhp_g1.png" }
+                ],
+                82: [
+                    { id: "Increased magical accuracy", stats: {accuracy: 1200}, icon: "assets/icons/p_statmagacc_g1.png" },
+                    { id: "Increased magical crit hit", stats: {crit: 1000}, icon: "assets/icons/p_statcrit_g1.png" },
+                    { id: "Increased magic attack", stats: {attackL: 220}, icon: "assets/icons/p_statmagatk_g1.png" }
+                ],
+                83: [
+                    { id: "Increased physical defence", stats: {physicalDef: 230}, icon: "assets/icons/p_statphydef_g1.png" },
+                    { id: "Increased magical defence", stats: {magicalDef: 230}, icon: "assets/icons/p_statmagdef_g1.png" },
+                    { id: "Increased concentration", stats: {concentration: 300}, icon: "assets/icons/p_statconcentrate_g1.png" }
+                ],
+                84: [
+                    { id: "Enhanced Light Attack", stats: {}, icon: "assets/icons/ri_leftjab_g1.png" },
+                    { id: "Enhanced Sprint Strike", stats: {}, icon: "assets/icons/ri_chargeattack_g1.png" },
+                    { id: "Enhanced Cooling Wave", stats: {}, icon: "assets/icons/ri_forwardattack_g1.png" }
+                ],
+                85: [
+                    { id: "Increased max. DP", stats: {dp: 2000}, icon: "assets/icons/p_statmaxdp_g1.png" },
+                    { id: "DP recovery: parry", stats: {}, icon: "assets/icons/p_successparry_g1.png" },
+                    { id: "DP recovery: resist magic", stats: {}, icon: "assets/icons/p_successresist_g1.png" }
+                ]
+            },
+            "gunner": {
+                81: [
+                    { id: "Increased evasion", stats: {evasion: 800}, icon: "assets/icons/p_statdodge_g1.png" },
+                    { id: "Increased physical defence", stats: {physicalDef: 230}, icon: "assets/icons/p_statphydef_g1.png" },
+                    { id: "Increased magical defence", stats: {magicalDef: 230}, icon: "assets/icons/p_statmagdef_g1.png" }
+                ],
+                82: [
+                    { id: "Increased magical accuracy", stats: {accuracy: 1200}, icon: "assets/icons/p_statmagacc_g1.png" },
+                    { id: "Increased magical crit hit", stats: {crit: 1000}, icon: "assets/icons/p_statcrit_g1.png" },
+                    { id: "Increased magic attack", stats: {attackL: 220}, icon: "assets/icons/p_statmagatk_g1.png" }
+                ],
+                83: [
+                    { id: "Increased attack and movement speeds", stats: {attackSpeed: 9, speed: 9}, icon: "assets/icons/p_statspeed_g1.png" },
+                    { id: "Max. HP Boost I", stats: {hp: 3000}, icon: "assets/icons/cbt_p_statboostmaxhp_g1.png" },
+                    { id: "Increased resist magic", stats: {magicResist: 800}, icon: "assets/icons/p_statresist_g1.png" }
+                ],
+                84: [
+                    { id: "Enhanced Heavy Projectile", stats: {}, icon: "assets/icons/live_gu_heavyfirechain_g1.png" },
+                    { id: "Enhanced Aimed Weakpoint Shot", stats: {}, icon: "assets/icons/live_gu_aimingstrike_g1.png" },
+                    { id: "Enhanced Retreat Shot", stats: {}, icon: "assets/icons/live_gu_backsteppingsnipe_g1.png" }
+                ],
+                85: [
+                    { id: "Increased max. DP", stats: {dp: 2000}, icon: "assets/icons/p_statmaxdp_g1.png" },
+                    { id: "DP recovery: evasion", stats: {}, icon: "assets/icons/p_successdodge_g1.png" },
+                    { id: "DP recovery: crit hit", stats: {}, icon: "assets/icons/ap_proc_criticalbuff_phy_g1.png" }
+                ]
+            },
+            "bard": {
+                81: [
+                    { id: "Increased resist magic", stats: {magicResist: 800}, icon: "assets/icons/p_statresist_g1.png" },
+                    { id: "Increased physical defence", stats: {physicalDef: 230}, icon: "assets/icons/p_statphydef_g1.png" },
+                    { id: "Increased magical defence", stats: {magicalDef: 230}, icon: "assets/icons/p_statmagdef_g1.png" }
+                ],
+                82: [
+                    { id: "Increased magical accuracy", stats: {accuracy: 1200}, icon: "assets/icons/p_statmagacc_g1.png" },
+                    { id: "Increased magical crit hit", stats: {crit: 1000}, icon: "assets/icons/p_statcrit_g1.png" },
+                    { id: "Increased magic attack", stats: {attackL: 220}, icon: "assets/icons/p_statmagatk_g1.png" }
+                ],
+                83: [
+                    { id: "Healing Boost", stats: {healingBoost: 120}, icon: "assets/icons/p_statheal_g1.png" },
+                    { id: "Max. HP Boost I", stats: {hp: 3000}, icon: "assets/icons/cbt_p_statboostmaxhp_g1.png" },
+                    { id: "Increased evasion", stats: {evasion: 800}, icon: "assets/icons/p_statdodge_g1.png" },
+                ],
+                84: [
+                    { id: "Enhanced Tsunami Requiem", stats: {}, icon: "assets/icons/live_ba_songoftidalwave_g1.png" },
+                    { id: "Enhanced Shield Melody", stats: {}, icon: "assets/icons/live_ar_songofshield_g1.png" },
+                    { id: "Enhanced Melody of Purification", stats: {}, icon: "assets/icons/live_ba_songofpurify_g1.png" }
+                ],
+                85: [
+                    { id: "Increased max. DP", stats: {dp: 2000}, icon: "assets/icons/p_statmaxdp_g1.png" },
+                    { id: "DP recovery: resist magic", stats: {}, icon: "assets/icons/p_successresist_g1.png" },
+                    { id: "DP recovery: crit hit", stats: {}, icon: "assets/icons/ap_proc_criticalbuff_phy_g1.png" }
+                ]
+            },
+            "painter": {
+                81: [
+                    { id: "Increased evasion", stats: {evasion: 800}, icon: "assets/icons/p_statdodge_g1.png" },
+                    { id: "Increased physical defence", stats: {physicalDef: 230}, icon: "assets/icons/p_statphydef_g1.png" },
+                    { id: "Increased magical defence", stats: {magicalDef: 230}, icon: "assets/icons/p_statmagdef_g1.png" }
+                ],
+                82: [
+                    { id: "Increased accuracy", stats: {accuracy:1200}, icon: "assets/icons/p_statacc_g1.png" },
+                    { id: "Increased physical crit hit", stats: {crit: 1000}, icon: "assets/icons/p_statcrit_g1.png" },
+                    { id: "Increased physical attack", stats: {attack: 220}, icon: "assets/icons/p_statphyatk_g1.png" }
+                ],
+                83: [
+                    { id: "Increased attack and movement speeds", stats: {attackSpeed: 9, speed: 9}, icon: "assets/icons/p_statspeed_g1.png" },
+                    { id: "Max. HP Boost I", stats: {hp: 3000}, icon: "assets/icons/cbt_p_statboostmaxhp_g1.png" },
+                    { id: "Increased resist magic", stats: {magicResist: 800}, icon: "assets/icons/p_statresist_g1.png" }
+                ],
+                84: [
+                    { id: "Durable Powerful Shot", stats: {}, icon: "assets/icons/pa_drainexplosionpaint_g1.png" },
+                    { id: "Enhanced Slash", stats: {}, icon: "assets/icons/pa_paintbeating_g1.png" },
+                    { id: "Enhanced Retreat", stats: {}, icon: "assets/icons/pa_dodgeatk_g1.png" }
+                ],
+                85: [
+                    { id: "Increased max. DP", stats: {dp: 2000}, icon: "assets/icons/p_statmaxdp_g1.png" },
+                    { id: "DP recovery: evasion", stats: {}, icon: "assets/icons/p_successdodge_g1.png" },
+                    { id: "DP recovery: crit hit", stats: {}, icon: "assets/icons/ap_proc_criticalbuff_phy_g1.png" }
+                ]
+            },
+        };
+
+        // Helper: Find skill object by id for a given class and level
+        function getDaevanionSkillObj(className, level, skillId) {
+            const arr = DAEVANION_SKILLS[className]?.[level] || [];
+            return arr.find(skill => skill.id === skillId) || null;
+        }
+
+        // Example trait function: get stats for a selected skill
+        function getDaevanionSkillStats(className, level, skillId) {
+            const skill = getDaevanionSkillObj(className, level, skillId);
+            return skill ? skill.stats : {};
+        }
+
+        // Example trait function: get icon for a selected skill
+        function getDaevanionSkillIcon(className, level, skillId) {
+            const skill = getDaevanionSkillObj(className, level, skillId);
+            return skill ? skill.icon : "";
+        }
+
+        // State to track selections: traits[setId][level] = index(0-2)
+        var TRAIT_SELECTIONS_KEY = 'gc-trait-selections-v1';
+        var traitSelections = loadTraitSelections();
+
+        function loadTraitSelections() {
+            try {
+                var raw = localStorage.getItem(TRAIT_SELECTIONS_KEY);
+                if (raw) {
+                    var parsed = JSON.parse(raw);
+                    // Ensure all levels have a value (default to 0)
+                    [1,2].forEach(function(pid) {
+                        if (!parsed[pid]) parsed[pid] = {};
+                        [81,82,83,84,85].forEach(function(lvl) {
+                            if (typeof parsed[pid][lvl] !== 'number') parsed[pid][lvl] = 0;
+                        });
+                    });
+                    return parsed;
+                }
+            } catch(e) {}
+            // Default: all first column
+            var def = {};
+            [1,2].forEach(function(pid) {
+                def[pid] = {};
+                [81,82,83,84,85].forEach(function(lvl) { def[pid][lvl] = 0; });
+            });
+            return def;
+        }
+
+        function saveTraitSelections() {
+            try {
+                localStorage.setItem(TRAIT_SELECTIONS_KEY, JSON.stringify(traitSelections));
+            } catch(e) {}
+        }
         // Calculate weapon stats for any set + weapon type + enchant level
         function getWeaponStats(setKey, weaponType, enchantLevel) {
             var p = getWeaponParts(setKey, weaponType, enchantLevel);
@@ -1820,6 +2254,11 @@
             TF_COLLECTIONS.forEach(function(coll) { profile.collections.tfToggled[coll.key] = true; });
             // Initialize relic state
             profile.relic = { level: 300 };
+            // Initialize trait selections (default: first column for each level)
+            profile.traitSelections = {};
+            [81, 82, 83, 84, 85].forEach(function(lvl) {
+                profile.traitSelections[lvl] = 0;
+            });
             return profile;
         }
 
@@ -2002,7 +2441,7 @@
                     state[id] = p;
                 });
                 if (data.activeTab === 'equipment' || data.activeTab === 'transforms' ||
-                    data.activeTab === 'collections' || data.activeTab === 'relic') {
+                    data.activeTab === 'collections' || data.activeTab === 'relic' || data.activeTab === 'trait' || data.activeTab === 'skill-buffs') {
                     activeTab = data.activeTab;
                 }
                 return true;
@@ -2041,7 +2480,8 @@
                 relic: emptyStats(),
                 glyph: emptyStats(),
                 minion: emptyStats(),
-                pasive: emptyStats()
+                pasive: emptyStats(),
+                trait: emptyStats()
             };
             if (['gladiator', 'templar'].includes(selectedClass)) {
                 sources.permanent.attack += 45;
@@ -2303,6 +2743,43 @@
                 STAT_KEYS.forEach(function(k) { sources.relic[k] += (relicStats[k] || 0); });
             }
 
+            // Daevanion trait stats: sum all selected traits for this profile
+            // Defensive: ensure sources.trait is always initialized
+            if (typeof sources.trait !== 'object' || sources.trait == null) {
+                sources.trait = emptyStats();
+            }
+            if (typeof traitSelections !== 'undefined') {
+                var className = selectedClass;
+                var pid = profileId;
+                // Defensive: check DAEVANION_SKILLS structure
+                if (!DAEVANION_SKILLS || !DAEVANION_SKILLS[className] || Object.keys(DAEVANION_SKILLS[className]).length === 0) {
+                    console.warn('DAEVANION_SKILLS is empty or missing for class', className);
+                }
+                [81, 82, 83, 84, 85].forEach(function(lvl) {
+                    var idx = traitSelections[pid] && typeof traitSelections[pid][lvl] === 'number' ? traitSelections[pid][lvl] : 0;
+                    var skills = (DAEVANION_SKILLS && DAEVANION_SKILLS[className] && DAEVANION_SKILLS[className][lvl]) ? DAEVANION_SKILLS[className][lvl] : [];
+                    // Defensive: idx may be out of bounds if skills is empty or malformed
+                    if (!Array.isArray(skills) || skills.length === 0) {
+                        // No skills for this class/level
+                        return;
+                    }
+                    if (typeof idx !== 'number' || idx < 0 || idx >= skills.length) {
+                        // idx out of range, skip
+                        return;
+                    }
+                    var skill = skills[idx];
+                    if (skill && skill.id) {
+                        var stats = getDaevanionSkillStats(className, lvl, skill.id);
+                        if (typeof stats !== 'object' || stats == null) stats = {};
+                        STAT_KEYS.forEach(function(k) {
+                            if (typeof sources.trait[k] !== 'number') sources.trait[k] = 0;
+                            sources.trait[k] += (typeof stats[k] === 'number' ? stats[k] : 0);
+                        });
+                    }
+                });
+            }
+
+
             // Compute totals from sources
             var totals = emptyStats();
             var srcKeys = Object.keys(sources);
@@ -2528,6 +3005,8 @@
             renderCollections(2);
             renderRelic(1);
             renderRelic(2);
+            renderTraitTab(1);
+            renderTraitTab(2);
             updateComparison();
         }
 
@@ -2774,6 +3253,64 @@
             html += '</div>'; // gc-relic-panel
             el.innerHTML = html;
         }
+
+        function renderTraitTab() {
+            [1, 2].forEach(pid => {
+                const el = document.getElementById('trait-' + pid);
+                if (!el) return;
+                // Normalize class name to match your object keys (lowercase)
+                const className = (typeof selectedClass === 'string' ? selectedClass.toLowerCase().trim() : "gladiator");
+                // Use the selected class data, or fallback to gladiator if not found
+                const classSkills = DAEVANION_SKILLS[className] || DAEVANION_SKILLS["gladiator"];
+                let html = '';
+                html += '<div class="gc-profile-header">';
+                html += '<span class="gc-set-title">SET ' + pid + '</span>';
+                html += '<button class="gc-reset-btn" onclick="GC.resetTrait(' + pid + ')" title="Reset traits">↺</button>';
+                        // Reset all traits for a set to first column
+                        window.GC = window.GC || {};
+                        GC.resetTrait = function(pid) {
+                            if (!traitSelections[pid]) traitSelections[pid] = {};
+                            [81, 82, 83, 84, 85].forEach(function(lvl) {
+                                traitSelections[pid][lvl] = 0;
+                            });
+                            renderTraitTab();
+                            if (typeof updateComparison === 'function') updateComparison();
+                        };
+                html += '</div>';
+                html += '<div class="gc-section-label gc-relic-stats-label" style="text-align:center;margin-bottom:8px">Daevanion Traits</div>';
+                html += '<div class="gc-trait-column">';
+                html += '<table class="gc-trait-table">';
+                html += '<thead><tr><th>LVL</th><th colspan="3">Trait Skill</th></tr></thead>';
+                html += '<tbody>';
+                [81, 82, 83, 84, 85].forEach(lvl => {
+                    html += '<tr><td class="gc-trait-lvl">' + lvl + '</td>';
+                    const levelSkills = classSkills[lvl] || ["-", "-", "-"];
+                    levelSkills.forEach((skill, idx) => {
+                        const isActive = traitSelections[pid][lvl] === idx ? 'selected' : '';
+                        html += '<td class="gc-trait-skill ' + isActive + '" onclick="selectTrait(' + pid + ',' + lvl + ',' + idx + ')">';
+                        html += '<div style="display:flex;align-items:center;gap:8px;justify-content:flex-start;">';
+                        html += '<div class="gc-trait-icon-box"><img src="' + skill.icon + '" alt="" /></div>';
+                        html += '<div class="gc-skill-name">' + skill.id + '</div>';
+                        html += '</div>';
+                        html += '</td>';
+                    });
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                html += '</div>';
+                el.innerHTML = html;
+            });
+        }
+
+        // Global function to handle clicks
+        window.selectTrait = function(pid, lvl, idx) {
+            // If clicking same skill, do nothing (always keep one selected)
+            if (traitSelections[pid][lvl] === idx) return;
+            traitSelections[pid][lvl] = idx;
+            saveTraitSelections();
+            renderTraitTab();
+            if (typeof updateComparison === 'function') updateComparison();
+        };
 
         function renderClassSelector() {
             var el = document.getElementById('class-selector');
@@ -3377,18 +3914,20 @@
         // ═══════════════════════════════════════════════════════════
 
         var SOURCE_LABELS = [
-            { key: 'weapons',     icon: '🗡️', name: 'Weapons' },
-            { key: 'armor',       icon: '🛡️', name: 'Armor' },
-            { key: 'oaths',       icon: '⚔️', name: 'Oaths' },
-            { key: 'manastones',  icon: '💎', name: 'Manastones' },
-            { key: 'accessories', icon: '📿', name: 'Accessories' },
-            { key: 'glyph',       icon: '📿', name: 'Glyph' },
-            { key: 'transforms',  icon: '✨', name: 'Transforms' },
-            { key: 'collections', icon: '📦', name: 'Collections' },
-            { key: 'collLevels',  icon: '📦', name: 'Item Col Levels' },
-            { key: 'relic',       icon: '🏛️', name: 'Relic' },
-            { key: 'minion',      icon: '🔹', name: 'Minion' },
-            { key: 'permanent',   icon: '🔹', name: 'Cube / Passive' },
+              { key: 'weapons',     icon: 'assets/icons/icon_ui_equipment.png', name: 'Weapons' },
+              { key: 'armor',       icon: 'assets/icons/icon_ui_equipment.png', name: 'Armor' },
+              { key: 'accessories', icon: 'assets/icons/icon_ui_equipment.png', name: 'Accessories' },
+              { key: 'glyph',       icon: 'assets/icons/icon_item_equip_badge_a01.png', name: 'Glyph' },
+              { key: 'oaths',       icon: 'assets/icons/icon_item_equipment_skill_stone.png', name: 'Oaths' },
+              { key: 'manastones',  icon: 'assets/icons/icon_item_matter_option_f01.png', name: 'Manastones' },
+              { key: 'transforms',  icon: 'assets/icons/icon_ui_transforms.png', name: 'Transforms' },
+              { key: 'collections', icon: 'assets/icons/icon_ui_collections.png', name: 'Collections' },
+              { key: 'collLevels',  icon: 'assets/icons/icon_ui_collections.png', name: 'Item Col Levels' },
+              { key: 'relic',       icon: 'assets/icons/icon_item_sacredstone_levelup.png', name: 'Relic' },
+              { key: 'minion',      icon: 'assets/icons/icon_ui_minion.png', name: 'Minion' },
+              { key: 'permanent',   icon: 'assets/icons/icon_ui_cube.png', name: 'Cube / Passive' },
+              { key: 'trait',       icon: 'assets/icons/icon_ui_trait.png', name: 'Trait' },
+              //{ key: 'skill-buffs', icon: 'assets/icons/icon_ui_skills.png', name: 'Buffs' },
         ];
 
         function updateComparison() {
@@ -3488,7 +4027,13 @@
                             var sdClass = sd > 0 ? 'gc-diff-positive' : sd < 0 ? 'gc-diff-negative' : 'gc-diff-zero';
                             var sdText = sd > 0 ? '+' + formatNum(sd) : sd < 0 ? formatNum(sd) : '—';
                             html += '<tr class="gc-comp-source-row" data-parent="' + stat.key + '">';
-                            html += '<td class="gc-comp-source-label">' + sl.icon + ' ' + sl.name + '</td>';
+                            html += '<td class="gc-comp-source-label">';
+                            if (typeof sl.icon === 'string' && (sl.icon.endsWith('.png') || sl.icon.endsWith('.jpg') || sl.icon.endsWith('.jpeg') || sl.icon.endsWith('.svg'))) {
+                                html += '<img src="' + sl.icon + '" class="gc-source-icon" alt="' + sl.name + '" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;">';
+                            } else {
+                                html += sl.icon + ' ';
+                            }
+                            html += sl.name + '</td>';
                             html += '<td class="gc-comp-source-val">' + formatNum(sv1) + '</td>';
                             html += '<td class="gc-comp-source-diff ' + sdClass + '">' + sdText + '</td>';
                             html += '<td class="gc-comp-source-val">' + formatNum(sv2) + '</td>';
