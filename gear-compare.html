@@ -2063,6 +2063,9 @@
             sources.permanent.block += 1210;
             sources.permanent.magicResist += 1210;
 
+            // -- base DP
+            sources.permanent.dp += 4000;
+
             // Sum armor stats across all 6 slots
             ARMOR_SLOTS.forEach(function(slot) {
                 var piece = profile.armor[slot.key];
@@ -2264,6 +2267,25 @@
                     sources.collections[cs.statKey] += val;
                 }
             });
+
+            var lv = profile.collections.collLevels || {normal:6,large:6,powerful:6};
+
+            function sum(arr,l){
+                var s=0;
+                for(var i=0;i<l;i++) s+=arr[i];
+                return s;
+            }
+
+            /* NORMAL (accuracy) */
+            sources.collections.accuracy += sum([0,10,15,20,30,45],lv.normal);
+
+            /* LARGE (defences) */
+            var defSum = sum([0,6,10,12,14,18],lv.large);
+            sources.collections.physicalDef += defSum;
+            sources.collections.magicalDef  += defSum;
+
+            /* POWERFUL (attack) */
+            sources.collections.attack += sum([0,8,12,16,20,24],lv.powerful);
 
             // ── Relic stats ──
             if (profile.relic && profile.relic.level > 0) {
@@ -2593,12 +2615,16 @@
             var scrollTop = scrollParent ? scrollParent.scrollTop : 0;
             var profile = state[pid];
             if (!profile.collections) {
-                profile.collections = { tfToggled: {}, itemColl: {} };
+                profile.collections = { tfToggled: {}, itemColl: {}, collLevels: {normal: 6, large: 6, powerful: 6} };
                 ITEM_COLL_STATS.forEach(function(cs) { profile.collections.itemColl[cs.key] = cs.max; });
                 TF_COLLECTIONS.forEach(function(coll) { profile.collections.tfToggled[coll.key] = true; });
             }
             var tfToggled = profile.collections.tfToggled;
             var itemColl  = profile.collections.itemColl;
+
+            if (!profile.collections.collLevels) {
+                profile.collections.collLevels = { normal: 6, large: 6, powerful: 6 };
+            }
 
             var html = '<div class="gc-profile-header">';
             html += '<span class="gc-set-title">SET ' + pid + '</span>';
@@ -2607,6 +2633,14 @@
 
             // ── Item Collections ──
             html += '<div class="gc-section-label gc-coll-section-label">\uD83C\uDF92 Item Collections</div>';
+            html += '<div class="gc-coll-header">';
+            html += '<div class="gc-coll-levels">';
+            html += buildCollDropdown(pid,'normal','Normal');
+            html += buildCollDropdown(pid,'large','Large');
+            html += buildCollDropdown(pid,'powerful','Powerful');
+            html += '</div>';
+            html += '</div><br>';
+
             html += '<div class="gc-coll-item-grid">';
             ITEM_COLL_STATS.forEach(function(cs) {
                 var currentVal = parseInt(itemColl[cs.key]) || 0;
@@ -2886,6 +2920,20 @@
             });
 
             html += '</tbody></table>';
+            html += '</div>';
+            return html;
+        }
+
+        function buildCollDropdown(pid,key,label){
+            var lvl = (state[pid].collections.collLevels && state[pid].collections.collLevels[key]) || 6;
+            var html = '<div class="gc-coll-level-box">';
+            html += '<span class="gc-coll-level-label">'+label+'</span>';
+            html += '<select class="gc-coll-level-select" onchange="GC.setCollectionLevel('+pid+',\''+key+'\',this.value)">';
+            for(var i=1;i<=6;i++){
+                var sel = (i==lvl)?' selected':'';
+                html += '<option value="'+i+'"'+sel+'>Lv. '+i+'</option>';
+            }
+            html += '</select>';
             html += '</div>';
             return html;
         }
@@ -3282,7 +3330,7 @@
             { key: 'collections', icon: '📦', name: 'Collections' },
             { key: 'relic',       icon: '🏛️', name: 'Relic' },
             { key: 'minion',      icon: '🔹', name: 'Minion' },
-            { key: 'permanent',   icon: '🔹', name: 'Cubes' },
+            { key: 'permanent',   icon: '🔹', name: 'Cube / Passive' },
         ];
 
         function updateComparison() {
@@ -4430,15 +4478,25 @@
                 container.innerHTML = html;
                 container.style.display = 'flex';
             },
+
             setMinion: function(pid, slot, val) {
                 state[pid].minions[slot] = val;
                 saveState();
                 renderAll();
                 this.openMinionModal(pid); // Refresh icons in modal
             },
+
             closeMinionModal: function() {
                 document.getElementById('gc-mana-modal').style.display = 'none';
-            }
+            },
+
+            setCollectionLevel:function(pid,key,val){
+                val=parseInt(val);
+                state[pid].collections.collLevels[key]=val;
+                renderCollections(pid);
+                updateComparison();
+                saveState();
+            },
         };
 
         function closeOathPopup() {

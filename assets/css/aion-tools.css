@@ -6321,6 +6321,80 @@ flex: 1;
     text-align: left;
 }
 
+/* Collection Header Layout - Subtle Grey Glass */
+.gc-coll-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.02); /* Very faint highlight */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    width: 100%;             /* Ensures it spans the full width of the parent */
+    box-sizing: border-box;  /* Prevents padding from breaking the width */
+}
+/* Remade Label Styling - Muted Silver/Grey */
+.gc-coll-header span {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim); /* Matches the 'muted' labels in your gear slots */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Dropdown Container */
+.gc-coll-levels {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Modernized Dropdown Styling - Grey Palette */
+.gc-coll-levels select {
+    appearance: none;
+    -webkit-appearance: none;
+    
+    /* Using your theme's secondary grey background */
+    background-color: var(--bg-secondary); 
+    
+    /* Custom Purple Arrow - Kept as the 'interactive' accent */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23b565f5' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 10px) center;
+    
+    color: var(--text-secondary); /* Darker white/Silver text */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px; /* Modern Pill Shape */
+    
+    padding: 4px 28px 4px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+/* Hover State - Slight Purple Tint */
+.gc-coll-levels select:hover {
+    border-color: rgba(181, 101, 245, 0.5);
+    background-color: #25252b; /* Slightly lighter grey (var--bg-panel-solid) */
+    color: var(--text-primary); /* Brighten text only on hover */
+}
+
+/* Focus State - Matches your Blue Accents */
+.gc-coll-levels select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 8px rgba(77, 184, 255, 0.2);
+}
+
+/* Option List Styling - Matches Panel Background */
+.gc-coll-levels select option {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
 /* ============================================
    GEAR COMPARE — RELIC TAB (in-game style)
    ============================================ */
