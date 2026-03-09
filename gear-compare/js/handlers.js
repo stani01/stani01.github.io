@@ -107,6 +107,25 @@ window.GC = {
         saveState();
     },
 
+    resetAll: function() {
+        weaponConfig = createDefaultWeaponConfig(selectedClass);
+        state[1] = createDefaultProfile(selectedClass);
+        state[2] = createDefaultProfile(selectedClass);
+        traitSelections = { 1: {}, 2: {} };
+        [1,2].forEach(function(pid) {
+            [81,82,83,84,85].forEach(function(lvl) { traitSelections[pid][lvl] = 0; });
+        });
+        saveTraitSelections();
+        renderAll();
+        saveState();
+        var btn = document.querySelector('.gc-reset-all-btn');
+        if (btn) {
+            btn.classList.remove('gc-reset-flash');
+            void btn.offsetWidth;
+            btn.classList.add('gc-reset-flash');
+        }
+    },
+
     resetWeapons: function() {
         weaponConfig = createDefaultWeaponConfig(selectedClass);
         renderWeaponConfig();

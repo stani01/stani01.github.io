@@ -48,12 +48,13 @@
    PAGE: PROFILES (CHARACTER PAGES)
    ============================================ */
 .page-profiles {
-    padding: 20px;
+    padding: 0;
 }
 
 .profiles-container {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 20px;
 }
 
 .page-profiles h1 {
