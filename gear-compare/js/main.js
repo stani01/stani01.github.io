@@ -1,6 +1,9 @@
 'use strict';
 
-if (!loadShareFromURL()) {
+if (loadShareFromURL()) {
+    saveState();
+    saveTraitSelections();
+} else {
     loadState();
 }
 renderAll();
