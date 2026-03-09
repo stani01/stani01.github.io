@@ -6392,7 +6392,7 @@ flex: 1;
 }
 
 /* Hover State - Slight Purple Tint */
-/* .gc-coll-levels select:hover {
+.gc-coll-levels select:hover {
     border-color: rgba(181, 101, 245, 0.5);
     background-color: #25252b; /* Slightly lighter grey (var--bg-panel-solid) */
     color: var(--text-primary); /* Brighten text only on hover */
