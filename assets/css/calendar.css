@@ -689,4 +689,13 @@
     }
 }
 
+/* Calendar controls inner flex */
+.calendar-controls-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 500px;
+}
 
