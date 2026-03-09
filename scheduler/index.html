@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f0c29">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>AION Retail EU - Schedule</title>
+    <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
+    <link rel="stylesheet" href="../assets/css/common.css?v=5.0">
+    <link rel="stylesheet" href="../assets/css/scheduler.css?v=5.0">
+</head>
+<body class="page-scheduler">
+    <div class="container">
+        <h1>AION Retail EU - Schedule</h1>
+        
+        <div class="time-display-section">
+            <div class="time-box game-time">
+                <div class="time-label">Game Time (Atreia)</div>
+                <div class="time-value" id="gameTime">--:--:--</div>
+                <div class="time-date" id="gameDate">--</div>
+            </div>
+            <div class="time-box server-time">
+                <div class="time-label">Server Time (UTC+1)</div>
+                <div class="time-value" id="serverTime">--:--:--</div>
+                <div class="time-date" id="serverDate">--</div>
+            </div>
+            <div class="time-box local-time">
+                <div class="time-label">Your Local Time</div>
+                <div class="time-value" id="localTime">--:--:--</div>
+                <div class="time-date" id="localDate">--</div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item active" data-event-type="arena">
+                <div class="legend-color arena-chaos"></div>
+                <span>Arena of Chaos</span>
+            </div>
+            <div class="legend-item active" data-event-type="altar">
+                <div class="legend-color altar"></div>
+                <span>Dumaha Altar</span>
+            </div>
+            <div class="legend-item active" data-event-type="agent">
+                <div class="legend-color agent"></div>
+                <span>Mastarius/Veille</span>
+            </div>
+            <div class="legend-item active" data-event-type="npc">
+                <div class="legend-color npc"></div>
+                <span>Merva / Sarna</span>
+            </div>
+            <div class="legend-item active" data-event-type="fortress">
+                <div class="legend-color fortress"></div>
+                <span>Fortress Siege</span>
+            </div>
+        </div>
+
+        <div class="event-section" id="currentEventSection" style="display:none;">
+            <div class="event-title">▶ Current event:</div>
+            <div class="event-info" id="currentEventInfo">None</div>
+        </div>
+
+        <div class="event-section" id="nextEventSection">
+            <div class="event-title">⏳ Time until next event:</div>
+            <div class="event-info" id="nextEventInfo">Calculating...</div>
+        </div>
+
+        <div class="scheduler-controls">
+            <button id="toggleEmptyHoursBtn" class="plain-button">Hide empty hours</button>
+        </div>
+
+        <!-- Event details panel (shown when clicking an event) -->
+        <div id="eventDetailsPanel" class="event-details-panel" style="display:none;">
+            <div class="ed-header">
+                <div class="ed-title">Event</div>
+                <button class="ed-close" id="edCloseBtn">✕</button>
+            </div>
+            <div class="ed-meta"></div>
+            <div class="ed-body"></div>
+        </div>
+
+        <div class="scheduler-grid-wrapper">
+            <div class="scheduler-header">
+                <div class="day-header">Local Time</div>
+                <div class="day-header" data-day="0">Monday</div>
+                <div class="day-header" data-day="1">Tuesday</div>
+                <div class="day-header" data-day="2">Wednesday</div>
+                <div class="day-header" data-day="3">Thursday</div>
+                <div class="day-header" data-day="4">Friday</div>
+                <div class="day-header" data-day="5">Saturday</div>
+                <div class="day-header" data-day="6">Sunday</div>
+            </div>
+
+            <div class="scheduler-grid" id="schedulerGrid">
+                <!-- Populated by JS -->
+            </div>
+            <div class="schedule-notes" id="scheduleNotes">Schedule shows server (UTC+1) events converted to your local time. If this area is empty there are no scheduled events for your timezone.</div>
+        </div>
+
+        <div class="schedule-notes"><br>Notes:
+            <br><br>Event times are based on server time (UTC+1) and may be subject to change. Always double-check in-game for the most accurate schedule.
+            <br><br>Core and Prades rifts appear at :05 after the hour, while Bassen rift appear at :00.
+            <br><br>Use the legend buttons to view event details.
+        </div>
+
+        <div id="site-footer"></div>
+    </div>
+
+    <script>
+        // Events schedule (server time in 24-hour format)
+        const events = [
+            // Dumaha Altar (60m)
+            { 
+                name: 'Dumaha Altar', type: 'altar', days: [0, 2, 4, 6], times: ['14:00', '20:00'], duration: 60,
+                details: `Main reward huge amounts of AP if taken solo, decent in group/alliance, odian crystals, special legion only npcs for special items and enchantment coupons on normal npc for everyone.`
+            },
+            // Mastarius/Veille (30m)
+            { 
+                name: 'Mastarius/Veille', type: 'agent', days: [1, 4, 5], times: ['13:00', '22:00'], duration: 30,
+                details: `Agent Battle info: respawns 72h after kill. Held at 13:00 and 22:00 on Tue/Fri/Sat; raging version on Saturday with better rewards; rifts appear for 1 hour when battle begins; agent appears 5 minutes after start and must be killed within 25 minutes.`
+            },
+            // Merva / Sarna (30m)
+            { name: 'Merva / Sarna', type: 'npc', days: [1, 4, 5], times: ['13:30', '22:30'], duration: 30,
+                details: `The special NPC that appears after Mastarius or Veille gets killed or timer runs out. It sells ultimate manastone selection boxes and Ultimate Equipment Packaging (Level 83).`
+            },
+            // Fortress Sieges (60m)
+            { name: 'Inggison + Gelkmaros + Core', type: 'fortress', days: [3, 6], times: ['21:00'], duration: 60,
+                details: `Siege rewards: AP and honor points for rankings; enchantment stones.`
+            },
+            { name: 'Bassen', type: 'fortress', days: [3], times: ['22:00'], duration: 60,
+                details: `Siege rewards: AP and honor points for rankings; enchantment stones.`
+            },
+            { name: 'Prades', type: 'fortress', days: [6], times: ['22:00'], duration: 60,
+                details: `Siege rewards: AP and honor points for rankings; enchantment stones.`
+            },
+            // Arena of Chaos (60m)
+            { name: 'Arena of Chaos', type: 'arena', days: [0, 1, 2, 3, 4, 5, 6, 7], times: ['12:00', '19:00', '00:00'], duration: 60,
+                details: `Only source for heroic trophies used to buy Lunaris/Solaris/Izar weapons, ultimate manastones, and various items.`
+            }
+        ];
+
+        // Tracks last hour we auto-scrolled to, so we only scroll on hour change
+        let lastAutoScrollHour = null;
+
+        // Get current server time (UTC+1)
+        function getServerTime() {
+            const now = new Date();
+            // getTimezoneOffset() returns minutes BEHIND UTC (negative for ahead)
+            // For UTC+2: returns -120 (120 minutes ahead)
+            // Server is UTC+1, so we need to adjust by the difference
+            const localOffsetMs = now.getTimezoneOffset() * 60 * 1000;
+            const serverOffsetMs = -60 * 60 * 1000; // UTC+1
+            const adjustmentMs = localOffsetMs - serverOffsetMs;
+            const serverTime = new Date(now.getTime() + adjustmentMs);
+            return serverTime;
+        }
+
+        function formatTime(hours, minutes, seconds = 0, includeSeconds = true) {
+            if (includeSeconds) {
+                return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+
+        function formatDate(year, month, day) {
+            return `${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`;
+        }
+
+        function updateTimeDisplays() {
+            const now = new Date();
+            const serverTime = getServerTime();
+            const gameTime = getAionGameTime(serverTime);
+            
+            const serverHours = String(serverTime.getHours()).padStart(2, '0');
+            const serverMinutes = String(serverTime.getMinutes()).padStart(2, '0');
+            const serverSeconds = String(serverTime.getSeconds()).padStart(2, '0');
+            const serverDay = String(serverTime.getDate()).padStart(2, '0');
+            const serverMonth = String(serverTime.getMonth() + 1).padStart(2, '0');
+            const serverYear = serverTime.getFullYear();
+
+            document.getElementById('serverTime').textContent = `${serverHours}:${serverMinutes}:${serverSeconds}`;
+            document.getElementById('serverDate').textContent = `${serverDay}.${serverMonth}.${serverYear}`;
+            
+            document.getElementById('gameTime').textContent = gameTime.time;
+            document.getElementById('gameDate').textContent = gameTime.date;
+
+            // Local time
+            const localHours = String(now.getHours()).padStart(2, '0');
+            const localMinutes = String(now.getMinutes()).padStart(2, '0');
+            const localSeconds = String(now.getSeconds()).padStart(2, '0');
+            const localDay = String(now.getDate()).padStart(2, '0');
+            const localMonth = String(now.getMonth() + 1).padStart(2, '0');
+            const localYear = now.getFullYear();
+
+            document.getElementById('localTime').textContent = `${localHours}:${localMinutes}:${localSeconds}`;
+            document.getElementById('localDate').textContent = `${localDay}.${localMonth}.${localYear}`;
+
+            // Update local time label to include UTC offset (e.g. UTC+2 or UTC-5:30)
+            const offsetMinutes = -now.getTimezoneOffset(); // minutes offset from UTC
+            const sign = offsetMinutes >= 0 ? '+' : '-';
+            const absMinutes = Math.abs(offsetMinutes);
+            const offsetH = Math.floor(absMinutes / 60);
+            const offsetM = absMinutes % 60;
+            const offsetStr = offsetM === 0 ? `UTC${sign}${offsetH}` : `UTC${sign}${offsetH}:${String(offsetM).padStart(2,'0')}`;
+            const localLabel = document.querySelector('.local-time .time-label');
+            if (localLabel) {
+                localLabel.textContent = `Your Local Time (${offsetStr})`;
+            }
+
+            updateNextEvent();
+        }
+
+        // Return array of current event occurrences (may be multiple overlaps)
+        function getCurrentEvents(now = new Date()) {
+            const results = [];
+            const currentDayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1;
+
+            for (let event of events) {
+                const duration = event.duration || 60; // minutes
+                for (let day of event.days) {
+                    for (let timeStr of event.times) {
+                        const [serverHour, serverMinute] = timeStr.split(':').map(Number);
+                        const { hour: localHour, dayOffset } = convertServerTimeToLocal(serverHour, serverMinute);
+
+                        let eventDay = day + dayOffset;
+                        if (eventDay < 0) eventDay += 7;
+                        if (eventDay >= 7) eventDay -= 7;
+
+                        // Build the occurrence date for this week
+                        const daysDiff = (eventDay - currentDayOfWeek + 7) % 7;
+                        const occ = new Date(now);
+                        occ.setHours(0,0,0,0);
+                        occ.setDate(occ.getDate() + daysDiff);
+                        occ.setHours(localHour, serverMinute, 0, 0);
+
+                        const occEnd = new Date(occ.getTime() + duration * 60000);
+
+                        // Also check the previous occurrence (in case it started yesterday and continues into today)
+                        const prevOcc = new Date(occ.getTime() - 7 * 24 * 3600 * 1000);
+                        const prevEnd = new Date(prevOcc.getTime() + duration * 60000);
+
+                        if (now >= occ && now < occEnd) {
+                            results.push({ event, start: occ, end: occEnd });
+                        } else if (now >= prevOcc && now < prevEnd) {
+                            results.push({ event, start: prevOcc, end: prevEnd });
+                        }
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        // Find next upcoming event occurrence (skipping any currently running occurrences)
+        function getNextEvent() {
+            const now = new Date();
+            const currentDayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1;
+
+            let nextEvent = null;
+            let minWait = Infinity;
+
+            for (let event of events) {
+                const duration = event.duration || 60;
+                for (let day of event.days) {
+                    for (let timeStr of event.times) {
+                        const [serverHour, serverMinute] = timeStr.split(':').map(Number);
+                        const { hour: localHour, dayOffset } = convertServerTimeToLocal(serverHour, serverMinute);
+
+                        let eventDay = day + dayOffset;
+                        if (eventDay < 0) eventDay += 7;
+                        if (eventDay >= 7) eventDay -= 7;
+
+                        // Build the occurrence date for this week
+                        const daysDiff = (eventDay - currentDayOfWeek + 7) % 7;
+                        const occ = new Date(now);
+                        occ.setHours(0,0,0,0);
+                        occ.setDate(occ.getDate() + daysDiff);
+                        occ.setHours(localHour, serverMinute, 0, 0);
+
+                        const occEnd = new Date(occ.getTime() + duration * 60000);
+
+                        // If this occurrence is currently running, skip it
+                        if (now >= occ && now < occEnd) continue;
+
+                        // If occurrence is in the past (already ended), consider next week's occurrence
+                        let waitMs = 0;
+                        if (occ > now) {
+                            waitMs = occ - now;
+                        } else {
+                            // next week's occurrence
+                            waitMs = (occ.getTime() + 7 * 24 * 3600 * 1000) - now.getTime();
+                        }
+
+                        const waitMinutes = Math.floor(waitMs / 60000);
+                        if (waitMinutes >= 0 && waitMinutes < minWait) {
+                            minWait = waitMinutes;
+                            nextEvent = { ...event, waitMinutes };
+                        }
+                    }
+                }
+            }
+
+            return nextEvent;
+        }
+
+        function updateNextEvent() {
+            const now = new Date();
+            const current = getCurrentEvents(now);
+            const currentSection = document.getElementById('currentEventSection');
+            const currentInfo = document.getElementById('currentEventInfo');
+            const nextInfo = document.getElementById('nextEventInfo');
+            const nextSection = document.getElementById('nextEventSection');
+
+            if (current && current.length > 0) {
+                currentSection.style.display = 'block';
+                // Show first current event prominently, list others below
+                const first = current[0];
+                const remainingSec = Math.max(0, Math.floor((first.end - now) / 1000));
+                const remMin = Math.floor(remainingSec / 60);
+                const remSec = remainingSec % 60;
+                currentInfo.textContent = `${first.event.name} — ${remMin}m ${remSec}s remaining`;
+                currentInfo.style.color = getEventColor(first.event.type);
+            } else {
+                currentSection.style.display = 'none';
+            }
+
+            const nextEvent = getNextEvent();
+            if (nextEvent) {
+                const hours = Math.floor(nextEvent.waitMinutes / 60);
+                const minutes = Math.floor(nextEvent.waitMinutes % 60);
+                const seconds = 60 - new Date().getSeconds();
+
+                let timeStr = '';
+                if (hours > 0) {
+                    timeStr = `${hours}h ${minutes}m ${seconds}s`;
+                } else {
+                    timeStr = `${minutes}m ${seconds}s`;
+                }
+
+                nextInfo.textContent = `${nextEvent.name} - ${timeStr}`;
+                nextInfo.style.color = getEventColor(nextEvent.type);
+                if (nextSection) nextSection.style.display = 'block';
+            } else {
+                if (nextSection) nextSection.style.display = 'none';
+            }
+        }
+
+        function getEventColor(type) {
+            const colors = {
+                'altar': '#c49c3a',
+                'agent': '#42a5f5',
+                'npc': '#5442f5',
+                'fortress': '#ef5350',
+                'arena': '#ab47bc'
+            };
+            return colors[type] || '#fff';
+        }
+
+        function convertServerTimeToLocal(serverHour, serverMinute) {
+            // Get local timezone offset
+            const now = new Date();
+            const localOffsetHours = -now.getTimezoneOffset() / 60;
+            const timezoneDiffHours = localOffsetHours - 1; // Server is UTC+1
+            
+            let localHour = serverHour + timezoneDiffHours;
+            let dayOffset = 0;
+            
+            if (localHour >= 24) {
+                localHour -= 24;
+                dayOffset = 1;
+            } else if (localHour < 0) {
+                localHour += 24;
+                dayOffset = -1;
+            }
+            
+            return { hour: localHour, dayOffset: dayOffset };
+        }
+
+        function shortenEventName(eventName) {
+            const shortNames = {
+                'Dumaha Altar': 'Altar',
+                'Mastarius/Veille': 'Agent',
+                'Merva / Sarna': 'Npc',
+                'Inggison + Gelkmaros + Core': 'Siege',
+                'Bassen': 'Siege',
+                'Prades': 'Siege',
+                'Arena of Chaos': 'Chaos'
+            };
+            return shortNames[eventName] || eventName;
+        }
+
+        // Shorten day header names for mobile view (keep first letter)
+        function shortenDayHeadersForMobile() {
+            const isMobile = window.innerWidth <= 1200;
+            // include the left-most header (Local Time) as well
+            document.querySelectorAll('.scheduler-header .day-header').forEach(h => {
+                if (!h.dataset.fullText) h.dataset.fullText = h.textContent.trim();
+                if (isMobile) {
+                    // for day columns keep first letter, but for the leftmost header show 'Time'
+                    if (h.hasAttribute('data-day')) {
+                        h.textContent = h.dataset.fullText.charAt(0);
+                    } else {
+                        h.textContent = 'Time';
+                    }
+                } else {
+                    h.textContent = h.dataset.fullText;
+                }
+            });
+        }
+
+        // Simple debounce helper for resize events
+        function debounce(fn, wait = 150) {
+            let t = null;
+            return function(...args) {
+                clearTimeout(t);
+                t = setTimeout(() => fn.apply(this, args), wait);
+            };
+        }
+
+        function createSchedulerGrid() {
+            const grid = document.getElementById('schedulerGrid');
+            grid.innerHTML = '';
+            
+            const now = new Date();
+            const currentHour = now.getHours();
+
+            // Get all unique local hours that have events
+            const hoursWithEvents = new Set();
+            events.forEach(event => {
+                event.times.forEach(timeStr => {
+                    const [serverHour, serverMinute] = timeStr.split(':').map(Number);
+                    const { hour: localHour } = convertServerTimeToLocal(serverHour, serverMinute);
+                    hoursWithEvents.add(localHour);
+                });
+            });
+
+            // Create rows for all 24 hours
+            for (let localHour = 0; localHour < 24; localHour++) {
+                const hasEvents = hoursWithEvents.has(localHour);
+                const isCurrentHour = localHour === currentHour;
+                
+                const hourLabel = document.createElement('div');
+                hourLabel.className = 'hour-label';
+                hourLabel.dataset.hour = localHour;
+                if (!hasEvents) {
+                    hourLabel.classList.add('hour-label-empty');
+                }
+                if (isCurrentHour) {
+                    hourLabel.classList.add('current-hour-label');
+                }
+                hourLabel.textContent = String(localHour).padStart(2, '0') + ':00';
+                grid.appendChild(hourLabel);
+
+                // Create 7 columns for days of week
+                for (let day = 0; day < 7; day++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'scheduler-cell';
+                    cell.dataset.day = day;
+                    cell.dataset.hour = localHour;
+                    if (!hasEvents) {
+                        cell.classList.add('scheduler-cell-empty');
+                    }
+                    // Add current day highlighting for entire column and only
+                    // apply the current-hour highlight to today's cell
+                    const todayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
+                    if (day === todayIndex) {
+                        cell.classList.add('current-day-cell');
+                        if (isCurrentHour) {
+                            cell.classList.add('current-hour-cell');
+                        }
+                    }
+
+                    // Check for events at this local hour and day
+                    const eventsAtThisTime = events.filter(e => {
+                        for (let serverDay of e.days) {
+                            for (let timeStr of e.times) {
+                                const [serverHour, serverMinute] = timeStr.split(':').map(Number);
+                                const { hour: eventLocalHour, dayOffset } = convertServerTimeToLocal(serverHour, serverMinute);
+                                
+                                // Calculate which local day this event occurs on
+                                let eventLocalDay = serverDay + dayOffset;
+                                if (eventLocalDay < 0) eventLocalDay += 7;
+                                if (eventLocalDay >= 7) eventLocalDay -= 7;
+                                
+                                // Check if this event matches the current day and hour
+                                if (eventLocalDay === day && eventLocalHour === localHour) {
+                                    return true;
+                                }
+                            }
+                        }
+                        return false;
+                    });
+
+                    if (eventsAtThisTime.length > 1) {
+                        // Multiple events in same hour - position vertically by minute
+                        const eventTimesData = eventsAtThisTime.map(event => {
+                            // Find the matching time/day for this event
+                            for (let serverDay of event.days) {
+                                for (let timeStr of event.times) {
+                                    const [serverHour, serverMinute] = timeStr.split(':').map(Number);
+                                    const { hour: eventLocalHour, dayOffset } = convertServerTimeToLocal(serverHour, serverMinute);
+                                    
+                                    let eventLocalDay = serverDay + dayOffset;
+                                    if (eventLocalDay < 0) eventLocalDay += 7;
+                                    if (eventLocalDay >= 7) eventLocalDay -= 7;
+                                    
+                                    if (eventLocalDay === day && eventLocalHour === localHour) {
+                                        return { event, minute: serverMinute };
+                                    }
+                                }
+                            }
+                            return { event, minute: 0 }; // fallback, shouldn't happen
+                        });
+                        
+                        // Sort by minute
+                        eventTimesData.sort((a, b) => a.minute - b.minute);
+                        
+                        // Create events with vertical positioning
+                        eventTimesData.forEach((data, index) => {
+                            const eventDiv = document.createElement('div');
+                                eventDiv.className = `scheduler-event event-${data.event.type}`;
+                                // no per-event current-hour overlay; highlight applies to the cell only
+                            
+                            const topPercent = (data.minute / 60) * 100;
+                            const nextMinute = index < eventTimesData.length - 1 ? eventTimesData[index + 1].minute : 60;
+                            const heightPercent = ((nextMinute - data.minute) / 60) * 100;
+                            
+                            eventDiv.style.position = 'absolute';
+                            eventDiv.style.top = `${topPercent}%`;
+                            eventDiv.style.height = `${heightPercent}%`;
+                            eventDiv.style.width = '100%';
+                            // store event index and server time for details panel
+                            eventDiv.dataset.eventIndex = events.indexOf(data.event);
+                            eventDiv.dataset.serverTime = `${String(data.minute).padStart(2,'0')}`; // minute only
+                            // clicking events does nothing (details shown via legend)
+                            
+                            const isMobile = window.innerWidth <= 768;
+                            const displayName = isMobile ? shortenEventName(data.event.name) : data.event.name;
+                            eventDiv.innerHTML = `<span class="event-label">${displayName}</span>`;
+                            eventDiv.title = data.event.name;
+                            
+                            cell.appendChild(eventDiv);
+                        });
+                    } else if (eventsAtThisTime.length === 1) {
+                        // Single event - display normally
+                        // Find the matching time/day for this event
+                        let eventTimeStr = '';
+                        for (let serverDay of eventsAtThisTime[0].days) {
+                            for (let timeStr of eventsAtThisTime[0].times) {
+                                const [serverHour, serverMinute] = timeStr.split(':').map(Number);
+                                const { hour: eventLocalHour, dayOffset } = convertServerTimeToLocal(serverHour, serverMinute);
+                                
+                                let eventLocalDay = serverDay + dayOffset;
+                                if (eventLocalDay < 0) eventLocalDay += 7;
+                                if (eventLocalDay >= 7) eventLocalDay -= 7;
+                                
+                                if (eventLocalDay === day && eventLocalHour === localHour) {
+                                    eventTimeStr = timeStr;
+                                    break;
+                                }
+                            }
+                            if (eventTimeStr) break;
+                        }
+                        
+                        const eventDiv = document.createElement('div');
+                        eventDiv.className = `scheduler-event event-${eventsAtThisTime[0].type}`;
+                        // no per-event current-hour overlay; highlight applies to the cell only
+                        
+                        const isMobile = window.innerWidth <= 768;
+                        const displayName = isMobile ? shortenEventName(eventsAtThisTime[0].name) : eventsAtThisTime[0].name;
+                        eventDiv.innerHTML = `<span class="event-label">${displayName}</span>`;
+                        eventDiv.title = eventsAtThisTime[0].name;
+                        // store event index and server time for details panel
+                        eventDiv.dataset.eventIndex = events.indexOf(eventsAtThisTime[0]);
+                        eventDiv.dataset.serverTime = eventTimeStr || '';
+                        // clicking events does nothing (details shown via legend)
+
+                        cell.appendChild(eventDiv);
+                    }
+
+                    grid.appendChild(cell);
+                }
+            }
+
+            // Auto-scroll to current hour after a brief delay to ensure DOM is ready
+            setTimeout(() => scrollToCurrentHour(), 50);
+
+            // Show or hide schedule notes depending on whether any events were rendered
+            const scheduleNotes = document.getElementById('scheduleNotes');
+            if (scheduleNotes) {
+                const hasAnyEvent = grid.querySelector('.scheduler-event') !== null;
+                scheduleNotes.style.display = hasAnyEvent ? 'none' : 'block';
+            }
+        }
+
+        function setupLegendFilters() {
+            document.querySelectorAll('.legend-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    // toggle visual active state
+                    this.classList.toggle('active');
+                    const eventType = this.dataset.eventType;
+                    // Show aggregated details for this event type
+                    showEventDetailsForType(eventType);
+                });
+            });
+        }
+
+        // Show aggregated details for all events of a given type (used by legend)
+        function showEventDetailsForType(eventType) {
+            const matching = events.filter(e => e.type === eventType);
+            if (!matching || matching.length === 0) return;
+
+            const panel = document.getElementById('eventDetailsPanel');
+            if (!panel) return;
+
+            const title = panel.querySelector('.ed-title');
+            const meta = panel.querySelector('.ed-meta');
+            const body = panel.querySelector('.ed-body');
+
+            title.textContent = matching.length === 1 ? matching[0].name : `${matching[0].type.toUpperCase()} Events`;
+            meta.textContent = `Type: ${eventType}`;
+
+            let html = '';
+            const daysMap = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+            matching.forEach(ev => {
+                const daysStr = ev.days.map(d => daysMap[d]).join(', ');
+                const timesStr = ev.times.join(', ');
+                html += `<div style="margin-bottom:10px;"><strong>${ev.name}</strong><div>Server times: ${timesStr}</div><div>Days: ${daysStr}</div><div>Duration: ${ev.duration || 60}m</div><div style="margin-top:6px;">${ev.details || 'No details available.'}</div></div>`;
+            });
+
+            body.innerHTML = html;
+            panel.style.display = 'block';
+        }
+
+        function updateNowHighlight() {
+            const now = new Date();
+            let currentDayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1;
+            const currentHour = now.getHours();
+            
+            // Remove previous day header highlights
+            document.querySelectorAll('.day-header.today').forEach(header => {
+                header.classList.remove('today');
+            });
+            
+            // Highlight only the current day header
+            const todayHeader = document.querySelector(`.day-header[data-day="${currentDayOfWeek}"]`);
+            if (todayHeader) {
+                todayHeader.classList.add('today');
+                // Add position relative so ::after positioning works
+                todayHeader.style.position = 'relative';
+            }
+            
+            // Remove previous hour label highlights and update to current hour
+            document.querySelectorAll('.hour-label.current-hour-label').forEach(label => {
+                label.classList.remove('current-hour-label');
+            });
+            
+            // Add highlight to the current hour label
+            const currentHourLabel = document.querySelector(`.hour-label[data-hour="${currentHour}"]`);
+            if (currentHourLabel) {
+                currentHourLabel.classList.add('current-hour-label');
+            }
+            
+            // Reassign current-hour classes so the highlight moves when the hour changes
+            const todayIndex = currentDayOfWeek;
+            // remove previous highlights
+            document.querySelectorAll('.current-hour-cell').forEach(c => c.classList.remove('current-hour-cell'));
+
+            // add highlight to the new current hour cell for today (if present)
+            const newCell = document.querySelector(`.scheduler-cell[data-day="${todayIndex}"][data-hour="${currentHour}"]`);
+            if (newCell) {
+                newCell.classList.add('current-hour-cell');
+            }
+
+            // Update progressive fill for current hour cells
+            updateCurrentHourFill();
+
+            // Auto-scroll when the hour changes (so page scroll follows the clock)
+            if (currentHour !== lastAutoScrollHour) {
+                scrollToCurrentHour();
+            }
+        }
+
+        function updateCurrentHourFill() {
+            const now = new Date();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            
+            // Calculate percentage through the hour (0-100%)
+            const totalSeconds = minutes * 60 + seconds;
+            const progressPercent = (totalSeconds / 3600) * 100;
+            
+            // No progressive fill: current hour highlighting uses border/background only
+        }
+
+        // Apply or remove hiding of empty hours rows
+        function applyHideEmptyHours(shouldHide) {
+            document.querySelectorAll('.hour-label-empty').forEach(el => {
+                el.style.display = shouldHide ? 'none' : '';
+            });
+            document.querySelectorAll('.scheduler-cell-empty').forEach(el => {
+                el.style.display = shouldHide ? 'none' : '';
+            });
+
+            const btn = document.getElementById('toggleEmptyHoursBtn');
+            if (btn) {
+                btn.textContent = shouldHide ? 'Show empty hours' : 'Hide empty hours';
+                btn.setAttribute('aria-pressed', shouldHide ? 'true' : 'false');
+            }
+        }
+
+        function toggleHideEmptyHours() {
+            const key = 'schedulerHideEmptyHours';
+            const current = localStorage.getItem(key) === 'true';
+            const next = !current;
+            localStorage.setItem(key, next ? 'true' : 'false');
+            applyHideEmptyHours(next);
+        }
+
+        // Scroll scheduler wrapper to the current hour label and record that we scrolled
+        function scrollToCurrentHour() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const schedulerWrapper = document.querySelector('.scheduler-grid-wrapper');
+            const currentHourLabel = document.querySelector(`[data-hour="${currentHour}"].hour-label`);
+            if (schedulerWrapper && currentHourLabel) {
+                const target = Math.max(0, currentHourLabel.offsetTop - 100);
+                if ('scrollTo' in schedulerWrapper) {
+                    try {
+                        schedulerWrapper.scrollTo({ top: target, behavior: 'smooth' });
+                    } catch (e) {
+                        schedulerWrapper.scrollTop = target;
+                    }
+                } else {
+                    schedulerWrapper.scrollTop = target;
+                }
+                lastAutoScrollHour = currentHour;
+            }
+        }
+
+        // Event details panel handling (calendar events no longer trigger details)
+        function showEventDetails(eventObj, serverTime) {
+            let detailsPanel = document.getElementById('eventDetailsPanel');
+            if (!detailsPanel) return;
+
+            const title = detailsPanel.querySelector('.ed-title');
+            const body = detailsPanel.querySelector('.ed-body');
+            const meta = detailsPanel.querySelector('.ed-meta');
+
+            title.textContent = eventObj.name;
+            meta.textContent = `Type: ${eventObj.type} • Duration: ${eventObj.duration || 60}m`;
+
+            let timesHtml = '';
+            if (eventObj.times && eventObj.times.length) {
+                timesHtml = `<div><strong>Server times:</strong> ${eventObj.times.join(', ')}</div>`;
+            }
+
+            const daysMap = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+            const daysStr = eventObj.days.map(d => daysMap[d]).join(', ');
+
+            body.innerHTML = `${timesHtml}<div><strong>Days:</strong> ${daysStr}</div><div style="margin-top:8px;">${eventObj.details || 'No details available.'}</div>`;
+
+            detailsPanel.style.display = 'block';
+        }
+
+        function hideEventDetails() {
+            const detailsPanel = document.getElementById('eventDetailsPanel');
+            if (detailsPanel) detailsPanel.style.display = 'none';
+        }
+
+        function getAionGameTime(serverTime) {
+            // The reference: RT 10:33:00 is GT 06:44:00.
+            // This means GT 00:00:00 happened 33m 40s earlier RT (at 09:59:20).
+            const reference = new Date(serverTime);
+            reference.setHours(9, 59, 20, 0); 
+            
+            let diffMs = serverTime - reference;
+            
+            // Adjust for game time (12x speed)
+            let totalGameSeconds = Math.floor((diffMs * 12) / 1000);
+            
+            // --- DATE CALCULATION START (Based on 18.05.296 anchor) ---
+            // We calculate total days passed from Year 0 to 18.05.296
+            // (296 years * 360 days) + (4 full months * 30 days) + 17 full days
+            // Then we add the days passed since 18.05.296 to get the total days, and from that derive the current game date.
+            const baseDays = (296 * 360) + (4 * 30) + 17;
+            const daysPassedSinceRef = Math.floor((serverTime - new Date('2026-02-26T11:59:00+01:00')) / 86400000 * 12); // 12x speed adjustment
+            const totalDays = baseDays + daysPassedSinceRef;
+
+            const gYear = Math.floor(totalDays / 360);
+            const gMonth = Math.floor((totalDays % 360) / 30) + 1;
+            const gDay = (totalDays % 30) + 1;
+            // --- DATE CALCULATION END ---
+
+            // Handle the 24-hour wrap around (KEEPING YOUR TIME LOGIC UNTOUCHED)
+            const secondsInDay = 86400;
+            let secondsToday = totalGameSeconds % secondsInDay;
+            if (secondsToday < 0) secondsToday += secondsInDay;
+
+            const h = Math.floor(secondsToday / 3600);
+            const m = Math.floor((secondsToday % 3600) / 60);
+            const s = secondsToday % 60;
+
+            return {
+                time: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`,
+                date: `${String(gDay).padStart(2, '0')}.${String(gMonth).padStart(2, '0')}.${gYear}`
+            };
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            createSchedulerGrid();
+            setupLegendFilters();
+            shortenDayHeadersForMobile();
+            updateTimeDisplays();
+            updateNowHighlight();
+            setInterval(() => {
+                updateTimeDisplays();
+                updateNowHighlight();
+            }, 1000);
+            // Update day headers on resize to switch to single-letter mobile labels (debounced)
+            window.addEventListener('resize', debounce(shortenDayHeadersForMobile, 150));
+            // Initialize hide-empty-hours button from saved preference
+            const key = 'schedulerHideEmptyHours';
+            const saved = localStorage.getItem(key) === 'true';
+            applyHideEmptyHours(saved);
+            const toggleBtn = document.getElementById('toggleEmptyHoursBtn');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', toggleHideEmptyHours);
+            }
+            const edClose = document.getElementById('edCloseBtn');
+            if (edClose) edClose.addEventListener('click', hideEventDetails);
+            document.addEventListener('click', function(e){
+                const panel = document.getElementById('eventDetailsPanel');
+                if (!panel) return;
+                const clickInsidePanel = panel.contains(e.target);
+                const clickedEvent = e.target.classList.contains('scheduler-event') || e.target.closest('.scheduler-event');
+                const clickedLegend = e.target.classList.contains('legend-item') || e.target.closest('.legend-item') || e.target.closest('.legend');
+                if (panel.style.display === 'block' && !clickInsidePanel && !clickedEvent && !clickedLegend) {
+                    panel.style.display = 'none';
+                }
+            });
+            // No separate progressive fill interval; highlight updates on the 1s interval above
+        });
+    </script>
+    <script src="../assets/js/site-common.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f0c29">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>AION 8.x - Gear Comparison</title>
+    <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
+    <link rel="stylesheet" href="../assets/css/common.css?v=5.0">
+    <link rel="stylesheet" href="../assets/css/gear-compare.css?v=5.0">
+</head>
+<body class="page-gear-compare">
+
+    <div class="container">
+        <h1>AION Gear Comparison</h1>
+        <div class="subtitle">Compare two gear loadouts side by side | AION Retail 8.x</div>
+        <div class="gc-share-bar">
+            <button class="gc-share-btn" id="gc-share-btn" title="Copy shareable link to clipboard">🔗 Share Setup</button>
+            <span class="gc-share-toast" id="gc-share-toast"></span>
+        </div>
+
+        <!-- Shared Class Selector -->
+        <div class="gc-class-selector" id="class-selector"></div>
+
+        <!-- Tab Bar -->
+        <div class="gc-tab-bar" id="gc-tab-bar">
+            <button class="gc-tab gc-tab-active" data-tab="equipment"><img src="../assets/icons/icon_ui_equipment.png" class="gc-tab-icon" alt="">Equipment</button>
+            <button class="gc-tab" data-tab="transforms"><img src="../assets/icons/icon_ui_transforms.png" class="gc-tab-icon" alt="">Transformations</button>
+            <button class="gc-tab" data-tab="collections"><img src="../assets/icons/icon_ui_collections.png" class="gc-tab-icon" alt="">Collections</button>
+            <button class="gc-tab" data-tab="relic"><img src="../assets/icons/icon_ui_relic.png" class="gc-tab-icon" alt="">Relic</button>
+            <button class="gc-tab" data-tab="trait"><img src="../assets/icons/icon_ui_trait.png" class="gc-tab-icon" alt="">Daevanion Trait</button>
+            <button class="gc-tab" data-tab="skill-buffs"><img src="../assets/icons/icon_ui_skills.png" class="gc-tab-icon" alt="">Skill Buffs & Debuffs</button>
+        </div>
+
+        <!-- Equipment Tab -->
+        <div class="gc-tab-panel gc-tab-panel-active" id="tab-equipment">
+            <div class="gc-weapon-config" id="weapon-config"></div>
+            <div class="gc-profiles">
+                <div class="gc-profile" id="profile-1"></div>
+                <div class="gc-profile" id="profile-2"></div>
+            </div>
+        </div>
+
+        <!-- Transformations Tab -->
+        <div class="gc-tab-panel" id="tab-transforms">
+            <div class="gc-profiles">
+                <div class="gc-profile" id="transform-1"></div>
+                <div class="gc-profile" id="transform-2"></div>
+            </div>
+        </div>
+
+        <!-- Collections Tab -->
+        <div class="gc-tab-panel" id="tab-collections">
+            <div class="gc-profiles">
+                <div class="gc-profile" id="collections-1"></div>
+                <div class="gc-profile" id="collections-2"></div>
+            </div>
+        </div>
+
+        <!-- Relic Tab -->
+        <div class="gc-tab-panel" id="tab-relic">
+            <div class="gc-profiles">
+                <div class="gc-profile" id="relic-1"></div>
+                <div class="gc-profile" id="relic-2"></div>
+            </div>
+        </div>
+
+        <!-- Trait Tab -->
+        <div class="gc-tab-panel" id="tab-trait">
+            <div class="gc-profiles">
+                <div class="gc-profile" id="trait-1"></div>
+                <div class="gc-profile" id="trait-2"></div>
+            </div>
+        </div>
+
+        <!-- Buffs Tab -->
+        <div class="gc-tab-panel" id="tab-buffs">
+            <div class="gc-profiles">
+                <div class="gc-profile" id="buffs-1"></div>
+                <div class="gc-profile" id="buffs-2"></div>
+            </div>
+        </div>
+
+        <!-- Stats Comparison Table (always visible) -->
+        <div class="gc-comparison" id="comparison-panel"></div>
+
+        <div id="site-footer"></div>
+    </div>
+
+    <script src="../assets/js/site-common.js"></script>
+
+    <!-- Data modules -->
+    <script src="js/data/constants.js"></script>
+    <script src="js/data/transforms.js"></script>
+    <script src="js/data/collections.js"></script>
+    <script src="js/data/armor.js"></script>
+    <script src="js/data/weapons.js"></script>
+    <script src="js/data/accessories.js"></script>
+    <script src="js/data/traits.js"></script>
+    <script src="js/data/shields.js"></script>
+
+    <!-- Application modules -->
+    <script src="js/state.js"></script>
+    <script src="js/calc.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/popups.js"></script>
+    <script src="js/handlers.js"></script>
+    <script src="js/share.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+</html>

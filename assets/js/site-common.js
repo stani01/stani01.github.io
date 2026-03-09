@@ -11,14 +11,15 @@
 
     /* ── 1. Top navigation bar ── */
     var NAV_ITEMS = [
-        { label: 'Homepage',              href: 'aion.html' },
-        { label: 'Magical Boost Calendar', href: 'magicalBoostTime.html' },
-        { label: 'Retail EU Scheduler',    href: 'scheduler.html' },
-        { label: 'Damage Calculator',      href: 'aion-calc.html' },
-        { label: 'Enchanting Simulator',   href: 'enchanting.html' },
-        { label: 'Gear Compare',            href: 'gear-compare.html' }
+        { label: 'Homepage',              href: '/aion/' },
+        { label: 'Magical Boost Calendar', href: '/magicalBoostTime/' },
+        { label: 'Retail EU Scheduler',    href: '/scheduler/' },
+        { label: 'Damage Calculator',      href: '/aion-calc/' },
+        { label: 'Enchanting Simulator',   href: '/enchanting/' },
+        { label: 'Gear Compare',           href: '/gear-compare/' }
     ];
-    var currentPage = window.location.pathname.split('/').pop() || 'aion.html';
+    var _pathParts = window.location.pathname.split('/').filter(function(p) { return p !== ''; });
+    var currentPage = _pathParts.length > 0 ? '/' + _pathParts[0] + '/' : '/';
 
     var nav = document.createElement('nav');
     nav.className = 'site-topbar';
@@ -49,12 +50,12 @@
         html += '<div class="footer-actions">';
         html += '<a href="https://discordapp.com/users/158658357606088704" target="_blank" class="discord-button">';
         html += DISCORD_SVG + ' Support &amp; Feedback</a>';
-        if (currentPage !== 'gear-compare.html') {
+        if (currentPage !== '/gear-compare/') {
             html += '<button onclick="copyToClipboard()" class="share-btn" id="shareBtn">\uD83D\uDD17 Copy Share Link</button>';
         }
         html += '</div>';
         html += '<div class="copyright">';
-        html += '\u00A9 <span id="copyright-year"></span> <a href="myAionProfiles.html"><strong>15TAN</strong></a> - AION Tools Hub<br>';
+        html += '\u00A9 <span id="copyright-year"></span> <a href="/myAionProfiles/"><strong>15TAN</strong></a> - AION Tools Hub<br>';
         html += 'Tools and calculators for AION Retail 8.x';
         html += '</div>';
         html += '<div class="disclaimer">';

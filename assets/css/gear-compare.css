@@ -1,0 +1,2910 @@
+/* ============================================
+   PAGE: GEAR COMPARISON TOOL
+   ============================================ */
+.page-gear-compare .container {
+    max-width: 1600px;
+}
+
+.page-gear-compare h1 {
+    text-align: center;
+    color: var(--warning);
+    border-bottom: 2px solid #333;
+    padding-bottom: 20px;
+    margin-bottom: 10px;
+}
+
+.page-gear-compare .subtitle {
+    text-align: center;
+    color: #999;
+    font-size: 0.95em;
+    margin-bottom: 12px;
+}
+
+/* ── Share Bar ── */
+.gc-share-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.gc-share-btn {
+    background: rgba(100, 180, 255, 0.08);
+    color: rgba(140, 200, 255, 0.85);
+    border: 1px solid rgba(100, 180, 255, 0.2);
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-size: 0.88em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.gc-share-btn:hover {
+    background: rgba(100, 180, 255, 0.15);
+    border-color: rgba(100, 180, 255, 0.35);
+    color: rgba(160, 215, 255, 1);
+}
+
+.gc-share-toast {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: rgba(100, 220, 160, 0.9);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.gc-share-toast-show {
+    opacity: 1;
+}
+
+.gc-share-toast-error {
+    color: rgba(255, 120, 100, 0.9);
+}
+
+/* ── Profiles Layout ── */
+.gc-profiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.gc-profile {
+    background: var(--bg-panel-solid);
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: var(--shadow-md);
+    min-width: 0;
+    overflow: visibile !important;
+}
+
+.gc-profile-header {
+    text-align: center;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-dim);
+    position: relative;
+}
+
+.gc-reset-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(200, 160, 60, 0.2);
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-size: 1.1em;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.gc-reset-btn:hover {
+    background: rgba(255, 80, 80, 0.15);
+    border-color: rgba(255, 80, 80, 0.4);
+    color: #ff6b6b;
+}
+
+.gc-set-title {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* ── Sections inside profile ── */
+.gc-section {
+    margin-bottom: 18px;
+}
+
+.gc-section-label {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.95em;
+    margin-bottom: 10px;
+    padding-left: 4px;
+}
+
+.gc-section-label.gc-coll-section-label {
+    display: flex;
+    align-items: center;
+}
+
+.gc-section-label.gc-coll-section-label .gc-ms-btn {
+    margin-left: auto;
+}
+
+.gc-coll-count {
+    color: #8fd0ff;
+    font-weight: 600;
+    font-size: 0.95em;
+    margin-left: 4px;
+}
+
+/* ── Shared Class Selector ── */
+.gc-class-selector {
+    background: var(--bg-panel-solid);
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 24px;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+}
+
+.gc-class-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.gc-class-btn {
+    width: 84px;
+    border-radius: 12px;
+    border: 2px solid var(--border-dim);
+    background: rgba(20, 20, 30, 0.7);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 6px 5px;
+    gap: 4px;
+}
+
+.gc-class-btn img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.gc-class-label {
+    font-size: 0.6em;
+    color: var(--text-dim);
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.gc-class-btn:hover {
+    border-color: var(--accent-purple);
+    transform: scale(1.08);
+    box-shadow: 0 0 10px rgba(181, 101, 245, 0.3);
+}
+
+.gc-class-btn:hover .gc-class-label {
+    color: var(--text-primary);
+}
+
+.gc-class-btn.selected {
+    border-color: var(--accent);
+    background: rgba(77, 184, 255, 0.15);
+    box-shadow: 0 0 12px rgba(77, 184, 255, 0.4);
+}
+
+.gc-class-btn.selected .gc-class-label {
+    color: var(--accent);
+}
+
+/* ── Section Label Row (label + inline dropdown) ── */
+.gc-section-label-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.gc-section-label-row .gc-section-label {
+    margin-bottom: 0;
+}
+
+.gc-select-inline {
+    width: auto;
+    min-width: 130px;
+}
+
+.gc-armor-type-badge {
+    font-size: 0.82em;
+    color: var(--accent-purple);
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    padding: 2px 10px;
+    background: rgba(181, 101, 245, 0.08);
+}
+
+/* ── Armor Columns (2-col layout) ── */
+.gc-armor-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.gc-armor-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* ── Armor List (row-based layout) ── */
+.gc-armor-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.gc-armor-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 5px;
+    background: rgba(15, 15, 25, 0.6);
+    border: 1px solid rgba(200, 160, 60, 0.15);
+    border-radius: 8px;
+    transition: border-color 0.2s ease;
+    min-width: 0;
+    overflow: visible;
+}
+
+.gc-armor-row:hover {
+    border-color: rgba(200, 160, 60, 0.4);
+}
+
+.gc-oath-picker-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.gc-oath-pick {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border-width: 1px;
+}
+
+.gc-oath-pick:hover {
+    transform: scale(1.1);
+}
+
+.gc-oath-pick img {
+    width: 24px;
+    height: 24px;
+    filter: drop-shadow(0 0 4px rgba(181, 101, 245, 0.5));
+}
+
+.gc-oath-img-framed {
+    filter: drop-shadow(0 0 4px rgba(181, 101, 245, 0.5)) !important;
+}
+
+.gc-oath-popup {
+    display: none;
+    position: fixed;
+    flex-direction: column;
+    gap: 2px;
+    background: rgba(20, 20, 35, 0.98);
+    border: 1px solid rgba(200, 160, 60, 0.35);
+    border-radius: 10px;
+    padding: 5px;
+    z-index: 9999;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.3);
+    min-width: 185px;
+    white-space: nowrap;
+}
+
+.gc-oath-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px 5px 6px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+}
+
+.gc-oath-option:hover {
+    background: rgba(181, 101, 245, 0.12);
+    border-color: rgba(181, 101, 245, 0.3);
+}
+
+.gc-oath-option-selected {
+    background: rgba(200, 160, 60, 0.12);
+    border-color: rgba(200, 160, 60, 0.3);
+}
+
+.gc-oath-option-none:hover {
+    background: rgba(255, 80, 80, 0.08);
+    border-color: rgba(255, 80, 80, 0.3);
+}
+
+.gc-oath-option-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.gc-oath-option-icon img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 3px rgba(181, 101, 245, 0.4));
+}
+
+.gc-oath-option-label {
+    font-size: 0.82em;
+    color: rgba(230, 220, 200, 0.85);
+    letter-spacing: 0.02em;
+}
+
+/* ── Set Picker (weapon/armor set selection) ── */
+.gc-set-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.gc-set-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 1px;
+}
+
+.gc-set-trigger .gc-slot-icon {
+    border: 2px solid rgba(200, 160, 60, 0.2);
+    border-radius: 8px;
+    background: rgba(15, 15, 25, 0.5);
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.gc-set-trigger:hover .gc-slot-icon {
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 8px rgba(181, 101, 245, 0.3);
+    transform: scale(1.05);
+}
+
+.gc-set-name {
+    font-size: 0.72em;
+    color: rgba(230, 220, 200, 0.7);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+.gc-set-trigger:hover .gc-set-name {
+    color: rgba(230, 220, 200, 0.95);
+}
+
+.gc-set-popup {
+    display: none;
+    position: fixed;
+    flex-direction: column;
+    gap: 2px;
+    background: rgba(20, 20, 35, 0.98);
+    border: 1px solid rgba(200, 160, 60, 0.35);
+    border-radius: 10px;
+    padding: 5px;
+    z-index: 9999;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.3);
+    min-width: 160px;
+    white-space: nowrap;
+}
+
+.gc-set-option {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+}
+
+.gc-set-option:hover {
+    background: rgba(181, 101, 245, 0.12);
+    border-color: rgba(181, 101, 245, 0.3);
+}
+
+.gc-set-option-selected {
+    background: rgba(200, 160, 60, 0.12);
+    border-color: rgba(200, 160, 60, 0.3);
+}
+
+.gc-set-option-label {
+    font-size: 0.82em;
+    color: rgba(230, 220, 200, 0.85);
+    letter-spacing: 0.02em;
+}
+
+/* ── Enchant Trigger Badge ── */
+.gc-enchant-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.72em;
+    font-weight: 700;
+    color: #ffcc44;
+    background: rgba(200, 160, 60, 0.1);
+    border: 1px solid rgba(200, 160, 60, 0.25);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+}
+
+.gc-enchant-trigger:hover {
+    border-color: var(--accent-purple);
+    background: rgba(181, 101, 245, 0.12);
+    box-shadow: 0 0 8px rgba(181, 101, 245, 0.25);
+    transform: scale(1.05);
+}
+
+.gc-shield-trigger {
+    font-weight: 600;
+    color: rgba(230, 220, 200, 0.7);
+    font-size: 0.68em;
+}
+
+/* ── Manastone Inline Indicator (dots on gear rows) ── */
+.gc-ms-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 2px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.gc-ms-ico {
+    width: 10px;
+    height: 10px;
+    opacity: 0.35;
+    filter: grayscale(1);
+    transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.gc-ms-ico-filled {
+    opacity: 0.7;
+    filter: none;
+}
+
+.gc-ms-partial .gc-ms-ico-filled {
+    opacity: 0.75;
+}
+
+.gc-ms-full .gc-ms-ico-filled {
+    opacity: 0.85;
+}
+
+/* ── Manastone Button (in weapons section title row) ── */
+.gc-section-label-row .gc-ms-btn {
+    margin-left: auto;
+}
+
+.gc-ms-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.72em;
+    color: rgba(100, 200, 255, 0.8);
+    background: rgba(100, 200, 255, 0.06);
+    border: 1px solid rgba(100, 200, 255, 0.15);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.gc-ms-btn:hover {
+    background: rgba(100, 200, 255, 0.12);
+    border-color: rgba(100, 200, 255, 0.35);
+    color: rgba(100, 200, 255, 1);
+}
+
+.gc-collapse-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.72em;
+    color: rgba(200, 180, 130, 0.8);
+    background: rgba(200, 180, 130, 0.06);
+    border: 1px solid rgba(200, 180, 130, 0.15);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.gc-collapse-all-btn:hover {
+    background: rgba(200, 180, 130, 0.12);
+    border-color: rgba(200, 180, 130, 0.35);
+    color: rgba(200, 180, 130, 1);
+}
+
+.gc-section-label-row .gc-collapse-all-btn {
+    margin-left: auto;
+}
+
+/* ── Accessory Bonus Trigger Button ── */
+.gc-acc-bonus-trigger {
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 0.68em;
+    color: rgba(200, 180, 130, 0.8);
+    background: rgba(200, 180, 130, 0.08);
+    border: 1px solid rgba(200, 180, 130, 0.2);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.gc-acc-bonus-trigger:hover {
+    background: rgba(200, 180, 130, 0.15);
+    border-color: rgba(200, 180, 130, 0.4);
+    color: rgba(200, 180, 130, 1);
+}
+
+/* ── Accessory Bonus Popup ── */
+.gc-acc-bonus-popup {
+    display: none;
+    position: fixed;
+    z-index: 9500;
+    background: var(--bg-panel-solid, #1a1a2e);
+    border: 1px solid rgba(200, 160, 60, 0.35);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.gc-acc-bonus-popup-title {
+    font-size: 0.78em;
+    font-weight: 600;
+    color: rgba(200, 180, 130, 0.9);
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(200, 160, 60, 0.15);
+}
+
+.gc-ms-btn img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 3px rgba(100, 200, 255, 0.3));
+}
+
+/* ============================================
+   GLYPH ACCESSORY STYLES (Overrides)
+   ============================================ */
+
+/* Transform the generic armor row into a dedicated Glyph panel layout */
+.gc-armor-row:has(.gc-glyph-label) {
+    display: grid;
+    grid-template-columns: 1fr max-content;
+    gap: 10px 20px;
+    padding: 10px 14px 14px;
+    background: rgba(15, 15, 25, 0.6);
+    align-items: start;
+    border: 1px solid rgba(200, 160, 60, 0.15);
+}
+
+.gc-glyph-label {
+    grid-column: 1 / -1;
+    border-bottom: 1px dashed rgba(200, 160, 60, 0.25);
+    padding-bottom: 8px;
+    width: 100%;
+}
+
+/* ── Bonus Radio Grid (Left Side) ── */
+.gc-glyph-bonus-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+}
+
+.gc-glyph-bonus-label {
+    width: 100%;
+    font-size: 0.72em;
+    font-weight: 700;
+    color: rgba(200, 180, 130, 0.9);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.gc-glyph-enchant-label {
+    display: flex;
+    width: 100%;
+    font-size: 0.72em;
+    font-weight: 700;
+    color: rgba(200, 180, 130, 0.9);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Mimic .gc-shield-bonus-btn for radio buttons */
+.gc-glyph-bonus-radio {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 7px;
+    font-size: 0.72em;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid rgba(100, 140, 180, 0.15);
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(180, 200, 220, 0.65);
+    flex: 1 1 calc(50% - 6px); /* Creates a neat 2-column flow */
+    min-width: 110px;
+    font-family: inherit;
+    user-select: none;
+}
+
+.gc-glyph-bonus-radio input[type="radio"] {
+    display: none; /* Hide default radio circle */
+}
+
+.gc-glyph-bonus-radio span {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
+.gc-glyph-bonus-radio b {
+    font-variant-numeric: tabular-nums;
+    color: rgba(160, 230, 160, 0.85);
+}
+
+.gc-glyph-bonus-radio:hover {
+    border-color: rgba(181, 101, 245, 0.3);
+    background: rgba(181, 101, 245, 0.08);
+    color: rgba(220, 220, 240, 0.9);
+}
+
+/* Checked state mimics .gc-shield-bonus-on */
+.gc-glyph-bonus-radio:has(input[type="radio"]:checked) {
+    border-color: rgba(200, 160, 60, 0.4);
+    background: rgba(200, 160, 60, 0.12);
+    color: rgba(255, 220, 140, 0.95);
+}
+
+.gc-glyph-bonus-radio:has(input[type="radio"]:checked) b {
+    color: rgba(160, 230, 160, 0.95);
+}
+
+/* ── Extra Stats Inputs (Right Side) ── */
+.gc-glyph-extra-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding-left: 20px;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    min-width: 130px;
+    margin-top: 18px; /* Aligns neatly with the buttons below the header */
+}
+
+.gc-glyph-extra-label {
+    font-size: 0.75em;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+
+.gc-glyph-extra-label input[type="number"] {
+    width: 52px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(200, 160, 60, 0.25);
+    background: rgba(10, 10, 15, 0.6);
+    color: var(--text-primary);
+    font-size: 1em;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-weight: 700;
+    text-align: center;
+    transition: all 0.15s ease;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.gc-glyph-extra-label input[type="number"]:focus {
+    border-color: rgba(200, 160, 60, 0.6);
+    background: rgba(200, 160, 60, 0.15);
+    box-shadow: 0 0 8px rgba(200, 160, 60, 0.2);
+}
+
+/* Remove up/down arrows for a cleaner input look */
+.gc-glyph-extra-label input[type="number"]::-webkit-inner-spin-button,
+.gc-glyph-extra-label input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.gc-glyph-extra-label input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    .gc-armor-row:has(.gc-glyph-label) {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .gc-glyph-extra-row {
+        padding-left: 0;
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 14px;
+        margin-top: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .gc-glyph-extra-label {
+        flex: 1 1 calc(33% - 8px); /* Line inputs up horizontally on mobile */
+    }
+    .gc-glyph-bonus-radio {
+        flex: 1 1 100%;
+    }
+}
+
+/* ── Manastone Modal ── */
+.gc-mana-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+}
+
+.gc-mana-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.gc-mana-dialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    background: rgba(18, 18, 30, 0.98);
+    border: 1px solid rgba(100, 200, 255, 0.25);
+    border-radius: 14px;
+    box-shadow: 0 16px 64px rgba(0, 0, 0, 0.8), 0 0 40px rgba(100, 200, 255, 0.05);
+    width: 90%;
+    max-width: 520px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.gc-mana-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(100, 200, 255, 0.12);
+    flex-shrink: 0;
+}
+
+.gc-mana-title-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px rgba(100, 200, 255, 0.4));
+}
+
+.gc-mana-title {
+    font-size: 1em;
+    font-weight: 700;
+    color: rgba(100, 200, 255, 0.9);
+    letter-spacing: 0.03em;
+    flex: 1;
+}
+
+.gc-mana-close {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    color: rgba(230, 220, 200, 0.5);
+    font-size: 1em;
+    transition: all 0.15s ease;
+}
+
+.gc-mana-close:hover {
+    background: rgba(255, 80, 80, 0.15);
+    color: rgba(255, 80, 80, 0.9);
+}
+
+/* ── Manastone Presets ── */
+.gc-mana-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(100, 200, 255, 0.08);
+    flex-shrink: 0;
+}
+
+.gc-mana-preset-btn {
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 0.7em;
+    font-weight: 600;
+    color: rgba(100, 200, 255, 0.75);
+    background: rgba(100, 200, 255, 0.06);
+    border: 1px solid rgba(100, 200, 255, 0.15);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.gc-mana-preset-btn:hover {
+    background: rgba(100, 200, 255, 0.15);
+    border-color: rgba(100, 200, 255, 0.35);
+    color: rgba(100, 200, 255, 1);
+}
+
+.gc-mana-clear-btn {
+    color: rgba(255, 100, 100, 0.75);
+    background: rgba(255, 100, 100, 0.06);
+    border-color: rgba(255, 100, 100, 0.15);
+}
+
+.gc-mana-clear-btn:hover {
+    background: rgba(255, 100, 100, 0.15);
+    border-color: rgba(255, 100, 100, 0.35);
+    color: rgba(255, 100, 100, 1);
+}
+
+/* ── Section Label in Mana Modal ── */
+.gc-mana-section-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #c8a03c;
+    padding: 6px 16px 2px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* ── Scrollable body wrapper ── */
+.gc-mana-body {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 200, 255, 0.35) rgba(100, 200, 255, 0.06);
+}
+
+.gc-mana-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.gc-mana-body::-webkit-scrollbar-track {
+    background: rgba(100, 200, 255, 0.04);
+    border-radius: 6px;
+}
+
+.gc-mana-body::-webkit-scrollbar-thumb {
+    background: rgba(100, 200, 255, 0.25);
+    border-radius: 6px;
+}
+
+.gc-mana-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 200, 255, 0.45);
+}
+
+/* ── Gear List in Modal ── */
+.gc-mana-gear-list {
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.gc-mana-gear-row {
+    background: rgba(15, 15, 25, 0.6);
+    border: 1px solid rgba(200, 160, 60, 0.12);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.gc-mana-gear-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gc-mana-gear-icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 2px rgba(200, 160, 60, 0.3));
+}
+
+.gc-mana-gear-name {
+    font-size: 0.82em;
+    font-weight: 600;
+    color: rgba(230, 220, 200, 0.9);
+}
+
+.gc-mana-slot-count {
+    font-size: 0.68em;
+    color: rgba(230, 220, 200, 0.4);
+}
+
+.gc-mana-slots {
+    display: flex;
+    gap: 6px;
+}
+
+.gc-mana-slot {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    border: 1px solid transparent;
+    flex: 1;
+    min-width: 0;
+}
+
+.gc-mana-slot-filled {
+    background: rgba(100, 200, 255, 0.06);
+    border-color: rgba(100, 200, 255, 0.15);
+}
+
+.gc-mana-slot-filled:hover {
+    background: rgba(100, 200, 255, 0.12);
+    border-color: rgba(100, 200, 255, 0.35);
+}
+
+.gc-mana-slot-empty {
+    background: rgba(60, 60, 80, 0.3);
+    border-color: rgba(150, 140, 120, 0.15);
+}
+
+.gc-mana-slot-empty:hover {
+    background: rgba(100, 200, 255, 0.06);
+    border-color: rgba(100, 200, 255, 0.2);
+}
+
+.gc-mana-slot-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 3px rgba(100, 200, 255, 0.3));
+}
+
+.gc-mana-slot-label {
+    font-size: 0.7em;
+    color: rgba(100, 200, 255, 0.8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gc-mana-slot-empty-label {
+    font-size: 0.7em;
+    color: rgba(150, 140, 120, 0.45);
+    font-style: italic;
+}
+
+/* ── Manastone Slot Picker (popup options) ── */
+.gc-mana-option-icon {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 4px;
+}
+
+.gc-mana-option-icon img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 3px rgba(100, 200, 255, 0.3));
+}
+
+.gc-mana-option-none:hover {
+    background: rgba(255, 80, 80, 0.08);
+    border-color: rgba(255, 80, 80, 0.3);
+}
+
+.gc-mana-slot-popup {
+    z-index: 10001 !important;
+}
+
+.gc-mana-slot-icon-empty {
+    opacity: 0.35;
+    filter: grayscale(0.5);
+}
+
+/* --- Fancy Minion Selector Styles --- */
+.gc-minion-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.gc-minion-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.gc-minion-opt:hover {
+    background: rgba(181, 101, 245, 0.1);
+    border-color: rgba(181, 101, 245, 0.3);
+    transform: translateY(-1px);
+}
+
+.gc-minion-opt.selected {
+    background: rgba(200, 160, 60, 0.15);
+    border-color: rgba(200, 160, 60, 0.5);
+    box-shadow: inset 0 0 10px rgba(200, 160, 60, 0.1);
+}
+
+.gc-minion-opt img {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.gc-minion-opt-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.gc-minion-name {
+    font-size: 0.85em;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.gc-minion-type {
+    font-size: 0.65em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+}
+
+/* Checkmark for selected */
+.gc-minion-opt.selected::after {
+    content: '✓';
+    position: absolute;
+    right: 10px;
+    color: #ffcc00;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+@media (max-width: 500px) {
+    .gc-minion-selection-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Jorgoth Weapon Stats Legend ── */
+.gc-jorgoth-legend {
+    margin-top: 8px;
+    background: rgba(15, 15, 25, 0.6);
+    border: 1px solid rgba(200, 160, 60, 0.15);
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.gc-jorgoth-legend-title {
+    font-size: 0.75em;
+    font-weight: 700;
+    color: rgba(200, 160, 60, 0.75);
+    margin-bottom: 6px;
+    letter-spacing: 0.03em;
+}
+
+.gc-jorgoth-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.72em;
+}
+
+.gc-jorgoth-table thead th {
+    color: rgba(230, 220, 200, 0.45);
+    font-weight: 600;
+    text-align: center;
+    padding: 2px 6px 4px;
+    border-bottom: 1px solid rgba(200, 160, 60, 0.1);
+    font-size: 0.9em;
+    letter-spacing: 0.03em;
+}
+
+.gc-jorgoth-table thead th:first-child {
+    text-align: left;
+}
+
+.gc-jorgoth-row td {
+    padding: 4px 6px;
+    text-align: center;
+    color: rgba(230, 220, 200, 0.75);
+    border-bottom: 1px solid rgba(200, 160, 60, 0.06);
+}
+
+.gc-jorgoth-row td:first-child {
+    text-align: left;
+    font-weight: 600;
+    color: rgba(230, 220, 200, 0.6);
+}
+
+.gc-jorgoth-row-mp {
+    background: rgba(200, 160, 60, 0.06);
+}
+
+.gc-jorgoth-row-mp td {
+    color: rgba(230, 220, 200, 0.9);
+}
+
+.gc-jorgoth-highlight {
+    color: #ff9944 !important;
+    font-weight: 700;
+}
+
+.gc-jorgoth-highlight-dim {
+    color: rgba(255, 153, 68, 0.55) !important;
+    font-weight: 700;
+}
+
+.gc-jorgoth-variant {
+    white-space: nowrap;
+}
+
+.gc-jorgoth-tags {
+    text-align: left !important;
+    white-space: nowrap;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.gc-jorgoth-tag-mp {
+    display: inline-block;
+    font-size: 0.85em;
+    font-weight: 700;
+    color: #ffcc44;
+    background: rgba(200, 160, 60, 0.12);
+    border: 1px solid rgba(200, 160, 60, 0.25);
+    border-radius: 4px;
+    padding: 1px 5px;
+    white-space: nowrap;
+}
+
+.gc-jorgoth-tag-ext {
+    display: inline-block;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: rgba(100, 200, 255, 0.75);
+    background: rgba(100, 200, 255, 0.06);
+    border: 1px solid rgba(100, 200, 255, 0.15);
+    border-radius: 4px;
+    padding: 1px 5px;
+    white-space: nowrap;
+}
+
+.gc-jorgoth-tag-fuse {
+    display: inline-block;
+    font-size: 0.85em;
+    font-weight: 700;
+    color: #ff9944;
+    background: rgba(255, 153, 68, 0.1);
+    border: 1px solid rgba(255, 153, 68, 0.2);
+    border-radius: 4px;
+    padding: 1px 5px;
+    white-space: nowrap;
+}
+
+.gc-jorgoth-t3-separator td {
+    border-top: 1px dashed rgba(200, 160, 60, 0.25);
+    padding: 0;
+    height: 4px;
+}
+
+.gc-jorgoth-row-t3 {
+    opacity: 0.7;
+}
+
+.gc-jorgoth-tag-t3 {
+    display: inline-block;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: rgba(180, 160, 120, 0.85);
+    background: rgba(180, 160, 120, 0.08);
+    border: 1px solid rgba(180, 160, 120, 0.18);
+    border-radius: 4px;
+    padding: 1px 5px;
+    white-space: nowrap;
+}
+
+/* ── Equipment Slot (shared armor + weapon) ── */
+.gc-slot {
+    background: rgba(15, 15, 25, 0.8);
+    border: 1px solid rgba(200, 160, 60, 0.25);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 0.2s ease;
+}
+
+.gc-slot:hover {
+    border-color: rgba(200, 160, 60, 0.5);
+}
+
+.gc-slot-icon {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+}
+
+.gc-slot-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.gc-slot-label {
+    font-size: 0.78em;
+    font-weight: 600;
+    color: var(--text-primary);
+    width: 70px;
+    flex-shrink: 0;
+}
+
+.gc-slot-name {
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+}
+
+/* ── Shared Weapon Config ── */
+.gc-weapon-config {
+    background: var(--bg-panel-solid);
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-md);
+}
+
+.gc-wc-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.gc-wc-slot {
+    width: fit-content;
+}
+
+/* ── Icon Picker (weapon setup) ── */
+.gc-wc-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+}
+
+.gc-wc-item-label {
+    font-size: 0.7em;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.gc-icon-picker {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    border: 2px solid rgba(200, 160, 60, 0.3);
+    background: rgba(15, 15, 25, 0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.gc-icon-picker:hover {
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 10px rgba(181, 101, 245, 0.3);
+    transform: scale(1.05);
+}
+
+.gc-icon-picker img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.gc-icon-picker-empty {
+    border-style: dashed;
+    border-color: rgba(200, 160, 60, 0.15);
+}
+
+.gc-icon-picker-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(20, 20, 35, 0.97);
+    border: 1px solid rgba(200, 160, 60, 0.3);
+    border-radius: 10px;
+    padding: 6px;
+    gap: 4px;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    flex-wrap: wrap;
+    justify-content: center;
+    min-width: 60px;
+}
+
+.gc-picker-open {
+    display: flex !important;
+}
+
+.gc-picker-option {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background: rgba(30, 30, 50, 0.6);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.gc-picker-option:hover {
+    border-color: var(--accent-purple);
+    background: rgba(181, 101, 245, 0.15);
+    transform: scale(1.1);
+}
+
+.gc-picker-option img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+}
+
+.gc-picker-selected {
+    border-color: var(--accent);
+    background: rgba(200, 160, 60, 0.15);
+}
+
+.gc-picker-none {
+    border-color: rgba(255, 80, 80, 0.2);
+}
+
+.gc-picker-none:hover {
+    border-color: rgba(255, 80, 80, 0.5);
+    background: rgba(255, 80, 80, 0.1);
+}
+
+.gc-picker-x {
+    font-size: 1.2em;
+    color: rgba(255, 80, 80, 0.5);
+    font-weight: 700;
+}
+
+.gc-wc-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.gc-wc-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    background: rgba(15, 15, 25, 0.6);
+    border: 1px solid rgba(200, 160, 60, 0.15);
+    border-radius: 8px;
+}
+
+.gc-wc-label {
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--text-primary);
+    width: 75px;
+    flex-shrink: 0;
+}
+
+.gc-slot-icon-empty {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    opacity: 0.3;
+}
+
+.gc-wc-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+}
+
+/* ── Weapon Notice ── */
+.gc-weapon-notice {
+    font-size: 0.7em;
+    color: rgba(255, 204, 0, 0.5);
+    text-align: center;
+    padding-top: 8px;
+    line-height: 1.4;
+}
+
+/* ── Jorgoth Weapon Tags ── */
+.gc-weapon-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72em;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.gc-weapon-tag-extended {
+    background: rgba(100, 180, 255, 0.12);
+    border: 1px solid rgba(100, 180, 255, 0.35);
+    color: #7cc4ff;
+}
+.gc-weapon-tag-masterpiece {
+    background: rgba(255, 170, 50, 0.12);
+    border: 1px solid rgba(255, 170, 50, 0.35);
+    color: #ffbb44;
+}
+
+/* ── Weapon Grid ── */
+.gc-weapon-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.gc-weapon-icon {
+    width: 48px;
+    height: 48px;
+    margin: 4px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 10, 18, 0.6);
+    border: 1px solid rgba(200, 160, 60, 0.3);
+    border-radius: 8px;
+}
+
+.gc-weapon-icon img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.gc-weapon-icon-empty {
+    color: var(--text-dim);
+    font-size: 1.5em;
+}
+
+/* ── Dropdowns ── */
+.gc-select {
+    width: auto;
+    min-width: 0;
+    flex: 1 1 auto;
+    background: rgba(10, 10, 20, 0.9);
+    color: var(--text-primary);
+    border: 1px solid var(--border-dim);
+    border-radius: 5px;
+    padding: 4px 5px;
+    font-size: 0.75em;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+    appearance: auto;
+}
+
+.gc-select:hover,
+.gc-select:focus {
+    border-color: var(--accent-purple);
+    outline: none;
+}
+
+.gc-select-sm {
+    flex: 0 0 auto;
+    margin: 0 1px;
+}
+
+.gc-select:disabled {
+    opacity: 0.35;
+    cursor: default;
+    border-color: rgba(200, 160, 60, 0.08);
+}
+
+/* (Stats panel removed — comparison is now item-based) */
+
+/* ── Comparison Table ── */
+.gc-comparison {
+    background: var(--bg-panel-solid);
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow-md);
+}
+
+.gc-comparison-header {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.gc-comparison-header h2 {
+    color: var(--accent);
+    border-left: none;
+    margin-top: 0;
+    padding-left: 0;
+    font-size: 1.3em;
+}
+
+.gc-comp-subtitle {
+    color: var(--text-dim);
+    font-size: 0.75em;
+    font-weight: 400;
+}
+
+.gc-comp-table {
+    table-layout: fixed;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.gc-comp-table thead th {
+    color: var(--text-primary);
+    font-weight: 700;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--border-dim);
+    text-align: center;
+}
+
+.gc-comp-th-stat {
+    text-align: left !important;
+    width: 25%;
+}
+
+.gc-comp-th-val {
+    width: 25%;
+}
+
+.gc-comp-th-diff {
+    width: 25%;
+}
+
+.gc-comp-ghost {
+    width: 0%; 
+    padding: 0 !important;
+    border: none !important;
+}
+
+.gc-comp-group-row {
+    background: none;
+}
+.gc-comp-group-label {
+    text-align: center;
+    font-weight: bold;
+    color: #db822a;
+    font-size: 1em;
+    padding: 10px 0 4px 0;
+    background: none;
+}
+
+.gc-comp-category-row td {
+    font-weight: 700;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    padding: 12px 12px 6px;
+    border-bottom: 1px solid rgba(77, 184, 255, 0.15);
+}
+
+.gc-comp-row td {
+    padding: 6px 12px;
+    border-bottom: 1px solid rgba(60, 60, 70, 0.3);
+}
+
+.gc-comp-row:hover td {
+    background: rgba(77, 184, 255, 0.04);
+}
+
+.gc-comp-stat {
+    color: var(--text-muted);
+    text-align: left;
+}
+
+.gc-comp-val {
+    text-align: center;
+    color: var(--text-primary);
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-weight: 600;
+}
+
+.gc-comp-diff {
+    text-align: center;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-weight: 700;
+}
+
+.gc-diff-positive {
+    color: #4dff4d;
+}
+
+.gc-diff-negative {
+    color: #ff4d4d;
+}
+
+.gc-diff-zero {
+    color: #555;
+}
+
+/* ── Summary Badges ── */
+.gc-comp-summary {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.gc-comp-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.78em;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.gc-comp-badge-1 {
+    background: rgba(77, 255, 77, 0.08);
+    border: 1px solid rgba(77, 255, 77, 0.25);
+    color: #4dff4d;
+}
+
+.gc-comp-badge-2 {
+    background: rgba(255, 77, 77, 0.08);
+    border: 1px solid rgba(255, 77, 77, 0.25);
+    color: #ff4d4d;
+}
+
+.gc-comp-badge-tie {
+    background: rgba(150, 150, 150, 0.08);
+    border: 1px solid rgba(150, 150, 150, 0.2);
+    color: rgba(200, 200, 200, 0.6);
+}
+
+/* ── Stat Bar Visualization ── */
+.gc-comp-bar-wrap {
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 22px;
+    overflow: hidden;
+}
+
+.gc-comp-bar {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 65%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.gc-comp-bar-1 {
+    background: rgba(100, 200, 255, 0.12);
+}
+
+.gc-comp-bar-2 {
+    left: auto;
+    right: auto;
+    background: rgba(181, 101, 245, 0.12);
+}
+
+.gc-comp-val-text {
+    position: relative;
+    z-index: 1;
+}
+
+.gc-comp-val-win {
+    font-weight: 700;
+}
+
+.gc-comp-val-win .gc-comp-val-text {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* ── Expandable Row + Chevron ── */
+.gc-comp-expandable {
+    cursor: pointer;
+}
+
+.gc-comp-expandable:hover td {
+    background: rgba(77, 184, 255, 0.06);
+}
+
+.gc-comp-chevron {
+    display: inline-block;
+    font-size: 0.7em;
+    color: rgba(100, 200, 255, 0.4);
+    transition: transform 0.2s ease;
+    margin-left: 4px;
+}
+
+.gc-comp-expanded .gc-comp-chevron {
+    transform: rotate(90deg);
+    color: rgba(100, 200, 255, 0.8);
+}
+
+/* ── Source Breakdown Rows ── */
+.gc-comp-source-row {
+    display: none;
+}
+
+.gc-comp-source-row.gc-comp-source-visible {
+    display: table-row;
+}
+
+.gc-comp-source-row td {
+    padding: 3px 12px;
+    border-bottom: 1px solid rgba(60, 60, 70, 0.15);
+    font-size: 0.82em;
+}
+
+.gc-comp-source-label {
+    color: rgba(200, 190, 170, 0.5);
+    text-align: left;
+    padding-left: 20px !important;
+}
+
+.gc-comp-source-val {
+    text-align: center;
+    color: rgba(200, 190, 170, 0.45);
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+.gc-comp-source-diff {
+    text-align: center;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+/* ── Tabs ── */
+.gc-tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(100, 180, 255, 0.1);
+    padding-bottom: 0;
+}
+
+.gc-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    color: rgba(180, 200, 220, 0.45);
+    font-family: inherit;
+    font-size: 0.78em;
+    font-weight: 600;
+    padding: 8px 16px 9px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.gc-tab-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    opacity: 0.45;
+    transition: opacity 0.2s;
+    filter: drop-shadow(0 0 0px transparent);
+}
+
+.gc-tab:hover {
+    color: rgba(180, 215, 255, 0.85);
+}
+.gc-tab:hover .gc-tab-icon {
+    opacity: 0.75;
+}
+
+.gc-tab-active {
+    color: rgba(140, 200, 255, 1);
+    border-bottom-color: rgba(100, 180, 255, 0.7);
+}
+.gc-tab-active .gc-tab-icon {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(100, 190, 255, 0.55));
+}
+
+.gc-tab-panel {
+    display: none;
+}
+
+.gc-tab-panel-active {
+    display: block;
+}
+
+/* ── Transform Icon Grid ── */
+.gc-tf-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.gc-tf-icon {
+    width: 64px;
+    border-radius: 10px;
+    border: 2px solid var(--border-dim);
+    background: rgba(20, 20, 30, 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px 4px 4px;
+    gap: 3px;
+}
+
+.gc-tf-icon img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.gc-tf-icon-label {
+    font-size: 0.55em;
+    color: var(--text-dim);
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.gc-tf-none-dash {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    font-size: 1.6em;
+    font-weight: 700;
+    color: rgba(180, 200, 220, 0.35);
+    line-height: 1;
+}
+
+.gc-tf-icon:hover {
+    border-color: rgba(255, 153, 68, 0.5);
+    transform: scale(1.06);
+    box-shadow: 0 0 8px rgba(255, 153, 68, 0.25);
+}
+
+.gc-tf-icon:hover .gc-tf-icon-label {
+    color: var(--text-primary);
+}
+
+.gc-tf-icon-selected {
+    border-color: #ff9944;
+    background: rgba(255, 153, 68, 0.15);
+    box-shadow: 0 0 12px rgba(255, 153, 68, 0.35);
+}
+
+.gc-tf-icon-selected .gc-tf-icon-label {
+    color: #ff9944;
+    font-weight: 700;
+}
+
+/* ── Transform Enchant Row ── */
+.gc-tf-enchant-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.gc-tf-enchant-label {
+    font-size: 0.82em;
+    font-weight: 600;
+    color: rgba(180, 200, 220, 0.75);
+}
+
+.gc-tf-enchant-select {
+    width: 75px;
+}
+
+/* ── Enchant Popup Wrap (for 0-20 transform range) ── */
+.gc-enchant-popup-wrap {
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 280px;
+    min-width: auto;
+}
+.gc-enchant-popup-wrap .gc-set-option {
+    min-width: 52px;
+    justify-content: center;
+}
+
+/* ── Transform Stat Preview ── */
+.gc-tf-stats {
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(100, 140, 180, 0.1);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-top: 10px;
+}
+
+.gc-tf-stats-title {
+    font-size: 0.85em;
+    font-weight: 700;
+    color: #ff9944;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(100, 140, 180, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gc-tf-stats-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+}
+
+.gc-tf-stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    font-size: 0.8em;
+}
+
+.gc-tf-stat-name {
+    color: rgba(180, 200, 220, 0.75);
+}
+
+.gc-tf-stat-val {
+    color: rgba(160, 230, 160, 0.9);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.gc-tf-stat-per {
+    font-weight: 400;
+    color: rgba(180, 200, 220, 0.4);
+    font-size: 0.88em;
+}
+
+.gc-tf-stat-dimmed {
+    opacity: 0.35;
+}
+
+/* ── Shield Bonus Picker ── */
+.gc-shield-variant-row {
+    margin: 6px 0 2px;
+}
+
+.gc-shield-bonuses {
+    margin-top: 8px;
+}
+
+.gc-acc-upper {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+}
+
+.gc-acc-upper-item {
+    min-width: 0;
+}
+
+.gc-acc-setbonus {
+    margin: 6px 0 2px;
+    font-size: 0.72em;
+    color: rgba(255, 220, 140, 0.9);
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 7px;
+    background: rgba(200, 160, 60, 0.1);
+    border: 1px solid rgba(200, 160, 60, 0.25);
+}
+
+.gc-slot-icon-framed {
+    position: relative;
+}
+
+.gc-slot-icon-frame {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    pointer-events: none;
+    object-fit: contain;
+}
+
+.gc-bonus-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.gc-bonus-toggle:hover {
+    opacity: 0.8;
+}
+
+.gc-bonus-toggle-arrow {
+    font-size: 0.72em;
+    color: rgba(180, 200, 220, 0.6);
+    width: 10px;
+    text-align: center;
+}
+
+.gc-shield-bonus-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.gc-shield-bonus-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 7px;
+    font-size: 0.72em;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid rgba(100, 140, 180, 0.15);
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(180, 200, 220, 0.65);
+    min-width: 90px;
+}
+
+.gc-shield-bonus-btn:hover {
+    border-color: rgba(181, 101, 245, 0.3);
+    background: rgba(181, 101, 245, 0.08);
+    color: rgba(220, 220, 240, 0.9);
+}
+
+.gc-shield-bonus-on {
+    border-color: rgba(200, 160, 60, 0.4);
+    background: rgba(200, 160, 60, 0.12);
+    color: rgba(255, 220, 140, 0.95);
+}
+
+.gc-shield-bonus-on:hover {
+    border-color: rgba(220, 80, 80, 0.4);
+    background: rgba(220, 80, 80, 0.1);
+}
+
+.gc-shield-bonus-disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
+}
+
+.gc-shield-bonus-name {
+    font-weight: 600;
+}
+
+.gc-shield-bonus-val {
+    font-variant-numeric: tabular-nums;
+    color: rgba(160, 230, 160, 0.85);
+    font-weight: 600;
+}
+
+.gc-shield-bonus-on .gc-shield-bonus-val {
+    color: rgba(160, 230, 160, 0.95);
+}
+
+/* ── Gear Compare Responsive ── */
+@media (max-width: 1024px) {
+    .gc-profiles {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .gc-armor-columns {
+        grid-template-columns: 1fr;
+    }
+    .gc-acc-upper {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .gc-weapon-grid {
+        grid-template-columns: 1fr;
+    }
+    .gc-armor-row {
+        flex-wrap: wrap;
+    }
+    .gc-wc-row {
+        flex-wrap: wrap;
+    }
+    .gc-slot-label {
+        width: 60px;
+    }
+    .gc-wc-label {
+        width: 60px;
+    }
+    .gc-oath-pick {
+        width: 26px;
+        height: 26px;
+    }
+    .gc-oath-pick img {
+        width: 20px;
+        height: 20px;
+    }
+    .gc-comp-table {
+        font-size: 0.8em;
+    }
+    .gc-comp-table thead th,
+    .gc-comp-row td {
+        padding: 4px 6px;
+    }
+    .gc-set-title {
+        font-size: 1.2em;
+    }
+    .gc-class-btn {
+        width: 60px;
+    }
+    .gc-jorgoth-table {
+        font-size: 0.65em;
+    }
+    .gc-jorgoth-table thead th,
+    .gc-jorgoth-row td {
+        padding: 3px 3px;
+    }
+    .gc-jorgoth-tags {
+        flex-direction: column;
+        gap: 2px;
+    }
+    .gc-mana-dialog {
+        width: 96%;
+        max-height: 90vh;
+    }
+    .gc-mana-slots {
+        flex-direction: column;
+    }
+    .gc-mana-presets {
+        padding: 8px 10px;
+    }
+    .gc-mana-preset-btn {
+        font-size: 0.65em;
+        padding: 3px 7px;
+    }
+    .gc-tab {
+        padding: 8px 14px;
+        font-size: 0.85em;
+    }
+    .gc-tf-icon {
+        width: 52px;
+        padding: 4px 3px 3px;
+    }
+    .gc-tf-icon img {
+        width: 34px;
+        height: 34px;
+    }
+    .gc-tf-none-dash {
+        width: 34px;
+        height: 34px;
+        font-size: 1.3em;
+    }
+    .gc-tf-icon-label {
+        font-size: 0.48em;
+    }
+}
+/* ============================================
+   GEAR COMPARE — COLLECTIONS TAB
+   ============================================ */
+
+.gc-coll-section-label {
+    font-size: 0.82em;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--accent-purple);
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(181, 101, 245, 0.2);
+}
+
+/* Empty notice (shown while data arrays are unpopulated) */
+.gc-coll-empty-notice {
+    font-size: 0.82em;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.04);
+    border: 1px dashed rgba(181,101,245,0.25);
+    border-radius: 8px;
+    padding: 12px 14px;
+    line-height: 1.6;
+}
+.gc-coll-empty-notice code {
+    color: var(--accent);
+    background: rgba(77,184,255,0.12);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 0.95em;
+}
+
+/* Transformation collection toggle buttons grid */
+.gc-coll-tf-scroll {
+    max-height: 270px;
+    overflow-y: auto;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background: rgba(30, 30, 50, 0.18);
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.07);
+    padding-right: 2px;
+}
+
+.gc-coll-tf-scroll::-webkit-scrollbar { width: 8px; }
+.gc-coll-tf-scroll::-webkit-scrollbar-track { background: rgba(181, 101, 245, 0.08); border-radius: 10px; }
+.gc-coll-tf-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(181, 101, 245, 0.5) 0%, rgba(181, 101, 245, 0.7) 100%); border-radius: 10px; border: 2px solid rgba(181, 101, 245, 0.08); }
+.gc-coll-tf-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(181, 101, 245, 0.7) 0%, rgba(181, 101, 245, 0.9) 100%); }
+
+.gc-coll-tf-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 0 8px 0;
+}
+
+.gc-coll-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(181,101,245,0.2);
+    background: rgba(255,255,255,0.04);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+}
+.gc-coll-btn:hover {
+    background: rgba(181,101,245,0.1);
+    border-color: rgba(181,101,245,0.45);
+}
+.gc-coll-btn-on {
+    background: rgba(77,255,77,0.08);
+    border-color: rgba(77,255,77,0.5);
+}
+.gc-coll-btn-on:hover {
+    background: rgba(77,255,77,0.13);
+}
+.gc-coll-btn-title {
+    font-size: 0.84em;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.gc-coll-btn-on .gc-coll-btn-title {
+    color: #7dffb0;
+}
+.gc-coll-btn-stat {
+    font-size: 0.75em;
+    color: var(--accent);
+}
+
+/* Item collections grid — CSS grid keeps all inputs column-aligned */
+.gc-coll-item-grid {
+    display: grid;
+    grid-template-columns: 1fr 72px 52px;
+    align-items: center;
+    gap: 7px 8px;
+}
+
+.gc-coll-item-row {
+    display: contents;
+}
+
+.gc-coll-item-label {
+    font-size: 0.82em;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.gc-coll-item-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: flex-end;
+}
+
+.gc-coll-item-input {
+    width: 72px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(181,101,245,0.3);
+    background: rgba(255,255,255,0.06);
+    color: var(--text-primary);
+    font-size: 0.82em;
+    text-align: right;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+}
+.gc-coll-item-input:focus {
+    outline: none;
+    border-color: rgba(181,101,245,0.7);
+}
+.gc-coll-item-input::-webkit-inner-spin-button,
+.gc-coll-item-input::-webkit-outer-spin-button {
+    opacity: 0.5;
+}
+
+.gc-coll-item-max {
+    font-size: 0.72em;
+    color: var(--text-dim);
+    white-space: nowrap;
+    text-align: left;
+}
+
+/* Collection Header Layout - Subtle Grey Glass */
+.gc-coll-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.02); /* Very faint highlight */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    width: 100%;             /* Ensures it spans the full width of the parent */
+    box-sizing: border-box;  /* Prevents padding from breaking the width */
+}
+/* Remade Label Styling - Muted Silver/Grey */
+.gc-coll-header span {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim); /* Matches the 'muted' labels in your gear slots */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Dropdown Container */
+.gc-coll-levels {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    width: 100%;
+}
+/* The Dropdown - Closed (Pill) State */
+.gc-coll-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px; /* Fully rounded ends */
+    
+    width: 38px; /* Narrow enough for one or two digits */
+    padding: 3px 0;
+    font-size: 11px;
+    font-weight: 800;
+    text-align: center;
+    text-align-last: center; /* Centers the number in the pill */
+    
+    cursor: pointer;
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s;
+    outline: none;
+}
+
+/* Label above the pill */
+.gc-coll-level-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* The Dropdown - Open (Detailed) State */
+.gc-coll-select:focus {
+    width: 155px; /* Expands to fit the descriptive text */
+    text-align: left;
+    text-align-last: left;
+    padding-left: 12px;
+    border-radius: 8px; /* Slightly squarer when expanded */
+    background-color: #25252b;
+    border-color: var(--primary-purple);
+    box-shadow: 0 0 10px rgba(181, 101, 245, 0.2);
+}
+
+/* Hover State - Slight Purple Tint */
+.gc-coll-levels select:hover {
+    border-color: rgba(181, 101, 245, 0.5);
+    background-color: #25252b; /* Slightly lighter grey (var--bg-panel-solid) */
+    color: var(--text-primary); /* Brighten text only on hover */
+}
+
+/* Focus State - Matches your Blue Accents */
+.gc-coll-levels select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 8px rgba(77, 184, 255, 0.2);
+}
+
+/* Option List Styling - Matches Panel Background */
+.gc-coll-levels select option {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+} */
+
+/* ============================================
+   GEAR COMPARE — RELIC TAB (in-game style)
+   ============================================ */
+
+/* Outer panel — sits inside .gc-profile */
+.gc-relic-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* ── Header ── */
+.gc-relic-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px 10px;
+    background: linear-gradient(135deg, rgba(50,35,80,0.6) 0%, rgba(20,20,35,0.4) 100%);
+    border-bottom: 1px solid rgba(181,101,245,0.2);
+    border-radius: 10px 10px 0 0;
+    margin-bottom: 0;
+}
+.gc-relic-header-icon {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(181,101,245,0.5));
+    flex-shrink: 0;
+}
+.gc-relic-header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+.gc-relic-header-title {
+    font-size: 1em;
+    font-weight: 700;
+    color: var(--accent-purple);
+    letter-spacing: 0.5px;
+}
+.gc-relic-header-subtitle {
+    font-size: 0.72em;
+    color: var(--text-dim);
+    letter-spacing: 0.3px;
+}
+
+.gc-relic-header .gc-reset-btn {
+    position: static;
+    margin-left: auto;
+    right: unset;
+    top: unset;
+    transform: none;
+}
+
+/* ── Level row ── */
+.gc-relic-level-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.025);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.gc-relic-level-label {
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    min-width: 38px;
+}
+.gc-relic-level-input {
+    width: 58px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(181,101,245,0.35);
+    background: rgba(255,255,255,0.07);
+    color: var(--text-primary);
+    font-size: 0.9em;
+    font-weight: 700;
+    text-align: center;
+    transition: border-color 0.15s;
+}
+.gc-relic-level-input:focus {
+    outline: none;
+    border-color: rgba(181,101,245,0.8);
+}
+.gc-relic-level-input::-webkit-inner-spin-button,
+.gc-relic-level-input::-webkit-outer-spin-button { opacity: 0.4; }
+.gc-relic-level-slider {
+    flex: 1;
+    min-width: 80px;
+    accent-color: var(--accent-purple);
+    cursor: pointer;
+    height: 4px;
+}
+.gc-relic-level-max {
+    font-size: 0.72em;
+    color: var(--text-dim);
+    white-space: nowrap;
+}
+
+/* ── Special Skills row ── */
+.gc-relic-skills-label {
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    padding: 8px 14px 4px;
+}
+.gc-relic-skills-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 4px 14px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    min-height: 62px;
+    align-items: flex-start;
+}
+.gc-relic-skills-empty {
+    font-size: 0.75em;
+    color: var(--text-dim);
+    align-self: center;
+}
+
+/* Each special skill button */
+.gc-relic-skill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: default;
+    user-select: none;
+    position: relative;
+}
+.gc-relic-skill-icon {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    border-radius: 6px;
+    border: 2px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.4);
+    transition: border-color 0.2s, filter 0.2s;
+}
+.gc-relic-skill-active .gc-relic-skill-icon {
+    border-color: rgba(255, 200, 80, 0.7);
+    filter: drop-shadow(0 0 6px rgba(255,190,60,0.55));
+}
+.gc-relic-skill-icon-dim {
+    filter: grayscale(1) brightness(0.45);
+    border-color: rgba(255,255,255,0.05) !important;
+}
+.gc-relic-skill-lvl {
+    font-size: 0.62em;
+    font-weight: 700;
+    color: var(--text-dim);
+    line-height: 1;
+}
+.gc-relic-skill-active .gc-relic-skill-lvl {
+    color: rgba(255, 200, 80, 0.85);
+}
+
+.gc-relic-skill:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    
+    background: rgba(15, 15, 20, 0.95);
+    color: #eee;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    
+    font-size: 14px; 
+    line-height: 1.4;
+    width: 220px;
+    white-space: pre-wrap;
+    pointer-events: none;
+    
+    overflow: visible !important;
+}
+
+/* ── Stats section ── */
+.gc-relic-stats-label {
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    padding: 10px 14px 4px;
+}
+.gc-relic-stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 4px 14px 14px;
+}
+
+.gc-relic-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gc-relic-stat-name {
+    font-size: 0.78em;
+    color: var(--text-secondary);
+    min-width: 120px;
+    white-space: nowrap;
+}
+
+.gc-relic-stat-bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    min-width: 40px;
+}
+
+.gc-relic-stat-bar {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(100,180,255,0.7) 0%, rgba(181,101,245,0.8) 100%);
+    border-radius: 3px;
+    transition: width 0.25s ease;
+}
+
+.gc-relic-stat-val {
+    font-size: 0.78em;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    min-width: 72px;
+    text-align: right;
+}
+
+.gc-relic-stat-max {
+    font-weight: 400;
+    color: var(--text-dim);
+    font-size: 0.9em;
+}
+
+@media (max-width: 600px) {
+    .gc-coll-item-label {
+        min-width: 110px;
+        font-size: 0.78em;
+    }
+    .gc-relic-stat-name {
+        min-width: 90px;
+        font-size: 0.72em;
+    }
+    .gc-relic-stat-val {
+        min-width: 56px;
+        font-size: 0.72em;
+    }
+}
+
+.gc-trait-container {
+    display: flex;
+    gap: 15px;
+    padding: 10px;
+    overflow-x: auto;
+}
+
+.gc-trait-column {
+    flex: 1;
+    min-width: 400px;
+    background: linear-gradient(180deg, rgba(181, 101, 245, 0.08) 0%, rgba(77, 184, 255, 0.08) 100%);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(181, 101, 245, 0.08);
+    border: 1px solid rgba(181, 101, 245, 0.13);
+    padding: 8px 0 16px 0;
+}
+
+.gc-trait-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 2px;
+    font-size: 0.82em;
+    color: var(--accent-purple);
+    background: transparent;
+}
+
+.gc-trait-lvl {
+    width: 40px;
+    text-align: center;
+    color: var(--accent);
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.gc-trait-skill {
+    width: 30%;
+    padding: 8px 4px;
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+    text-align: left;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.gc-trait-skill.selected {
+    background: rgba(77, 184, 255, 0.1);
+    border-color: var(--accent);
+    box-shadow: inset 0 0 8px rgba(77, 184, 255, 0.2);
+}
+
+.gc-skill-name {
+    font-size: 0.9em;
+    color: var(--text-primary);
+    margin: 0;
+    word-break: break-word;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.gc-trait-icon-box {
+    width: 32px;
+    height: 32px;
+    background: #000;
+    margin: 0;
+    border: 1px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-shrink: 0;
+}
+.gc-trait-icon-box img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}

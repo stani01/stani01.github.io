@@ -1,0 +1,394 @@
+/* ============================================
+   AION Tools - Consolidated Stylesheet
+   Optimized for all AION 8.x tools pages
+   ============================================ */
+
+/* ============================================
+   CSS CUSTOM PROPERTIES (THEME COLORS)
+   ============================================ */
+:root {
+    /* Primary Colors */
+    --primary-purple: #b565f5;
+    --primary-blue: #4db8ff;
+    --primary-dark: #0f0c29;
+    --primary-gradient-1: #0f0c29;
+    --primary-gradient-2: #302b63;
+    --primary-gradient-3: #24243e;
+    
+    /* Accent Colors */
+    --accent: #4db8ff;
+    --accent-purple: #b565f5;
+    --warning: #ffcc00;
+    --success: #4dff4d;
+    --error: #ff4d4d;
+    
+    /* Background Colors */
+    --bg-primary: #0f0f12;
+    --bg-secondary: #1a1a1f;
+    --bg-panel: rgba(30, 30, 40, 0.5);
+    --bg-panel-solid: #25252b;
+    --bg-dark: rgba(20, 20, 30, 0.7);
+    
+    /* Text Colors */
+    --text-primary: #e0e0e0;
+    --text-secondary: #d1d1e0;
+    --text-muted: #b8b8d0;
+    --text-dim: #999;
+    --text-very-dim: #777;
+    --text-dark: #666;
+    
+    /* Border Colors */
+    --border-primary: rgba(181, 101, 245, 0.3);
+    --border-secondary: rgba(181, 101, 245, 0.5);
+    --border-dim: #3d3d45;
+    --border-dark: #333;
+    
+    /* Shadow Colors */
+    --shadow-sm: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 12px 35px rgba(181, 101, 245, 0.4);
+    --shadow-glow: 0 0 25px rgba(181, 101, 245, 0.2);
+}
+
+/* ============================================
+   GLOBAL RESET & BASE STYLES
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    background-color: var(--primary-dark);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--primary-dark);
+    background: linear-gradient(135deg, var(--primary-gradient-1) 0%, var(--primary-gradient-2) 50%, var(--primary-gradient-3) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+h1 {
+    color: white;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(181, 101, 245, 0.6);
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+h2 {
+    color: var(--accent);
+    margin-top: 40px;
+    border-left: 5px solid var(--accent);
+    padding-left: 15px;
+}
+
+a {
+    color: var(--accent-purple);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #dcb0ff;
+    text-decoration: underline;
+}
+
+/* ============================================
+   COMMON CONTAINER & LAYOUT
+   ============================================ */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* ============================================
+   BUTTONS (SHARED STYLES)
+   ============================================ */
+.btn-primary,
+.year-btn,
+.view-toggle-btn,
+.mode-btn {
+    background: rgba(30, 30, 40, 0.6);
+    backdrop-filter: blur(5px);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover,
+.year-btn:hover,
+.view-toggle-btn:hover {
+    background: rgba(181, 101, 245, 0.2);
+    border-color: var(--accent-purple);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4), 0 0 15px rgba(181, 101, 245, 0.3);
+}
+
+/* ============================================
+   TOP NAVIGATION BAR
+   ============================================ */
+.site-topbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    background: rgba(15, 15, 22, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(77, 184, 255, 0.15);
+    padding: 6px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Fix topbar not reaching edges on pages with body padding */
+.page-scheduler .site-topbar {
+    margin: -20px -20px 0;
+}
+
+.topbar-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.82em;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    transition: color 0.2s ease, background 0.2s ease;
+    white-space: nowrap;
+}
+
+.topbar-link:hover {
+    color: var(--accent);
+    background: rgba(77, 184, 255, 0.1);
+    text-decoration: none;
+}
+
+.topbar-link.active {
+    color: var(--accent);
+    background: rgba(77, 184, 255, 0.12);
+}
+
+.topbar-sep {
+    color: rgba(255, 255, 255, 0.15);
+    font-size: 0.75em;
+    user-select: none;
+}
+
+/* ============================================
+   FOOTER (SHARED STYLES)
+   ============================================ */
+.footer {
+    background: var(--bg-dark);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 40px;
+    border: 1px solid var(--border-primary);
+    margin-top: 50px;
+    text-align: center;
+}
+
+.footer-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.discord-button,
+.share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(88, 101, 242, 0.2);
+    color: var(--text-primary);
+    padding: 12px 24px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    border: 2px solid rgba(88, 101, 242, 0.4);
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.share-btn {
+    background: rgba(181, 101, 245, 0.15);
+    border-color: rgba(181, 101, 245, 0.3);
+}
+
+.discord-button:hover,
+.share-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5), 0 0 20px rgba(181, 101, 245, 0.3);
+    border-color: var(--accent-purple);
+    text-decoration: none;
+}
+
+.discord-icon {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+.copyright {
+    text-align: center;
+    color: var(--text-dim);
+    margin-bottom: 15px;
+    line-height: 1.8;
+    font-size: 0.9em;
+}
+
+.copyright a {
+    color: var(--accent-purple);
+    font-weight: bold;
+}
+
+.disclaimer {
+    text-align: center;
+    font-size: 0.85em;
+    color: var(--text-dark);
+    max-width: 800px;
+    margin: 10px auto 0;
+    line-height: 1.6;
+    font-style: italic;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    border: 1px solid rgba(100, 100, 120, 0.2);
+}
+
+.last-updated {
+    text-align: center;
+    color: var(--text-very-dim);
+    font-size: 0.85em;
+    margin-top: 15px;
+}
+
+/* ============================================
+   DISCORD SERVER ADVERTISEMENT
+   ============================================ */
+.discord-ad {
+    margin: 40px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(88, 101, 242, 0.15) 0%, rgba(88, 101, 242, 0.05) 100%);
+    border: 1px solid rgba(88, 101, 242, 0.3);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.discord-ad-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.discord-ad-title {
+    margin: 10px 0;
+    color: #5865f2;
+    font-size: 1.2em;
+}
+
+.discord-ad-text {
+    margin: 8px 0;
+    color: #bcc0c0;
+    font-size: 0.95em;
+}
+
+.discord-ad-btn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 24px;
+    background: #5865f2;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background 0.3s;
+    cursor: pointer;
+}
+
+.discord-ad-btn:hover {
+    background: #4752c4;
+    color: white;
+    text-decoration: none;
+}
+
+/* ============================================
+   RESPONSIVE BASE STYLES
+   ============================================ */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .footer {
+        padding: 25px 15px;
+    }
+    
+    .footer-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .site-topbar {
+        padding: 5px 8px;
+        gap: 0;
+    }
+
+    .topbar-link {
+        font-size: 0.72em;
+        padding: 3px 6px;
+    }
+
+    .topbar-sep {
+        font-size: 0.65em;
+    }
+
+    h1 {
+        font-size: 1.6em;
+    }
+}
+
+
+/* ============================================
+   ANIMATIONS & UTILITIES
+   ============================================ */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Text utilities */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+/* Spacing utilities */
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
