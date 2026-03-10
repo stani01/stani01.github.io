@@ -694,16 +694,6 @@ flex: 1;
 .cell-gold { color: #ffd700; }
 .cell-white { color: #fff; }
 
-/* Calendar controls inner flex */
-.calendar-controls-inner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    width: 100%;
-    max-width: 500px;
-}
-
 /* Duration legend inner styles */
 .duration-legend details { cursor: pointer; }
 .duration-legend .dl-content { margin-top: 15px; color: #d0d0d0; line-height: 1.8; }
