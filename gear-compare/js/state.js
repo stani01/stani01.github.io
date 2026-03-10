@@ -75,8 +75,9 @@ function createDefaultProfile(className) {
     allBuffs.forEach(function(buff) {
         profile.skillBuffs[buff.key] = !!buff.defaultActive;
     });
-    // Initialize owned forms (empty — user toggles what they own)
+    // Initialize owned forms (all selected by default)
     profile.ownedForms = {};
+    ALL_FORM_IDS.forEach(function(id) { profile.ownedForms[id] = true; });
     return profile;
 }
 
