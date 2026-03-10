@@ -287,12 +287,15 @@ var CLASS_ORDER = ['gladiator', 'templar', 'assassin', 'ranger', 'sorcerer', 'sp
 var COMPARISON_STATS = [
     { key: 'hp',              name: 'HP' },
     { key: 'attack',          name: 'Attack' },
+    { key: 'physicalAttack',  name: 'Physical Attack' },
+    { key: 'magicAttack',     name: 'Magic Attack' },
     { key: 'accuracy',        name: 'Accuracy' },
     { key: 'crit',            name: 'Crit' },
     { key: 'critDmg',         name: 'Crit Dmg' },
     { key: 'healingBoost',    name: 'Healing Boost' },
     { key: 'pvpAttack',       name: 'Add. PvP Atk' },
     { key: 'pveAttack',       name: 'Add. PvE Atk' },
+    { key: 'weaponAttack',    name: 'Weapon Attack' },
 
     { key: 'physicalDef',     name: 'Physical Def' },
     { key: 'strikeFortitude', name: 'Strike Fortitude' },

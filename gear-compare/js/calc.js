@@ -214,9 +214,13 @@ function calculateDetailedStats(profileId) {
     var ownedForms = profile.ownedForms || {};
     TF_COLLECTIONS.forEach(function(coll) {
         if (!isCollectionComplete(coll, ownedForms)) return;
-        if (sources.collections[coll.stat] !== undefined) {
-            sources.collections[coll.stat] += coll.value;
-        }
+            if (coll.stat === 'physicalAttack' && isPhys){
+                sources.collections.attack += coll.value;
+            } else if (coll.stat === 'magicAttack' && !isPhys) {
+                sources.collections.attack += coll.value;
+            } else if (sources.collections[coll.stat] !== undefined){
+                sources.collections[coll.stat] += coll.value;
+            }
     });
 
     // ── Item Collection bonuses (numeric input) ──
@@ -305,12 +309,17 @@ function calculateDetailedStats(profileId) {
     // ── Skill Buff stats ──
     var sb = profile.skillBuffs || {};
     var allBuffs = getSkillBuffsForClass(selectedClass);
+    var doubleMinionBuff = sb['joltingStrike'] && sb['soulWave'];
     allBuffs.forEach(function(buff) {
         if (!sb[buff.key]) return;
         if (!buff.stats) return;
         STAT_KEYS.forEach(function(k) {
             if (buff.stats[k]) sources.skillBuffs[k] += buff.stats[k];
         });
+        if (doubleMinionBuff) {
+            sources.skillBuffs.pvpAttack -= 150;
+            sources.skillBuffs.pveAttack -= 150;
+        }
     });
 
     // Compute totals from sources

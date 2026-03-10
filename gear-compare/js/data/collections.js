@@ -23,7 +23,7 @@
 //   gradeReq — (optional) { grade, count } for grade-based conqueror collections
 //   bonus    — (optional) extra reward text shown in the UI
 var TF_COLLECTIONS = [
-    // ── 1–6: Basic collections ──
+    // -- 1–6: Basic collections --
     { key: 'tf-dog-bunny', name: 'Time of Dog and Bunny', stat: 'parry', value: 108,
       forms: [982051, 982024] },
     { key: 'tf-games-begin', name: 'Let the games begin!', stat: 'block', value: 108,
@@ -37,7 +37,7 @@ var TF_COLLECTIONS = [
     { key: 'tf-wretched-minions', name: 'Wretched Minions Assembly', stat: 'physicalDef', value: 76,
       forms: [982056, 982023, 982029, 982034] },
 
-    // ── 7–10: Balaur faction collections (with bonus) ──
+    // -- 7–10: Balaur faction collections (with bonus) --
     { key: 'tf-ereshkigal-warriors', name: 'Ereshkigal\'s Warriors', stat: 'parry', value: 538,
       bonus: '(Level 1) Flame of Illusion: Prigga',
       forms: [982042, 982057, 982034, 982061] },
@@ -51,7 +51,7 @@ var TF_COLLECTIONS = [
       bonus: '(Level 2) Cursed Cyclone',
       forms: [982032, 982057, 982062, 982048, 982046, 982044] },
 
-    // ── 11–13: Grade conquerors ──
+    // -- 11–13: Grade conquerors --
     { key: 'tf-common-conqueror', name: 'Common Transformation Conqueror', stat: 'evasion', value: 108,
       gradeReq: { grade: 'normal', count: 18 } },
     { key: 'tf-highrank-conqueror', name: 'High-ranking Transformation Conqueror', stat: 'healingBoost', value: 49,
@@ -59,7 +59,7 @@ var TF_COLLECTIONS = [
     { key: 'tf-ancient-conqueror', name: 'Ancient Transformation Conqueror', stat: 'healingBoost', value: 123,
       gradeReq: { grade: 'ancient', count: 18 } },
 
-    // ── 14–25: Mixed collections ──
+    // -- 14–25: Mixed collections --
     { key: 'tf-we-are-one', name: 'We are one, though we are not the same.', stat: 'physicalDef', value: 152,
       forms: [982026, 982034, 982057, 982063] },
     { key: 'tf-rgb', name: 'RGB (if painted)', stat: 'accuracy', value: 220,
@@ -85,7 +85,7 @@ var TF_COLLECTIONS = [
     { key: 'tf-life-death', name: 'Life and Death', stat: 'spellFortitude', value: 60,
       forms: [982113, 982089, 982044, 982029, 982023] },
 
-    // ── 26–29: More basic + Tiamat/Beritra ──
+    // -- 26–29: More basic + Tiamat/Beritra --
     { key: 'tf-tin-bunny', name: 'Tin Man with Bunny', stat: 'physicalDef', value: 38,
       forms: [982051, 982031, 982052, 982025] },
     { key: 'tf-cute-perfect', name: 'You\'re so cute, you\'re perfect', stat: 'magicResist', value: 215,
@@ -96,7 +96,7 @@ var TF_COLLECTIONS = [
       bonus: '(Level 1) Flame of Illusion: Tower of Challenge',
       forms: [982040, 982059, 982034, 982046] },
 
-    // ── 30–39: Legendary-tier collections with bonuses ──
+    // -- 30–39: Legendary-tier collections with bonuses --
     { key: 'tf-beritra-warriors', name: 'Beritra\'s Warriors', stat: 'accuracy', value: 110,
       bonus: '(Level 1) Flame of Illusion: Beritra',
       forms: [982041, 982058, 982034, 982049] },
@@ -128,12 +128,12 @@ var TF_COLLECTIONS = [
       bonus: 'Blessed Light',
       forms: [982054, 982055, 982047, 982048, 982060, 982050] },
 
-    // ── 40: Legendary grade conqueror ──
+    // -- 40: Legendary grade conqueror --
     { key: 'tf-legendary-conqueror', name: 'Legendary Class Conqueror', stat: 'attack', value: 195,
       bonus: '(Final) Cursed Cyclone',
       gradeReq: { grade: 'legendary', count: 10 } },
 
-    // ── 41–54: Pixel, Apostle, and mixed collections ──
+    // -- 41–54: Pixel, Apostle, and mixed collections --
     { key: 'tf-pixel-what', name: 'What is a Pixel anyway?', stat: 'magicalDef', value: 152,
       forms: [982052, 982053, 982056, 982064] },
     { key: 'tf-pixel-100days', name: 'Another Pixel after 100 days of prayer.', stat: 'attack', value: 152,
@@ -164,7 +164,7 @@ var TF_COLLECTIONS = [
       bonus: 'Rapid Return',
       forms: [982063, 982064, 982065, 982078] },
 
-    // ── 55–57: Halloween collections ──
+    // -- 55–57: Halloween collections --
     { key: 'tf-halloween-4', name: 'Halloween 4', stat: 'attack', value: 156,
       forms: [982079, 982080, 982081, 982082] },
     { key: 'tf-shadows-grow', name: 'The Shadows Grow', stat: 'parry', value: 538,
@@ -172,7 +172,7 @@ var TF_COLLECTIONS = [
     { key: 'tf-last-dance', name: 'Our Last Dance', stat: 'block', value: 538,
       forms: [982080, 982082] },
 
-    // ── 58–64: Apostle-themed collections ──
+    // -- 58–64: Apostle-themed collections --
     { key: 'tf-pyjama-party', name: 'Pyjama Party', stat: 'evasion', value: 323,
       forms: [982090, 982062, 982060] },
     { key: 'tf-know-way', name: 'Do you know the way?', stat: 'magicResist', value: 323,
@@ -188,7 +188,7 @@ var TF_COLLECTIONS = [
     { key: 'tf-gods-fate', name: 'Gods and Apostles of Fate', stat: 'strikeFortitude', value: 80,
       forms: [982074, 982089, 982091, 982070, 982068] },
 
-    // ── 65–67: Rangers + Tiamat/Ereshkigal ──
+    // -- 65–67: Rangers + Tiamat/Ereshkigal --
     { key: 'tf-ready-4', name: 'Ready Player Four', stat: 'crit', value: 205,
       bonus: '[Extra] Collection Blessing',
       forms: [982092, 982093, 982025, 982052] },
@@ -197,7 +197,7 @@ var TF_COLLECTIONS = [
     { key: 'tf-here-raid', name: 'Here for Raid', stat: 'critDmg', value: 40,
       forms: [982094, 982095, 982073, 982068, 982070] },
 
-    // ── 68–76: Animal-themed collections ──
+    // -- 68–76: Animal-themed collections --
     { key: 'tf-cat-butler', name: 'The Cat and Her Butler', stat: 'magicalDef', value: 152,
       forms: [982101, 982061, 982045, 982062, 982060] },
     { key: 'tf-kitty-practice', name: 'Kitty Practice', stat: 'hp', value: 6600,
@@ -217,7 +217,7 @@ var TF_COLLECTIONS = [
     { key: 'tf-prehistoric', name: 'Prehistoric Animal Protectorate', stat: 'accuracy', value: 331,
       forms: [982100, 982101, 982103, 982104, 982105, 982106] },
 
-    // ── 77–84: Ultimate god collections ──
+    // -- 77–84: Ultimate god collections --
     { key: 'tf-ulti-assassin', name: 'Ultimate Assassin', stat: 'strikeFortitude', value: 60,
       forms: [982108, 982070, 982045, 982040, 982023] },
     { key: 'tf-ulti-protector', name: 'Ultimate Protector', stat: 'spellFortitude', value: 60,
@@ -235,7 +235,7 @@ var TF_COLLECTIONS = [
     { key: 'tf-time-shadows', name: 'Time of Shadows', stat: 'strikeFortitude', value: 70,
       forms: [982115, 982087] },
 
-    // ── 85–87: Faction lord collections ──
+    // -- 85–87: Faction lord collections --
     { key: 'tf-lady-elysea', name: 'Lady of Elysea', stat: 'attack', value: 350,
       forms: [982114, 982112, 982111, 982107, 982050] },
     { key: 'tf-lord-asmodae', name: 'Lord of Asmodae', stat: 'physicalDef', value: 350,
@@ -244,14 +244,18 @@ var TF_COLLECTIONS = [
       bonus: 'Summon: Alliance',
       gradeReq: { grade: 'ultimate', count: 12 } },
 
-    // ── 88–89: Fire Dragon collections ──
-    { key: 'tf-red-flame', name: 'Spread of the Red Flame', stat: 'attack', value: 200,
+    // -- 88–91: Dragons collections --
+    { key: 'tf-red-flame', name: 'Spread of the Red Flame', stat: 'physicalAttack', value: 200,
       forms: [982148, 982070, 982045, 982040, 982059, 982034] },
     { key: 'tf-hot-cold', name: 'Hot and Cold', stat: 'strikeFortitude', value: 70,
       forms: [982148, 982095, 982110] },
+    { key: 'tf-dark-flame', name: 'Piercing Shadows', stat: 'magicAttack', value: 200,
+      forms: [982149, 982044, 982087, 982041, 982055, 982056] },
+    { key: 'tf-drunk-shadows', name: 'You\'re drunk on shadows', stat: 'spellFortitude', value: 70,
+      forms: [982149, 982113, 982108] },
 ];
 
-// ── Collection completion helpers ──
+// -- Collection completion helpers --
 // Check if a collection is complete based on owned forms
 function isCollectionComplete(coll, ownedForms) {
     if (coll.gradeReq) {

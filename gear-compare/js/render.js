@@ -240,13 +240,44 @@ function renderSkillBuffs(pid) {
     // Universal buffs
     var universalBuffs = GC_SKILL_BUFFS.universal;
     if (universalBuffs.length > 0) {
+        var uniqId = 'gc-buffs-grid-universal-' + pid;
+        // Check persisted state per set
+        var isCollapsed = false;
+        try {
+            isCollapsed = localStorage.getItem('gcUniversalBuffsCollapsed_' + pid) === '1';
+        } catch (e) {}
         html += '<div class="gc-buff-section">';
-        html += '<div class="gc-buff-section-label" style="color: var(--green);">Universal Buffs (All Classes)</div>';
-        html += '<div class="gc-buffs-grid">';
+        html += '<div class="gc-buff-section-label" style="color: var(--green); display: flex; align-items: center; gap: 8px;">Universal Buffs (All Classes)'
+            + '<button class="gc-collapse-btn" aria-label="Collapse/Expand Universal Buffs" data-target="' + uniqId + '">' 
+            + (isCollapsed ? '<span style=\'font-size:1.3em;\'>&#43;</span>' : '<span style=\'font-size:1.3em;\'>&#8722;</span>')
+            + '</button>'
+            + '</div>';
+        html += '<div class="gc-buffs-grid' + (isCollapsed ? ' collapsed' : '') + '" id="' + uniqId + '">';
         universalBuffs.forEach(function(buff) {
             html += renderBuffItem(pid, buff, sb);
         });
         html += '</div></div>';
+
+        // Attach event delegation for collapse/expand after rendering
+        setTimeout(function() {
+            document.querySelectorAll('.gc-collapse-btn[data-target="' + uniqId + '"]').forEach(function(btn) {
+                if (btn._collapseHandlerAttached) return;
+                btn._collapseHandlerAttached = true;
+                btn.addEventListener('click', function(e) {
+                    var targetId = btn.getAttribute('data-target');
+                    var grid = document.getElementById(targetId);
+                    if (!grid) return;
+                    var collapsed = grid.classList.toggle('collapsed');
+                    btn.innerHTML = collapsed
+                        ? '<span style="font-size:1.3em;">&#43;</span>'
+                        : '<span style="font-size:1.3em;">&#8722;</span>';
+                    try {
+                        localStorage.setItem('gcUniversalBuffsCollapsed_' + pid, collapsed ? '1' : '0');
+                    } catch (e) {}
+                    e.stopPropagation();
+                });
+            });
+        }, 0);
     }
 
     // Physical / Magical universal buffs
@@ -255,13 +286,43 @@ function renderSkillBuffs(pid) {
     if (typedBuffs.length > 0) {
         var typedLabel = isPhys ? 'Physical Buffs' : 'Magical Buffs';
         var typedColor = isPhys ? 'var(--danger)' : 'var(--accent)';
+        var typedId = 'gc-buffs-grid-typed-' + pid;
+        var isTypedCollapsed = false;
+        try {
+            isTypedCollapsed = localStorage.getItem('gcTypedBuffsCollapsed_' + pid) === '1';
+        } catch (e) {}
         html += '<div class="gc-buff-section">';
-        html += '<div class="gc-buff-section-label" style="color: ' + typedColor + ';">' + typedLabel + '</div>';
-        html += '<div class="gc-buffs-grid">';
+        html += '<div class="gc-buff-section-label" style="color: ' + typedColor + '; display: flex; align-items: center; gap: 8px;">' + typedLabel
+            + '<button class="gc-collapse-btn" aria-label="Collapse/Expand ' + typedLabel + '" data-target="' + typedId + '">' 
+            + (isTypedCollapsed ? '<span style=\'font-size:1.3em;\'>&#43;</span>' : '<span style=\'font-size:1.3em;\'>&#8722;</span>')
+            + '</button>'
+            + '</div>';
+        html += '<div class="gc-buffs-grid' + (isTypedCollapsed ? ' collapsed' : '') + '" id="' + typedId + '">';
         typedBuffs.forEach(function(buff) {
             html += renderBuffItem(pid, buff, sb);
         });
         html += '</div></div>';
+
+        // Attach event delegation for collapse/expand after rendering (typed buffs)
+        setTimeout(function() {
+            document.querySelectorAll('.gc-collapse-btn[data-target="' + typedId + '"]').forEach(function(btn) {
+                if (btn._collapseHandlerAttached) return;
+                btn._collapseHandlerAttached = true;
+                btn.addEventListener('click', function(e) {
+                    var targetId = btn.getAttribute('data-target');
+                    var grid = document.getElementById(targetId);
+                    if (!grid) return;
+                    var collapsed = grid.classList.toggle('collapsed');
+                    btn.innerHTML = collapsed
+                        ? '<span style="font-size:1.3em;">&#43;</span>'
+                        : '<span style="font-size:1.3em;">&#8722;</span>';
+                    try {
+                        localStorage.setItem('gcTypedBuffsCollapsed_' + pid, collapsed ? '1' : '0');
+                    } catch (e) {}
+                    e.stopPropagation();
+                });
+            });
+        }, 0);
     }
 
     // Class-specific buffs

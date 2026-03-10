@@ -84,7 +84,7 @@ var GC_SKILL_DATABASE = {
         usageCost: '-',
         castTime: '-',
         cooldown: '-',
-        description: 'HP +500<br>Speed +5%<br>Atk. Speed +3%<br>Casting Speed +3%<br>'
+        description: 'HP +500<br>Speed +5%<br>Attack Speed +3%<br>Casting Speed +3%<br>'
     },
     'conqAphsa': {
         name: 'Conqueror of Aphsaranta',
@@ -95,7 +95,7 @@ var GC_SKILL_DATABASE = {
         usageCost: '-',
         castTime: '-',
         cooldown: '-',
-        description: 'Speed +%<br>Atk. Speed +4%<br>Casting Speed +4%<br>HP +8000'
+        description: 'Speed +%<br>Attack Speed +4%<br>Casting Speed +4%<br>HP +8000'
     },
     'daevaConqueror': {
         name: 'Daeva Conqueror',
@@ -106,7 +106,7 @@ var GC_SKILL_DATABASE = {
         usageCost: '-',
         castTime: '-',
         cooldown: '-',
-        description: 'Speed +6%<br>Atk. Speed +4%<br>Casting Speed +4%<br>Add. PvP Atk. +400<>br>Add. PvE Atk. +400<br>HP +6000'
+        description: 'Speed +6%<br>Attack Speed +4%<br>Casting Speed +4%<br>Add. PvP Attack +400<>br>Add. PvE Attack +400<br>HP +6000'
     },
     'conqTorm': {
         name: 'Conqueror of Torment',
@@ -151,6 +151,96 @@ var GC_SKILL_DATABASE = {
         castTime: 'Cast Instantly',
         cooldown: '5s',
         description: 'A cake celebrating honoured Daevas.<br>HP is increased by 2300 points, MP by 1000 points, Physical Attack by 180 points and Magic Attack by 180 points for 10m.'
+    },
+    'fireDragon': {
+        name: 'Draconic: Will of the Red Flame',
+        icon: '../assets/icons/all_trans_dragon_buff_fire.png',
+        id: '-',
+        class: '-',
+        category: 'Party Buff',
+        usageCost: '-',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: `Increases Physical Attack of group members by 500 for 30 min.<br>
+                      Increases Magic Attack by 500.<br>
+                      Increases Evasion by 400.<br>
+                      Increases Magic Resist by 400.<br>
+                      Increases HP by 2400.`
+    },
+    'darkDragon': {
+        name: 'Verb: Shadow\'s Will',
+        icon: '../assets/icons/all_trans_dragon_buff_dark.png',
+        id: '-',
+        class: '-',
+        category: 'Party Buff',
+        usageCost: '-',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: `Increases Physical Attack of group members by 700 for 30 min.<br>
+                      Increases Magic Attack by 700.<br>
+                      Increases Evasion by 200.<br>
+                      Increases Magic Resist by 200.<br>
+                      Increases HP by 1200.`
+    },
+    'divineProtection': {
+        name: '(Improved) Divine Protection',
+        icon: '../assets/icons/all_heaven_blessing_g2.png',
+        id: '5869',
+        class: '-',
+        category: 'Magical Heal',
+        usageCost: '20% HP',
+        castTime: 'Cast Instantly',
+        cooldown: '5m',
+        description: 'Restores 10% of your HP and MP every 2s for 10s.<br>Your crit strike and crit spell are also increased by 5,000'
+    },
+    'vaizelCall': {
+        name: 'Vaizel\'s Call',
+        icon: '../assets/icons/icon_buff_lf_godstadisman_01.png',
+        id: '-',
+        class: '-',
+        category: 'Magical Buff',
+        usageCost: '-',
+        castTime: 'Cast Instantly',
+        cooldown: '5m',
+        description: 'Increases Physical Attack and Magic Attack by 800, Physical Defence and Magic Defence by 400, and Evasion by 120 for 40s.'
+    },
+    'blessedLight': {
+        name: 'Blessed Light',
+        icon: '../assets/icons/cbt_npc_d_pr_immortalblessing_g1.png',
+        id: '-',
+        class: '-',
+        category: 'Magical Buff',
+        usageCost: '-',
+        castTime: 'Cast Instantly',
+        cooldown: '5m',
+        description: `Increases Physical Attack by 500 for 10s.<br>
+                      Increases Magic Attack by 500.`
+    },
+    'joltingStrike': {
+        name: '[Evolution] Repeated Jolting Strike (Level 1)',
+        icon: '../assets/icons/cros_buff_g1.png',
+        id: '-',
+        class: '-',
+        category: 'Magical Buff',
+        usageCost: '-',
+        castTime: 'Cast Instantly',
+        cooldown: '5m',
+        description: `Increases Add. PvP Atk. by 600 for 15s.<br>
+                      Increases Add. PvE Atk. by 600.<br>
+                      Group members receive 50% of the effect.`
+    },
+    'soulWave': {
+        name: '[Evolution] Soul Wave (Level 1)',
+        icon: '../assets/icons/shis_buff_g1.png',
+        id: '-',
+        class: '-',
+        category: 'Magical Buff',
+        usageCost: '-',
+        castTime: 'Cast Instantly',
+        cooldown: '5m',
+        description: `Increases Add. PvP Atk. by 600 for 15s.<br>
+                      Increases Add. PvE Atk. by 600.<br>
+                      Group members receive 50% of the effect.`
     },
 
     // -- Universal buffs for physical classes --
@@ -292,6 +382,61 @@ var GC_SKILL_DATABASE = {
         cooldown: '2m',
         description: 'Increases Physical Attack by 2000 for 15s.<br>Increases Accuracy by 200.<br>Increases Magical Accuracy by 200.'
     },
+    'devotion': {
+        name: 'Devotion',
+        icon: '../assets/icons/cbt_sc_invokepower_g1.png',
+        id: '3235',
+        class: 'Assassin+Ranger',
+        category: 'Active',
+        usageCost: '144 MP',
+        castTime: 'Cast Instantly',
+        cooldown: '28s',
+        description: 'Increases Physical Attack by 450 (+10 per enchantment) for 10s.<br>Increases Weapon Attack by 1500.'
+    },
+    'deadlyAbandon': {
+        name: '(Improved) Deadly Abandon',
+        icon: '../assets/icons/live_as_a_stabstance_g1.png',
+        id: '6074',
+        class: 'Assassin',
+        category: 'Normal Stigma',
+        usageCost: '0 MP',
+        castTime: 'Cast Instantly',
+        cooldown: '10s',
+        description: 'Increases Physical Attack by 350.<br>Reduces Evasion by 800.<br>Active Skill.'
+    },
+    'flurry': {
+        name: 'Flurry',
+        icon: '../assets/icons/cbt_as_quickmove_g1.png',
+        id: '3355',
+        class: 'Assassin',
+        category: 'Active',
+        usageCost: '193 MP',
+        castTime: 'Cast Instantly',
+        cooldown: '2m',
+        description: 'Increases Attack Speed by 20% for 30s.<br>Increases Crit Strike by 1500.<br>Increases Weapon Attack by 1500.'
+    },
+    'mistButcher': {
+        name: 'Mist Butcher',
+        icon: '../assets/icons/live_as_light_defendroar_g1.png',
+        id: '4878',
+        class: 'Assassin',
+        category: 'Active',
+        usageCost: '183 MP',
+        castTime: 'Cast Instantly',
+        cooldown: '2m',
+        description: 'Increases Attack Speed by 20% for 1m.<br>Increases Magical Accuracy by 2000.<br>Increases HP by 5000.<br>Increases MP regeneration.<br>Increases your weapon range by 2m.<br>Increases Physical Attack skills 1 time by 100% for 15 seconds.'
+    },
+    'eyeOfWrath': {
+        name: '(Improved) Eye of Wrath',
+        icon: '../assets/icons/cbt_as_a_visiouseye_g1.png',
+        id: '6079',
+        class: 'Assassin',
+        category: 'Normal Stigma',
+        usageCost: '99 MP',
+        castTime: 'Cast Instantly',
+        cooldown: '37.8s',
+        description: 'Boosts the effect of Physical Attack skill by 60% 2 times for 15s.<br>Reduces Crit Strike by 700.'
+    },
 
     // -- Ranger --
     'bowOfBlessing': {
@@ -418,24 +563,31 @@ var GC_SKILL_DATABASE = {
 var GC_SKILL_BUFFS = {
     // Universal buffs: shown for every class
     universal: [
-        { key: 'ascensionJamPvE',  value: '+500 PvE Atk / +1000 PvE Def / +10000 HP', stats: { pveAttack: 500, pveDefense: 1000, hp: 10000 }, defaultActive: false, excludes: ['ascensionJamPvP']  },
-        { key: 'ascensionJamPvP',  value: '+500 PvP Atk / +1000 PvP Def / +10000 HP', stats: { pvpAttack: 500, pvpDefense: 1000, hp: 10000 }, defaultActive: false, excludes: ['ascensionJamPvE'] },
-        { key: 'lunaBuff',         value: '+380 Atk / +1000 Crit / +5000 HP and more', stats: { hp: 5000, healingBoost: 240, attack: 380, physicalDef: 380, magicalDef: 380, crit: 1000, accuracy: 1100, block: 1100, parry: 1100, evasion: 1100, magicResist:1100 }, defaultActive: false },
-        { key: 'leiboJam',  value: '+150 PvE Atk / +150 PvE Def', stats: { pveAttack: 150, pveDefense: 150 }, defaultActive: false },
-        { key: 'daevaConqueror',  value: '+400 PvE Atk / +400 PvP Atk / +6000 HP', stats: { pveAttack: 400, pvpAttack: 400, hp: 6000 }, defaultActive: false, excludes: ['conqAphsa', 'no1inAion'] },
-        { key: 'conqAphsa',  value: '+8000 HP', stats: { hp: 8000 }, defaultActive: false, excludes: ['daevaConqueror', 'no1inAion', 'conqTorm'] },
-        { key: 'no1inAion',  value: '+500 HP', stats: { hp: 500 }, defaultActive: true, excludes: ['daevaConqueror', 'conqAphsa', 'conqTorm'] },
-        { key: 'conqTorm',  value: '+19 Atk', stats: { attack: 19 }, defaultActive: false, excludes: ['daevaConqueror', 'conqAphsa', 'no1inAion'] },
-        { key: 'roastChicken',  value: '+150 Atk / +2000 HP', stats: { attack: 150, hp: 2000 }, defaultActive: false, excludes: ['suspiciousSteak', 'poscaParty'] },
-        { key: 'suspiciousSteak',  value: '+550 Crit / +2000 HP', stats: { crit: 550, hp: 2000 }, defaultActive: true, excludes: ['roastChicken', 'poscaParty'] },
-        { key: 'poscaParty',  value: '+180 Atk / +2300 HP', stats: { attack: 180, hp: 2300 }, defaultActive: false, excludes: ['roastChicken', 'suspiciousSteak'] },
+        { key: 'fireDragon', value: '+500 Attack / +400 Evasion, MR / +2400 HP', stats: { attack: 500, evasion: 400, magicResist: 400, hp: 2400 }, defaultActive: false, excludes: ['darkDragon'] },
+        { key: 'darkDragon', value: '+700 Attack / +200 Evasion, MR / +1200 HP', stats: { attack: 700, evasion: 200, magicResist: 200, hp: 1200 }, defaultActive: false, excludes: ['fireDragon'] },
+        { key: 'ascensionJamPvE', value: '+500 PvE Attack / +1000 PvE Def / +10000 HP', stats: { pveAttack: 500, pveDefense: 1000, hp: 10000 }, defaultActive: false, excludes: ['ascensionJamPvP']  },
+        { key: 'ascensionJamPvP', value: '+500 PvP Attack / +1000 PvP Def / +10000 HP', stats: { pvpAttack: 500, pvpDefense: 1000, hp: 10000 }, defaultActive: false, excludes: ['ascensionJamPvE'] },
+        { key: 'lunaBuff', value: '+380 Attack / +1000 Crit / +5000 HP and more', stats: { hp: 5000, healingBoost: 240, attack: 380, physicalDef: 380, magicalDef: 380, crit: 1000, accuracy: 1100, block: 1100, parry: 1100, evasion: 1100, magicResist:1100 }, defaultActive: false },
+        { key: 'leiboJam', value: '+150 PvE Attack / +150 PvE Def', stats: { pveAttack: 150, pveDefense: 150 }, defaultActive: false },
+        { key: 'daevaConqueror', value: '+400 PvE Attack / +400 PvP Attack / +6000 HP', stats: { pveAttack: 400, pvpAttack: 400, hp: 6000 }, defaultActive: false, excludes: ['conqAphsa', 'no1inAion'] },
+        { key: 'conqAphsa', value: '+8000 HP', stats: { hp: 8000 }, defaultActive: false, excludes: ['daevaConqueror', 'no1inAion', 'conqTorm'] },
+        { key: 'no1inAion', value: '+500 HP', stats: { hp: 500 }, defaultActive: false, excludes: ['daevaConqueror', 'conqAphsa', 'conqTorm'] },
+        { key: 'conqTorm', value: '+19 Attack', stats: { attack: 19 }, defaultActive: false, excludes: ['daevaConqueror', 'conqAphsa', 'no1inAion'] },
+        { key: 'roastChicken', value: '+150 Attack / +2000 HP', stats: { attack: 150, hp: 2000 }, defaultActive: false, excludes: ['suspiciousSteak', 'poscaParty'] },
+        { key: 'suspiciousSteak', value: '+550 Crit / +2000 HP', stats: { crit: 550, hp: 2000 }, defaultActive: false, excludes: ['roastChicken', 'poscaParty'] },
+        { key: 'poscaParty', value: '+180 Attack / +2300 HP', stats: { attack: 180, hp: 2300 }, defaultActive: false, excludes: ['roastChicken', 'suspiciousSteak'] },
+        { key: 'divineProtection', value: '+5000 Crit', stats: { crit: 5000 }, defaultActive: false },
+        { key: 'vaizelCall', value: '+800 Attack / +400 Defs / +120 Evasion ', stats: { attack: 800, physicalDef: 400, magicalDef: 400, evasion: 120 }, defaultActive: false },
+        { key: 'blessedLight', value: '+500 Attack', stats: { attack: 500 }, defaultActive: false },
+        { key: 'joltingStrike', value: '+600 PvP Attack, +600 PvE Attack', stats: { pvpAttack: 600, pveAttack: 600 }, defaultActive: false },
+        { key: 'soulWave', value: '+600 PvP Attack, +600 PvE Attack', stats: { pvpAttack: 600, pveAttack: 600 }, defaultActive: false },
     ],
 
     // Universal buffs shown only to PHYSICAL classes (gladiator, templar, assassin, ranger, chanter)
     // TODO: invincibility mantra, wall of protection, magic of incitement, wind harmony
     universal_phys: [
         { key: 'magicIncitement',  value: '+800 Crit, Acc / +600 Attack', stats: { attack: 600, crit: 800, accuracy: 800 }, defaultActive: false, },
-        { key: 'invincibilityMantra',  value: '+180 Atk / +250 PDef', stats: { attack: 180, physicalDef: 250 }, defaultActive: false, },
+        { key: 'invincibilityMantra',  value: '+180 Attack / +250 PDef', stats: { attack: 180, physicalDef: 250 }, defaultActive: false, },
         { key: 'shieldMantra',  value: '+180 PDef, Block, Parry / +120 Evasion', stats: { physicalDef: 180, block: 180, parry: 180, evasion: 120 }, defaultActive: false, },
         { key: 'wallProtection',  value: '+360 Attack', stats: { attack: 360 }, defaultActive: false, },
         { key: 'windHarmony',  value: '+121 Attack', stats: { attack: 121 }, defaultActive: false, },
@@ -448,44 +600,49 @@ var GC_SKILL_BUFFS = {
     // One dummy skill per class — populate the rest later
     // Increases Physical Attack by 800.<br>Increases Additional PvP Attack by 800.<br>Reduces Additional PvP Defence by 600.<br>Active Skill.'
     gladiator: [
-        { key: 'combatPrep',    value: '+800 Attack / +800 PvP Atk / -600 PvP Def', stats: { attack: 800, pvpAttack: 800, pvpDefense: -600 },  defaultActive: true, excludes: ['defencePrep'] },
-        { key: 'defencePrep',    value: '+800 Defs / +800 PvP def / -600 PvP Atk', stats: { defense: 800, pvpDefense: 800, pvpAttack: -600 },  defaultActive: false, excludes: ['combatPrep'] },
-        { key: 'attackPosition', value: '+1800 Atk / +1200 Acc / +1200 Crit', stats: { attack: 1800, accuracy: 1200, crit: 1200 },  defaultActive: false },
+        { key: 'combatPrep',    value: '+800 Attack / +800 PvP Attack / -600 PvP Def', stats: { attack: 800, pvpAttack: 800, pvpDefense: -600 },  defaultActive: false, excludes: ['defencePrep'] },
+        { key: 'defencePrep',    value: '+800 Defs / +800 PvP def / -600 PvP Attack', stats: { defense: 800, pvpDefense: 800, pvpAttack: -600 },  defaultActive: false, excludes: ['combatPrep'] },
+        { key: 'attackPosition', value: '+1800 Attack / +1200 Acc / +1200 Crit', stats: { attack: 1800, accuracy: 1200, crit: 1200 },  defaultActive: false },
     ],
     templar: [
         { key: 'divineFury', value: '+550 Attack', stats: { attack: 550 }, defaultActive: false },
-        { key: 'empyreanFury', value: '+900 Atk / +1000 Acc / +1000 Crit', stats: { attack: 900, accuracy: 1000, crit: 1000 }, defaultActive: false },
-        { key: 'menacingPosture', value: '+1500 PvE Atk / +2500 PvE Def / -1000 Atk', stats: { pveAttack: 1500, pveDefense: 2500, attack: -1000 }, defaultActive: true },
+        { key: 'empyreanFury', value: '+900 Attack / +1000 Acc / +1000 Crit', stats: { attack: 900, accuracy: 1000, crit: 1000 }, defaultActive: false },
+        { key: 'menacingPosture', value: '+1500 PvE Attack / +2500 PvE Def / -1000 Attack', stats: { pveAttack: 1500, pveDefense: 2500, attack: -1000 }, defaultActive: false },
     ],
     assassin: [
-        { key: 'deadlyFocus', value: '+2000 Atk / +200 Acc', stats: { attack: 2000, accuracy: 200 }, defaultActive: false },
+        { key: 'deadlyFocus', value: '+2000 Attack / +200 Acc', stats: { attack: 2000, accuracy: 200 }, defaultActive: false },
+        { key: 'devotion', value: '+450 Attack / +1500 Weapon Attack', stats: { attack: 450, weaponAttack: 1500 }, defaultActive: false },
+        { key: 'deadlyAbandon', value: '+350 Attack / -800 Evasion', stats: { attack: 350, evasion: -800 }, defaultActive: false },
+        { key: 'flurry', value: '+1500 Crit / +1500 Weapon Attack', stats: { crit: 1500, weaponAttack: 1500 }, defaultActive: false },
+        { key: 'mistButcher', value: '+2000 Magic Acc / +5000 HP', stats: { magicAccuracy: 2000, hp: 5000 }, defaultActive: false },
+        { key: 'eyeOfWrath', value: '-700 Crit', stats: { crit: -700}, defaultActive: false },
     ],
     ranger: [
-        { key: 'bowOfBlessing', value: '+480 Atk / +1200 Crit', stats: { attack: 480, crit: 1200 }, defaultActive: false },
+        { key: 'bowOfBlessing', value: '+480 Attack / +1200 Crit', stats: { attack: 480, crit: 1200 }, defaultActive: false },
     ],
     sorcerer: [
         { key: 'boonFlame', value: '+1000 Crit', stats: { crit: 1000 }, defaultActive: false },
     ],
     spiritmaster: [
-        { key: 'spiritBundle', value: '+1000 Atk / +1000 Acc / +500 Crit / +12000 HP', stats: { attack: 1000, accuracy: 1000, crit: 500, hp: 12000 }, defaultActive: false },
+        { key: 'spiritBundle', value: '+1000 Attack / +1000 Acc / +500 Crit / +12000 HP', stats: { attack: 1000, accuracy: 1000, crit: 500, hp: 12000 }, defaultActive: false },
     ],
     cleric: [
-        { key: 'sacrificialPower', value: '+1600 Atk / +1800 Acc / +1250 Crit / +600 PvE Atk / -1500 Heal', stats: { attack: 1600, accuracy: 1800, crit: 1250, pveAttack: 600, healingBoost: -1500 }, defaultActive: false },
+        { key: 'sacrificialPower', value: '+1600 Attack / +1800 Acc / +1250 Crit / +600 PvE Attack / -1500 Heal', stats: { attack: 1600, accuracy: 1800, crit: 1250, pveAttack: 600, healingBoost: -1500 }, defaultActive: false },
     ],
     chanter: [
         { key: 'blessingWind', value: '+800 Attack', stats: { attack: 800 }, defaultActive: false },
     ],
     aethertech: [
-        { key: 'combatPowerMax', value: '+800 Atk / +550 PvP Atk', stats: { attack: 800, pvpAttack: 550 }, defaultActive: false },
+        { key: 'combatPowerMax', value: '+800 Attack / +550 PvP Attack', stats: { attack: 800, pvpAttack: 550 }, defaultActive: false },
     ],
     gunner: [
         { key: 'focusedMagic', value: '+1200 Attack', stats: { attack: 1200 }, defaultActive: false },
     ],
     bard: [
-        { key: 'magicBoostMode', value: '+1150 Atk / +2800 Acc / -800 Heal', stats: { attack: 1150, accuracy: 2800, healingBoost: -800 }, defaultActive: false },
+        { key: 'magicBoostMode', value: '+1150 Attack / +2800 Acc / -800 Heal', stats: { attack: 1150, accuracy: 2800, healingBoost: -800 }, defaultActive: false },
     ],
     painter: [
-        { key: 'precisionColourBoost', value: '+700 Atk / +2000 Crit / +1000 Acc', stats: { attack: 700, crit: 2000, accuracy: 1000 }, defaultActive: false },
+        { key: 'precisionColourBoost', value: '+700 Attack / +2000 Crit / +1000 Acc', stats: { attack: 700, crit: 2000, accuracy: 1000 }, defaultActive: false },
     ]
 };
 
