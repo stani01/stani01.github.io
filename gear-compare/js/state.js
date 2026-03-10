@@ -70,6 +70,12 @@ function createDefaultProfile(className) {
     [81, 82, 83, 84, 85].forEach(function(lvl) {
         profile.traitSelections[lvl] = 0;
     });
+    // Initialize skill buff toggles
+    profile.skillBuffs = {};
+    var allBuffs = getSkillBuffsForClass(className);
+    allBuffs.forEach(function(buff) {
+        profile.skillBuffs[buff.key] = !!buff.defaultActive;
+    });
     return profile;
 }
 
@@ -248,6 +254,15 @@ function loadState() {
             if (saved.relic && typeof saved.relic.level === 'number') {
                 var relicLvl = Math.max(1, Math.min(300, saved.relic.level));
                 p.relic.level = relicLvl;
+            }
+            // Restore skill buff toggles
+            if (saved.skillBuffs && typeof saved.skillBuffs === 'object') {
+                var validKeys = getSkillBuffsForClass(selectedClass).map(function(b) { return b.key; });
+                validKeys.forEach(function(k) {
+                    if (typeof saved.skillBuffs[k] === 'boolean') {
+                        p.skillBuffs[k] = saved.skillBuffs[k];
+                    }
+                });
             }
             state[id] = p;
         });

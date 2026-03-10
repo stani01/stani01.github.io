@@ -261,6 +261,100 @@ window.GC = {
         saveState();
     },
 
+    // ── Skill Buff handlers ──
+    toggleSkillBuff: function(pid, skillKey) {
+        var p = state[pid];
+        if (!p.skillBuffs) p.skillBuffs = {};
+        p.skillBuffs[skillKey] = !p.skillBuffs[skillKey];
+        // Update UI class
+        var el = document.getElementById('gc-buff-' + pid + '-' + skillKey);
+        if (el) el.classList.toggle('active', !!p.skillBuffs[skillKey]);
+        // Enforce mutual exclusions: if this buff was turned ON, turn OFF excluded skills
+        if (p.skillBuffs[skillKey]) {
+            var allBuffs = getSkillBuffsForClass(selectedClass);
+            var entry = allBuffs.find(function(b) { return b.key === skillKey; });
+            if (entry && entry.excludes) {
+                entry.excludes.forEach(function(exKey) {
+                    if (p.skillBuffs[exKey]) {
+                        p.skillBuffs[exKey] = false;
+                        var exEl = document.getElementById('gc-buff-' + pid + '-' + exKey);
+                        if (exEl) exEl.classList.remove('active');
+                    }
+                });
+            }
+        }
+        updateComparison();
+        saveState();
+    },
+
+    resetSkillBuffs: function(pid) {
+        var p = state[pid];
+        p.skillBuffs = {};
+        var allBuffs = getSkillBuffsForClass(selectedClass);
+        allBuffs.forEach(function(buff) {
+            p.skillBuffs[buff.key] = !!buff.defaultActive;
+        });
+        renderSkillBuffs(pid);
+        updateComparison();
+        saveState();
+    },
+
+    showSkillInfo: function(evt, skillKey) {
+        if (evt) evt.stopPropagation();
+        var skill = GC_SKILL_DATABASE[skillKey];
+        if (!skill) return;
+
+        // Handle multiple classes
+        var classes = skill.class.split('+').map(function(c) { return c.trim(); });
+        var classDisplay = '';
+        if (classes.length > 0 && classes[0] !== '-' && classes[0] !== 'TBD') {
+            classDisplay = classes.map(function(className) {
+                var classKey = className.toLowerCase();
+                var classData = CLASS_DATA[classKey];
+                if (classData && classData.icon) {
+                    return '<span class="skill-info-class-item"><img src="' + classData.icon + '" class="skill-info-class-icon" alt="' + className + '" title="' + className + '"><span class="skill-info-class-text">' + className + '</span></span>';
+                }
+                return className;
+            }).join('');
+        } else {
+            classDisplay = skill.class;
+        }
+
+        var linkType = skill.id.toString().length > 4 ? 'item' : (skill.category === 'Title' ? 'title' : 'skill');
+        var linksHtml = '';
+        if (skill.id !== '-') {
+            linksHtml = '<div class="skill-info-links">' +
+                '<a href="https://aioncodex.com/en/' + linkType + '/' + skill.id + '/" target="_blank" class="skill-info-link">AionCodex</a>' +
+                '<a href="https://aionpowerbook.com/powerbook/' + linkType + '/' + skill.id + '" target="_blank" class="skill-info-link">PowerBook</a>' +
+                '</div>';
+        }
+
+        var content = '<div class="skill-info-header">' +
+            '<img src="' + skill.icon + '" class="skill-info-icon" alt="' + skill.name + '">' +
+            '<div class="skill-info-title-section">' +
+                '<div class="skill-info-name">' + skill.name + '</div>' +
+                '<div class="skill-info-id">ID: ' + skill.id + '</div>' +
+            '</div>' +
+            '<button class="skill-info-close" onclick="GC.closeSkillInfo()">×</button>' +
+        '</div>' +
+        '<div class="skill-info-body">' +
+            '<div class="skill-info-row"><div class="skill-info-label">Class:</div><div class="skill-info-value skill-info-class-container">' + classDisplay + '</div></div>' +
+            '<div class="skill-info-row"><div class="skill-info-label">Category:</div><div class="skill-info-value">' + skill.category + '</div></div>' +
+            '<div class="skill-info-row"><div class="skill-info-label">Usage Cost:</div><div class="skill-info-value">' + skill.usageCost + '</div></div>' +
+            '<div class="skill-info-row"><div class="skill-info-label">Cast Time:</div><div class="skill-info-value">' + skill.castTime + '</div></div>' +
+            '<div class="skill-info-row"><div class="skill-info-label">Cooldown:</div><div class="skill-info-value">' + skill.cooldown + '</div></div>' +
+            '<div class="skill-info-description"><div class="skill-info-label">Description:</div><div class="skill-info-value">' + skill.description + '</div></div>' +
+            linksHtml +
+        '</div>';
+
+        document.getElementById('gcSkillInfoContent').innerHTML = content;
+        document.getElementById('gcSkillInfoModal').classList.add('active');
+    },
+
+    closeSkillInfo: function() {
+        document.getElementById('gcSkillInfoModal').classList.remove('active');
+    },
+
     togglePicker: function(pickerId) {
         var menu = document.getElementById(pickerId);
         var wasOpen = menu.classList.contains('gc-picker-open');
@@ -1282,12 +1376,25 @@ document.addEventListener('click', function(e) {
 // Close oath popup on scroll
 window.addEventListener('scroll', function() { closeOathPopup(); closeSetPopup(); closeEnchantPopup(); closeAccBonusPopup(); }, true);
 
+// Close skill info modal on click outside
+document.addEventListener('click', function(e) {
+    var modal = document.getElementById('gcSkillInfoModal');
+    if (e.target === modal) {
+        GC.closeSkillInfo();
+    }
+});
+
 // Close mana modal on Escape
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         var modal = document.getElementById('gc-mana-modal');
         if (modal && modal.style.display === 'block') {
             GC.closeManaModal();
+        }
+        // Also close skill info modal
+        var skillModal = document.getElementById('gcSkillInfoModal');
+        if (skillModal && skillModal.classList.contains('active')) {
+            GC.closeSkillInfo();
         }
     }
 });

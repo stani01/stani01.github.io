@@ -213,7 +213,85 @@ function renderAll() {
     renderRelic(2);
     renderTraitTab(1);
     renderTraitTab(2);
+    renderSkillBuffs(1);
+    renderSkillBuffs(2);
     updateComparison();
+}
+
+// ── Skill Buffs rendering ──
+function renderSkillBuffs(pid) {
+    var el = document.getElementById('buffs-' + pid);
+    if (!el) return;
+    var profile = state[pid];
+    if (!profile.skillBuffs) {
+        profile.skillBuffs = {};
+        var allBuffs = getSkillBuffsForClass(selectedClass);
+        allBuffs.forEach(function(buff) { profile.skillBuffs[buff.key] = !!buff.defaultActive; });
+    }
+    var sb = profile.skillBuffs;
+
+    var html = '<div class="gc-profile-header">';
+    html += '<span class="gc-set-title">SET ' + pid + '</span>';
+    html += '<button class="gc-reset-btn" onclick="GC.resetSkillBuffs(' + pid + ')" title="Reset skill buffs">↺</button>';
+    html += '</div>';
+
+    // Universal buffs
+    var universalBuffs = GC_SKILL_BUFFS.universal;
+    if (universalBuffs.length > 0) {
+        html += '<div class="gc-buff-section">';
+        html += '<div class="gc-buff-section-label" style="color: var(--green);">Universal Buffs (All Classes)</div>';
+        html += '<div class="gc-buffs-grid">';
+        universalBuffs.forEach(function(buff) {
+            html += renderBuffItem(pid, buff, sb);
+        });
+        html += '</div></div>';
+    }
+
+    // Physical / Magical universal buffs
+    var isPhys = isPhysicalClass(selectedClass);
+    var typedBuffs = isPhys ? GC_SKILL_BUFFS.universal_phys : GC_SKILL_BUFFS.universal_mag;
+    if (typedBuffs.length > 0) {
+        var typedLabel = isPhys ? 'Physical Buffs' : 'Magical Buffs';
+        var typedColor = isPhys ? 'var(--danger)' : 'var(--accent)';
+        html += '<div class="gc-buff-section">';
+        html += '<div class="gc-buff-section-label" style="color: ' + typedColor + ';">' + typedLabel + '</div>';
+        html += '<div class="gc-buffs-grid">';
+        typedBuffs.forEach(function(buff) {
+            html += renderBuffItem(pid, buff, sb);
+        });
+        html += '</div></div>';
+    }
+
+    // Class-specific buffs
+    var classBuffs = GC_SKILL_BUFFS[selectedClass] || [];
+    if (classBuffs.length > 0) {
+        var className = CLASS_DATA[selectedClass] ? CLASS_DATA[selectedClass].name : selectedClass;
+        html += '<div class="gc-buff-section">';
+        html += '<div class="gc-buff-section-label" style="color: var(--warning);">' + className + ' Buffs</div>';
+        html += '<div class="gc-buffs-grid">';
+        classBuffs.forEach(function(buff) {
+            html += renderBuffItem(pid, buff, sb);
+        });
+        html += '</div></div>';
+    }
+
+    el.innerHTML = html;
+}
+
+function renderBuffItem(pid, buff, sb) {
+    var skill = GC_SKILL_DATABASE[buff.key];
+    if (!skill) return '';
+    var active = !!sb[buff.key];
+    var cls = 'gc-buff-item' + (active ? ' active' : '');
+    var html = '<div class="' + cls + '" id="gc-buff-' + pid + '-' + buff.key + '" onclick="GC.toggleSkillBuff(' + pid + ',\'' + buff.key + '\')">';
+    html += '<img src="' + skill.icon + '" class="gc-buff-icon" alt="">';
+    html += '<div class="gc-buff-info">';
+    html += '<div class="gc-buff-name">' + skill.name + '</div>';
+    html += '<div class="gc-buff-value">' + buff.value + '</div>';
+    html += '</div>';
+    html += '<button class="gc-skill-info-btn" onclick="GC.showSkillInfo(event,\'' + buff.key + '\')" title="Skill Information">i</button>';
+    html += '</div>';
+    return html;
 }
 
 // ── Tab switching ──

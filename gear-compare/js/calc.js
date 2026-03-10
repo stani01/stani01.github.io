@@ -21,7 +21,8 @@ function calculateDetailedStats(profileId) {
         glyph: emptyStats(),
         minion: emptyStats(),
         pasive: emptyStats(),
-        trait: emptyStats()
+        trait: emptyStats(),
+        skillBuffs: emptyStats()
     };
     if (['gladiator', 'templar'].includes(selectedClass)) {
         sources.permanent.attack += 45;
@@ -319,6 +320,16 @@ function calculateDetailedStats(profileId) {
         });
     }
 
+    // ── Skill Buff stats ──
+    var sb = profile.skillBuffs || {};
+    var allBuffs = getSkillBuffsForClass(selectedClass);
+    allBuffs.forEach(function(buff) {
+        if (!sb[buff.key]) return;
+        if (!buff.stats) return;
+        STAT_KEYS.forEach(function(k) {
+            if (buff.stats[k]) sources.skillBuffs[k] += buff.stats[k];
+        });
+    });
 
     // Compute totals from sources
     var totals = emptyStats();

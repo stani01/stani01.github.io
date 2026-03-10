@@ -225,6 +225,14 @@ function encodeShareString() {
         w.u8(clamp(ts[83] || 0, 0, 2));
         w.u8(clamp(ts[84] || 0, 0, 2));
         w.u8(clamp(ts[85] || 0, 0, 2));
+
+        // ── Skill Buffs (bit-packed) ──
+        var sbArr = [];
+        var sbState = (p.skillBuffs) || {};
+        GC_SKILL_KEYS.forEach(function(k) {
+            sbArr.push(!!sbState[k]);
+        });
+        w.bools(sbArr, GC_SKILL_KEYS.length);
     });
 
     return '3.' + w.toBase64();
@@ -395,6 +403,19 @@ function decodeShareV3(b64) {
         [81, 82, 83, 84, 85].forEach(function(lvl) {
             traitSelections[id][lvl] = clamp(r.u8(), 0, 2);
         });
+
+        // ── Skill Buffs (bit-packed) ──
+        p.skillBuffs = {};
+        // Initialize defaults first
+        var allBuffs = getSkillBuffsForClass(cls);
+        allBuffs.forEach(function(buff) { p.skillBuffs[buff.key] = !!buff.defaultActive; });
+        // Read encoded bools if data remains
+        if (r.pos < r.buf.length) {
+            var sbBools = r.bools(GC_SKILL_KEYS.length);
+            for (var si = 0; si < GC_SKILL_KEYS.length; si++) {
+                p.skillBuffs[GC_SKILL_KEYS[si]] = sbBools[si];
+            }
+        }
 
         state[id] = p;
     });
