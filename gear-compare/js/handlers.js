@@ -107,6 +107,15 @@ window.GC = {
         saveState();
     },
 
+    copyProfile: function() {
+        state[2] = JSON.parse(JSON.stringify(state[1]));
+        traitSelections[2] = JSON.parse(JSON.stringify(traitSelections[1] || {}));
+        saveTraitSelections();
+        renderAll();
+        saveState();
+        showShareToast('✓ Set 1 copied to Set 2');
+    },
+
     resetAll: function() {
         weaponConfig = createDefaultWeaponConfig(selectedClass);
         state[1] = createDefaultProfile(selectedClass);
