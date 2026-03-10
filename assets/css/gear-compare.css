@@ -2408,7 +2408,7 @@
 
 /* Transformation collection toggle buttons grid */
 .gc-coll-tf-scroll {
-    max-height: 270px;
+    max-height: 500px;
     overflow-y: auto;
     margin-bottom: 8px;
     border-radius: 8px;
@@ -2429,40 +2429,92 @@
     padding: 8px 0 8px 0;
 }
 
-.gc-coll-btn {
+/* ── Collection Cards ── */
+.gc-coll-card {
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    padding: 8px 12px;
+    gap: 4px;
+    padding: 10px 12px;
     border-radius: 8px;
-    border: 1px solid rgba(181,101,245,0.2);
-    background: rgba(255,255,255,0.04);
-    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
     transition: background 0.15s, border-color 0.15s;
-    user-select: none;
 }
-.gc-coll-btn:hover {
-    background: rgba(181,101,245,0.1);
-    border-color: rgba(181,101,245,0.45);
+.gc-coll-card-complete {
+    background: rgba(77,255,77,0.06);
+    border-color: rgba(77,255,77,0.35);
 }
-.gc-coll-btn-on {
-    background: rgba(77,255,77,0.08);
-    border-color: rgba(77,255,77,0.5);
-}
-.gc-coll-btn-on:hover {
-    background: rgba(77,255,77,0.13);
-}
-.gc-coll-btn-title {
+.gc-coll-card-title {
     font-size: 0.84em;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text-secondary);
 }
-.gc-coll-btn-on .gc-coll-btn-title {
+.gc-coll-card-complete .gc-coll-card-title {
     color: #7dffb0;
 }
-.gc-coll-btn-stat {
-    font-size: 0.75em;
+.gc-coll-card-stat {
+    font-size: 0.78em;
     color: var(--accent);
+    font-weight: 500;
+}
+.gc-coll-card-bonus {
+    font-size: 0.7em;
+    color: #ffd700;
+    font-style: italic;
+}
+.gc-coll-card-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+}
+.gc-coll-card-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.gc-coll-card-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+.gc-coll-card-complete .gc-coll-card-bar-fill {
+    background: #7dffb0;
+}
+.gc-coll-card-pct {
+    font-size: 0.68em;
+    color: var(--text-dim);
+    white-space: nowrap;
+    min-width: 72px;
+    text-align: right;
+}
+.gc-coll-card-forms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 4px;
+}
+.gc-coll-form-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+    filter: grayscale(100%) brightness(0.5);
+    transition: all 0.2s;
+}
+.gc-coll-form-owned {
+    filter: none;
+    border-color: rgba(77,255,77,0.4);
+    box-shadow: 0 0 4px rgba(77,255,77,0.2);
+}
+.gc-coll-card-forms-text {
+    font-size: 0.68em;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-top: 2px;
 }
 
 /* Item collections grid — CSS grid keeps all inputs column-aligned */
@@ -3067,5 +3119,178 @@
     .gc-buff-icon {
         width: 36px;
         height: 36px;
+    }
+}
+
+/* ============================================
+   FORMS COLLECTION (Under Development)
+   ============================================ */
+.gc-form-grade-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.gc-form-grade-tab {
+    padding: 6px 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.03);
+    color: var(--text-secondary);
+    font-size: 0.78em;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.gc-form-grade-tab:hover {
+    border-color: var(--grade-color, var(--accent));
+    background: rgba(255,255,255,0.06);
+}
+.gc-form-grade-active {
+    border-color: var(--grade-color, var(--accent));
+    color: var(--grade-color, var(--accent));
+    background: rgba(255,255,255,0.08);
+}
+.gc-form-grade-count {
+    font-size: 0.85em;
+    opacity: 0.7;
+}
+
+/* Select All / Deselect All */
+.gc-form-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+.gc-form-action-btn {
+    padding: 4px 10px;
+    font-size: 0.72em;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-dim);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.gc-form-action-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+/* Form icon grid */
+.gc-forms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+    gap: 6px;
+}
+.gc-form-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    border: 2px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.4);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: grayscale(1) brightness(0.45);
+}
+.gc-form-icon img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    border-radius: 4px;
+}
+.gc-form-icon:hover {
+    border-color: rgba(255,255,255,0.3);
+    filter: grayscale(0.5) brightness(0.7);
+}
+.gc-form-owned {
+    filter: none;
+    border-color: rgba(255, 200, 80, 0.6);
+    background: rgba(255, 200, 80, 0.08);
+    box-shadow: 0 0 6px rgba(255, 190, 60, 0.25);
+}
+.gc-form-owned:hover {
+    filter: none;
+    border-color: rgba(255, 200, 80, 0.9);
+}
+
+/* Form Tooltip */
+.gc-form-tooltip {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    background: rgba(15, 15, 20, 0.96);
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+    pointer-events: none;
+    min-width: 180px;
+    max-width: 260px;
+}
+.gc-form-tt-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.gc-form-tt-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.15);
+    flex-shrink: 0;
+}
+.gc-form-tt-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+}
+.gc-form-tt-name {
+    font-size: 0.88em;
+    font-weight: 700;
+    color: #eee;
+    line-height: 1.2;
+}
+.gc-form-tt-grade {
+    font-size: 0.76em;
+    font-weight: 600;
+    line-height: 1.2;
+}
+.gc-form-tt-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+    margin: 8px 0;
+}
+.gc-form-tt-stats {
+    font-size: 0.78em;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+.gc-form-tt-stat {
+    color: var(--green, #66bb6a);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .gc-forms-grid {
+        grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+    }
+    .gc-form-icon {
+        width: 44px;
+        height: 44px;
+    }
+    .gc-form-icon img {
+        width: 36px;
+        height: 36px;
+    }
+    .gc-form-grade-tab {
+        padding: 4px 8px;
+        font-size: 0.72em;
     }
 }

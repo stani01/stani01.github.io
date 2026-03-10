@@ -166,19 +166,100 @@ window.GC = {
         saveState();
     },
 
-    // ── Collections handlers ──
-    toggleTFCollection: function(pid, key) {
-        var p = state[pid];
-        if (!p.collections) { p.collections = { tfToggled: {}, itemColl: {} }; }
-        p.collections.tfToggled[key] = !p.collections.tfToggled[key];
+    // ── Forms Collection handlers ──
+    toggleForm: function(pid, formId) {
+        if (!state[pid].ownedForms) state[pid].ownedForms = {};
+        state[pid].ownedForms[formId] = !state[pid].ownedForms[formId];
         renderCollections(pid);
         updateComparison();
         saveState();
     },
 
+    setFormsGrade: function(pid, grade) {
+        formsActiveGrade[pid] = grade;
+        renderCollections(pid);
+    },
+
+    selectAllForms: function(pid) {
+        if (!state[pid].ownedForms) state[pid].ownedForms = {};
+        ALL_FORM_IDS.forEach(function(id) { state[pid].ownedForms[id] = true; });
+        renderCollections(pid);
+        updateComparison();
+        saveState();
+    },
+
+    deselectAllForms: function(pid) {
+        if (!state[pid].ownedForms) state[pid].ownedForms = {};
+        ALL_FORM_IDS.forEach(function(id) { state[pid].ownedForms[id] = false; });
+        renderCollections(pid);
+        updateComparison();
+        saveState();
+    },
+
+    resetForms: function(pid) {
+        state[pid].ownedForms = {};
+        renderCollections(pid);
+        updateComparison();
+        saveState();
+    },
+
+    showFormTooltip: function(evt, formId) {
+        var form = TRANSFORMS_BY_ID[formId];
+        if (!form) return;
+        var tooltip = document.getElementById('gcFormTooltip');
+        var grade = FORM_GRADES.find(function(g) { return g.key === form.grade; });
+
+        var html = '<div class="gc-form-tt-header">';
+        html += '<img src="' + form.icon + '" class="gc-form-tt-icon" alt="">';
+        html += '<div class="gc-form-tt-info">';
+        html += '<div class="gc-form-tt-name">' + form.name + '</div>';
+        html += '<div class="gc-form-tt-grade" style="color: ' + (grade ? grade.color : '#ccc') + ';">' + (grade ? grade.name : form.grade) + '</div>';
+        html += '</div></div>';
+
+        if (form.stats && Object.keys(form.stats).length > 0) {
+            html += '<div class="gc-form-tt-divider"></div>';
+            html += '<div class="gc-form-tt-stats">';
+            TRANSFORM_STAT_DEFS.forEach(function(sd) {
+                var raw = form.stats[sd.key];
+                if (raw === undefined) return;
+                var base = Array.isArray(raw) ? raw[0] : raw;
+                var perEnch = Array.isArray(raw) ? raw[1] : 0;
+                var suffix = sd.unit === '%' ? '%' : '';
+                var perStr = perEnch ? ' <span class="gc-form-tt-per">(+' + perEnch + ')</span>' : '';
+                html += '<div class="gc-form-tt-stat">' + sd.name + ': +' + base + suffix + perStr + '</div>';
+            });
+            html += '</div>';
+        }
+
+        tooltip.innerHTML = html;
+        tooltip.style.display = 'block';
+
+        // Position near the mouse cursor
+        var mx = evt.clientX;
+        var my = evt.clientY;
+        var ttW = tooltip.offsetWidth;
+        var ttH = tooltip.offsetHeight;
+        var left = mx + 12;
+        var top = my - ttH - 8;
+        // If tooltip goes off the right edge, flip to left of cursor
+        if (left + ttW > window.innerWidth - 8) left = mx - ttW - 12;
+        // If tooltip goes above viewport, show below cursor
+        if (top < 8) top = my + 16;
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+    },
+
+    hideFormTooltip: function() {
+        var tooltip = document.getElementById('gcFormTooltip');
+        if (tooltip) tooltip.style.display = 'none';
+    },
+
+    // ── Collections handlers ──
+
+
     setItemColl: function(pid, key, rawVal) {
         var p = state[pid];
-        if (!p.collections) { p.collections = { tfToggled: {}, itemColl: {} }; }
+        if (!p.collections) { p.collections = { itemColl: {} }; }
         var cs  = ITEM_COLL_STATS.find(function(c) { return c.key === key; });
         var max = cs ? cs.max : 9999;
         var val = Math.max(0, Math.min(max, parseInt(rawVal) || 0));
@@ -195,21 +276,9 @@ window.GC = {
 
     resetCollections: function(pid) {
         var p = state[pid];
-        p.collections = { tfToggled: {}, itemColl: {} };
+        p.collections = { itemColl: {} };
         p.collLevels = { normal: 6, large: 6, powerful: 6 };
         ITEM_COLL_STATS.forEach(function(cs) { p.collections.itemColl[cs.key] = cs.max; });
-        TF_COLLECTIONS.forEach(function(coll) { p.collections.tfToggled[coll.key] = true; });
-        renderCollections(pid);
-        updateComparison();
-        saveState();
-    },
-
-    toggleAllTFCollections: function(pid, on) {
-        var p = state[pid];
-        if (!p.collections) p.collections = { tfToggled: {}, itemColl: {} };
-        TF_COLLECTIONS.forEach(function(coll) {
-            p.collections.tfToggled[coll.key] = !!on;
-        });
         renderCollections(pid);
         updateComparison();
         saveState();

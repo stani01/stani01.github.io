@@ -210,30 +210,12 @@ function calculateDetailedStats(profileId) {
         sources.minion[k] += (mStats[k] || 0); 
     });
 
-    // ── Transformation Collection bonuses (toggle-based) ──
-    var tfToggled = (profile.collections && profile.collections.tfToggled) ? profile.collections.tfToggled : {};
+    // ── Transformation Collection bonuses (auto-activated from owned forms) ──
+    var ownedForms = profile.ownedForms || {};
     TF_COLLECTIONS.forEach(function(coll) {
-        if (!tfToggled[coll.key]) return;
-        // Handle crit/attack split by class type
-        if (coll.stat === 'critStrike' && isPhys) {
-            sources.collections.crit += coll.value;
-        } else if (coll.stat === 'critSpell' && !isPhys) {
-            sources.collections.crit += coll.value;
-        } else if (coll.stat === 'physicalAttack' && isPhys) {
-            sources.collections.attack += coll.value;
-        } else if (coll.stat === 'magicAttack' && !isPhys) {
-            sources.collections.attack += coll.value;
-        } else if (coll.stat === 'defence' && isPhys) {
-            sources.collections.physicalDef += coll.value;
-        } else if (coll.stat === 'defence' && !isPhys) {
-            sources.collections.magicalDef += coll.value;
-        } else if (
-            coll.stat !== 'critStrike' && coll.stat !== 'critSpell' &&
-            coll.stat !== 'physicalAttack' && coll.stat !== 'magicAttack'
-        ) {
-            if (sources.collections[coll.stat] !== undefined) {
-                sources.collections[coll.stat] += coll.value;
-            }
+        if (!isCollectionComplete(coll, ownedForms)) return;
+        if (sources.collections[coll.stat] !== undefined) {
+            sources.collections[coll.stat] += coll.value;
         }
     });
 
