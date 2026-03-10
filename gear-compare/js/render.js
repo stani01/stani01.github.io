@@ -235,6 +235,8 @@ function renderSkillBuffs(pid) {
     html += '<button class="gc-reset-btn" onclick="GC.resetSkillBuffs(' + pid + ')" title="Reset skill buffs">↺</button>';
     html += '</div>';
 
+    html += '<div class="warning-box">⚠️ Under development.<br>Specific buffs for only a few classes are available in the database at the moment.</div>';
+
     // Universal buffs
     var universalBuffs = GC_SKILL_BUFFS.universal;
     if (universalBuffs.length > 0) {
