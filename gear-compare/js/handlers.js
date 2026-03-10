@@ -560,8 +560,12 @@ window.GC = {
             state[pid].armor[slotKey].set = setKey;
             if (setKey === 'fighting-spirit') {
                 state[pid].armor[slotKey].bonuses = getDefaultArmorBonuses(slotKey);
+                delete state[pid].armor[slotKey].enchant;
             } else {
                 state[pid].armor[slotKey].bonuses = [];
+                if (typeof state[pid].armor[slotKey].enchant !== 'number') {
+                    state[pid].armor[slotKey].enchant = 9;
+                }
             }
         } else if (slotType.indexOf('acc:') === 0) {
             var accKey = slotType.substring(4);
