@@ -15,7 +15,7 @@ var SOURCE_LABELS = [
       { key: 'minion',      icon: '../assets/icons/icon_ui_minion.png', name: 'Minion' },
       { key: 'permanent',   icon: '../assets/icons/icon_ui_cube.png', name: 'Cube / Passive' },
       { key: 'trait',       icon: '../assets/icons/icon_ui_trait.png', name: 'Trait' },
-      //{ key: 'skill-buffs', icon: '../assets/icons/icon_ui_skills.png', name: 'Buffs' },
+      { key: 'skillBuffs', icon: '../assets/icons/icon_ui_skills.png', name: 'Skill Buffs' },
 ];
 
 function updateComparison() {

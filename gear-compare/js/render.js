@@ -213,11 +213,148 @@ function renderAll() {
     renderRelic(2);
     renderTraitTab(1);
     renderTraitTab(2);
+    renderSkillBuffs(1);
+    renderSkillBuffs(2);
     updateComparison();
+}
+
+// ── Skill Buffs rendering ──
+function renderSkillBuffs(pid) {
+    var el = document.getElementById('buffs-' + pid);
+    if (!el) return;
+    var profile = state[pid];
+    if (!profile.skillBuffs) {
+        profile.skillBuffs = {};
+        var allBuffs = getSkillBuffsForClass(selectedClass);
+        allBuffs.forEach(function(buff) { profile.skillBuffs[buff.key] = !!buff.defaultActive; });
+    }
+    var sb = profile.skillBuffs;
+
+    var html = '<div class="gc-profile-header">';
+    html += '<span class="gc-set-title">SET ' + pid + '</span>';
+    html += '<button class="gc-reset-btn" onclick="GC.resetSkillBuffs(' + pid + ')" title="Reset skill buffs">↺</button>';
+    html += '</div>';
+
+    html += '<div class="warning-box">🚧 Under development.<br>Specific buffs for only a few classes are available in the database at the moment.</div>';
+
+    // Universal buffs
+    var universalBuffs = GC_SKILL_BUFFS.universal;
+    if (universalBuffs.length > 0) {
+        html += '<div class="gc-buff-section">';
+        html += '<div class="gc-buff-section-label" style="color: var(--green);">Universal Buffs (All Classes)</div>';
+        html += '<div class="gc-buffs-grid">';
+        universalBuffs.forEach(function(buff) {
+            html += renderBuffItem(pid, buff, sb);
+        });
+        html += '</div></div>';
+    }
+
+    // Physical / Magical universal buffs
+    var isPhys = isPhysicalClass(selectedClass);
+    var typedBuffs = isPhys ? GC_SKILL_BUFFS.universal_phys : GC_SKILL_BUFFS.universal_mag;
+    if (typedBuffs.length > 0) {
+        var typedLabel = isPhys ? 'Physical Buffs' : 'Magical Buffs';
+        var typedColor = isPhys ? 'var(--danger)' : 'var(--accent)';
+        html += '<div class="gc-buff-section">';
+        html += '<div class="gc-buff-section-label" style="color: ' + typedColor + ';">' + typedLabel + '</div>';
+        html += '<div class="gc-buffs-grid">';
+        typedBuffs.forEach(function(buff) {
+            html += renderBuffItem(pid, buff, sb);
+        });
+        html += '</div></div>';
+    }
+
+    // Class-specific buffs
+    var classBuffs = GC_SKILL_BUFFS[selectedClass] || [];
+    if (classBuffs.length > 0) {
+        var className = CLASS_DATA[selectedClass] ? CLASS_DATA[selectedClass].name : selectedClass;
+        html += '<div class="gc-buff-section">';
+        html += '<div class="gc-buff-section-label" style="color: var(--warning);">' + className + ' Buffs</div>';
+        html += '<div class="gc-buffs-grid">';
+        classBuffs.forEach(function(buff) {
+            html += renderBuffItem(pid, buff, sb);
+        });
+        html += '</div></div>';
+    }
+
+    el.innerHTML = html;
+}
+
+function renderBuffItem(pid, buff, sb) {
+    var skill = GC_SKILL_DATABASE[buff.key];
+    if (!skill) return '';
+    var active = !!sb[buff.key];
+    var cls = 'gc-buff-item' + (active ? ' active' : '');
+    var html = '<div class="' + cls + '" id="gc-buff-' + pid + '-' + buff.key + '" onclick="GC.toggleSkillBuff(' + pid + ',\'' + buff.key + '\')">';
+    html += '<img src="' + skill.icon + '" class="gc-buff-icon" alt="">';
+    html += '<div class="gc-buff-info">';
+    html += '<div class="gc-buff-name">' + skill.name + '</div>';
+    html += '<div class="gc-buff-value">' + buff.value + '</div>';
+    html += '</div>';
+    html += '<button class="gc-skill-info-btn" onclick="GC.showSkillInfo(event,\'' + buff.key + '\')" title="Skill Information">i</button>';
+    html += '</div>';
+    return html;
 }
 
 // ── Tab switching ──
 // activeTab declared earlier, restored from loadState
+var formsActiveGrade = { 1: 'ultimate', 2: 'ultimate' };
+
+// ── Forms Collection rendering ──
+// Returns HTML string for the forms picker (used inline in renderCollections)
+function renderFormsPickerHTML(pid) {
+    var profile = state[pid];
+    if (!profile.ownedForms) profile.ownedForms = {};
+    var owned = profile.ownedForms;
+    var activeGrade = formsActiveGrade[pid] || 'ultimate';
+
+    var totalOwned = ALL_FORM_IDS.filter(function(id) { return !!owned[id]; }).length;
+    var html = '<div class="gc-section-label gc-coll-section-label" style="margin-top:16px">';
+    html += '\uD83D\uDD04 Owned Forms <span class="gc-coll-count">(' + totalOwned + '/' + ALL_FORM_IDS.length + ')</span>';
+    //html += '<button class="gc-form-action-btn" style="margin-left:auto" onclick="GC.resetForms(' + pid + ')" title="Reset owned forms">Reset</button>';
+    html += '</div>';
+
+    // Grade sub-tabs + actions in one row
+    html += '<div class="gc-form-grade-tabs">';
+    FORM_GRADES.forEach(function(g) {
+        var gradeForms = TRANSFORMS_BY_GRADE[g.key] || [];
+        var ownedCount = gradeForms.filter(function(f) { return !!owned[f.id]; }).length;
+        var activeCls = activeGrade === g.key ? ' gc-form-grade-active' : '';
+        html += '<button class="gc-form-grade-tab' + activeCls + '" '
+              + 'style="--grade-color: ' + g.color + ';" '
+              + 'onclick="GC.setFormsGrade(' + pid + ',\'' + g.key + '\')">' 
+              + g.name + ' <span class="gc-form-grade-count">(' + ownedCount + '/' + gradeForms.length + ')</span>'
+              + '</button>';
+    });
+    html += '<div class="gc-form-actions">';
+    html += '<button class="gc-form-action-btn" onclick="GC.selectAllForms(' + pid + ')">Select All</button>';
+    html += '<button class="gc-form-action-btn" onclick="GC.deselectAllForms(' + pid + ')">Deselect All</button>';
+    html += '</div>';
+    html += '</div>';
+
+    // Form icons grid
+    var gradeForms = TRANSFORMS_BY_GRADE[activeGrade] || [];
+    html += '<div class="gc-forms-grid">';
+    gradeForms.forEach(function(form) {
+        var isOwned = !!owned[form.id];
+        var cls = 'gc-form-icon' + (isOwned ? ' gc-form-owned' : '');
+        html += '<div class="' + cls + '" onclick="GC.toggleForm(' + pid + ',' + form.id + ')" '
+              + 'onmouseenter="GC.showFormTooltip(event,' + form.id + ')" '
+              + 'onmouseleave="GC.hideFormTooltip()">';
+        html += '<img src="' + form.icon + '" alt="' + form.name + '">';
+        html += '</div>';
+    });
+    html += '</div>';
+
+    return html;
+}
+
+// Wrapper for standalone render (called from handlers)
+function renderFormsPicker(pid) {
+    // Forms are now rendered inline in renderCollections, so just re-render that
+    renderCollections(pid);
+}
+
 function activateTab(tab) {
     activeTab = tab;
     document.querySelectorAll('.gc-tab').forEach(function(b) { b.classList.remove('gc-tab-active'); });
@@ -251,7 +388,7 @@ function renderTransform(pid) {
     // Icon picker grid
     html += '<div class="gc-section-label" style="margin-bottom:8px">Select Transformation</div>';
     html += '<div class="gc-tf-grid">';
-    TRANSFORMS.forEach(function(tf) {
+    ULTIMATE_TRANSFORMS.forEach(function(tf) {
         var sel = currentKey === tf.key ? ' gc-tf-icon-selected' : '';
         var noneCls = tf.key === 'none' ? ' gc-tf-icon-none' : '';
         html += '<div class="gc-tf-icon' + sel + noneCls + '" onclick="GC.setTransform(' + pid + ',\'' + tf.key + '\')" title="' + tf.name + '">';
@@ -310,12 +447,11 @@ function renderCollections(pid) {
     var scrollTop = scrollParent ? scrollParent.scrollTop : 0;
     var profile = state[pid];
     if (!profile.collections) {
-        profile.collections = { tfToggled: {}, itemColl: {}};
+        profile.collections = { itemColl: {} };
         ITEM_COLL_STATS.forEach(function(cs) { profile.collections.itemColl[cs.key] = cs.max; });
-        TF_COLLECTIONS.forEach(function(coll) { profile.collections.tfToggled[coll.key] = true; });
     }
-    var tfToggled = profile.collections.tfToggled;
     var itemColl  = profile.collections.itemColl;
+    var ownedForms = profile.ownedForms || {};
 
     if (!profile.collLevels) {
         profile.collLevels = { normal: 6, large: 6, powerful: 6 };
@@ -350,25 +486,50 @@ function renderCollections(pid) {
     });
     html += '</div>';
 
-    // ── Transformation Collections ──
-    var allOn = TF_COLLECTIONS.every(function(coll) { return tfToggled[coll.key]; });
-    var tfOnCount = TF_COLLECTIONS.filter(function(coll) { return tfToggled[coll.key]; }).length;
+    // ── Owned Forms picker (inline) ──
+    html += renderFormsPickerHTML(pid);
+
+    // ── Transformation Collections (auto-activated from owned forms) ──
+    var completedCount = TF_COLLECTIONS.filter(function(coll) { return isCollectionComplete(coll, ownedForms); }).length;
     var tfMax = TF_COLLECTIONS.length;
-    html += '<div class="warning-box">⚠️ Under development.<br>Only relatable stats added for now (hp, attack, crit, critDmg, pdef, strike forti, mdef, spell forti).</div>';
-    html += '<div class="gc-section-label gc-coll-section-label" style="margin-top:16px">\uD83D\uDD2E Transformation Collections <span class="gc-coll-count">(' + tfOnCount + '/' + tfMax + ')</span>';
-    html += '<button class="gc-ms-btn" onclick="GC.toggleAllTFCollections(' + pid + ',' + (!allOn) + ')" title="' + (allOn ? 'Deselect' : 'Select') + ' all transformation collections">' + (allOn ? 'Deselect All' : 'Select All') + '</button>';
+    html += '<div class="gc-section-label gc-coll-section-label" style="margin-top:16px">\uD83D\uDD2E Transformation Collections <span class="gc-coll-count">(' + completedCount + '/' + tfMax + ')</span>';
     html += '</div>';
     html += '<div class="gc-coll-tf-scroll">';
     html += '<div class="gc-coll-tf-grid">';
     TF_COLLECTIONS.forEach(function(coll) {
-        var isOn = !!tfToggled[coll.key];
+        var progress = getCollectionProgress(coll, ownedForms);
+        var isComplete = progress.owned >= progress.total;
         var statDef = COMPARISON_STATS.find(function(s) { return s.key === coll.stat; });
         var statName = statDef ? statDef.name : coll.stat;
-        html += '<div class="gc-coll-btn' + (isOn ? ' gc-coll-btn-on' : '') + '"';
-        html += ' onclick="GC.toggleTFCollection(' + pid + ',\'' + coll.key + '\')"';
-        html += ' title="' + (isOn ? 'Active — click to deactivate' : 'Inactive — click to activate') + '">';
-        html += '<span class="gc-coll-btn-title">' + coll.name + '</span>';
-        html += '<span class="gc-coll-btn-stat">+' + coll.value.toLocaleString() + ' ' + statName + '</span>';
+        var formNames = getCollectionFormNames(coll);
+
+        html += '<div class="gc-coll-card' + (isComplete ? ' gc-coll-card-complete' : '') + '">';
+        // Title + stat
+        html += '<div class="gc-coll-card-title">' + coll.name + '</div>';
+        html += '<div class="gc-coll-card-stat">+' + coll.value.toLocaleString() + ' ' + statName + '</div>';
+        if (coll.bonus) {
+            html += '<div class="gc-coll-card-bonus">' + coll.bonus + '</div>';
+        }
+        // Progress bar
+        html += '<div class="gc-coll-card-progress">';
+        html += '<div class="gc-coll-card-bar">';
+        html += '<div class="gc-coll-card-bar-fill" style="width: ' + progress.pct + '%;"></div>';
+        html += '</div>';
+        html += '<span class="gc-coll-card-pct">' + progress.owned + ' / ' + progress.total + ' (' + progress.pct + '%)</span>';
+        html += '</div>';
+        // Required forms (icons or text for grade-based)
+        if (coll.forms) {
+            html += '<div class="gc-coll-card-forms">';
+            coll.forms.forEach(function(id) {
+                var f = TRANSFORMS_BY_ID[id];
+                if (!f) return;
+                var isOwned = !!ownedForms[id];
+                html += '<img src="' + f.icon + '" class="gc-coll-form-icon' + (isOwned ? ' gc-coll-form-owned' : '') + '" title="' + f.name + (isOwned ? ' ✓' : '') + '">';
+            });
+            html += '</div>';
+        } else {
+            html += '<div class="gc-coll-card-forms-text">' + formNames + '</div>';
+        }
         html += '</div>';
     });
     html += '</div></div>';

@@ -59,10 +59,9 @@ function createDefaultProfile(className) {
         profile.manastones[accKey] = [defaultMana, defaultMana, defaultMana];
     });
     // Initialize collections state
-    profile.collections = { tfToggled: {}, itemColl: {} };
+    profile.collections = { itemColl: {} };
     profile.collLevels = { normal: 6, large: 6, powerful: 6 };
     ITEM_COLL_STATS.forEach(function(cs) { profile.collections.itemColl[cs.key] = cs.max; });
-    TF_COLLECTIONS.forEach(function(coll) { profile.collections.tfToggled[coll.key] = true; });
     // Initialize relic state
     profile.relic = { level: 300 };
     // Initialize trait selections (default: first column for each level)
@@ -70,6 +69,15 @@ function createDefaultProfile(className) {
     [81, 82, 83, 84, 85].forEach(function(lvl) {
         profile.traitSelections[lvl] = 0;
     });
+    // Initialize skill buff toggles
+    profile.skillBuffs = {};
+    var allBuffs = getSkillBuffsForClass(className);
+    allBuffs.forEach(function(buff) {
+        profile.skillBuffs[buff.key] = !!buff.defaultActive;
+    });
+    // Initialize owned forms (all selected by default)
+    profile.ownedForms = {};
+    ALL_FORM_IDS.forEach(function(id) { profile.ownedForms[id] = true; });
     return profile;
 }
 
@@ -217,15 +225,6 @@ function loadState() {
             }
             // Restore collections state
             if (saved.collections) {
-                // TF collection toggles
-                if (saved.collections.tfToggled && typeof saved.collections.tfToggled === 'object') {
-                    var validTFKeys = TF_COLLECTIONS.map(function(c) { return c.key; });
-                    validTFKeys.forEach(function(k) {
-                        if (typeof saved.collections.tfToggled[k] === 'boolean') {
-                            p.collections.tfToggled[k] = saved.collections.tfToggled[k];
-                        }
-                    });
-                }
                 // Item collection inputs
                 if (saved.collections.itemColl && typeof saved.collections.itemColl === 'object') {
                     ITEM_COLL_STATS.forEach(function(cs) {
@@ -248,6 +247,24 @@ function loadState() {
             if (saved.relic && typeof saved.relic.level === 'number') {
                 var relicLvl = Math.max(1, Math.min(300, saved.relic.level));
                 p.relic.level = relicLvl;
+            }
+            // Restore skill buff toggles
+            if (saved.skillBuffs && typeof saved.skillBuffs === 'object') {
+                var validKeys = getSkillBuffsForClass(selectedClass).map(function(b) { return b.key; });
+                validKeys.forEach(function(k) {
+                    if (typeof saved.skillBuffs[k] === 'boolean') {
+                        p.skillBuffs[k] = saved.skillBuffs[k];
+                    }
+                });
+            }
+            // Restore owned forms
+            if (saved.ownedForms && typeof saved.ownedForms === 'object') {
+                for (var fid in saved.ownedForms) {
+                    var numId = parseInt(fid);
+                    if (ALL_FORM_IDS.indexOf(numId) !== -1 && typeof saved.ownedForms[fid] === 'boolean') {
+                        p.ownedForms[numId] = saved.ownedForms[fid];
+                    }
+                }
             }
             state[id] = p;
         });

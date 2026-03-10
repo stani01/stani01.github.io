@@ -3,10 +3,11 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // SHARE v3  —  Binary-packed share encoding
 //
-// Format:  #s=3.<base64-encoded-binary>
+// Format:  #s=4.<base64-encoded-binary>
 //
 // All state is packed into a compact byte array, then base64-encoded.
 // ~350 chars total URL vs ~1000+ for JSON-based v2.
+// v4: ownedForms replaces tfToggled (collections auto-derive from owned forms)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ─── Lookup tables (append-only – order must NEVER change) ─────────────────
@@ -195,13 +196,13 @@ function encodeShareString() {
         w.u8(clamp(gExtra.physicalDef || 0, 0, 250));
         w.u8(clamp(gExtra.magicalDef || 0, 0, 250));
 
-        // ── TF Collections  (57 bools, bit-packed → 8 bytes) ──
-        var tfArr = [];
-        var tfToggled = (p.collections && p.collections.tfToggled) || {};
-        for (var i = 0; i < TF_COLLECTIONS.length; i++) {
-            tfArr.push(!!tfToggled[TF_COLLECTIONS[i].key]);
+        // ── Owned Forms  (bit-packed, 1 bit per form in ALL_FORM_IDS order) ──
+        var formArr = [];
+        var ownedForms = p.ownedForms || {};
+        for (var i = 0; i < ALL_FORM_IDS.length; i++) {
+            formArr.push(!!ownedForms[ALL_FORM_IDS[i]]);
         }
-        w.bools(tfArr, TF_COLLECTIONS.length);
+        w.bools(formArr, ALL_FORM_IDS.length);
 
         // ── Item Collections  (6 × u16) ──
         var itemColl = (p.collections && p.collections.itemColl) || {};
@@ -225,9 +226,17 @@ function encodeShareString() {
         w.u8(clamp(ts[83] || 0, 0, 2));
         w.u8(clamp(ts[84] || 0, 0, 2));
         w.u8(clamp(ts[85] || 0, 0, 2));
+
+        // ── Skill Buffs (bit-packed) ──
+        var sbArr = [];
+        var sbState = (p.skillBuffs) || {};
+        GC_SKILL_KEYS.forEach(function(k) {
+            sbArr.push(!!sbState[k]);
+        });
+        w.bools(sbArr, GC_SKILL_KEYS.length);
     });
 
-    return '3.' + w.toBase64();
+    return '4.' + w.toBase64();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -235,12 +244,16 @@ function encodeShareString() {
 // ═══════════════════════════════════════════════════════════════════════════════
 function decodeShareString(s) {
     if (!s || s.length < 4) return false;
-    if (s.charAt(0) !== '3' || s.charAt(1) !== '.') return false;
-    try { return decodeShareV3(s.substring(2)); }
-    catch (e) { return false; }
+    var ver = s.charAt(0);
+    if (s.charAt(1) !== '.') return false;
+    if (ver === '4') {
+        try { return decodeShareV4(s.substring(2)); }
+        catch (e) { return false; }
+    }
+    return false;
 }
 
-function decodeShareV3(b64) {
+function decodeShareV4(b64) {
     var r = new ByteReader(b64);
 
     // ── Global header ──
@@ -367,14 +380,15 @@ function decodeShareV3(b64) {
             }
         };
 
-        // ── TF Collections ──
-        var tfBools = r.bools(TF_COLLECTIONS.length);
-        p.collections = p.collections || { tfToggled: {}, itemColl: {} };
-        for (var ci = 0; ci < TF_COLLECTIONS.length; ci++) {
-            p.collections.tfToggled[TF_COLLECTIONS[ci].key] = tfBools[ci];
+        // ── Owned Forms ──
+        var formBools = r.bools(ALL_FORM_IDS.length);
+        p.ownedForms = {};
+        for (var fi = 0; fi < ALL_FORM_IDS.length; fi++) {
+            if (formBools[fi]) p.ownedForms[ALL_FORM_IDS[fi]] = true;
         }
 
         // ── Item Collections ──
+        p.collections = p.collections || { itemColl: {} };
         ITEM_COLL_STATS.forEach(function(cs) {
             p.collections.itemColl[cs.key] = clamp(r.u16(), 0, cs.max);
         });
@@ -395,6 +409,19 @@ function decodeShareV3(b64) {
         [81, 82, 83, 84, 85].forEach(function(lvl) {
             traitSelections[id][lvl] = clamp(r.u8(), 0, 2);
         });
+
+        // ── Skill Buffs (bit-packed) ──
+        p.skillBuffs = {};
+        // Initialize defaults first
+        var allBuffs = getSkillBuffsForClass(cls);
+        allBuffs.forEach(function(buff) { p.skillBuffs[buff.key] = !!buff.defaultActive; });
+        // Read encoded bools if data remains
+        if (r.pos < r.buf.length) {
+            var sbBools = r.bools(GC_SKILL_KEYS.length);
+            for (var si = 0; si < GC_SKILL_KEYS.length; si++) {
+                p.skillBuffs[GC_SKILL_KEYS[si]] = sbBools[si];
+            }
+        }
 
         state[id] = p;
     });

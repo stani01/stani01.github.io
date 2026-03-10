@@ -107,6 +107,15 @@ window.GC = {
         saveState();
     },
 
+    copyProfile: function() {
+        state[2] = JSON.parse(JSON.stringify(state[1]));
+        traitSelections[2] = JSON.parse(JSON.stringify(traitSelections[1] || {}));
+        saveTraitSelections();
+        renderAll();
+        saveState();
+        showShareToast('✓ Set 1 copied to Set 2');
+    },
+
     resetAll: function() {
         weaponConfig = createDefaultWeaponConfig(selectedClass);
         state[1] = createDefaultProfile(selectedClass);
@@ -166,19 +175,100 @@ window.GC = {
         saveState();
     },
 
-    // ── Collections handlers ──
-    toggleTFCollection: function(pid, key) {
-        var p = state[pid];
-        if (!p.collections) { p.collections = { tfToggled: {}, itemColl: {} }; }
-        p.collections.tfToggled[key] = !p.collections.tfToggled[key];
+    // ── Forms Collection handlers ──
+    toggleForm: function(pid, formId) {
+        if (!state[pid].ownedForms) state[pid].ownedForms = {};
+        state[pid].ownedForms[formId] = !state[pid].ownedForms[formId];
         renderCollections(pid);
         updateComparison();
         saveState();
     },
 
+    setFormsGrade: function(pid, grade) {
+        formsActiveGrade[pid] = grade;
+        renderCollections(pid);
+    },
+
+    selectAllForms: function(pid) {
+        if (!state[pid].ownedForms) state[pid].ownedForms = {};
+        ALL_FORM_IDS.forEach(function(id) { state[pid].ownedForms[id] = true; });
+        renderCollections(pid);
+        updateComparison();
+        saveState();
+    },
+
+    deselectAllForms: function(pid) {
+        if (!state[pid].ownedForms) state[pid].ownedForms = {};
+        ALL_FORM_IDS.forEach(function(id) { state[pid].ownedForms[id] = false; });
+        renderCollections(pid);
+        updateComparison();
+        saveState();
+    },
+
+    resetForms: function(pid) {
+        state[pid].ownedForms = {};
+        renderCollections(pid);
+        updateComparison();
+        saveState();
+    },
+
+    showFormTooltip: function(evt, formId) {
+        var form = TRANSFORMS_BY_ID[formId];
+        if (!form) return;
+        var tooltip = document.getElementById('gcFormTooltip');
+        var grade = FORM_GRADES.find(function(g) { return g.key === form.grade; });
+
+        var html = '<div class="gc-form-tt-header">';
+        html += '<img src="' + form.icon + '" class="gc-form-tt-icon" alt="">';
+        html += '<div class="gc-form-tt-info">';
+        html += '<div class="gc-form-tt-name">' + form.name + '</div>';
+        html += '<div class="gc-form-tt-grade" style="color: ' + (grade ? grade.color : '#ccc') + ';">' + (grade ? grade.name : form.grade) + '</div>';
+        html += '</div></div>';
+
+        if (form.stats && Object.keys(form.stats).length > 0) {
+            html += '<div class="gc-form-tt-divider"></div>';
+            html += '<div class="gc-form-tt-stats">';
+            TRANSFORM_STAT_DEFS.forEach(function(sd) {
+                var raw = form.stats[sd.key];
+                if (raw === undefined) return;
+                var base = Array.isArray(raw) ? raw[0] : raw;
+                var perEnch = Array.isArray(raw) ? raw[1] : 0;
+                var suffix = sd.unit === '%' ? '%' : '';
+                var perStr = perEnch ? ' <span class="gc-form-tt-per">(+' + perEnch + ')</span>' : '';
+                html += '<div class="gc-form-tt-stat">' + sd.name + ': +' + base + suffix + perStr + '</div>';
+            });
+            html += '</div>';
+        }
+
+        tooltip.innerHTML = html;
+        tooltip.style.display = 'block';
+
+        // Position near the mouse cursor
+        var mx = evt.clientX;
+        var my = evt.clientY;
+        var ttW = tooltip.offsetWidth;
+        var ttH = tooltip.offsetHeight;
+        var left = mx + 12;
+        var top = my - ttH - 8;
+        // If tooltip goes off the right edge, flip to left of cursor
+        if (left + ttW > window.innerWidth - 8) left = mx - ttW - 12;
+        // If tooltip goes above viewport, show below cursor
+        if (top < 8) top = my + 16;
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+    },
+
+    hideFormTooltip: function() {
+        var tooltip = document.getElementById('gcFormTooltip');
+        if (tooltip) tooltip.style.display = 'none';
+    },
+
+    // ── Collections handlers ──
+
+
     setItemColl: function(pid, key, rawVal) {
         var p = state[pid];
-        if (!p.collections) { p.collections = { tfToggled: {}, itemColl: {} }; }
+        if (!p.collections) { p.collections = { itemColl: {} }; }
         var cs  = ITEM_COLL_STATS.find(function(c) { return c.key === key; });
         var max = cs ? cs.max : 9999;
         var val = Math.max(0, Math.min(max, parseInt(rawVal) || 0));
@@ -195,21 +285,9 @@ window.GC = {
 
     resetCollections: function(pid) {
         var p = state[pid];
-        p.collections = { tfToggled: {}, itemColl: {} };
+        p.collections = { itemColl: {} };
         p.collLevels = { normal: 6, large: 6, powerful: 6 };
         ITEM_COLL_STATS.forEach(function(cs) { p.collections.itemColl[cs.key] = cs.max; });
-        TF_COLLECTIONS.forEach(function(coll) { p.collections.tfToggled[coll.key] = true; });
-        renderCollections(pid);
-        updateComparison();
-        saveState();
-    },
-
-    toggleAllTFCollections: function(pid, on) {
-        var p = state[pid];
-        if (!p.collections) p.collections = { tfToggled: {}, itemColl: {} };
-        TF_COLLECTIONS.forEach(function(coll) {
-            p.collections.tfToggled[coll.key] = !!on;
-        });
         renderCollections(pid);
         updateComparison();
         saveState();
@@ -259,6 +337,100 @@ window.GC = {
         renderRelic(pid);
         updateComparison();
         saveState();
+    },
+
+    // ── Skill Buff handlers ──
+    toggleSkillBuff: function(pid, skillKey) {
+        var p = state[pid];
+        if (!p.skillBuffs) p.skillBuffs = {};
+        p.skillBuffs[skillKey] = !p.skillBuffs[skillKey];
+        // Update UI class
+        var el = document.getElementById('gc-buff-' + pid + '-' + skillKey);
+        if (el) el.classList.toggle('active', !!p.skillBuffs[skillKey]);
+        // Enforce mutual exclusions: if this buff was turned ON, turn OFF excluded skills
+        if (p.skillBuffs[skillKey]) {
+            var allBuffs = getSkillBuffsForClass(selectedClass);
+            var entry = allBuffs.find(function(b) { return b.key === skillKey; });
+            if (entry && entry.excludes) {
+                entry.excludes.forEach(function(exKey) {
+                    if (p.skillBuffs[exKey]) {
+                        p.skillBuffs[exKey] = false;
+                        var exEl = document.getElementById('gc-buff-' + pid + '-' + exKey);
+                        if (exEl) exEl.classList.remove('active');
+                    }
+                });
+            }
+        }
+        updateComparison();
+        saveState();
+    },
+
+    resetSkillBuffs: function(pid) {
+        var p = state[pid];
+        p.skillBuffs = {};
+        var allBuffs = getSkillBuffsForClass(selectedClass);
+        allBuffs.forEach(function(buff) {
+            p.skillBuffs[buff.key] = !!buff.defaultActive;
+        });
+        renderSkillBuffs(pid);
+        updateComparison();
+        saveState();
+    },
+
+    showSkillInfo: function(evt, skillKey) {
+        if (evt) evt.stopPropagation();
+        var skill = GC_SKILL_DATABASE[skillKey];
+        if (!skill) return;
+
+        // Handle multiple classes
+        var classes = skill.class.split('+').map(function(c) { return c.trim(); });
+        var classDisplay = '';
+        if (classes.length > 0 && classes[0] !== '-' && classes[0] !== 'TBD') {
+            classDisplay = classes.map(function(className) {
+                var classKey = className.toLowerCase();
+                var classData = CLASS_DATA[classKey];
+                if (classData && classData.icon) {
+                    return '<span class="skill-info-class-item"><img src="' + classData.icon + '" class="skill-info-class-icon" alt="' + className + '" title="' + className + '"><span class="skill-info-class-text">' + className + '</span></span>';
+                }
+                return className;
+            }).join('');
+        } else {
+            classDisplay = skill.class;
+        }
+
+        var linkType = skill.id.toString().length > 4 ? 'item' : (skill.category === 'Title' ? 'title' : 'skill');
+        var linksHtml = '';
+        if (skill.id !== '-') {
+            linksHtml = '<div class="skill-info-links">' +
+                '<a href="https://aioncodex.com/en/' + linkType + '/' + skill.id + '/" target="_blank" class="skill-info-link">AionCodex</a>' +
+                '<a href="https://aionpowerbook.com/powerbook/' + linkType + '/' + skill.id + '" target="_blank" class="skill-info-link">PowerBook</a>' +
+                '</div>';
+        }
+
+        var content = '<div class="skill-info-header">' +
+            '<img src="' + skill.icon + '" class="skill-info-icon" alt="' + skill.name + '">' +
+            '<div class="skill-info-title-section">' +
+                '<div class="skill-info-name">' + skill.name + '</div>' +
+                '<div class="skill-info-id">ID: ' + skill.id + '</div>' +
+            '</div>' +
+            '<button class="skill-info-close" onclick="GC.closeSkillInfo()">×</button>' +
+        '</div>' +
+        '<div class="skill-info-body">' +
+            '<div class="skill-info-row"><div class="skill-info-label">Class:</div><div class="skill-info-value skill-info-class-container">' + classDisplay + '</div></div>' +
+            '<div class="skill-info-row"><div class="skill-info-label">Category:</div><div class="skill-info-value">' + skill.category + '</div></div>' +
+            '<div class="skill-info-row"><div class="skill-info-label">Usage Cost:</div><div class="skill-info-value">' + skill.usageCost + '</div></div>' +
+            '<div class="skill-info-row"><div class="skill-info-label">Cast Time:</div><div class="skill-info-value">' + skill.castTime + '</div></div>' +
+            '<div class="skill-info-row"><div class="skill-info-label">Cooldown:</div><div class="skill-info-value">' + skill.cooldown + '</div></div>' +
+            '<div class="skill-info-description"><div class="skill-info-label">Description:</div><div class="skill-info-value">' + skill.description + '</div></div>' +
+            linksHtml +
+        '</div>';
+
+        document.getElementById('gcSkillInfoContent').innerHTML = content;
+        document.getElementById('gcSkillInfoModal').classList.add('active');
+    },
+
+    closeSkillInfo: function() {
+        document.getElementById('gcSkillInfoModal').classList.remove('active');
     },
 
     togglePicker: function(pickerId) {
@@ -397,8 +569,12 @@ window.GC = {
             state[pid].armor[slotKey].set = setKey;
             if (setKey === 'fighting-spirit') {
                 state[pid].armor[slotKey].bonuses = getDefaultArmorBonuses(slotKey);
+                delete state[pid].armor[slotKey].enchant;
             } else {
                 state[pid].armor[slotKey].bonuses = [];
+                if (typeof state[pid].armor[slotKey].enchant !== 'number') {
+                    state[pid].armor[slotKey].enchant = 9;
+                }
             }
         } else if (slotType.indexOf('acc:') === 0) {
             var accKey = slotType.substring(4);
@@ -1282,12 +1458,25 @@ document.addEventListener('click', function(e) {
 // Close oath popup on scroll
 window.addEventListener('scroll', function() { closeOathPopup(); closeSetPopup(); closeEnchantPopup(); closeAccBonusPopup(); }, true);
 
+// Close skill info modal on click outside
+document.addEventListener('click', function(e) {
+    var modal = document.getElementById('gcSkillInfoModal');
+    if (e.target === modal) {
+        GC.closeSkillInfo();
+    }
+});
+
 // Close mana modal on Escape
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         var modal = document.getElementById('gc-mana-modal');
         if (modal && modal.style.display === 'block') {
             GC.closeManaModal();
+        }
+        // Also close skill info modal
+        var skillModal = document.getElementById('gcSkillInfoModal');
+        if (skillModal && skillModal.classList.contains('active')) {
+            GC.closeSkillInfo();
         }
     }
 });
