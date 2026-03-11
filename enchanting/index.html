@@ -13,8 +13,8 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="../assets/css/common.css?v=5.5">
-    <link rel="stylesheet" href="../assets/css/enchanting.css?v=5.5">
+    <link rel="stylesheet" href="../assets/css/common.css?v=5.6">
+    <link rel="stylesheet" href="../assets/css/enchanting.css?v=5.6">
 </head>
 <body class="page-calculator">
 
@@ -1320,12 +1320,12 @@
 
         // --- Oath Administration System ---
         const OATH_ARMOR = {
-            'Ultimate L3': { rarity: 'ultimate', level: 3, icon: 'assets/icons/vs_blending_passive_ef_g6.png', pct: 1 },
-            'Ultimate L2': { rarity: 'ultimate', level: 2, icon: 'assets/icons/vs_blending_passive_ef_g6.png', pct: 1.5 },
-            'Ultimate L1': { rarity: 'ultimate', level: 1, icon: 'assets/icons/vs_blending_passive_ef_g4.png', pct: 2.5 },
-            'Legendary L3': { rarity: 'legendary', level: 3, icon: 'assets/icons/vs_blending_passive_ef_g1.png', pct: 25 },
-            'Legendary L2': { rarity: 'legendary', level: 2, icon: 'assets/icons/vs_blending_passive_ef_g1.png', pct: 30 },
-            'Legendary L1': { rarity: 'legendary', level: 1, icon: 'assets/icons/vs_blending_passive_ef_g1.png', pct: 40 }
+            'Ultimate L3': { rarity: 'ultimate', level: 3, icon: '../assets/icons/vs_blending_passive_ef_g6.png', pct: 1 },
+            'Ultimate L2': { rarity: 'ultimate', level: 2, icon: '../assets/icons/vs_blending_passive_ef_g6.png', pct: 1.5 },
+            'Ultimate L1': { rarity: 'ultimate', level: 1, icon: '../assets/icons/vs_blending_passive_ef_g4.png', pct: 2.5 },
+            'Legendary L3': { rarity: 'legendary', level: 3, icon: '../assets/icons/vs_blending_passive_ef_g1.png', pct: 25 },
+            'Legendary L2': { rarity: 'legendary', level: 2, icon: '../assets/icons/vs_blending_passive_ef_g1.png', pct: 30 },
+            'Legendary L1': { rarity: 'legendary', level: 1, icon: '../assets/icons/vs_blending_passive_ef_g1.png', pct: 40 }
         };
 
         // Item type dropdown toggle
@@ -1370,47 +1370,47 @@
 
         const OATH_WEAPONS = {
             // Expose Vulnerability - 6 outcomes
-            'Ultimate: Expose Vulnerability level 3': { skill: 'Expose Vulnerability', icon: 'assets/icons/vs_weapon_a_g6.png', pct: 0.2 },
-            'Ultimate: Expose Vulnerability level 2': { skill: 'Expose Vulnerability', icon: 'assets/icons/vs_weapon_a_g4.png', pct: 0.3 },
-            'Ultimate: Expose Vulnerability level 1': { skill: 'Expose Vulnerability', icon: 'assets/icons/vs_weapon_a_g4.png', pct: 0.5 },
-            'Legendary: Expose Vulnerability level 3': { skill: 'Expose Vulnerability', icon: 'assets/icons/vs_weapon_a_g1.png', pct: 4 },
-            'Legendary: Expose Vulnerability level 2': { skill: 'Expose Vulnerability', icon: 'assets/icons/vs_weapon_a_g1.png', pct: 5 },
-            'Legendary: Expose Vulnerability level 1': { skill: 'Expose Vulnerability', icon: 'assets/icons/vs_weapon_a_g1.png', pct: 6.6 },
+            'Ultimate: Expose Vulnerability level 3': { skill: 'Expose Vulnerability', icon: '../assets/icons/vs_weapon_a_g6.png', pct: 0.2 },
+            'Ultimate: Expose Vulnerability level 2': { skill: 'Expose Vulnerability', icon: '../assets/icons/vs_weapon_a_g4.png', pct: 0.3 },
+            'Ultimate: Expose Vulnerability level 1': { skill: 'Expose Vulnerability', icon: '../assets/icons/vs_weapon_a_g4.png', pct: 0.5 },
+            'Legendary: Expose Vulnerability level 3': { skill: 'Expose Vulnerability', icon: '../assets/icons/vs_weapon_a_g1.png', pct: 4 },
+            'Legendary: Expose Vulnerability level 2': { skill: 'Expose Vulnerability', icon: '../assets/icons/vs_weapon_a_g1.png', pct: 5 },
+            'Legendary: Expose Vulnerability level 1': { skill: 'Expose Vulnerability', icon: '../assets/icons/vs_weapon_a_g1.png', pct: 6.6 },
             // Corrosion - 6 outcomes
-            'Ultimate: Corrosion level 3': { skill: 'Corrosion', icon: 'assets/icons/vs_weapon_b_g6.png', pct: 0.2 },
-            'Ultimate: Corrosion level 2': { skill: 'Corrosion', icon: 'assets/icons/vs_weapon_b_g4.png', pct: 0.3 },
-            'Ultimate: Corrosion level 1': { skill: 'Corrosion', icon: 'assets/icons/vs_weapon_b_g4.png', pct: 0.5 },
-            'Legendary: Corrosion level 3': { skill: 'Corrosion', icon: 'assets/icons/vs_weapon_b_g1.png', pct: 4 },
-            'Legendary: Corrosion level 2': { skill: 'Corrosion', icon: 'assets/icons/vs_weapon_b_g1.png', pct: 5 },
-            'Legendary: Corrosion level 1': { skill: 'Corrosion', icon: 'assets/icons/vs_weapon_b_g1.png', pct: 6.6 },
+            'Ultimate: Corrosion level 3': { skill: 'Corrosion', icon: '../assets/icons/vs_weapon_b_g6.png', pct: 0.2 },
+            'Ultimate: Corrosion level 2': { skill: 'Corrosion', icon: '../assets/icons/vs_weapon_b_g4.png', pct: 0.3 },
+            'Ultimate: Corrosion level 1': { skill: 'Corrosion', icon: '../assets/icons/vs_weapon_b_g4.png', pct: 0.5 },
+            'Legendary: Corrosion level 3': { skill: 'Corrosion', icon: '../assets/icons/vs_weapon_b_g1.png', pct: 4 },
+            'Legendary: Corrosion level 2': { skill: 'Corrosion', icon: '../assets/icons/vs_weapon_b_g1.png', pct: 5 },
+            'Legendary: Corrosion level 1': { skill: 'Corrosion', icon: '../assets/icons/vs_weapon_b_g1.png', pct: 6.6 },
             // Harden - 6 outcomes
-            'Ultimate: Harden level 3': { skill: 'Harden', icon: 'assets/icons/vs_weapon_c_g6.png', pct: 0.2 },
-            'Ultimate: Harden level 2': { skill: 'Harden', icon: 'assets/icons/vs_weapon_c_g4.png', pct: 0.3 },
-            'Ultimate: Harden level 1': { skill: 'Harden', icon: 'assets/icons/vs_weapon_c_g4.png', pct: 0.5 },
-            'Legendary: Harden level 3': { skill: 'Harden', icon: 'assets/icons/vs_weapon_c_g1.png', pct: 4 },
-            'Legendary: Harden level 2': { skill: 'Harden', icon: 'assets/icons/vs_weapon_c_g1.png', pct: 5 },
-            'Legendary: Harden level 1': { skill: 'Harden', icon: 'assets/icons/vs_weapon_c_g1.png', pct: 6.6 },
+            'Ultimate: Harden level 3': { skill: 'Harden', icon: '../assets/icons/vs_weapon_c_g6.png', pct: 0.2 },
+            'Ultimate: Harden level 2': { skill: 'Harden', icon: '../assets/icons/vs_weapon_c_g4.png', pct: 0.3 },
+            'Ultimate: Harden level 1': { skill: 'Harden', icon: '../assets/icons/vs_weapon_c_g4.png', pct: 0.5 },
+            'Legendary: Harden level 3': { skill: 'Harden', icon: '../assets/icons/vs_weapon_c_g1.png', pct: 4 },
+            'Legendary: Harden level 2': { skill: 'Harden', icon: '../assets/icons/vs_weapon_c_g1.png', pct: 5 },
+            'Legendary: Harden level 1': { skill: 'Harden', icon: '../assets/icons/vs_weapon_c_g1.png', pct: 6.6 },
             // Wound Care - 6 outcomes (6.8% for L1)
-            'Ultimate: Wound Care level 3': { skill: 'Wound Care', icon: 'assets/icons/vs_weapon_d_g6.png', pct: 0.2 },
-            'Ultimate: Wound Care level 2': { skill: 'Wound Care', icon: 'assets/icons/vs_weapon_d_g4.png', pct: 0.3 },
-            'Ultimate: Wound Care level 1': { skill: 'Wound Care', icon: 'assets/icons/vs_weapon_d_g4.png', pct: 0.5 },
-            'Legendary: Wound Care level 3': { skill: 'Wound Care', icon: 'assets/icons/vs_weapon_d_g1.png', pct: 4 },
-            'Legendary: Wound Care level 2': { skill: 'Wound Care', icon: 'assets/icons/vs_weapon_d_g1.png', pct: 5 },
-            'Legendary: Wound Care level 1': { skill: 'Wound Care', icon: 'assets/icons/vs_weapon_d_g1.png', pct: 6.8 },
+            'Ultimate: Wound Care level 3': { skill: 'Wound Care', icon: '../assets/icons/vs_weapon_d_g6.png', pct: 0.2 },
+            'Ultimate: Wound Care level 2': { skill: 'Wound Care', icon: '../assets/icons/vs_weapon_d_g4.png', pct: 0.3 },
+            'Ultimate: Wound Care level 1': { skill: 'Wound Care', icon: '../assets/icons/vs_weapon_d_g4.png', pct: 0.5 },
+            'Legendary: Wound Care level 3': { skill: 'Wound Care', icon: '../assets/icons/vs_weapon_d_g1.png', pct: 4 },
+            'Legendary: Wound Care level 2': { skill: 'Wound Care', icon: '../assets/icons/vs_weapon_d_g1.png', pct: 5 },
+            'Legendary: Wound Care level 1': { skill: 'Wound Care', icon: '../assets/icons/vs_weapon_d_g1.png', pct: 6.8 },
             // Ignite - 6 outcomes (6.8% for L1)
-            'Ultimate: Ignite level 3': { skill: 'Ignite', icon: 'assets/icons/vs_weapon_e_g6.png', pct: 0.2 },
-            'Ultimate: Ignite level 2': { skill: 'Ignite', icon: 'assets/icons/vs_weapon_e_g4.png', pct: 0.3 },
-            'Ultimate: Ignite level 1': { skill: 'Ignite', icon: 'assets/icons/vs_weapon_e_g4.png', pct: 0.5 },
-            'Legendary: Ignite level 3': { skill: 'Ignite', icon: 'assets/icons/vs_weapon_e_g1.png', pct: 4 },
-            'Legendary: Ignite level 2': { skill: 'Ignite', icon: 'assets/icons/vs_weapon_e_g1.png', pct: 5 },
-            'Legendary: Ignite level 1': { skill: 'Ignite', icon: 'assets/icons/vs_weapon_e_g1.png', pct: 6.8 },
+            'Ultimate: Ignite level 3': { skill: 'Ignite', icon: '../assets/icons/vs_weapon_e_g6.png', pct: 0.2 },
+            'Ultimate: Ignite level 2': { skill: 'Ignite', icon: '../assets/icons/vs_weapon_e_g4.png', pct: 0.3 },
+            'Ultimate: Ignite level 1': { skill: 'Ignite', icon: '../assets/icons/vs_weapon_e_g4.png', pct: 0.5 },
+            'Legendary: Ignite level 3': { skill: 'Ignite', icon: '../assets/icons/vs_weapon_e_g1.png', pct: 4 },
+            'Legendary: Ignite level 2': { skill: 'Ignite', icon: '../assets/icons/vs_weapon_e_g1.png', pct: 5 },
+            'Legendary: Ignite level 1': { skill: 'Ignite', icon: '../assets/icons/vs_weapon_e_g1.png', pct: 6.8 },
             // Disease - 6 outcomes
-            'Ultimate: Disease level 3': { skill: 'Disease', icon: 'assets/icons/vs_weapon_f_g6.png', pct: 0.2 },
-            'Ultimate: Disease level 2': { skill: 'Disease', icon: 'assets/icons/vs_weapon_f_g4.png', pct: 0.3 },
-            'Ultimate: Disease level 1': { skill: 'Disease', icon: 'assets/icons/vs_weapon_f_g4.png', pct: 0.5 },
-            'Legendary: Disease level 3': { skill: 'Disease', icon: 'assets/icons/vs_weapon_f_g1.png', pct: 4 },
-            'Legendary: Disease level 2': { skill: 'Disease', icon: 'assets/icons/vs_weapon_f_g1.png', pct: 5 },
-            'Legendary: Disease level 1': { skill: 'Disease', icon: 'assets/icons/vs_weapon_f_g1.png', pct: 6.6 }
+            'Ultimate: Disease level 3': { skill: 'Disease', icon: '../assets/icons/vs_weapon_f_g6.png', pct: 0.2 },
+            'Ultimate: Disease level 2': { skill: 'Disease', icon: '../assets/icons/vs_weapon_f_g4.png', pct: 0.3 },
+            'Ultimate: Disease level 1': { skill: 'Disease', icon: '../assets/icons/vs_weapon_f_g4.png', pct: 0.5 },
+            'Legendary: Disease level 3': { skill: 'Disease', icon: '../assets/icons/vs_weapon_f_g1.png', pct: 4 },
+            'Legendary: Disease level 2': { skill: 'Disease', icon: '../assets/icons/vs_weapon_f_g1.png', pct: 5 },
+            'Legendary: Disease level 1': { skill: 'Disease', icon: '../assets/icons/vs_weapon_f_g1.png', pct: 6.6 }
         };
 
         // Update the skill/level options based on selected item type

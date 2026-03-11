@@ -1,6 +1,39 @@
 /* ============================================
    PAGE-SPECIFIC STYLES: ENCHANTING SIMULATOR
    ============================================ */
+
+/* ── Page-calculator layout (body padding + container) ── */
+.page-calculator .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #1a1a1f;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.page-calculator h1 {
+    color: var(--warning);
+    text-align: center;
+    border-bottom: 2px solid #333;
+    padding-bottom: 20px;
+    margin-bottom: 10px;
+}
+
+.page-calculator h2 {
+    color: var(--accent);
+    margin-top: 40px;
+    border-left: 5px solid var(--accent);
+    padding-left: 15px;
+}
+
+.page-calculator .subtitle {
+    text-align: center;
+    color: #999;
+    font-size: 0.9em;
+    margin-bottom: 30px;
+}
+
 .tabs-container {
     display: flex;
     gap: 10px;
@@ -507,6 +540,22 @@ flex: 1;
 }
 
 @media (max-width: 768px) {
+    .page-calculator .container {
+        padding: 15px;
+        max-width: 100%;
+    }
+    .page-calculator h1 {
+        font-size: 1.5em;
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+    }
+    .page-calculator h2 {
+        font-size: 1.3em;
+    }
+    .page-calculator .subtitle {
+        font-size: 0.8em;
+        margin-bottom: 20px;
+    }
     .rates-modal-content {
         max-width: 90vw;
         padding: 20px;
@@ -519,6 +568,15 @@ flex: 1;
     .info-button {
         padding: 6px 12px;
         font-size: 0.8em;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-calculator h1 {
+        font-size: 1.2em;
+    }
+    .page-calculator h2 {
+        font-size: 1.1em;
     }
 }
 
