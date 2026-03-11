@@ -110,9 +110,9 @@
                     <input type="number" id="fortitude" value="350" oninput="calculate()" onblur="validateInput(this, 0, 500); calculate()" min="0" max="500" placeholder="0-500" style="width: 220px;">
                 </div>
 
-                <div class="input-group" id="pvpDefenseGroup" style="visibility: hidden;">
+                <div class="input-group" id="pvpDefenceGroup" style="visibility: hidden;">
                     <label data-tooltip="Defence against an enemy attack. The higher the number, the lower the power of an opponent's attack.">PvP Defense</label>
-                    <input type="text" id="pvpDefense" value="1000" oninput="calculate()" onblur="validateInput(this, 0, 10000); calculate()" placeholder="0-10000" style="width: 220px;">
+                    <input type="text" id="pvpDefence" value="1000" oninput="calculate()" onblur="validateInput(this, 0, 10000); calculate()" placeholder="0-10000" style="width: 220px;">
                 </div>
             </div>
         </div>
@@ -1909,7 +1909,7 @@
         // Update visibility for all elements together (synchronously)
         const isPvP = mode === 'pvp';
         document.getElementById('fortitudeGroup').style.visibility = isPvP ? 'visible' : 'hidden';
-        document.getElementById('pvpDefenseGroup').style.visibility = isPvP ? 'visible' : 'hidden';
+        document.getElementById('pvpDefenceGroup').style.visibility = isPvP ? 'visible' : 'hidden';
         document.getElementById('buff-cubes').style.visibility = isPvP ? 'hidden' : 'visible';
         
         // Reset PvP-specific values when switching to PvP
@@ -3050,7 +3050,7 @@
         let attackBonus = 0;
         let critBonus = 0;
         let defenseReduction = 0;
-        let pvpDefenseBonus = 0;
+        let pvpDefenceBonus = 0;
         let pvpAttackBonus = 0;
         let pveAttackBonus = 0;
         
@@ -3367,7 +3367,7 @@
             attackBonus += devotionBonus;
         }
         
-        return { attackBonus, critBonus, defenseReduction, pvpDefenseBonus, pvpAttackBonus, pveAttackBonus };
+        return { attackBonus, critBonus, defenseReduction, pvpDefenceBonus, pvpAttackBonus, pveAttackBonus };
     }
 
     // Duration-based statistics calculation
@@ -3493,7 +3493,7 @@
         // Parse attack stats: base attack + mode-specific bonus + static buffs
         const baseAtkInput = parseExpression(document.getElementById('attack').value);
         const atkBonusInput = parseExpression(document.getElementById('attackBonus').value);
-        const { attackBonus, critBonus, defenseReduction, pvpDefenseBonus, pvpAttackBonus, pveAttackBonus} = getStaticBuffs();
+        const { attackBonus, critBonus, defenseReduction, pvpDefenceBonus, pvpAttackBonus, pveAttackBonus} = getStaticBuffs();
         // Only add mode-appropriate attack bonuses
         const modeAttackBonus = (currentMode === 'pvp') ? pvpAttackBonus : pveAttackBonus;
         const totalAtk = baseAtkInput + atkBonusInput + attackBonus + modeAttackBonus;
@@ -3505,12 +3505,12 @@
         
         // Parse defense stats
         const baseDef = parseExpression(document.getElementById('defense').value);
-        const pvpDefInput = parseExpression(document.getElementById('pvpDefense').value);
+        const pvpDefInput = parseExpression(document.getElementById('pvpDefence').value);
 
         function resolveDefense(baseDefense) {
             let resolvedDefense = baseDefense - defenseReduction;
             if (currentMode === 'pvp') {
-                resolvedDefense = baseDefense + pvpDefInput + pvpDefenseBonus - defenseReduction;
+                resolvedDefense = baseDefense + pvpDefInput + pvpDefenceBonus - defenseReduction;
             }
             // Apply Glad -8% def to enemy defense
             if (document.getElementById('check-glad8')?.checked && classType === 'physical') {
@@ -3817,7 +3817,7 @@
             extremeItems: document.getElementById('extremeItems').value,
             critDmgStat: document.getElementById('critDmgStat').value,
             defense: document.getElementById('defense').value,
-            pvpDefense: document.getElementById('pvpDefense').value,
+            pvpDefence: document.getElementById('pvpDefence').value,
             skillDmg: document.getElementById('skillDmg').value,
             skillCooldown: document.getElementById('skillCooldown').value,
             observedNonCritDamage: document.getElementById('observedNonCritDamage').value,
@@ -3936,7 +3936,7 @@
             updateMaxManastones(); // Update max manastones based on extreme items
             document.getElementById('critDmgStat').value = session.critDmgStat || 200;
             document.getElementById('defense').value = session.defense || 10000;
-            document.getElementById('pvpDefense').value = session.pvpDefense || 1000;
+            document.getElementById('pvpDefence').value = session.pvpDefence || 1000;
             document.getElementById('skillDmg').value = session.skillDmg || 5000;
             document.getElementById('skillCooldown').value = session.skillCooldown || 3;
             document.getElementById('observedNonCritDamage').value = session.observedNonCritDamage || '';
@@ -3958,7 +3958,7 @@
             
             // Update all visibility changes together
             document.getElementById('fortitudeGroup').style.visibility = isPvPMode ? 'visible' : 'hidden';
-            document.getElementById('pvpDefenseGroup').style.visibility = isPvPMode ? 'visible' : 'hidden';
+            document.getElementById('pvpDefenceGroup').style.visibility = isPvPMode ? 'visible' : 'hidden';
             document.getElementById('buff-cubes').style.visibility = isPvPMode ? 'hidden' : 'visible';
             
             if (isPvPMode) {

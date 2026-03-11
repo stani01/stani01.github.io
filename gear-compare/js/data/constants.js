@@ -348,8 +348,8 @@ var COMPARISON_STATS = [
     { key: 'magicResist',     name: 'Magic Resist' },
     { key: 'block',           name: 'Block' },
     { key: 'parry',           name: 'Parry' },
-    { key: 'pvpDefense',      name: 'Add. PvP Def' },
-    { key: 'pveDefense',      name: 'Add. PvE Def' },
+    { key: 'pvpDefence',      name: 'Add. PvP Def' },
+    { key: 'pveDefence',      name: 'Add. PvE Def' },
 
     { key: 'dp',              name: 'DP' },
 ];
@@ -366,7 +366,7 @@ const STAT_GROUPS = [
     },
     {
         label: "Defensive",
-        keys: ["physicalDef", "strikeFortitude", "evasion", "increasedRegen", "magicalDef", "spellFortitude", "magicResist", "block", "parry", "pvpDefense", "pveDefense"]
+        keys: ["physicalDef", "strikeFortitude", "evasion", "increasedRegen", "magicalDef", "spellFortitude", "magicResist", "block", "parry", "pvpDefence", "pveDefence"]
     },
     {
         label: "Others",

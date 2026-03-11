@@ -96,7 +96,7 @@ var PRES_ENCHANT = {
 };
 
 // Calculate actual stats for one armor slot
-function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBonuses) {
+function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBonuses, bonusValues) {
     var s = emptyStats();
 
     // No armor equipped — return zero stats
@@ -120,7 +120,8 @@ function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBon
             selectedBonuses.forEach(function(bKey) {
                 var found = bonusList.find(function(b) { return b.key === bKey; });
                 if (found && found.stat) {
-                    s[found.stat] += found.value;
+                    var bv = (bonusValues && typeof bonusValues[bKey] === 'number') ? bonusValues[bKey] : found.value;
+                    s[found.stat] += bv;
                 }
             });
         }

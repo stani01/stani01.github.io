@@ -394,7 +394,7 @@ function getWeaponStats(setKey, weaponType, enchantLevel) {
 //   bonus   = inherent weapon bonuses (always transfer, including from fuse)
 //   enchant = enchant-level or enchant-like bonuses (transfer for dual wield, NOT for fuse)
 //   baseAtk = raw base attack value (used for fuse 10% calculation)
-function getWeaponParts(setKey, weaponType, enchantLevel, selectedBonuses) {
+function getWeaponParts(setKey, weaponType, enchantLevel, selectedBonuses, bonusValues) {
     var base = emptyStats(), bonus = emptyStats(), enchant = emptyStats();
     if (setKey === 'none') return { baseAtk: 0, base: base, bonus: bonus, enchant: enchant };
     var is2H = WEAPON_TYPES[weaponType].twoHanded;
@@ -417,14 +417,17 @@ function getWeaponParts(setKey, weaponType, enchantLevel, selectedBonuses) {
         if (fixed.bonuses && selectedBonuses) {
             selectedBonuses.forEach(function(bKey) {
                 var b = fixed.bonuses.find(function(x) { return x.key === bKey; });
-                if (b) bonus[b.stat] += b.value;
+                if (b) {
+                    var bv = (bonusValues && typeof bonusValues[bKey] === 'number') ? bonusValues[bKey] : b.value;
+                    bonus[b.stat] += bv;
+                }
             });
         }
 
         if (fixed.pvpStat || fixed.pveStat) {
             // Spiked (PvP), Ciclonica/Helper (PvE), Vision (PvE)
             var atkKey = fixed.pvpStat ? 'pvpAttack' : 'pveAttack';
-            var defKey = fixed.pvpStat ? 'pvpDefense' : 'pveDefense';
+            var defKey = fixed.pvpStat ? 'pvpDefence' : 'pveDefence';
             bonus[atkKey]   = is2H ? fixed.pvpPveAtk2h : fixed.pvpPveAtk1h;
             bonus[defKey]   = is2H ? fixed.pvpPveDef2h : fixed.pvpPveDef1h;
             enchant[atkKey] = is2H ? fixed.enchPvpPveAtk2h : fixed.enchPvpPveAtk1h;

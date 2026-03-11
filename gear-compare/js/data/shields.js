@@ -23,9 +23,9 @@ var SHIELD_STATS = {
             battle: { hp: 2213, physicalDef: 592, magicalDef: 296, block: 2675 },
             scale:  { hp: 2213, physicalDef: 296, magicalDef: 592, block: 2675 }
         },
-        pvpBase: { pvpAttack: 88, pvpDefense: 88 },
+        pvpBase: { pvpAttack: 88, pvpDefence: 88 },
         enchant: {
-            flat: { pvpAttack: 36, pvpDefense: 158 }
+            flat: { pvpAttack: 36, pvpDefence: 158 }
         },
         bonuses: {
             battle: [
@@ -56,9 +56,9 @@ var SHIELD_STATS = {
             battle: { hp: 2213, physicalDef: 592, magicalDef: 296, block: 2675 },
             scale:  { hp: 2213, physicalDef: 296, magicalDef: 592, block: 2675 }
         },
-        pveBase: { pveAttack: 88, pveDefense: 88 },
+        pveBase: { pveAttack: 88, pveDefence: 88 },
         enchant: {
-            flat: { pveAttack: 36, pveDefense: 158 }
+            flat: { pveAttack: 36, pveDefence: 158 }
         },
         bonuses: {
             battle: [
@@ -157,7 +157,7 @@ var SHIELD_STATS = {
 // classPhysical: true if class is physical, false if magical
 //   battle shield → attack/crit/accuracy are physical; if class is magical → zero them
 //   scale shield  → attack/crit/accuracy are magical; if class is physical → zero them
-function getShieldStats(shieldSet, shieldType, selectedBonuses, classPhysical) {
+function getShieldStats(shieldSet, shieldType, selectedBonuses, classPhysical, bonusValues) {
     var stats = emptyStats();
     if (shieldSet === 'none') return stats;
     var data = SHIELD_STATS[shieldSet];
@@ -201,7 +201,8 @@ function getShieldStats(shieldSet, shieldType, selectedBonuses, classPhysical) {
         if (bonus) {
             // attack/crit/accuracy bonuses only count if shield matches class
             if ((bonus.key === 'attack' || bonus.key === 'crit' || bonus.key === 'accuracy') && !shieldMatchesClass) return;
-            stats[bonus.key] += bonus.value;
+            var bv = (bonusValues && typeof bonusValues[bKey] === 'number') ? bonusValues[bKey] : bonus.value;
+            stats[bonus.key] += bv;
         }
     });
 

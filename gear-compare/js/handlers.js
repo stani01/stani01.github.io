@@ -340,6 +340,16 @@ window.GC = {
     },
 
     // ── Skill Buff handlers ──
+    toggleBuffSection: function(gridId, sectionKey, pid) {
+        var grid = document.getElementById(gridId);
+        if (!grid) return;
+        var collapsed = grid.classList.toggle('collapsed');
+        // Toggle arrow on the label (sibling before the grid)
+        var label = grid.previousElementSibling;
+        if (label) label.classList.toggle('gc-collapsed', collapsed);
+        try { localStorage.setItem('gcBuffCollapsed_' + sectionKey + '_' + pid, collapsed ? '1' : '0'); } catch (e) {}
+    },
+
     toggleSkillBuff: function(pid, skillKey) {
         var p = state[pid];
         if (!p.skillBuffs) p.skillBuffs = {};
@@ -365,12 +375,25 @@ window.GC = {
         saveState();
     },
 
+    setSkillBuffEnchant: function(pid, skillKey, level) {
+        var p = state[pid];
+        if (!p.skillBuffEnchants) p.skillBuffEnchants = {};
+        p.skillBuffEnchants[skillKey] = level;
+        renderSkillBuffs(pid);
+        updateComparison();
+        saveState();
+    },
+
     resetSkillBuffs: function(pid) {
         var p = state[pid];
         p.skillBuffs = {};
+        p.skillBuffEnchants = {};
         var allBuffs = getSkillBuffsForClass(selectedClass);
         allBuffs.forEach(function(buff) {
             p.skillBuffs[buff.key] = !!buff.defaultActive;
+            if (buff.enchant) {
+                p.skillBuffEnchants[buff.key] = buff.enchant.defaultLevel;
+            }
         });
         renderSkillBuffs(pid);
         updateComparison();
@@ -554,12 +577,14 @@ window.GC = {
         if (slotType === 'main-weapon') {
             state[pid].mainWeapon.set = setKey;
             state[pid].mainWeapon.bonuses = getDefaultWeaponBonuses(setKey);
+            state[pid].mainWeapon.bonusValues = {};
             if (setKey === 'none') {
                 delete state[pid].mainWeapon.enchant;
                 // Force off-hand weapon/fuse to none (shield is still allowed)
                 if (weaponConfig.offHandType !== 'shield') {
                     state[pid].offHand.set = 'none';
                     state[pid].offHand.bonuses = [];
+                    state[pid].offHand.bonusValues = {};
                     delete state[pid].offHand.enchant;
                 }
             }
@@ -567,12 +592,14 @@ window.GC = {
         } else if (slotType === 'off-weapon') {
             state[pid].offHand.set = setKey;
             state[pid].offHand.bonuses = getDefaultWeaponBonuses(setKey);
+            state[pid].offHand.bonusValues = {};
             if (setKey === 'none') {
                 delete state[pid].offHand.enchant;
             }
             bc.offHand = false;
         } else if (slotType === 'shield') {
             state[pid].shield.set = setKey;
+            state[pid].shield.bonusValues = {};
             if (setKey === 'none') {
                 state[pid].shield.bonuses = [];
             } else {
@@ -582,6 +609,7 @@ window.GC = {
         } else if (slotType.indexOf('armor:') === 0) {
             var slotKey = slotType.substring(6);
             state[pid].armor[slotKey].set = setKey;
+            state[pid].armor[slotKey].bonusValues = {};
             if (setKey === 'none') {
                 state[pid].armor[slotKey].bonuses = [];
                 delete state[pid].armor[slotKey].enchant;
@@ -598,6 +626,7 @@ window.GC = {
             var accKey = slotType.substring(4);
             state[pid].accessories[accKey].set = setKey;
             state[pid].accessories[accKey].bonuses = getDefaultAccBonuses(setKey, accKey);
+            state[pid].accessories[accKey].bonusValues = {};
             bc[accKey] = false;
         }
         renderProfile(pid);
@@ -717,6 +746,7 @@ window.GC = {
         state[pid].shield.type = type;
         // Reset bonuses when changing type (battle↔scale may have different bonus lists)
         state[pid].shield.bonuses = getDefaultShieldBonuses(state[pid].shield.set, type === 'scale' ? 'scale' : 'battle');
+        state[pid].shield.bonusValues = {};
         renderProfile(pid);
         updateComparison();
         saveState();
@@ -923,7 +953,12 @@ window.GC = {
             var cls = 'gc-shield-bonus-btn' + (isOn ? ' gc-shield-bonus-on' : '');
             html += '<div class="' + cls + '" onclick="GC.toggleArmorBonus(' + pid + ',\'' + slotKey + '\',\'' + b.key + '\')">';
             html += '<span class="gc-shield-bonus-name">' + b.name + '</span>';
-            html += '<span class="gc-shield-bonus-val">+' + b.value + '</span>';
+            if (isOn) {
+                var cv = (armor.bonusValues && typeof armor.bonusValues[b.key] === 'number') ? armor.bonusValues[b.key] : b.value;
+                html += '<input type="number" class="gc-bonus-val-input" min="0" max="' + b.value + '" value="' + cv + '" onclick="event.stopPropagation()" onchange="GC.setBonusValue(' + pid + ',\'armor\',\'' + slotKey + '\',\'' + b.key + '\',this.value,' + b.value + ')">';
+            } else {
+                html += '<span class="gc-shield-bonus-val">+' + b.value.toLocaleString() + '</span>';
+            }
             html += '</div>';
         });
         html += '</div>';
@@ -959,6 +994,27 @@ window.GC = {
 
         // Refresh UI
         this.openArmorBonusPopup(pid, slotKey, document.querySelector(`[onclick*="openArmorBonusPopup(${pid},'${slotKey}'"]`));
+        renderProfile(pid);
+        updateComparison();
+        saveState();
+    },
+
+    // Set a custom bonus value (0..max)
+    setBonusValue: function(pid, gearType, slotKey, bonusKey, value, maxVal) {
+        var val = parseInt(value);
+        if (isNaN(val)) val = maxVal;
+        val = Math.max(0, Math.min(maxVal, val));
+
+        var gear;
+        if (gearType === 'acc') gear = state[pid].accessories[slotKey];
+        else if (gearType === 'weapon') gear = state[pid][slotKey];
+        else if (gearType === 'shield') gear = state[pid].shield;
+        else if (gearType === 'armor') gear = state[pid].armor[slotKey];
+        else if (gearType === 'glyph') gear = state[pid].glyph;
+        if (!gear) return;
+        if (!gear.bonusValues) gear.bonusValues = {};
+        gear.bonusValues[bonusKey] = val;
+
         renderProfile(pid);
         updateComparison();
         saveState();
@@ -1321,7 +1377,12 @@ function renderAccBonusPopupContent(popup, pid, slotKey) {
         var cls = 'gc-shield-bonus-btn' + (isOn ? ' gc-shield-bonus-on' : '');
         html += '<div class="' + cls + '" onclick="GC.toggleAccBonus(' + pid + ',\'' + slotKey + '\',\'' + b.key + '\')">';
         html += '<span class="gc-shield-bonus-name">' + b.name + '</span>';
-        html += '<span class="gc-shield-bonus-val">+' + b.value.toLocaleString() + '</span>';
+        if (isOn) {
+            var cv = (acc.bonusValues && typeof acc.bonusValues[b.key] === 'number') ? acc.bonusValues[b.key] : b.value;
+            html += '<input type="number" class="gc-bonus-val-input" min="0" max="' + b.value + '" value="' + cv + '" onclick="event.stopPropagation()" onchange="GC.setBonusValue(' + pid + ',\'acc\',\'' + slotKey + '\',\'' + b.key + '\',this.value,' + b.value + ')">';
+        } else {
+            html += '<span class="gc-shield-bonus-val">+' + b.value.toLocaleString() + '</span>';
+        }
         html += '</div>';
     });
     html += '</div>';
@@ -1343,7 +1404,12 @@ function renderWeaponBonusPopupContent(popup, pid, slot) {
         var cls = 'gc-shield-bonus-btn' + (isOn ? ' gc-shield-bonus-on' : '');
         html += '<div class="' + cls + '" onclick="GC.toggleWeaponBonus(' + pid + ',\'' + slot + '\',\'' + b.key + '\')">';
         html += '<span class="gc-shield-bonus-name">' + b.name + '</span>';
-        html += '<span class="gc-shield-bonus-val">+' + b.value.toLocaleString() + '</span>';
+        if (isOn) {
+            var cv = (weapon.bonusValues && typeof weapon.bonusValues[b.key] === 'number') ? weapon.bonusValues[b.key] : b.value;
+            html += '<input type="number" class="gc-bonus-val-input" min="0" max="' + b.value + '" value="' + cv + '" onclick="event.stopPropagation()" onchange="GC.setBonusValue(' + pid + ',\'weapon\',\'' + slot + '\',\'' + b.key + '\',this.value,' + b.value + ')">';
+        } else {
+            html += '<span class="gc-shield-bonus-val">+' + b.value.toLocaleString() + '</span>';
+        }
         html += '</div>';
     });
     html += '</div>';
@@ -1366,7 +1432,12 @@ function renderShieldBonusPopupContent(popup, pid) {
         var cls = 'gc-shield-bonus-btn' + (isOn ? ' gc-shield-bonus-on' : '');
         html += '<div class="' + cls + '" onclick="GC.toggleShieldBonus(' + pid + ',\'' + b.key + '\')">';
         html += '<span class="gc-shield-bonus-name">' + b.name + '</span>';
-        html += '<span class="gc-shield-bonus-val">+' + b.value.toLocaleString() + '</span>';
+        if (isOn) {
+            var cv = (sh.bonusValues && typeof sh.bonusValues[b.key] === 'number') ? sh.bonusValues[b.key] : b.value;
+            html += '<input type="number" class="gc-bonus-val-input" min="0" max="' + b.value + '" value="' + cv + '" onclick="event.stopPropagation()" onchange="GC.setBonusValue(' + pid + ',\'shield\',\'\',\'' + b.key + '\',this.value,' + b.value + ')">';
+        } else {
+            html += '<span class="gc-shield-bonus-val">+' + b.value.toLocaleString() + '</span>';
+        }
         html += '</div>';
     });
     html += '</div>';

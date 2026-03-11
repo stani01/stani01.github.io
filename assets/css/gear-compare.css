@@ -1,31 +1,30 @@
-.gc-collapse-btn {
-    margin-left: 8px;
-    width: 20px;
-    height: 20px;
+/* ── Collapsible buff section titles ── */
+.gc-collapsible-label {
     display: flex;
     align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #181820;
-    font-size: 1.2em;
-    font-weight: bold;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-    transition: background 0.2s, color 0.2s;
+    gap: 6px;
     cursor: pointer;
-    outline: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
-.gc-collapse-btn:hover {
-    background: var(--warning);
-    color: #000;
+.gc-collapsible-label:hover {
+    filter: brightness(1.25);
+}
+.gc-collapse-arrow::before {
+    content: '▾';
+    display: inline-block;
+    font-size: 0.85em;
+    transition: transform 0.2s ease;
+}
+.gc-collapsed .gc-collapse-arrow::before {
+    transform: rotate(-90deg);
 }
 .gc-buffs-grid.collapsed {
     max-height: 0 !important;
     overflow: hidden !important;
     padding: 0 !important;
     margin: 0 !important;
-    opacity: 0.2;
+    opacity: 0;
     pointer-events: none;
     transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;
 }
@@ -2336,6 +2335,36 @@
     color: rgba(160, 230, 160, 0.95);
 }
 
+/* ── Editable bonus value inputs ── */
+.gc-bonus-val-input {
+    width: 56px;
+    padding: 2px 4px;
+    border: 1px solid rgba(160, 230, 160, 0.35);
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.35);
+    color: rgba(160, 230, 160, 0.95);
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    outline: none;
+    -moz-appearance: textfield;
+}
+.gc-bonus-val-input::-webkit-inner-spin-button,
+.gc-bonus-val-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.gc-bonus-val-input:focus {
+    border-color: rgba(160, 230, 160, 0.65);
+    background: rgba(0, 0, 0, 0.5);
+}
+.gc-glyph-bonus-val-input {
+    width: 48px;
+    margin-left: 2px;
+    vertical-align: middle;
+}
+
 /* ── Gear Compare Responsive ── */
 @media (max-width: 1024px) {
     .gc-profiles {
@@ -3147,6 +3176,21 @@
 .gc-skill-info-btn:hover {
     background: var(--warning);
     transform: scale(1.1);
+}
+.gc-buff-enchant-select {
+    background: #1a1a20;
+    color: var(--warning);
+    border: 1px solid #3d3d45;
+    border-radius: 4px;
+    padding: 2px 4px;
+    font-size: 0.75em;
+    cursor: pointer;
+    flex-shrink: 0;
+    outline: none;
+}
+.gc-buff-enchant-select:hover,
+.gc-buff-enchant-select:focus {
+    border-color: var(--accent);
 }
 
 /* Skill Info Modal (gear-compare specific, mirrors aion-calc) */

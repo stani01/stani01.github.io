@@ -264,49 +264,22 @@ function renderSkillBuffs(pid) {
     html += '<button class="gc-reset-btn" onclick="GC.resetSkillBuffs(' + pid + ')" title="Reset skill buffs">↺</button>';
     html += '</div>';
 
-    html += '<div class="warning-box">🚧 Under development.<br>Specific buffs for only a few classes are available in the database at the moment.</div>';
+    html += '<div class="info-box">✅ Database Updated.<br>Skills and buffs for all primary classes are now live. Found a discrepancy? Let us know!</div>';
 
     // Universal buffs
     var universalBuffs = GC_SKILL_BUFFS.universal;
     if (universalBuffs.length > 0) {
         var uniqId = 'gc-buffs-grid-universal-' + pid;
-        // Check persisted state per set
         var isCollapsed = false;
-        try {
-            isCollapsed = localStorage.getItem('gcUniversalBuffsCollapsed_' + pid) === '1';
-        } catch (e) {}
+        try { isCollapsed = localStorage.getItem('gcBuffCollapsed_universal_' + pid) === '1'; } catch (e) {}
         html += '<div class="gc-buff-section">';
-        html += '<div class="gc-buff-section-label" style="color: var(--green); display: flex; align-items: center; gap: 8px;">Universal Buffs (All Classes)'
-            + '<button class="gc-collapse-btn" aria-label="Collapse/Expand Universal Buffs" data-target="' + uniqId + '">' 
-            + (isCollapsed ? '<span style=\'font-size:1.3em;\'>&#43;</span>' : '<span style=\'font-size:1.3em;\'>&#8722;</span>')
-            + '</button>'
-            + '</div>';
+        html += '<div class="gc-buff-section-label gc-collapsible-label' + (isCollapsed ? ' gc-collapsed' : '') + '" style="color: var(--green);" onclick="GC.toggleBuffSection(\'' + uniqId + '\',\'universal\',' + pid + ')">';
+        html += '<span class="gc-collapse-arrow"></span>Universal Buffs (All Classes)</div>';
         html += '<div class="gc-buffs-grid' + (isCollapsed ? ' collapsed' : '') + '" id="' + uniqId + '">';
         universalBuffs.forEach(function(buff) {
             html += renderBuffItem(pid, buff, sb);
         });
         html += '</div></div>';
-
-        // Attach event delegation for collapse/expand after rendering
-        setTimeout(function() {
-            document.querySelectorAll('.gc-collapse-btn[data-target="' + uniqId + '"]').forEach(function(btn) {
-                if (btn._collapseHandlerAttached) return;
-                btn._collapseHandlerAttached = true;
-                btn.addEventListener('click', function(e) {
-                    var targetId = btn.getAttribute('data-target');
-                    var grid = document.getElementById(targetId);
-                    if (!grid) return;
-                    var collapsed = grid.classList.toggle('collapsed');
-                    btn.innerHTML = collapsed
-                        ? '<span style="font-size:1.3em;">&#43;</span>'
-                        : '<span style="font-size:1.3em;">&#8722;</span>';
-                    try {
-                        localStorage.setItem('gcUniversalBuffsCollapsed_' + pid, collapsed ? '1' : '0');
-                    } catch (e) {}
-                    e.stopPropagation();
-                });
-            });
-        }, 0);
     }
 
     // Physical / Magical universal buffs
@@ -317,50 +290,28 @@ function renderSkillBuffs(pid) {
         var typedColor = isPhys ? 'var(--danger)' : 'var(--accent)';
         var typedId = 'gc-buffs-grid-typed-' + pid;
         var isTypedCollapsed = false;
-        try {
-            isTypedCollapsed = localStorage.getItem('gcTypedBuffsCollapsed_' + pid) === '1';
-        } catch (e) {}
+        try { isTypedCollapsed = localStorage.getItem('gcBuffCollapsed_typed_' + pid) === '1'; } catch (e) {}
         html += '<div class="gc-buff-section">';
-        html += '<div class="gc-buff-section-label" style="color: ' + typedColor + '; display: flex; align-items: center; gap: 8px;">' + typedLabel
-            + '<button class="gc-collapse-btn" aria-label="Collapse/Expand ' + typedLabel + '" data-target="' + typedId + '">' 
-            + (isTypedCollapsed ? '<span style=\'font-size:1.3em;\'>&#43;</span>' : '<span style=\'font-size:1.3em;\'>&#8722;</span>')
-            + '</button>'
-            + '</div>';
+        html += '<div class="gc-buff-section-label gc-collapsible-label' + (isTypedCollapsed ? ' gc-collapsed' : '') + '" style="color: ' + typedColor + ';" onclick="GC.toggleBuffSection(\'' + typedId + '\',\'typed\',' + pid + ')">';
+        html += '<span class="gc-collapse-arrow"></span>' + typedLabel + '</div>';
         html += '<div class="gc-buffs-grid' + (isTypedCollapsed ? ' collapsed' : '') + '" id="' + typedId + '">';
         typedBuffs.forEach(function(buff) {
             html += renderBuffItem(pid, buff, sb);
         });
         html += '</div></div>';
-
-        // Attach event delegation for collapse/expand after rendering (typed buffs)
-        setTimeout(function() {
-            document.querySelectorAll('.gc-collapse-btn[data-target="' + typedId + '"]').forEach(function(btn) {
-                if (btn._collapseHandlerAttached) return;
-                btn._collapseHandlerAttached = true;
-                btn.addEventListener('click', function(e) {
-                    var targetId = btn.getAttribute('data-target');
-                    var grid = document.getElementById(targetId);
-                    if (!grid) return;
-                    var collapsed = grid.classList.toggle('collapsed');
-                    btn.innerHTML = collapsed
-                        ? '<span style="font-size:1.3em;">&#43;</span>'
-                        : '<span style="font-size:1.3em;">&#8722;</span>';
-                    try {
-                        localStorage.setItem('gcTypedBuffsCollapsed_' + pid, collapsed ? '1' : '0');
-                    } catch (e) {}
-                    e.stopPropagation();
-                });
-            });
-        }, 0);
     }
 
     // Class-specific buffs
     var classBuffs = GC_SKILL_BUFFS[selectedClass] || [];
     if (classBuffs.length > 0) {
         var className = CLASS_DATA[selectedClass] ? CLASS_DATA[selectedClass].name : selectedClass;
+        var classId = 'gc-buffs-grid-class-' + pid;
+        var isClassCollapsed = false;
+        try { isClassCollapsed = localStorage.getItem('gcBuffCollapsed_class_' + pid) === '1'; } catch (e) {}
         html += '<div class="gc-buff-section">';
-        html += '<div class="gc-buff-section-label" style="color: var(--warning);">' + className + ' Buffs</div>';
-        html += '<div class="gc-buffs-grid">';
+        html += '<div class="gc-buff-section-label gc-collapsible-label' + (isClassCollapsed ? ' gc-collapsed' : '') + '" style="color: var(--warning);" onclick="GC.toggleBuffSection(\'' + classId + '\',\'class\',' + pid + ')">';
+        html += '<span class="gc-collapse-arrow"></span>' + className + ' Buffs</div>';
+        html += '<div class="gc-buffs-grid' + (isClassCollapsed ? ' collapsed' : '') + '" id="' + classId + '">';
         classBuffs.forEach(function(buff) {
             html += renderBuffItem(pid, buff, sb);
         });
@@ -374,13 +325,35 @@ function renderBuffItem(pid, buff, sb) {
     var skill = GC_SKILL_DATABASE[buff.key];
     if (!skill) return '';
     var active = !!sb[buff.key];
+    var sbe = state[pid].skillBuffEnchants || {};
     var cls = 'gc-buff-item' + (active ? ' active' : '');
     var html = '<div class="' + cls + '" id="gc-buff-' + pid + '-' + buff.key + '" onclick="GC.toggleSkillBuff(' + pid + ',\'' + buff.key + '\')">';
     html += '<img src="' + skill.icon + '" class="gc-buff-icon" alt="">';
     html += '<div class="gc-buff-info">';
     html += '<div class="gc-buff-name">' + skill.name + '</div>';
-    html += '<div class="gc-buff-value">' + buff.value + '</div>';
+    // Show dynamic value if enchantable, otherwise static value
+    if (buff.enchant) {
+        var enchLvl = typeof sbe[buff.key] === 'number' ? sbe[buff.key] : buff.enchant.defaultLevel;
+        var baseVal = buff.stats[buff.enchant.stat] || 0;
+        var totalVal = baseVal + (enchLvl * buff.enchant.perLevel);
+        // Build dynamic display: replace base value with enchanted value
+        var dynValue = buff.value.replace('+' + baseVal, '+' + totalVal);
+        html += '<div class="gc-buff-value">' + dynValue + '</div>';
+    } else {
+        html += '<div class="gc-buff-value">' + buff.value + '</div>';
+    }
     html += '</div>';
+    // Enchant level selector (inline, before the info button)
+    if (buff.enchant) {
+        var currentLvl = typeof sbe[buff.key] === 'number' ? sbe[buff.key] : buff.enchant.defaultLevel;
+        html += '<select class="gc-buff-enchant-select" onclick="event.stopPropagation()" onchange="GC.setSkillBuffEnchant(' + pid + ',\'' + buff.key + '\',parseInt(this.value))">';
+        SKILL_ENCHANT_LEVELS.forEach(function(lvl) {
+            if (lvl <= buff.enchant.maxLevel) {
+                html += '<option value="' + lvl + '"' + (lvl === currentLvl ? ' selected' : '') + '>+' + lvl + '</option>';
+            }
+        });
+        html += '</select>';
+    }
     html += '<button class="gc-skill-info-btn" onclick="GC.showSkillInfo(event,\'' + buff.key + '\')" title="Skill Information">i</button>';
     html += '</div>';
     return html;
@@ -1336,7 +1309,13 @@ function renderGlyphSlot(pid, slotDef, accState, profile)
                 html += '<input type="radio" name="glyph-bonus-' + pid + '" value="' + b.key + '"'
                     + (isOn ? ' checked' : '')
                     + ' onchange="GC.setGlyphBonus(' + pid + ',\'' + b.key + '\')">';
-                html += '<span>' + b.name + ' <b>+' + b.value + '</b></span>';
+                if (isOn) {
+                    var cv = (accState.bonusValues && typeof accState.bonusValues[b.key] === 'number') ? accState.bonusValues[b.key] : b.value;
+                    html += '<span>' + b.name + ' <b>+</b></span>';
+                    html += '<input type="number" class="gc-bonus-val-input gc-glyph-bonus-val-input" min="0" max="' + b.value + '" value="' + cv + '" onclick="event.stopPropagation()" onchange="GC.setBonusValue(' + pid + ',\'glyph\',\'\',\'' + b.key + '\',this.value,' + b.value + ')">';
+                } else {
+                    html += '<span>' + b.name + ' <b>+' + b.value + '</b></span>';
+                }
                 html += '</label>';
             });
             html += '</div>';

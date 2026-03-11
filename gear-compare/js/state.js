@@ -15,9 +15,9 @@ function createDefaultProfile(className) {
         minions: { main: 'crit-sita', secondary: 'crit-sita' },
         armorType: CLASS_DATA[className].armorTypes[0],
         armor: {},
-        mainWeapon: { set: 'fighting-spirit', enchant: 9, bonuses: getDefaultWeaponBonuses('fighting-spirit') },
-        offHand: { set: 'fighting-spirit', enchant: 9, bonuses: getDefaultWeaponBonuses('fighting-spirit') },
-        shield: { set: 'fighting-spirit', type: 'battle', bonuses: getDefaultShieldBonuses('fighting-spirit', 'battle') },
+        mainWeapon: { set: 'fighting-spirit', enchant: 9, bonuses: getDefaultWeaponBonuses('fighting-spirit'), bonusValues: {} },
+        offHand: { set: 'fighting-spirit', enchant: 9, bonuses: getDefaultWeaponBonuses('fighting-spirit'), bonusValues: {} },
+        shield: { set: 'fighting-spirit', type: 'battle', bonuses: getDefaultShieldBonuses('fighting-spirit', 'battle'), bonusValues: {} },
         oath: { shoulders: 'silent-skill', helmet: 'silent-skill', chest: 'ultimate-3', pants: 'ultimate-3', gloves: 'ultimate-3', boots: 'ultimate-3' },
         manastones: {},
         transform: 'none',
@@ -27,6 +27,7 @@ function createDefaultProfile(className) {
         glyph: {
             enabled: true,
             bonuses: ['attack'], 
+            bonusValues: {},
             extra: {
                 attack: 210,      // Enchant Attack
                 physicalDef: 150, // Enchant P.Def
@@ -37,14 +38,16 @@ function createDefaultProfile(className) {
     ARMOR_SLOTS.forEach(function(slot) {
         profile.armor[slot.key] = {
         set: 'fighting-spirit',
-        bonuses: getDefaultArmorBonuses(slot.key)
+        bonuses: getDefaultArmorBonuses(slot.key),
+        bonusValues: {}
     };
     });
     // Initialize accessories
     ALL_ACCESSORY_KEYS.forEach(function(accKey) {
         profile.accessories[accKey] = {
             set: 'aeon-guardian',
-            bonuses: getDefaultAccBonuses('aeon-guardian', accKey)
+            bonuses: getDefaultAccBonuses('aeon-guardian', accKey),
+            bonusValues: {}
         };
     });
     // Initialize manastone arrays for all gear slots
@@ -72,9 +75,13 @@ function createDefaultProfile(className) {
     });
     // Initialize skill buff toggles
     profile.skillBuffs = {};
+    profile.skillBuffEnchants = {};
     var allBuffs = getSkillBuffsForClass(className);
     allBuffs.forEach(function(buff) {
         profile.skillBuffs[buff.key] = !!buff.defaultActive;
+        if (buff.enchant) {
+            profile.skillBuffEnchants[buff.key] = buff.enchant.defaultLevel;
+        }
     });
     // Initialize owned forms (all selected by default)
     profile.ownedForms = {};
@@ -89,6 +96,18 @@ function saveState() {
         var data = { selectedClass: selectedClass, weaponConfig: weaponConfig, profiles: { 1: state[1], 2: state[2] }, activeTab: activeTab };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (e) { /* quota exceeded or private mode */ }
+}
+
+// Helper: restore bonusValues from saved data, validating against a bonus definition list
+function restoreBonusValues(target, saved, bonusDefs) {
+    if (!saved || typeof saved !== 'object') return;
+    var maxMap = {};
+    bonusDefs.forEach(function(b) { maxMap[b.key] = b.value; });
+    Object.keys(saved).forEach(function(k) {
+        if (typeof saved[k] === 'number' && maxMap[k] !== undefined) {
+            target[k] = Math.max(0, Math.min(maxMap[k], saved[k]));
+        }
+    });
 }
 
 function loadState() {
@@ -117,6 +136,12 @@ function loadState() {
             var saved = data.profiles[id];
             if (!saved) return;
             var p = createDefaultProfile(selectedClass);
+            // Restore minions
+            if (saved.minions && typeof saved.minions === 'object') {
+                var minionKeys = MINIONS.map(function(m) { return m.key; });
+                if (saved.minions.main && minionKeys.indexOf(saved.minions.main) !== -1) p.minions.main = saved.minions.main;
+                if (saved.minions.secondary && minionKeys.indexOf(saved.minions.secondary) !== -1) p.minions.secondary = saved.minions.secondary;
+            }
             if (saved.armorType && cls.armorTypes.indexOf(saved.armorType) !== -1) {
                 p.armorType = saved.armorType;
             }
@@ -126,6 +151,15 @@ function loadState() {
                     if (sa) {
                         if (sa.set && ARMOR_SET_KEYS.indexOf(sa.set) !== -1) p.armor[slot.key].set = sa.set;
                         if (typeof sa.enchant === 'number' && sa.enchant >= 8 && sa.enchant <= 15) p.armor[slot.key].enchant = sa.enchant;
+                        if (Array.isArray(sa.bonuses)) {
+                            var isHigh = (slot.key === 'helmet' || slot.key === 'chest' || slot.key === 'pants');
+                            var validBonusKeys = (isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW).map(function(b) { return b.key; });
+                            p.armor[slot.key].bonuses = sa.bonuses.filter(function(k) { return validBonusKeys.indexOf(k) !== -1; }).slice(0, 4);
+                        }
+                        if (sa.bonusValues) {
+                            var isHighBV = (slot.key === 'helmet' || slot.key === 'chest' || slot.key === 'pants');
+                            restoreBonusValues(p.armor[slot.key].bonusValues, sa.bonusValues, isHighBV ? FS_BONUSES_HIGH : FS_BONUSES_LOW);
+                        }
                     }
                 });
             }
@@ -141,6 +175,10 @@ function loadState() {
                         var mwValidKeys = mwFixed.bonuses.map(function(b) { return b.key; });
                         p.mainWeapon.bonuses = saved.mainWeapon.bonuses.filter(function(k) { return mwValidKeys.indexOf(k) !== -1; }).slice(0, mwFixed.maxBonuses);
                     }
+                }
+                if (saved.mainWeapon.bonusValues) {
+                    var mwBonusDefs = (WEAPON_STATS_FIXED[p.mainWeapon.set] || {}).bonuses || [];
+                    restoreBonusValues(p.mainWeapon.bonusValues, saved.mainWeapon.bonusValues, mwBonusDefs);
                 }
             }
             if (saved.offHand) {
@@ -158,6 +196,10 @@ function loadState() {
                         p.offHand.bonuses = saved.offHand.bonuses.filter(function(k) { return ohValidKeys.indexOf(k) !== -1; }).slice(0, ohFixed.maxBonuses);
                     }
                 }
+                if (saved.offHand.bonusValues) {
+                    var ohBonusDefs = (WEAPON_STATS_FIXED[p.offHand.set] || {}).bonuses || [];
+                    restoreBonusValues(p.offHand.bonusValues, saved.offHand.bonusValues, ohBonusDefs);
+                }
             }
             if (saved.shield) {
                 var savedShieldSet = saved.shield.set;
@@ -174,6 +216,12 @@ function loadState() {
                     var maxB = shData ? shData.maxBonuses : 0;
                     p.shield.bonuses = saved.shield.bonuses.filter(function(k) { return validBonusKeys.indexOf(k) !== -1; }).slice(0, maxB);
                 }
+                if (saved.shield.bonusValues) {
+                    var shDataBV = SHIELD_STATS[p.shield.set];
+                    var typeKeyBV = p.shield.type === 'scale' ? 'scale' : 'battle';
+                    var shBonusDefs = shDataBV ? shDataBV.bonuses[typeKeyBV] : [];
+                    restoreBonusValues(p.shield.bonusValues, saved.shield.bonusValues, shBonusDefs);
+                }
             }
             if (saved.oath) {
                 var oathKeys = OATH_OPTIONS.map(function(o) { return o.key; });
@@ -184,7 +232,7 @@ function loadState() {
                 });
             }
             if (saved.manastones) {
-                var allGearKeys = ARMOR_SLOT_KEYS.concat(['mainWeapon', 'offHand']);
+                var allGearKeys = ARMOR_SLOT_KEYS.concat(['mainWeapon', 'offHand']).concat(ALL_ACCESSORY_KEYS);
                 allGearKeys.forEach(function(gk) {
                     if (saved.manastones[gk] && Array.isArray(saved.manastones[gk])) {
                         var arr = saved.manastones[gk];
@@ -221,6 +269,13 @@ function loadState() {
                                 p.accessories[accKey].bonuses = sa.bonuses.filter(function(k) { return validKeys.indexOf(k) !== -1; }).slice(0, maxB);
                             }
                         }
+                        if (sa.bonusValues) {
+                            var statsTypeBV = ACC_STATS_TYPE[accKey];
+                            var setDataBV = ACCESSORY_STATS[p.accessories[accKey].set];
+                            if (setDataBV && setDataBV[statsTypeBV] && setDataBV[statsTypeBV].bonuses) {
+                                restoreBonusValues(p.accessories[accKey].bonusValues, sa.bonusValues, setDataBV[statsTypeBV].bonuses);
+                            }
+                        }
                     }
                 });
             }
@@ -249,12 +304,42 @@ function loadState() {
                 var relicLvl = Math.max(1, Math.min(300, saved.relic.level));
                 p.relic.level = relicLvl;
             }
+            // Restore glyph state
+            if (saved.glyph && typeof saved.glyph === 'object') {
+                if (typeof saved.glyph.enabled === 'boolean') {
+                    p.glyph.enabled = saved.glyph.enabled;
+                }
+                if (Array.isArray(saved.glyph.bonuses) && saved.glyph.bonuses.length > 0) {
+                    var glyphBonusKeys = ACC_BONUSES_GLYPH.map(function(b) { return b.key; });
+                    var validGlyphBonuses = saved.glyph.bonuses.filter(function(k) { return glyphBonusKeys.indexOf(k) !== -1; });
+                    if (validGlyphBonuses.length > 0) p.glyph.bonuses = validGlyphBonuses;
+                }
+                if (saved.glyph.extra && typeof saved.glyph.extra === 'object') {
+                    ['attack', 'physicalDef', 'magicalDef'].forEach(function(stat) {
+                        if (typeof saved.glyph.extra[stat] === 'number') {
+                            p.glyph.extra[stat] = Math.max(0, Math.min(250, saved.glyph.extra[stat]));
+                        }
+                    });
+                }
+                // Restore glyph bonusValues
+                restoreBonusValues(p.glyph.bonusValues, saved.glyph.bonusValues, ACC_BONUSES_GLYPH);
+            }
             // Restore skill buff toggles
             if (saved.skillBuffs && typeof saved.skillBuffs === 'object') {
                 var validKeys = getSkillBuffsForClass(selectedClass).map(function(b) { return b.key; });
                 validKeys.forEach(function(k) {
                     if (typeof saved.skillBuffs[k] === 'boolean') {
                         p.skillBuffs[k] = saved.skillBuffs[k];
+                    }
+                });
+            }
+            // Restore skill buff enchant levels
+            if (saved.skillBuffEnchants && typeof saved.skillBuffEnchants === 'object') {
+                var enchBuffs = getSkillBuffsForClass(selectedClass).filter(function(b) { return !!b.enchant; });
+                enchBuffs.forEach(function(b) {
+                    var val = saved.skillBuffEnchants[b.key];
+                    if (typeof val === 'number' && val >= 0 && val <= b.enchant.maxLevel) {
+                        p.skillBuffEnchants[b.key] = val;
                     }
                 });
             }

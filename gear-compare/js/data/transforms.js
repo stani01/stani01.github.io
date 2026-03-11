@@ -17,14 +17,14 @@ var TRANSFORM_STAT_DEFS = [
     { key: 'healingBoost',  name: 'Healing Boost',   unit: '',   display: false },
     { key: 'pvpAttack',     name: 'Add. PvP Atk',   unit: '',   display: false },
     { key: 'pveAttack',     name: 'Add. PvE Atk',   unit: '',   display: false },
-    { key: 'pvpDefense',    name: 'Add. PvP Def',   unit: '',   display: false },
-    { key: 'pveDefense',    name: 'Add. PvE Def',   unit: '',   display: false },
+    { key: 'pvpDefence',    name: 'Add. PvP Def',   unit: '',   display: false },
+    { key: 'pveDefence',    name: 'Add. PvE Def',   unit: '',   display: false },
     { key: 'magicResist',   name: 'Magic Resist',   unit: '',   display: false },
     { key: 'evasion',       name: 'Evasion',        unit: '',   display: false }
 ];
 
 // Physical classes use accuracy + critStrike; magical classes use magicAccuracy + critSpell
-var PHYSICAL_CLASSES = ['gladiator', 'templar', 'assassin', 'ranger', 'chanter'];
+var PHYSICAL_CLASSES = ['gladiator', 'templar', 'assassin', 'ranger', 'chanter', 'painter'];
 function isPhysicalClass(cls) { return PHYSICAL_CLASSES.indexOf(cls) !== -1; }
 
 
@@ -56,88 +56,88 @@ var TRANSFORMS = [
         attackSpeed: 60, castSpeed: 45, moveSpeed: 100,
         accuracy: [378, 19], magicAccuracy: [378, 19], critStrike: [331, 17], critSpell: [331, 17],
         healingBoost: [80, 4], pvpAttack: [236, 12], pveAttack: [236, 12],
-        pvpDefense: [241, 12], pveDefense: [241, 12]
+        pvpDefence: [241, 12], pveDefence: [241, 12]
     }},
     { key: 'marchutan', id: 982074, name: 'Marchutan', grade: 'ultimate', icon: '../assets/icons/trans_finality_marchutan.png', stats: {
         attackSpeed: 50, castSpeed: 55, moveSpeed: 100,
         accuracy: [378, 19], magicAccuracy: [378, 19], critStrike: [331, 17], critSpell: [331, 17],
         healingBoost: [80, 4], pvpAttack: [236, 12], pveAttack: [236, 12],
-        pvpDefense: [241, 12], pveDefense: [241, 12]
+        pvpDefence: [241, 12], pveDefence: [241, 12]
     }},
     { key: 'ereshkigal', id: 982094, name: 'Ereshkigal', grade: 'ultimate', icon: '../assets/icons/trans_finality_eresh.png', stats: {
         attackSpeed: 55, castSpeed: 50, moveSpeed: 100,
         accuracy: [378, 19], magicAccuracy: [378, 19], critStrike: [331, 17], critSpell: [331, 17],
         healingBoost: [80, 4], pvpAttack: [472, 24], pveAttack: [180, 9],
-        pveDefense: [180, 9]
+        pveDefence: [180, 9]
     }},
     { key: 'tiamat', id: 982095, name: 'Tiamat', grade: 'ultimate', icon: '../assets/icons/trans_finality_tiamat.png', stats: {
         attackSpeed: 55, castSpeed: 50, moveSpeed: 100,
         accuracy: [378, 19], magicAccuracy: [378, 19], critStrike: [331, 17], critSpell: [331, 17],
         healingBoost: [80, 4], pvpAttack: [180, 9], pveAttack: [472, 24],
-        pvpDefense: [180, 9]
+        pvpDefence: [180, 9]
     }},
     { key: 'nezekan', id: 982107, name: 'Nezekan', grade: 'ultimate', icon: '../assets/icons/trans_finality_nejakan.png', stats: {
         attackSpeed: 50, castSpeed: 55, moveSpeed: 100,
         critStrike: [331, 17], critSpell: [331, 17],
         healingBoost: [80, 4], hp: [4400, 220], magicResist: [341, 17],
         pvpAttack: [236, 11], pveAttack: [236, 11],
-        pvpDefense: [241, 12], pveDefense: [241, 12]
+        pvpDefence: [241, 12], pveDefence: [241, 12]
     }},
     { key: 'zikel', id: 982108, name: 'Zikel', grade: 'ultimate', icon: '../assets/icons/trans_finality_zikel.png', stats: {
         attackSpeed: 60, castSpeed: 45, moveSpeed: 100,
         critStrike: [420, 21], critSpell: [420, 21],
         healingBoost: [80, 4], pvpAttack: [236, 11], pveAttack: [236, 11],
-        pvpDefense: [241, 12], pveDefense: [241, 12]
+        pvpDefence: [241, 12], pveDefence: [241, 12]
     }},
     { key: 'lumiel', id: 982110, name: 'Lumiel', grade: 'ultimate', icon: '../assets/icons/trans_finality_lumiel.png', stats: {
         attackSpeed: 50, castSpeed: 55, moveSpeed: 100,
         accuracy: [378, 19], magicAccuracy: [520, 26], critStrike: [420, 21], critSpell: [420, 21],
         healingBoost: [80, 4], pvpAttack: [620, 31], pveAttack: [420, 21],
-        pvpDefense: [170, 9], pveDefense: [170, 9]
+        pvpDefence: [170, 9], pveDefence: [170, 9]
     }},
     { key: 'yustiel', id: 982111, name: 'Yustiel', grade: 'ultimate', icon: '../assets/icons/trans_finality_yustiel.png', stats: {
         attackSpeed: 55, castSpeed: 50, moveSpeed: 100,
         accuracy: [520, 26], magicAccuracy: [378, 19], critStrike: [420, 21], critSpell: [420, 21],
         healingBoost: [90, 5], pvpAttack: [620, 31], pveAttack: [420, 21],
-        pvpDefense: [170, 9], pveDefense: [170, 9]
+        pvpDefence: [170, 9], pveDefence: [170, 9]
     }},
     { key: 'vaizel', id: 982112, name: 'Vaizel', grade: 'ultimate', icon: '../assets/icons/trans_finality_vaizel.png', stats: {
         attackSpeed: 55, castSpeed: 50, moveSpeed: 100,
         accuracy: [361, 19], critStrike: [350, 18], critSpell: [330, 17],
         pvpAttack: [378, 19], pveAttack: [189, 10],
-        pvpDefense: [217, 11], pveDefense: [193, 10],
+        pvpDefence: [217, 11], pveDefence: [193, 10],
         evasion: [352, 18], magicResist: [341, 18]
     }},
     { key: 'triniel', id: 982113, name: 'Triniel', grade: 'ultimate', icon: '../assets/icons/trans_finality_triniel.png', stats: {
         attackSpeed: 55, castSpeed: 50, moveSpeed: 100,
         magicAccuracy: [361, 19], critStrike: [330, 17], critSpell: [350, 18],
         pvpAttack: [378, 19], pveAttack: [189, 10],
-        pvpDefense: [217, 11], pveDefense: [193, 10],
+        pvpDefence: [217, 11], pveDefence: [193, 10],
         evasion: [341, 18], magicResist: [352, 18]
     }},
     { key: 'ariel', id: 982114, name: 'Ariel', grade: 'ultimate', icon: '../assets/icons/trans_finality_ariel.png', stats: {
         attackSpeed: 60, castSpeed: 55, moveSpeed: 100,
         accuracy: [378, 19], magicAccuracy: [413, 21], critStrike: [365, 19], critSpell: [415, 21],
         healingBoost: [82, 4], pvpAttack: [420, 21], pveAttack: [620, 31],
-        pvpDefense: [217, 11], pveDefense: [217, 11]
+        pvpDefence: [217, 11], pveDefence: [217, 11]
     }},
     { key: 'azphel', id: 982115, name: 'Azphel', grade: 'ultimate', icon: '../assets/icons/trans_finality_azphel.png', stats: {
         attackSpeed: 60, castSpeed: 55, moveSpeed: 100,
         accuracy: [413, 21], magicAccuracy: [378, 19], critStrike: [415, 21], critSpell: [365, 19],
         healingBoost: [82, 4], pvpAttack: [420, 21], pveAttack: [620, 31],
-        pvpDefense: [217, 11], pveDefense: [217, 11]
+        pvpDefence: [217, 11], pveDefence: [217, 11]
     }},
     { key: 'firedragon', id: 982148, name: 'Fire Dragon King', grade: 'ultimate', icon: '../assets/icons/trans_finality_firedragon.png', stats: {
         attackSpeed: 60, castSpeed: 55, moveSpeed: 100,
         accuracy: [520, 26], magicAccuracy: [520, 26], critStrike: [420, 21], critSpell: [420, 21],
         healingBoost: [90, 5], pvpAttack: [620, 31], pveAttack: [620, 31],
-        pvpDefense: [241, 12], pveDefense: [241, 12]
+        pvpDefence: [241, 12], pveDefence: [241, 12]
     }},
     { key: 'darkdragon', id: 982149, name: 'Dark Dragon King', grade: 'ultimate', icon: '../assets/icons/trans_finality_darkdragon.png', stats: {
         attackSpeed: 60, castSpeed: 55, moveSpeed: 100,
         accuracy: [520, 26], magicAccuracy: [520, 26], critStrike: [420, 21], critSpell: [420, 21],
         healingBoost: [90, 5], pvpAttack: [620, 31], pveAttack: [620, 31],
-        pvpDefense: [241, 12], pveDefense: [241, 12]
+        pvpDefence: [241, 12], pveDefence: [241, 12]
     }},
 
     // ── Legendary (stats TBD) ──
@@ -279,8 +279,8 @@ function getTransformComparisonStats(transformKey, className, enchantLevel) {
     out.healingBoost = tfStatVal(s.healingBoost, e);
     out.pvpAttack    = tfStatVal(s.pvpAttack, e);
     out.pveAttack    = tfStatVal(s.pveAttack, e);
-    out.pvpDefense   = tfStatVal(s.pvpDefense, e);
-    out.pveDefense   = tfStatVal(s.pveDefense, e);
+    out.pvpDefence   = tfStatVal(s.pvpDefence, e);
+    out.pveDefence   = tfStatVal(s.pveDefence, e);
     out.magicResist  = tfStatVal(s.magicResist, e);
     out.evasion      = tfStatVal(s.evasion, e);
     return out;
@@ -295,7 +295,7 @@ function getMinionStats(m1Key, m2Key) {
         accuracy: 530, 
         crit: 480, 
         pveAttack: 0, pvpAttack: 0, 
-        pveDefense: 0, pvpDefense: 0, 
+        pveDefence: 0, pvpDefence: 0, 
         healingBoost: 0, 
         evasion: 0, magicResist: 0 
     };
@@ -331,8 +331,8 @@ function getMinionStats(m1Key, m2Key) {
             if (m1.variant === m2.variant) {
                 stats[m1.variant + 'Defense'] += 380;
             } else {
-                stats.pveDefense += 190;
-                stats.pvpDefense += 190;
+                stats.pveDefence += 190;
+                stats.pvpDefence += 190;
             }
         } else {
             // Solo: Only Main is Hyperion

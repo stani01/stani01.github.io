@@ -238,6 +238,72 @@ function encodeShareString() {
 
         // ── Glyph enabled (1 byte) ──
         w.u8((p.glyph && p.glyph.enabled === false) ? 0 : 1);
+
+        // ── Skill Enchant Levels ──
+        var sbe = p.skillBuffEnchants || {};
+        w.u8(GC_ENCHANTABLE_KEYS.length);
+        GC_ENCHANTABLE_KEYS.forEach(function(k) {
+            w.u8(sbe[k] || 0);
+        });
+
+        // ── Bonus Values (u16 per selected bonus, in definition order) ──
+        // Armor × 6
+        SH_ASLOTS.forEach(function(sk) {
+            var a = p.armor[sk];
+            var isHighBV = (sk === 'helmet' || sk === 'chest' || sk === 'pants');
+            var bvList = isHighBV ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+            bvList.forEach(function(b) {
+                if (a.bonuses && a.bonuses.indexOf(b.key) !== -1) {
+                    var bv = (a.bonusValues && typeof a.bonusValues[b.key] === 'number') ? a.bonusValues[b.key] : b.value;
+                    w.u16(clamp(bv, 0, b.value));
+                }
+            });
+        });
+        // Main weapon
+        var mwBonusDefs = (WEAPON_STATS_FIXED[p.mainWeapon.set] || {}).bonuses || [];
+        mwBonusDefs.forEach(function(b) {
+            if (p.mainWeapon.bonuses && p.mainWeapon.bonuses.indexOf(b.key) !== -1) {
+                var bv = (p.mainWeapon.bonusValues && typeof p.mainWeapon.bonusValues[b.key] === 'number') ? p.mainWeapon.bonusValues[b.key] : b.value;
+                w.u16(clamp(bv, 0, b.value));
+            }
+        });
+        // Off-hand
+        var ohBonusDefs = (WEAPON_STATS_FIXED[p.offHand.set] || {}).bonuses || [];
+        ohBonusDefs.forEach(function(b) {
+            if (p.offHand.bonuses && p.offHand.bonuses.indexOf(b.key) !== -1) {
+                var bv = (p.offHand.bonusValues && typeof p.offHand.bonusValues[b.key] === 'number') ? p.offHand.bonusValues[b.key] : b.value;
+                w.u16(clamp(bv, 0, b.value));
+            }
+        });
+        // Shield
+        var shBonusDefsEnc = shData ? shData.bonuses[shTypeKey] : [];
+        shBonusDefsEnc.forEach(function(b) {
+            if (sh.bonuses && sh.bonuses.indexOf(b.key) !== -1) {
+                var bv = (sh.bonusValues && typeof sh.bonusValues[b.key] === 'number') ? sh.bonusValues[b.key] : b.value;
+                w.u16(clamp(bv, 0, b.value));
+            }
+        });
+        // Accessories × 9
+        ALL_ACCESSORY_KEYS.forEach(function(accKey) {
+            var accBV = p.accessories[accKey];
+            var stBV = ACC_STATS_TYPE[accKey];
+            var sdBV = ACCESSORY_STATS[accBV.set];
+            var slBV = sdBV ? sdBV[stBV] : null;
+            var blBV = (slBV && slBV.bonuses) ? slBV.bonuses : [];
+            blBV.forEach(function(b) {
+                if (accBV.bonuses && accBV.bonuses.indexOf(b.key) !== -1) {
+                    var bv = (accBV.bonusValues && typeof accBV.bonusValues[b.key] === 'number') ? accBV.bonusValues[b.key] : b.value;
+                    w.u16(clamp(bv, 0, b.value));
+                }
+            });
+        });
+        // Glyph
+        var glyphBK = (glyph.bonuses && glyph.bonuses[0]) || 'attack';
+        var glyphBDef = ACC_BONUSES_GLYPH.find(function(b) { return b.key === glyphBK; });
+        if (glyphBDef) {
+            var gbv = (glyph.bonusValues && typeof glyph.bonusValues[glyphBK] === 'number') ? glyph.bonusValues[glyphBK] : glyphBDef.value;
+            w.u16(clamp(gbv, 0, glyphBDef.value));
+        }
     });
 
     return '4.' + w.toBase64();
@@ -377,6 +443,7 @@ function decodeShareV4(b64) {
         // ── Glyph ──
         p.glyph = {
             bonuses: [val(SH_GLYPH_BONUSES, r.u8())],
+            bonusValues: {},
             extra: {
                 attack:      clamp(r.u8(), 0, 250),
                 physicalDef: clamp(r.u8(), 0, 250),
@@ -431,6 +498,83 @@ function decodeShareV4(b64) {
         // ── Glyph enabled (1 byte, added after skill buffs) ──
         if (r.remaining() > 0) {
             p.glyph.enabled = (r.u8() !== 0);
+        }
+
+        // ── Skill Enchant Levels ──
+        p.skillBuffEnchants = {};
+        // Initialize defaults for all enchantable skills in this class
+        allBuffs.forEach(function(buff) {
+            if (buff.enchant) {
+                p.skillBuffEnchants[buff.key] = buff.enchant.defaultLevel;
+            }
+        });
+        // Overwrite with encoded values if present
+        if (r.remaining() > 0) {
+            var enchCount = r.u8();
+            for (var ei = 0; ei < enchCount; ei++) {
+                var enchLvl = r.u8();
+                if (ei < GC_ENCHANTABLE_KEYS.length) {
+                    p.skillBuffEnchants[GC_ENCHANTABLE_KEYS[ei]] = enchLvl;
+                }
+            }
+        }
+
+        // ── Bonus Values (u16 per selected bonus, in definition order) ──
+        if (r.remaining() > 0) {
+            // Armor × 6
+            SH_ASLOTS.forEach(function(sk) {
+                var isHighD = (sk === 'helmet' || sk === 'chest' || sk === 'pants');
+                var bvListD = isHighD ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+                p.armor[sk].bonusValues = {};
+                bvListD.forEach(function(b) {
+                    if (p.armor[sk].bonuses && p.armor[sk].bonuses.indexOf(b.key) !== -1) {
+                        p.armor[sk].bonusValues[b.key] = clamp(r.u16(), 0, b.value);
+                    }
+                });
+            });
+            // Main weapon
+            var mwBDefsD = (WEAPON_STATS_FIXED[p.mainWeapon.set] || {}).bonuses || [];
+            p.mainWeapon.bonusValues = {};
+            mwBDefsD.forEach(function(b) {
+                if (p.mainWeapon.bonuses && p.mainWeapon.bonuses.indexOf(b.key) !== -1) {
+                    p.mainWeapon.bonusValues[b.key] = clamp(r.u16(), 0, b.value);
+                }
+            });
+            // Off-hand
+            var ohBDefsD = (WEAPON_STATS_FIXED[p.offHand.set] || {}).bonuses || [];
+            p.offHand.bonusValues = {};
+            ohBDefsD.forEach(function(b) {
+                if (p.offHand.bonuses && p.offHand.bonuses.indexOf(b.key) !== -1) {
+                    p.offHand.bonusValues[b.key] = clamp(r.u16(), 0, b.value);
+                }
+            });
+            // Shield
+            var shBDefsD = shData ? shData.bonuses[typeKey] : [];
+            p.shield.bonusValues = {};
+            shBDefsD.forEach(function(b) {
+                if (p.shield.bonuses && p.shield.bonuses.indexOf(b.key) !== -1) {
+                    p.shield.bonusValues[b.key] = clamp(r.u16(), 0, b.value);
+                }
+            });
+            // Accessories × 9
+            ALL_ACCESSORY_KEYS.forEach(function(accKey) {
+                var stD = ACC_STATS_TYPE[accKey];
+                var sdD = ACCESSORY_STATS[p.accessories[accKey].set];
+                var slD = sdD ? sdD[stD] : null;
+                var blD = (slD && slD.bonuses) ? slD.bonuses : [];
+                p.accessories[accKey].bonusValues = {};
+                blD.forEach(function(b) {
+                    if (p.accessories[accKey].bonuses && p.accessories[accKey].bonuses.indexOf(b.key) !== -1) {
+                        p.accessories[accKey].bonusValues[b.key] = clamp(r.u16(), 0, b.value);
+                    }
+                });
+            });
+            // Glyph
+            var glyphBKD = p.glyph.bonuses[0];
+            var glyphBDefD = ACC_BONUSES_GLYPH.find(function(b) { return b.key === glyphBKD; });
+            if (glyphBDefD) {
+                p.glyph.bonusValues[glyphBKD] = clamp(r.u16(), 0, glyphBDefD.value);
+            }
         }
 
         state[id] = p;

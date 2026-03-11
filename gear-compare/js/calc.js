@@ -60,14 +60,14 @@ function calculateDetailedStats(profileId) {
     // Sum armor stats across all 6 slots
     ARMOR_SLOTS.forEach(function(slot) {
         var piece = profile.armor[slot.key];
-        var armorStats = getArmorSlotStats(profile.armorType, piece.set, slot.key, piece.enchant, piece.bonuses);
+        var armorStats = getArmorSlotStats(profile.armorType, piece.set, slot.key, piece.enchant, piece.bonuses, piece.bonusValues);
         STAT_KEYS.forEach(function(k) { sources.armor[k] += (armorStats[k] || 0); });
     });
 
     // ── Weapon stats (base/bonus/enchant split) ──
     var mwSet = profile.mainWeapon.set;
     var mwType = weaponConfig.mainType;
-    var mainParts = getWeaponParts(mwSet, mwType, profile.mainWeapon.enchant, profile.mainWeapon.bonuses);
+    var mainParts = getWeaponParts(mwSet, mwType, profile.mainWeapon.enchant, profile.mainWeapon.bonuses, profile.mainWeapon.bonusValues);
     var ohType = getEffectiveOffHandType(profile);
     var ohSet = profile.offHand.set;
 
@@ -81,18 +81,18 @@ function calculateDetailedStats(profileId) {
             sources.weapons[k] += mainParts.base[k] + mainParts.bonus[k] + mainParts.enchant[k];
         });
         var sh = profile.shield;
-        var sStats = getShieldStats(sh.set, sh.type, sh.bonuses, isPhysicalClass(selectedClass));
+        var sStats = getShieldStats(sh.set, sh.type, sh.bonuses, isPhysicalClass(selectedClass), sh.bonusValues);
         STAT_KEYS.forEach(function(k) { sources.weapons[k] += (sStats[k] || 0); });
 
     } else if (ohType === 'fuse') {
-        var fuseParts = getWeaponParts(ohSet, mwType, profile.offHand.enchant, profile.offHand.bonuses);
+        var fuseParts = getWeaponParts(ohSet, mwType, profile.offHand.enchant, profile.offHand.bonuses, profile.offHand.bonusValues);
         STAT_KEYS.forEach(function(k) {
             sources.weapons[k] += mainParts.base[k] + mainParts.bonus[k] + mainParts.enchant[k] + fuseParts.bonus[k];
         });
         sources.weapons.attack += Math.floor(fuseParts.baseAtk / 10);
 
     } else if (ohType === 'weapon') {
-        var ohParts = getWeaponParts(ohSet, weaponConfig.offHandWeaponType, profile.offHand.enchant, profile.offHand.bonuses);
+        var ohParts = getWeaponParts(ohSet, weaponConfig.offHandWeaponType, profile.offHand.enchant, profile.offHand.bonuses, profile.offHand.bonusValues);
         if (selectedClass === 'gunner') {
             STAT_KEYS.forEach(function(k) { sources.weapons[k] += mainParts.base[k]; });
         } else {
@@ -172,7 +172,10 @@ function calculateDetailedStats(profileId) {
         if (slotData.bonuses && acc.bonuses) {
             acc.bonuses.forEach(function(bk) {
                 var b = slotData.bonuses.find(function(x) { return x.key === bk; });
-                if (b) sources.accessories[b.stat] += b.value;
+                if (b) {
+                    var bv = (acc.bonusValues && typeof acc.bonusValues[bk] === 'number') ? acc.bonusValues[bk] : b.value;
+                    sources.accessories[b.stat] += bv;
+                }
             });
         }
     });
@@ -197,7 +200,10 @@ function calculateDetailedStats(profileId) {
         // Apply selected bonus
         if (glyph.bonuses && glyph.bonuses.length) {
             var b = ACC_BONUSES_GLYPH.find(function(x) { return x.key === glyph.bonuses[0]; });
-            if (b) sources.glyph[b.stat] += b.value;
+            if (b) {
+                var bv = (glyph.bonusValues && typeof glyph.bonusValues[glyph.bonuses[0]] === 'number') ? glyph.bonusValues[glyph.bonuses[0]] : b.value;
+                sources.glyph[b.stat] += bv;
+            }
         }
         // Apply extra stats
         if (glyph.extra) {
@@ -310,6 +316,7 @@ function calculateDetailedStats(profileId) {
 
     // ── Skill Buff stats ──
     var sb = profile.skillBuffs || {};
+    var sbe = profile.skillBuffEnchants || {};
     var allBuffs = getSkillBuffsForClass(selectedClass);
     var doubleMinionBuff = sb['joltingStrike'] && sb['soulWave'];
     allBuffs.forEach(function(buff) {
@@ -318,6 +325,14 @@ function calculateDetailedStats(profileId) {
         STAT_KEYS.forEach(function(k) {
             if (buff.stats[k]) sources.skillBuffs[k] += buff.stats[k];
         });
+        // Apply enchant bonus on top of base stats
+        if (buff.enchant) {
+            var enchLevel = typeof sbe[buff.key] === 'number' ? sbe[buff.key] : buff.enchant.defaultLevel;
+            var enchBonus = enchLevel * buff.enchant.perLevel;
+            if (STAT_KEYS.indexOf(buff.enchant.stat) !== -1) {
+                sources.skillBuffs[buff.enchant.stat] += enchBonus;
+            }
+        }
         if (doubleMinionBuff) {
             sources.skillBuffs.pvpAttack -= 150;
             sources.skillBuffs.pveAttack -= 150;
@@ -329,6 +344,14 @@ function calculateDetailedStats(profileId) {
     var srcKeys = Object.keys(sources);
     STAT_KEYS.forEach(function(k) {
         srcKeys.forEach(function(sk) { totals[k] += sources[sk][k]; });
+    });
+
+    // ── Post-processing: percentage modifiers from skill buffs ──
+    allBuffs.forEach(function(buff) {
+        if (!sb[buff.key] || !buff.stats) return;
+        if (buff.stats.physicalDefPercentRed) {
+            totals.physicalDef -= Math.floor(totals.physicalDef * buff.stats.physicalDefPercentRed / 100);
+        }
     });
 
     return { totals: totals, sources: sources };
