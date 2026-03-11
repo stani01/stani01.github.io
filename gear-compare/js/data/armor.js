@@ -99,6 +99,9 @@ var PRES_ENCHANT = {
 function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBonuses) {
     var s = emptyStats();
 
+    // No armor equipped — return zero stats
+    if (setKey === 'none') return s;
+
     if (setKey === 'fighting-spirit') {
         var tier = FS_TIER[slotKey];
         var def = FS_DEF[armorType];

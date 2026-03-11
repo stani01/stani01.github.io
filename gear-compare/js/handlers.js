@@ -554,20 +554,32 @@ window.GC = {
         if (slotType === 'main-weapon') {
             state[pid].mainWeapon.set = setKey;
             state[pid].mainWeapon.bonuses = getDefaultWeaponBonuses(setKey);
+            if (setKey === 'none') {
+                delete state[pid].mainWeapon.enchant;
+            }
             bc.mainWeapon = false;
         } else if (slotType === 'off-weapon') {
             state[pid].offHand.set = setKey;
             state[pid].offHand.bonuses = getDefaultWeaponBonuses(setKey);
+            if (setKey === 'none') {
+                delete state[pid].offHand.enchant;
+            }
             bc.offHand = false;
         } else if (slotType === 'shield') {
             state[pid].shield.set = setKey;
-            // Reset bonuses when changing shield set (different max)
-            state[pid].shield.bonuses = getDefaultShieldBonuses(setKey, state[pid].shield.type === 'scale' ? 'scale' : 'battle');
+            if (setKey === 'none') {
+                state[pid].shield.bonuses = [];
+            } else {
+                state[pid].shield.bonuses = getDefaultShieldBonuses(setKey, state[pid].shield.type === 'scale' ? 'scale' : 'battle');
+            }
             bc.shield = false;
         } else if (slotType.indexOf('armor:') === 0) {
             var slotKey = slotType.substring(6);
             state[pid].armor[slotKey].set = setKey;
-            if (setKey === 'fighting-spirit') {
+            if (setKey === 'none') {
+                state[pid].armor[slotKey].bonuses = [];
+                delete state[pid].armor[slotKey].enchant;
+            } else if (setKey === 'fighting-spirit') {
                 state[pid].armor[slotKey].bonuses = getDefaultArmorBonuses(slotKey);
                 delete state[pid].armor[slotKey].enchant;
             } else {
@@ -1178,6 +1190,13 @@ window.GC = {
         var acc = state[pid].glyph;
         if (!acc.extra) acc.extra = { attack: 0, physicalDef: 0, magicalDef: 0 };
         acc.extra[stat] = Math.max(0, Math.min(250, parseInt(val) || 0));
+        updateComparison();
+        saveState();
+    },
+    toggleGlyph: function(pid) {
+        var glyph = state[pid].glyph;
+        glyph.enabled = (glyph.enabled === false) ? true : false;
+        renderProfile(pid);
         updateComparison();
         saveState();
     },

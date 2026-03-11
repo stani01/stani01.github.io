@@ -25,6 +25,7 @@ function createDefaultProfile(className) {
         bonusCollapsed: { mainWeapon: false, offHand: false, shield: false },
         accessories: {},
         glyph: {
+            enabled: true,
             bonuses: ['attack'], 
             extra: {
                 attack: 210,      // Enchant Attack

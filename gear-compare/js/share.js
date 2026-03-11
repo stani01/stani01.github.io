@@ -14,12 +14,12 @@
 var SH_CLASSES       = ['gladiator','templar','assassin','ranger','sorcerer','spiritmaster','cleric','chanter','aethertech','gunner','bard','painter'];
 var SH_WTYPES        = ['dagger','sword','mace','revolver','greatsword','polearm','bow','staff','paintRings','orb','spellbook','aetherKey','cannon','harp'];
 var SH_OHTYPES       = ['none','shield','fuse','weapon'];
-var SH_SHIELDSETS    = ['spiked-ciclonica','fighting-spirit','salvation','spiked','ciclonica'];
+var SH_SHIELDSETS    = ['spiked-ciclonica','fighting-spirit','salvation','spiked','ciclonica','none'];
 var SH_SHIELDTYPES   = ['battle','scale'];
-var SH_ACCSETS       = ['aeon-guardian','burning-altar','starshine'];
+var SH_ACCSETS       = ['aeon-guardian','burning-altar','starshine','none'];
 var SH_ATYPES        = ARMOR_TYPE_OPTIONS.map(function(o) { return o.key; });
-var SH_ASETS         = ['fighting-spirit','acrimony','presumption'];
-var SH_WSETS         = ['spiked-helper','salvation','fighting-spirit','jorgoth-t4-v1','jorgoth-t4-v2','jorgoth-t4-v3','jorgoth-t3-v1','jorgoth-t3-v2','jorgoth-t3-v3','acrimony','presumption','vision','spiked','ciclonica-helper'];
+var SH_ASETS         = ['fighting-spirit','acrimony','presumption','none'];
+var SH_WSETS         = ['spiked-helper','salvation','fighting-spirit','jorgoth-t4-v1','jorgoth-t4-v2','jorgoth-t4-v3','jorgoth-t3-v1','jorgoth-t3-v2','jorgoth-t3-v3','acrimony','presumption','vision','spiked','ciclonica-helper','none'];
 var SH_OATHS         = ['none','silent-skill','legendary-1','legendary-2','legendary-3','ultimate-1','ultimate-2','ultimate-3'];
 var SH_MANAS         = ['none','attack','crit','accuracy','hp','evasion','healBoost','pdef','mdef','magicResist','block','parry'];
 var SH_ASLOTS        = ['helmet','shoulders','chest','pants','gloves','boots'];
@@ -87,6 +87,7 @@ function ByteReader(b64) {
 }
 ByteReader.prototype.u8 = function() { return this.buf[this.pos++] || 0; };
 ByteReader.prototype.u16 = function() { return (this.u8() << 8) | this.u8(); };
+ByteReader.prototype.remaining = function() { return this.buf.length - this.pos; };
 ByteReader.prototype.nibbles = function(count) {
     var out = [];
     for (var i = 0; i < count; i += 2) {
@@ -234,6 +235,9 @@ function encodeShareString() {
             sbArr.push(!!sbState[k]);
         });
         w.bools(sbArr, GC_SKILL_KEYS.length);
+
+        // ── Glyph enabled (1 byte) ──
+        w.u8((p.glyph && p.glyph.enabled === false) ? 0 : 1);
     });
 
     return '4.' + w.toBase64();
@@ -377,7 +381,8 @@ function decodeShareV4(b64) {
                 attack:      clamp(r.u8(), 0, 250),
                 physicalDef: clamp(r.u8(), 0, 250),
                 magicalDef:  clamp(r.u8(), 0, 250)
-            }
+            },
+            enabled: true
         };
 
         // ── Owned Forms ──
@@ -421,6 +426,11 @@ function decodeShareV4(b64) {
             for (var si = 0; si < GC_SKILL_KEYS.length; si++) {
                 p.skillBuffs[GC_SKILL_KEYS[si]] = sbBools[si];
             }
+        }
+
+        // ── Glyph enabled (1 byte, added after skill buffs) ──
+        if (r.remaining() > 0) {
+            p.glyph.enabled = (r.u8() !== 0);
         }
 
         state[id] = p;

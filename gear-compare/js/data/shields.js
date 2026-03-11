@@ -2,6 +2,7 @@
 
 
 var SHIELD_SETS = [
+    { key: 'none',             name: 'None' },
     { key: 'spiked',          name: 'Spiked (PvP)' },
     { key: 'ciclonica',       name: 'Ciclonica (PvE)' },
     { key: 'fighting-spirit',  name: 'Fighting Spirit' },
@@ -158,6 +159,7 @@ var SHIELD_STATS = {
 //   scale shield  → attack/crit/accuracy are magical; if class is physical → zero them
 function getShieldStats(shieldSet, shieldType, selectedBonuses, classPhysical) {
     var stats = emptyStats();
+    if (shieldSet === 'none') return stats;
     var data = SHIELD_STATS[shieldSet];
     if (!data) return stats;
 
@@ -208,6 +210,7 @@ function getShieldStats(shieldSet, shieldType, selectedBonuses, classPhysical) {
 
 // Get default shield bonuses (first N from the list)
 function getDefaultShieldBonuses(setKey, typeKey) {
+    if (setKey === 'none') return [];
     var data = SHIELD_STATS[setKey];
     if (!data) return [];
     var bonusList = data.bonuses[typeKey] || [];
@@ -215,12 +218,14 @@ function getDefaultShieldBonuses(setKey, typeKey) {
 }
 
 function getDefaultWeaponBonuses(setKey) {
+    if (setKey === 'none') return [];
     var fixed = WEAPON_STATS_FIXED[setKey];
     if (!fixed || !fixed.bonuses) return [];
     return fixed.bonuses.slice(0, fixed.maxBonuses).map(function(b) { return b.key; });
 }
 
 function getDefaultAccBonuses(setKey, slotKey) {
+    if (setKey === 'none') return [];
     var statsType = ACC_STATS_TYPE[slotKey] || slotKey;
     var setData = ACCESSORY_STATS[setKey];
     if (!setData) return [];

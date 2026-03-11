@@ -396,6 +396,7 @@ function getWeaponStats(setKey, weaponType, enchantLevel) {
 //   baseAtk = raw base attack value (used for fuse 10% calculation)
 function getWeaponParts(setKey, weaponType, enchantLevel, selectedBonuses) {
     var base = emptyStats(), bonus = emptyStats(), enchant = emptyStats();
+    if (setKey === 'none') return { baseAtk: 0, base: base, bonus: bonus, enchant: enchant };
     var is2H = WEAPON_TYPES[weaponType].twoHanded;
 
     // Fixed-stat sets (spiked, ciclonica-helper, fighting-spirit, vision, salvation)

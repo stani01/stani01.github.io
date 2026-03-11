@@ -1606,6 +1606,21 @@
     opacity: 0.3;
 }
 
+/* ── None (empty) armor slot ── */
+.gc-slot-icon-none {
+    opacity: 0.35;
+}
+.gc-slot-icon-none img {
+    filter: grayscale(1);
+}
+.gc-mana-gear-row-none {
+    opacity: 0.45;
+}
+.gc-mana-slot-none {
+    color: var(--text-dim);
+    font-style: italic;
+}
+
 .gc-wc-title {
     font-size: 1.1em;
     font-weight: 600;

@@ -20,6 +20,7 @@ var ACCESSORY_SLOTS_LOWER_R = [
 var ALL_ACCESSORY_KEYS = ['feather','wings','bracelet','earring1','necklace','ring1','earring2','belt','ring2'];
 
 var ACCESSORY_SETS = [
+    { key: 'none', name: 'None' },
     { key: 'aeon-guardian', name: 'Aeon Guardian' },
     { key: 'burning-altar', name: 'Burning Altar' },
     { key: 'starshine', name: 'Starshine' }

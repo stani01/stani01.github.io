@@ -117,12 +117,16 @@ var ARMOR_TYPE_OPTIONS = [
 ];
 
 var ARMOR_SETS = [
+    { key: 'none',            name: 'None' },
     { key: 'fighting-spirit', name: 'Fighting Spirit' },
     { key: 'acrimony',        name: 'Acrimony' },
     { key: 'presumption',     name: 'Presumption' }
 ];
 
+var EMPTY_ARMOR_ICON = '../assets/icons/icon_empty_slot.svg';
+
 var WEAPON_SETS = [
+    { key: 'none',            name: 'None' },
     { key: 'acrimony',        name: 'Acrimony' },
     { key: 'presumption',     name: 'Presumption' },
     { key: 'salvation',       name: 'Salvation (Upgraded FS)' },
@@ -190,6 +194,7 @@ var MANASTONE_PRESETS = [
 
 // Get number of manastone slots for a gear piece
 function getManastoneSlotCount(setKey) {
+    if (setKey === 'none') return 0;
     if (setKey === 'acrimony' || setKey === 'presumption') return 1;
     return 3;
 }

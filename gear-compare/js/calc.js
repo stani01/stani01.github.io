@@ -191,7 +191,7 @@ function calculateDetailedStats(profileId) {
 
     // Glyph special handling
     var glyph = profile.glyph;
-    if (glyph) {
+    if (glyph && glyph.enabled !== false) {
         // Apply selected bonus
         if (glyph.bonuses && glyph.bonuses.length) {
             var b = ACC_BONUSES_GLYPH.find(function(x) { return x.key === glyph.bonuses[0]; });
