@@ -23,6 +23,12 @@ var WEAPON_TYPES = {
 // Shield-compatible main-hand weapons
 var SHIELD_WEAPONS = ['dagger', 'sword', 'mace'];
 
+// Get effective off-hand type for a profile (off-hand weapon/fuse disabled when main hand is none)
+function getEffectiveOffHandType(profile) {
+    if (profile.mainWeapon.set === 'none' && weaponConfig.offHandType !== 'shield') return 'none';
+    return weaponConfig.offHandType;
+}
+
 // Mace can only use shield (no off-hand weapon, no fuse)
 var MACE_OH_ONLY = ['none', 'shield'];
 
@@ -124,6 +130,37 @@ var ARMOR_SETS = [
 ];
 
 var EMPTY_ARMOR_ICON = '../assets/icons/icon_empty_slot.svg';
+
+// Per-slot empty icons
+var EMPTY_SLOT_ICONS = {
+    // Weapons
+    mainWeapon:  EMPTY_ARMOR_ICON,
+    offHand:     EMPTY_ARMOR_ICON,
+    shield:      EMPTY_ARMOR_ICON,
+    // Armor
+    shoulders:   EMPTY_ARMOR_ICON,
+    helmet:      EMPTY_ARMOR_ICON,
+    chest:       EMPTY_ARMOR_ICON,
+    pants:       EMPTY_ARMOR_ICON,
+    gloves:      EMPTY_ARMOR_ICON,
+    boots:       EMPTY_ARMOR_ICON,
+    // Accessories
+    feather:     EMPTY_ARMOR_ICON,
+    wings:       EMPTY_ARMOR_ICON,
+    bracelet:    EMPTY_ARMOR_ICON,
+    earring1:    EMPTY_ARMOR_ICON,
+    earring2:    EMPTY_ARMOR_ICON,
+    necklace:    EMPTY_ARMOR_ICON,
+    ring1:       EMPTY_ARMOR_ICON,
+    ring2:       EMPTY_ARMOR_ICON,
+    belt:        EMPTY_ARMOR_ICON,
+    // Glyph
+    glyph:       EMPTY_ARMOR_ICON
+};
+
+function getEmptySlotIcon(slotKey) {
+    return EMPTY_SLOT_ICONS[slotKey] || EMPTY_ARMOR_ICON;
+}
 
 var WEAPON_SETS = [
     { key: 'none',            name: 'None' },

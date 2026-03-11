@@ -68,7 +68,7 @@ function calculateDetailedStats(profileId) {
     var mwSet = profile.mainWeapon.set;
     var mwType = weaponConfig.mainType;
     var mainParts = getWeaponParts(mwSet, mwType, profile.mainWeapon.enchant, profile.mainWeapon.bonuses);
-    var ohType = weaponConfig.offHandType;
+    var ohType = getEffectiveOffHandType(profile);
     var ohSet = profile.offHand.set;
 
     if (ohType === 'none') {
@@ -124,7 +124,9 @@ function calculateDetailedStats(profileId) {
     });
 
     // Manastone bonuses
-    var allGearKeys = ARMOR_SLOT_KEYS.concat(['mainWeapon', 'offHand']).concat(ALL_ACCESSORY_KEYS);
+    var effectiveOH = getEffectiveOffHandType(profile);
+    var allGearKeys = ARMOR_SLOT_KEYS.concat(['mainWeapon']).concat(ALL_ACCESSORY_KEYS);
+    if (effectiveOH !== 'none') allGearKeys.splice(allGearKeys.indexOf('mainWeapon') + 1, 0, 'offHand');
     allGearKeys.forEach(function(gk) {
         var setKey;
         if (gk === 'mainWeapon') setKey = profile.mainWeapon.set;

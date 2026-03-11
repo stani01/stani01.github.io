@@ -556,6 +556,12 @@ window.GC = {
             state[pid].mainWeapon.bonuses = getDefaultWeaponBonuses(setKey);
             if (setKey === 'none') {
                 delete state[pid].mainWeapon.enchant;
+                // Force off-hand weapon/fuse to none (shield is still allowed)
+                if (weaponConfig.offHandType !== 'shield') {
+                    state[pid].offHand.set = 'none';
+                    state[pid].offHand.bonuses = [];
+                    delete state[pid].offHand.enchant;
+                }
             }
             bc.mainWeapon = false;
         } else if (slotType === 'off-weapon') {

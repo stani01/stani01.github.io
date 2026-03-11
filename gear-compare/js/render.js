@@ -32,13 +32,13 @@ function getGearIcon(pid, gearKey) {
     var profile = state[pid];
     var material = getArmorMaterial(profile.armorType);
     if (gearKey === 'mainWeapon') {
-        if (profile.mainWeapon && profile.mainWeapon.set === 'none') return EMPTY_ARMOR_ICON;
+        if (profile.mainWeapon && profile.mainWeapon.set === 'none') return getEmptySlotIcon('mainWeapon');
         return WEAPON_TYPES[weaponConfig.mainType].icon;
     }
     if (gearKey === 'offHand') {
-        if (profile.offHand && profile.offHand.set === 'none') return EMPTY_ARMOR_ICON;
+        if (profile.offHand && profile.offHand.set === 'none') return getEmptySlotIcon('offHand');
         if (weaponConfig.offHandType === 'shield') {
-            if (profile.shield && profile.shield.set === 'none') return EMPTY_ARMOR_ICON;
+            if (profile.shield && profile.shield.set === 'none') return getEmptySlotIcon('shield');
             return '../assets/icons/icon_item_equip_shield_f01.png';
         }
         if (weaponConfig.offHandType === 'fuse') return WEAPON_TYPES[weaponConfig.mainType].icon;
@@ -47,13 +47,13 @@ function getGearIcon(pid, gearKey) {
     }
     var slot = ARMOR_SLOTS.find(function(s) { return s.key === gearKey; });
     if (slot) {
-        if (profile.armor[gearKey] && profile.armor[gearKey].set === 'none') return EMPTY_ARMOR_ICON;
+        if (profile.armor[gearKey] && profile.armor[gearKey].set === 'none') return getEmptySlotIcon(gearKey);
         return getArmorIcon(material, slot.iconKey);
     }
     // Accessory keys
     var accDef = ACCESSORY_SLOTS_UPPER.concat(ACCESSORY_SLOTS_LOWER_L, ACCESSORY_SLOTS_LOWER_R).find(function(s) { return s.key === gearKey; });
     if (accDef) {
-        if (profile.accessories && profile.accessories[gearKey] && profile.accessories[gearKey].set === 'none') return EMPTY_ARMOR_ICON;
+        if (profile.accessories && profile.accessories[gearKey] && profile.accessories[gearKey].set === 'none') return getEmptySlotIcon(gearKey);
         return accDef.icon;
     }
     return '';
@@ -94,7 +94,8 @@ function renderManaModal(pid, scrollToGear) {
 
     // Weapon section label + rows
     var weaponKeys = ['mainWeapon'];
-    if (weaponConfig.offHandType !== 'none') weaponKeys.push('offHand');
+    var effectiveOHForModal = getEffectiveOffHandType(state[pid]);
+    if (effectiveOHForModal !== 'none') weaponKeys.push('offHand');
     html += '<div class="gc-mana-section-label">🗡️ Weapons</div>';
     html += '<div class="gc-mana-gear-list">';
     weaponKeys.forEach(function(gk) {
@@ -190,7 +191,7 @@ function renderManaModal(pid, scrollToGear) {
         var accSetKey = accState ? accState.set : 'fighting-spirit';
         var slotCount = getManastoneSlotCount(accSetKey);
 
-        if (accSetKey === 'none') icon = EMPTY_ARMOR_ICON;
+        if (accSetKey === 'none') icon = getEmptySlotIcon(accKey);
 
         html += '<div class="gc-mana-gear-row' + (accSetKey === 'none' ? ' gc-mana-gear-row-none' : '') + '" id="gc-mana-row-' + accKey + '">';
         html += '<div class="gc-mana-gear-info">';
@@ -1077,7 +1078,7 @@ function renderProfile(id) {
     var mwSetObj = WEAPON_SETS.find(function(s){return s.key===profile.mainWeapon.set;});
     html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + id + ',\'main-weapon\',this)">';
     if (profile.mainWeapon.set === 'none') {
-        html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + EMPTY_ARMOR_ICON + '" alt="None" title="None"></div>';
+        html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + getEmptySlotIcon('mainWeapon') + '" alt="None" title="None"></div>';
     } else {
         html += '<div class="gc-slot-icon"><img src="' + mwt.icon + '" alt="' + mwt.name + '" title="' + mwt.name + '"></div>';
     }
@@ -1113,8 +1114,9 @@ function renderProfile(id) {
     html += '</div>';
     // ── Right: Off-Hand / Shield / Fuse ──
     html += '<div class="gc-armor-col">';
-    if (weaponConfig.offHandType !== 'none') {
-        var ohType = weaponConfig.offHandType;
+    var effectiveOH = getEffectiveOffHandType(profile);
+    if (effectiveOH !== 'none') {
+        var ohType = effectiveOH;
         if (ohType === 'shield') {
             // ── Shield section ──
             var sh = profile.shield;
@@ -1124,7 +1126,7 @@ function renderProfile(id) {
             html += '<div class="gc-armor-row">';
             html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + id + ',\'shield\',this)">';
             if (sh.set === 'none') {
-                html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + EMPTY_ARMOR_ICON + '" alt="None" title="None"></div>';
+                html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + getEmptySlotIcon('shield') + '" alt="None" title="None"></div>';
             } else {
                 html += '<div class="gc-slot-icon"><img src="../assets/icons/icon_item_equip_shield_f01.png" alt="Shield" title="Shield"></div>';
             }
@@ -1160,7 +1162,7 @@ function renderProfile(id) {
             var ohSetObj = ohSets.find(function(s){return s.key===profile.offHand.set;}) || ohSets[0];
             html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + id + ',\'off-weapon\',this)">';
             if (profile.offHand.set === 'none') {
-                html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + EMPTY_ARMOR_ICON + '" alt="None" title="None"></div>';
+                html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + getEmptySlotIcon('offHand') + '" alt="None" title="None"></div>';
             } else {
                 html += '<div class="gc-slot-icon"><img src="' + ohIcon + '" alt="' + ohLabel + '" title="' + ohLabel + '"></div>';
             }
@@ -1270,7 +1272,7 @@ function renderAccessorySlot(pid, slotDef, accState, profile) {
     var html = '<div class="gc-armor-row">';
     html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + pid + ',\'acc:' + slotDef.key + '\',this)">';
     if (isNone) {
-        html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + EMPTY_ARMOR_ICON + '" alt="None" title="None"></div>';
+        html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + getEmptySlotIcon(slotDef.key) + '" alt="None" title="None"></div>';
     } else if (isFramed) {
         html += '<div class="gc-slot-icon gc-slot-icon-framed">';
         html += '<img src="' + slotDef.icon + '" alt="' + slotDef.name + '" title="' + slotDef.name + '">';
@@ -1315,7 +1317,7 @@ function renderGlyphSlot(pid, slotDef, accState, profile)
         if (glyphEnabled) {
             html += '<div class="gc-slot-icon"><img src="' + slotDef.icon + '" alt="Glyph" title="Glyph"></div>';
         } else {
-            html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + EMPTY_ARMOR_ICON + '" alt="None" title="None"></div>';
+            html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + getEmptySlotIcon('glyph') + '" alt="None" title="None"></div>';
         }
         html += '<div class="gc-set-text">';
         html += '<span class="gc-set-name">' + (glyphEnabled ? 'Glyph' : 'None') + '</span>';
@@ -1368,7 +1370,7 @@ function renderArmorSlot(pid, slot, armor, profile, material) {
     var armorSetObj = ARMOR_SETS.find(function(s){return s.key===armor.set;});
     html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + pid + ',\'armor:' + slot.key + '\',this)">';
     if (armor.set === 'none') {
-        html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + EMPTY_ARMOR_ICON + '" alt="None" title="None"></div>';
+        html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + getEmptySlotIcon(slot.key) + '" alt="None" title="None"></div>';
     } else {
         html += '<div class="gc-slot-icon"><img src="' + iconUrl + '" alt="' + slot.key + '" title="' + armorSetObj.name + '"></div>';
     }
