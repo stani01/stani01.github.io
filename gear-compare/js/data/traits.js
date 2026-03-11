@@ -228,7 +228,7 @@ const DAEVANION_SKILLS = {
         82: [
             { id: "Increased magical accuracy", stats: {accuracy: 1200}, icon: "../assets/icons/p_statmagacc_g1.png" },
             { id: "Increased magical crit hit", stats: {crit: 1000}, icon: "../assets/icons/p_statcrit_g1.png" },
-            { id: "Increased magic attack", stats: {attackL: 220}, icon: "../assets/icons/p_statmagatk_g1.png" }
+            { id: "Increased magic attack", stats: {attack: 220}, icon: "../assets/icons/p_statmagatk_g1.png" }
         ],
         83: [
             { id: "Increased physical defence", stats: {physicalDef: 230}, icon: "../assets/icons/p_statphydef_g1.png" },
@@ -255,7 +255,7 @@ const DAEVANION_SKILLS = {
         82: [
             { id: "Increased magical accuracy", stats: {accuracy: 1200}, icon: "../assets/icons/p_statmagacc_g1.png" },
             { id: "Increased magical crit hit", stats: {crit: 1000}, icon: "../assets/icons/p_statcrit_g1.png" },
-            { id: "Increased magic attack", stats: {attackL: 220}, icon: "../assets/icons/p_statmagatk_g1.png" }
+            { id: "Increased magic attack", stats: {attack: 220}, icon: "../assets/icons/p_statmagatk_g1.png" }
         ],
         83: [
             { id: "Increased attack and movement speeds", stats: {attackSpeed: 9, speed: 9}, icon: "../assets/icons/p_statspeed_g1.png" },
@@ -282,7 +282,7 @@ const DAEVANION_SKILLS = {
         82: [
             { id: "Increased magical accuracy", stats: {accuracy: 1200}, icon: "../assets/icons/p_statmagacc_g1.png" },
             { id: "Increased magical crit hit", stats: {crit: 1000}, icon: "../assets/icons/p_statcrit_g1.png" },
-            { id: "Increased magic attack", stats: {attackL: 220}, icon: "../assets/icons/p_statmagatk_g1.png" }
+            { id: "Increased magic attack", stats: {attack: 220}, icon: "../assets/icons/p_statmagatk_g1.png" }
         ],
         83: [
             { id: "Healing Boost", stats: {healingBoost: 120}, icon: "../assets/icons/p_statheal_g1.png" },
