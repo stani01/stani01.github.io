@@ -19,11 +19,16 @@ var SOURCE_LABELS = [
 ];
 
 function updateComparison() {
-    var d1 = calculateDetailedStats(1);
-    var d2 = calculateDetailedStats(2);
+    var idA = comparisonPair.a;
+    var idB = comparisonPair.b;
+    if (!state[idA] || !state[idB]) return;
+    var d1 = calculateDetailedStats(idA);
+    var d2 = calculateDetailedStats(idB);
     var stats1 = d1.totals, stats2 = d2.totals;
     var src1 = d1.sources, src2 = d2.sources;
     var panel = document.getElementById('comparison-panel');
+    var nameA = getSetName(idA);
+    var nameB = getSetName(idB);
 
     var wins1 = 0, wins2 = 0, ties = 0;
     COMPARISON_STATS.forEach(function(stat) {
@@ -35,6 +40,20 @@ function updateComparison() {
 
     var html = '<div class="gc-comparison-header">';
     html += '<h2>📈 Stat Comparison</h2>';
+    // Pairwise selector
+    html += '<div class="gc-comp-pair-selector">';
+    html += '<select class="gc-comp-pair-select" id="gc-comp-pair-a" onchange="GC.setComparisonPair(\'a\',parseInt(this.value))">';
+    setOrder.forEach(function(id) {
+        html += '<option value="' + id + '"' + (id === idA ? ' selected' : '') + '>' + getSetName(id) + '</option>';
+    });
+    html += '</select>';
+    html += '<span class="gc-comp-pair-vs">vs</span>';
+    html += '<select class="gc-comp-pair-select" id="gc-comp-pair-b" onchange="GC.setComparisonPair(\'b\',parseInt(this.value))">';
+    setOrder.forEach(function(id) {
+        html += '<option value="' + id + '"' + (id === idB ? ' selected' : '') + '>' + getSetName(id) + '</option>';
+    });
+    html += '</select>';
+    html += '</div>';
     html += '</div>';
 
     // Scrollable area wrapping the table
@@ -45,21 +64,21 @@ function updateComparison() {
     // 1. New Row for Summary Badges (Aligned to columns)
     html += '<tr class="gc-comp-summary-row">';
     html += '<th></th>'; // Empty cell over the 'Stat' column to shift everything right
-    html += '<th class="gc-comp-summary-cell" style="text-align: center; padding-bottom: 15px;"><span class="gc-comp-badge gc-comp-badge-1">' + wins1 + ' SET 1</span></th>';
+    html += '<th class="gc-comp-summary-cell" style="text-align: center; padding-bottom: 15px;"><span class="gc-comp-badge gc-comp-badge-1">' + wins1 + ' ' + nameA + '</span></th>';
 
     html += '<th class="gc-comp-summary-cell" style="text-align: center; padding-bottom: 15px;">';
     if (ties > 0) html += '<span class="gc-comp-badge gc-comp-badge-tie">' + ties + ' Tied</span>';
     html += '</th>';
 
-    html += '<th class="gc-comp-summary-cell" style="text-align: center; padding-bottom: 15px;"><span class="gc-comp-badge gc-comp-badge-2">' + wins2 + ' SET 2</span></th>';
+    html += '<th class="gc-comp-summary-cell" style="text-align: center; padding-bottom: 15px;"><span class="gc-comp-badge gc-comp-badge-2">' + wins2 + ' ' + nameB + '</span></th>';
     html += '</tr>';
 
     // 2. Standard Column Headers
     html += '<tr>';
     html += '<th class="gc-comp-th-stat">Stat</th>';
-    html += '<th class="gc-comp-th-val">SET 1</th>';
+    html += '<th class="gc-comp-th-val">' + nameA + '</th>';
     html += '<th class="gc-comp-th-diff">DIFF</th>';
-    html += '<th class="gc-comp-th-val">SET 2</th>';
+    html += '<th class="gc-comp-th-val">' + nameB + '</th>';
     html += '<th class="gc-comp-ghost"></th>';
     html += '</tr>';
     html += '</thead>';

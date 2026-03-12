@@ -10,15 +10,15 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="../assets/css/common.css?v=7.0">
-    <link rel="stylesheet" href="../assets/css/gear-compare.css?v=7.0">
-    <link rel="stylesheet" href="../assets/css/aion-calc.css?v=7.0">
+    <link rel="stylesheet" href="../assets/css/common.css?v=7.1">
+    <link rel="stylesheet" href="../assets/css/gear-compare.css?v=7.1">
+    <link rel="stylesheet" href="../assets/css/aion-calc.css?v=7.1">
 </head>
 <body class="page-gear-compare">
 
     <div class="container">
         <h1>AION Gear Comparison</h1>
-        <div class="subtitle">Compare two gear loadouts side by side | AION Retail 8.x</div>
+        <div class="subtitle">Compare gear loadouts side by side | AION Retail 8.x</div>
 
         <!-- Two-column layout: left = all controls, right = stats comparison -->
         <div class="gc-main-layout">
@@ -26,7 +26,7 @@
 
         <div class="gc-share-bar">
             <button class="gc-share-btn" id="gc-share-btn" title="Copy shareable link to clipboard">🔗 Share Setup</button>
-            <button class="gc-copy-profile-btn" onclick="GC.copyProfile()" title="Copy Set 1 into Set 2">📋 Copy 1 → 2</button>
+            <button class="gc-copy-profile-btn" id="gc-copy-btn" onclick="GC.openCopyPopup()" title="Copy one set into another">📋 Copy X → Y</button>
             <button class="gc-reset-all-btn" onclick="GC.resetAll()" title="Reset everything to defaults">🔄 Reset All</button>
             <span class="gc-share-toast" id="gc-share-toast"></span>
         </div>
@@ -47,26 +47,14 @@
                 <!-- Equipment Tab -->
                 <div class="gc-tab-panel gc-tab-panel-active" id="tab-equipment">
                     <div class="gc-weapon-config" id="weapon-config"></div>
-                    <div class="gc-set-tabs" data-panel="equipment">
-                        <button class="gc-set-tab gc-set-tab-active" data-set="1">Set 1</button>
-                        <button class="gc-set-tab" data-set="2">Set 2</button>
-                    </div>
-                    <div class="gc-set-content">
-                        <div class="gc-profile gc-set-view gc-set-view-active" id="profile-1" data-set="1"></div>
-                        <div class="gc-profile gc-set-view" id="profile-2" data-set="2"></div>
-                    </div>
+                    <div class="gc-set-tabs" data-panel="equipment"></div>
+                    <div class="gc-set-content" data-panel="equipment"></div>
                 </div>
 
                 <!-- Transformations Tab -->
                 <div class="gc-tab-panel" id="tab-transforms">
-                    <div class="gc-set-tabs" data-panel="transforms">
-                        <button class="gc-set-tab gc-set-tab-active" data-set="1">Set 1</button>
-                        <button class="gc-set-tab" data-set="2">Set 2</button>
-                    </div>
-                    <div class="gc-set-content">
-                        <div class="gc-profile gc-set-view gc-set-view-active" id="transform-1" data-set="1"></div>
-                        <div class="gc-profile gc-set-view" id="transform-2" data-set="2"></div>
-                    </div>
+                    <div class="gc-set-tabs" data-panel="transforms"></div>
+                    <div class="gc-set-content" data-panel="transforms"></div>
                 </div>
 
                 <!-- Form Tooltip (positioned via JS) -->
@@ -74,50 +62,26 @@
 
                 <!-- Collections Tab -->
                 <div class="gc-tab-panel" id="tab-collections">
-                    <div class="gc-set-tabs" data-panel="collections">
-                        <button class="gc-set-tab gc-set-tab-active" data-set="1">Set 1</button>
-                        <button class="gc-set-tab" data-set="2">Set 2</button>
-                    </div>
-                    <div class="gc-set-content">
-                        <div class="gc-profile gc-set-view gc-set-view-active" id="collections-1" data-set="1"></div>
-                        <div class="gc-profile gc-set-view" id="collections-2" data-set="2"></div>
-                    </div>
+                    <div class="gc-set-tabs" data-panel="collections"></div>
+                    <div class="gc-set-content" data-panel="collections"></div>
                 </div>
 
                 <!-- Relic Tab -->
                 <div class="gc-tab-panel" id="tab-relic">
-                    <div class="gc-set-tabs" data-panel="relic">
-                        <button class="gc-set-tab gc-set-tab-active" data-set="1">Set 1</button>
-                        <button class="gc-set-tab" data-set="2">Set 2</button>
-                    </div>
-                    <div class="gc-set-content">
-                        <div class="gc-profile gc-set-view gc-set-view-active" id="relic-1" data-set="1"></div>
-                        <div class="gc-profile gc-set-view" id="relic-2" data-set="2"></div>
-                    </div>
+                    <div class="gc-set-tabs" data-panel="relic"></div>
+                    <div class="gc-set-content" data-panel="relic"></div>
                 </div>
 
                 <!-- Trait Tab -->
                 <div class="gc-tab-panel" id="tab-trait">
-                    <div class="gc-set-tabs" data-panel="trait">
-                        <button class="gc-set-tab gc-set-tab-active" data-set="1">Set 1</button>
-                        <button class="gc-set-tab" data-set="2">Set 2</button>
-                    </div>
-                    <div class="gc-set-content">
-                        <div class="gc-profile gc-set-view gc-set-view-active" id="trait-1" data-set="1"></div>
-                        <div class="gc-profile gc-set-view" id="trait-2" data-set="2"></div>
-                    </div>
+                    <div class="gc-set-tabs" data-panel="trait"></div>
+                    <div class="gc-set-content" data-panel="trait"></div>
                 </div>
 
                 <!-- Skill Buffs Tab -->
                 <div class="gc-tab-panel" id="tab-skill-buffs">
-                    <div class="gc-set-tabs" data-panel="skill-buffs">
-                        <button class="gc-set-tab gc-set-tab-active" data-set="1">Set 1</button>
-                        <button class="gc-set-tab" data-set="2">Set 2</button>
-                    </div>
-                    <div class="gc-set-content">
-                        <div class="gc-profile gc-set-view gc-set-view-active" id="buffs-1" data-set="1"></div>
-                        <div class="gc-profile gc-set-view" id="buffs-2" data-set="2"></div>
-                    </div>
+                    <div class="gc-set-tabs" data-panel="skill-buffs"></div>
+                    <div class="gc-set-content" data-panel="skill-buffs"></div>
                 </div>
 
                 <!-- Skill Info Modal -->

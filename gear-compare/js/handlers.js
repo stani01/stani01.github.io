@@ -7,7 +7,7 @@ window.GC = {
         var cls = CLASS_DATA[className];
         // Always reset weapon config to class defaults
         weaponConfig = createDefaultWeaponConfig(className);
-        [1, 2].forEach(function(id) {
+        setOrder.forEach(function(id) {
             var p = state[id];
             if (cls.armorTypes.indexOf(p.armorType) === -1) {
                 p.armorType = cls.armorTypes[0];
@@ -55,22 +55,20 @@ window.GC = {
         // Update off-hand weapon type default
         weaponConfig.offHandWeaponType = getDefaultOffHandWeapon(type, selectedClass);
         renderWeaponConfig();
-        renderProfile(1);
-        renderProfile(2);
+        setOrder.forEach(function(id) { renderProfile(id); });
         updateComparison();
         saveState();
     },
 
     setOffHandType: function(type) {
         weaponConfig.offHandType = type;
-        [1, 2].forEach(function(id) {
+        setOrder.forEach(function(id) {
             if (type !== 'none' && OFFHAND_EXCLUDED_SETS.indexOf(state[id].offHand.set) !== -1) {
                 state[id].offHand.set = 'fighting-spirit';
             }
         });
         renderWeaponConfig();
-        renderProfile(1);
-        renderProfile(2);
+        setOrder.forEach(function(id) { renderProfile(id); });
         updateComparison();
         saveState();
     },
@@ -78,8 +76,7 @@ window.GC = {
     setOffHandWeaponType: function(type) {
         weaponConfig.offHandWeaponType = type;
         renderWeaponConfig();
-        renderProfile(1);
-        renderProfile(2);
+        setOrder.forEach(function(id) { renderProfile(id); });
         updateComparison();
         saveState();
     },
@@ -107,21 +104,91 @@ window.GC = {
         saveState();
     },
 
-    copyProfile: function() {
-        state[2] = JSON.parse(JSON.stringify(state[1]));
-        traitSelections[2] = JSON.parse(JSON.stringify(traitSelections[1] || {}));
+    copyProfile: function(from, to) {
+        if (!from || !to) return;
+        state[to] = JSON.parse(JSON.stringify(state[from]));
+        traitSelections[to] = JSON.parse(JSON.stringify(traitSelections[from] || {}));
         saveTraitSelections();
         renderAll();
         saveState();
-        showShareToast('✓ Set 1 copied to Set 2');
+        showShareToast('\u2713 ' + getSetName(from) + ' copied to ' + getSetName(to));
+    },
+
+    openCopyPopup: function() {
+        var existing = document.getElementById('gc-copy-popup');
+        if (existing) { existing.remove(); document.removeEventListener('click', closeCopyPopupOutside, true); return; }
+        var btn = document.getElementById('gc-copy-btn');
+        var popup = document.createElement('div');
+        popup.id = 'gc-copy-popup';
+        popup.className = 'gc-copy-popup';
+        var html = '<div class="gc-copy-popup-title">Copy Set</div>';
+        html += '<div class="gc-copy-popup-row">';
+        html += '<label>From</label><select id="gc-copy-from">';
+        setOrder.forEach(function(id) {
+            html += '<option value="' + id + '">' + getSetName(id) + '</option>';
+        });
+        html += '</select>';
+        html += '<span class="gc-copy-arrow">\u2192</span>';
+        html += '<label>To</label><select id="gc-copy-to">';
+        setOrder.forEach(function(id, i) {
+            html += '<option value="' + id + '"' + (i === 1 ? ' selected' : '') + '>' + getSetName(id) + '</option>';
+        });
+        html += '</select>';
+        html += '</div>';
+        html += '<button class="gc-copy-popup-go" onclick="GC.doCopy()">Copy</button>';
+        popup.innerHTML = html;
+        btn.parentElement.style.position = 'relative';
+        btn.parentElement.appendChild(popup);
+        setTimeout(function() {
+            document.addEventListener('click', closeCopyPopupOutside, true);
+        }, 0);
+    },
+
+    doCopy: function() {
+        var from = parseInt(document.getElementById('gc-copy-from').value);
+        var to = parseInt(document.getElementById('gc-copy-to').value);
+        var popup = document.getElementById('gc-copy-popup');
+        if (popup) popup.remove();
+        document.removeEventListener('click', closeCopyPopupOutside, true);
+        if (from === to) { showShareToast('Source and target are the same', true); return; }
+        GC.copyProfile(from, to);
+    },
+
+    addSet: function() {
+        var id = addSet();
+        if (!id) { showShareToast('Maximum ' + MAX_SETS + ' sets reached', true); return; }
+        saveTraitSelections();
+        renderAll();
+        activateSetView(id);
+        saveState();
+        showShareToast('\u2713 ' + getSetName(id) + ' added');
+    },
+
+    removeSet: function(id) {
+        if (setOrder.length <= 2) return;
+        var name = getSetName(id);
+        if (!removeSet(id)) return;
+        saveTraitSelections();
+        renderAll();
+        saveState();
+        showShareToast('\u2713 ' + name + ' removed');
+    },
+
+    setComparisonPair: function(side, setId) {
+        if (setOrder.indexOf(setId) === -1) return;
+        comparisonPair[side] = setId;
+        updateComparison();
+        saveState();
     },
 
     resetAll: function() {
         weaponConfig = createDefaultWeaponConfig(selectedClass);
-        state[1] = createDefaultProfile(selectedClass);
-        state[2] = createDefaultProfile(selectedClass);
-        traitSelections = { 1: {}, 2: {} };
-        [1,2].forEach(function(pid) {
+        setOrder.forEach(function(id) {
+            state[id] = createDefaultProfile(selectedClass);
+        });
+        traitSelections = {};
+        setOrder.forEach(function(pid) {
+            traitSelections[pid] = {};
             [81,82,83,84,85].forEach(function(lvl) { traitSelections[pid][lvl] = 0; });
         });
         saveTraitSelections();
@@ -138,8 +205,7 @@ window.GC = {
     resetWeapons: function() {
         weaponConfig = createDefaultWeaponConfig(selectedClass);
         renderWeaponConfig();
-        renderProfile(1);
-        renderProfile(2);
+        setOrder.forEach(function(id) { renderProfile(id); });
         updateComparison();
         saveState();
     },
@@ -488,8 +554,7 @@ window.GC = {
         }
         weaponConfig.offHandWeaponType = getDefaultOffHandWeapon(wKey, selectedClass);
         renderWeaponConfig();
-        renderProfile(1);
-        renderProfile(2);
+        setOrder.forEach(function(id) { renderProfile(id); });
         updateComparison();
         saveState();
     },
@@ -506,14 +571,13 @@ window.GC = {
         } else {
             weaponConfig.offHandType = choiceKey;
         }
-        [1, 2].forEach(function(id) {
+        setOrder.forEach(function(id) {
             if (weaponConfig.offHandType !== 'none' && OFFHAND_EXCLUDED_SETS.indexOf(state[id].offHand.set) !== -1) {
                 state[id].offHand.set = 'fighting-spirit';
             }
         });
         renderWeaponConfig();
-        renderProfile(1);
-        renderProfile(2);
+        setOrder.forEach(function(id) { renderProfile(id); });
         updateComparison();
         saveState();
     },
@@ -1610,3 +1674,12 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
+function closeCopyPopupOutside(e) {
+    var popup = document.getElementById('gc-copy-popup');
+    if (!popup) { document.removeEventListener('click', closeCopyPopupOutside, true); return; }
+    if (!popup.contains(e.target) && e.target.id !== 'gc-copy-btn') {
+        popup.remove();
+        document.removeEventListener('click', closeCopyPopupOutside, true);
+    }
+}

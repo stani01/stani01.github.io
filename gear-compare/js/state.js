@@ -90,10 +90,61 @@ function createDefaultProfile(className) {
 }
 
 var STORAGE_KEY = 'gc-state-v3';
+var MAX_SETS = 5;
+var setOrder = [1, 2];
+var setNames = { 1: 'Set 1', 2: 'Set 2' };
+var comparisonPair = { a: 1, b: 2 };
+var nextSetId = 3;
+var activeSetId = 1;
+
+function getSetName(id) { return setNames[id] || ('Set ' + id); }
+
+function addSet() {
+    if (setOrder.length >= MAX_SETS) return null;
+    var id = nextSetId++;
+    setOrder.push(id);
+    setNames[id] = 'Set ' + id;
+    state[id] = createDefaultProfile(selectedClass);
+    if (typeof traitSelections !== 'undefined') {
+        traitSelections[id] = {};
+        [81,82,83,84,85].forEach(function(lvl) { traitSelections[id][lvl] = 0; });
+    }
+    if (typeof formsActiveGrade !== 'undefined') formsActiveGrade[id] = 'ultimate';
+    return id;
+}
+
+function removeSet(id) {
+    if (setOrder.length <= 2) return false;
+    var idx = setOrder.indexOf(id);
+    if (idx === -1) return false;
+    setOrder.splice(idx, 1);
+    delete state[id];
+    delete setNames[id];
+    if (typeof traitSelections !== 'undefined') delete traitSelections[id];
+    if (typeof formsActiveGrade !== 'undefined') delete formsActiveGrade[id];
+    // Fix comparison pair
+    if (comparisonPair.a === id) comparisonPair.a = setOrder[0];
+    if (comparisonPair.b === id) comparisonPair.b = setOrder[Math.min(1, setOrder.length - 1)];
+    // Fix active set view
+    if (activeSetId === id) activeSetId = setOrder[0];
+    return true;
+}
 
 function saveState() {
     try {
-        var data = { selectedClass: selectedClass, weaponConfig: weaponConfig, profiles: { 1: state[1], 2: state[2] }, activeTab: activeTab };
+        var profiles = {};
+        setOrder.forEach(function(id) { profiles[id] = state[id]; });
+        var data = {
+            selectedClass: selectedClass,
+            weaponConfig: weaponConfig,
+            profiles: profiles,
+            activeTab: activeTab,
+            setOrder: setOrder,
+            setNames: setNames,
+            comparisonPair: comparisonPair,
+            nextSetId: nextSetId,
+            activeSetId: activeSetId
+        };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (e) { /* quota exceeded or private mode */ }
 }
@@ -132,10 +183,60 @@ function loadState() {
                 weaponConfig.offHandType = getDefaultOffHand(weaponConfig.mainType, selectedClass);
             }
         }
-        [1, 2].forEach(function(id) {
+        // Restore multi-set state (backward compat with pre-multiset saves)
+        if (data.setOrder && Array.isArray(data.setOrder) && data.setOrder.length >= 2) {
+            setOrder = data.setOrder;
+        } else {
+            setOrder = [1, 2];
+        }
+        if (data.setNames && typeof data.setNames === 'object') {
+            setNames = {};
+            setOrder.forEach(function(id) {
+                setNames[id] = data.setNames[id] || ('Set ' + id);
+            });
+        } else {
+            setNames = {};
+            setOrder.forEach(function(id) { setNames[id] = 'Set ' + id; });
+        }
+        if (data.comparisonPair && typeof data.comparisonPair === 'object') {
+            comparisonPair = { a: data.comparisonPair.a, b: data.comparisonPair.b };
+            if (setOrder.indexOf(comparisonPair.a) === -1) comparisonPair.a = setOrder[0];
+            if (setOrder.indexOf(comparisonPair.b) === -1) comparisonPair.b = setOrder[Math.min(1, setOrder.length - 1)];
+        } else {
+            comparisonPair = { a: setOrder[0], b: setOrder[Math.min(1, setOrder.length - 1)] };
+        }
+        if (typeof data.nextSetId === 'number') {
+            nextSetId = data.nextSetId;
+        } else {
+            nextSetId = Math.max.apply(null, setOrder) + 1;
+        }
+        if (typeof data.activeSetId === 'number' && setOrder.indexOf(data.activeSetId) !== -1) {
+            activeSetId = data.activeSetId;
+        } else {
+            activeSetId = setOrder[0];
+        }
+        // Initialize state with defaults for all sets
+        state = {};
+        setOrder.forEach(function(id) {
+            state[id] = createDefaultProfile(selectedClass);
+        });
+        // Restore each profile
+        setOrder.forEach(function(id) {
             var saved = data.profiles[id];
             if (!saved) return;
-            var p = createDefaultProfile(selectedClass);
+            restoreProfile(id, saved, cls);
+        });
+        if (data.activeTab === 'equipment' || data.activeTab === 'transforms' ||
+            data.activeTab === 'collections' || data.activeTab === 'relic' || data.activeTab === 'trait' || data.activeTab === 'skill-buffs') {
+            activeTab = data.activeTab;
+        }
+        return true;
+    } catch (e) { return false; }
+}
+
+// Restore a single profile from saved data
+function restoreProfile(id, saved, cls) {
+    var p = createDefaultProfile(selectedClass);
             // Restore minions
             if (saved.minions && typeof saved.minions === 'object') {
                 var minionKeys = MINIONS.map(function(m) { return m.key; });
@@ -353,13 +454,6 @@ function loadState() {
                 }
             }
             state[id] = p;
-        });
-        if (data.activeTab === 'equipment' || data.activeTab === 'transforms' ||
-            data.activeTab === 'collections' || data.activeTab === 'relic' || data.activeTab === 'trait' || data.activeTab === 'skill-buffs') {
-            activeTab = data.activeTab;
-        }
-        return true;
-    } catch (e) { return false; }
 }
 
 var selectedClass = 'gladiator';

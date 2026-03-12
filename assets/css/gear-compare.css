@@ -190,6 +190,154 @@
     border-bottom-color: rgba(181, 101, 245, 0.7);
 }
 
+/* ── Set Tab: Name span (double-click to rename) ── */
+.gc-set-tab-name {
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* ── Set Tab: Remove (✕) button ── */
+.gc-set-tab-remove {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.75em;
+    color: rgba(255, 120, 120, 0.45);
+    cursor: pointer;
+    vertical-align: middle;
+    transition: color 0.15s;
+    line-height: 1;
+}
+.gc-set-tab-remove:hover {
+    color: rgba(255, 90, 90, 0.95);
+}
+
+/* ── Set Tab: Add (+) button ── */
+.gc-set-tab-add {
+    color: rgba(120, 220, 140, 0.55) !important;
+    font-size: 1.1em !important;
+    padding: 8px 14px 9px !important;
+    font-weight: 700;
+    border-bottom-color: transparent !important;
+}
+.gc-set-tab-add:hover {
+    color: rgba(100, 240, 130, 0.9) !important;
+}
+
+/* ── Set Tab: Inline rename input ── */
+.gc-set-tab-rename-input {
+    background: rgba(30, 28, 40, 0.95);
+    border: 1px solid rgba(181, 101, 245, 0.5);
+    color: rgba(220, 200, 255, 0.95);
+    font-family: inherit;
+    font-size: 0.85em;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    outline: none;
+    width: 90px;
+    letter-spacing: 0.5px;
+}
+.gc-set-tab-rename-input:focus {
+    border-color: rgba(181, 101, 245, 0.8);
+    box-shadow: 0 0 6px rgba(181, 101, 245, 0.25);
+}
+
+/* ── Copy X→Y Popup ── */
+.gc-copy-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-panel-solid, #1a1825);
+    border: 1px solid rgba(180, 140, 255, 0.35);
+    border-radius: 12px;
+    padding: 20px 28px;
+    z-index: 9999;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+    min-width: 220px;
+    text-align: center;
+}
+.gc-copy-popup-title {
+    font-size: 0.95em;
+    font-weight: 700;
+    color: rgba(190, 160, 255, 0.9);
+    margin-bottom: 14px;
+    letter-spacing: 0.3px;
+}
+.gc-copy-popup-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.gc-copy-popup-row label {
+    font-size: 0.82em;
+    color: rgba(180, 200, 220, 0.7);
+    font-weight: 600;
+}
+.gc-copy-popup-row select {
+    background: rgba(30, 28, 40, 0.9);
+    border: 1px solid rgba(180, 140, 255, 0.25);
+    color: rgba(220, 200, 255, 0.9);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-family: inherit;
+    font-size: 0.82em;
+    cursor: pointer;
+}
+.gc-copy-popup-go {
+    background: rgba(180, 140, 255, 0.12);
+    border: 1px solid rgba(180, 140, 255, 0.3);
+    color: rgba(200, 170, 255, 0.9);
+    border-radius: 8px;
+    padding: 6px 20px;
+    font-family: inherit;
+    font-size: 0.85em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.gc-copy-popup-go:hover {
+    background: rgba(180, 140, 255, 0.22);
+    border-color: rgba(180, 140, 255, 0.5);
+}
+.gc-copy-arrow {
+    font-size: 1.1em;
+    color: rgba(180, 200, 220, 0.5);
+}
+
+/* ── Comparison Pair Selector ── */
+.gc-comp-pair-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.gc-comp-pair-select {
+    background: rgba(30, 28, 40, 0.9);
+    border: 1px solid rgba(181, 101, 245, 0.25);
+    color: rgba(220, 200, 255, 0.9);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-family: inherit;
+    font-size: 0.8em;
+    font-weight: 600;
+    cursor: pointer;
+}
+.gc-comp-pair-select:focus {
+    border-color: rgba(181, 101, 245, 0.5);
+    outline: none;
+}
+.gc-comp-pair-vs {
+    font-size: 0.8em;
+    color: rgba(180, 200, 220, 0.5);
+    font-weight: 600;
+    font-style: italic;
+}
+
 /* ── Set View Toggle ── */
 .gc-set-content {
     position: relative;
@@ -251,6 +399,14 @@
     color: var(--accent);
     letter-spacing: 1px;
     text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.gc-set-title:hover {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 4px;
 }
 
 /* ── Sections inside profile ── */

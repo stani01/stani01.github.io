@@ -77,7 +77,7 @@ function renderManaModal(pid, scrollToGear) {
     // Title bar
     html += '<div class="gc-mana-titlebar">';
     html += '<img src="' + MANASTONE_ICON + '" class="gc-mana-title-icon" alt="">';
-    html += '<span class="gc-mana-title">Manastones — SET ' + pid + '</span>';
+    html += '<span class="gc-mana-title">Manastones — ' + getSetName(pid) + '</span>';
     html += '<span class="gc-mana-close" onclick="GC.closeManaModal()">✕</span>';
     html += '</div>';
 
@@ -229,21 +229,101 @@ function renderManaModal(pid, scrollToGear) {
     return html;
 }
 
+// ── Panel-to-prefix mapping for set view containers ──
+var SET_PANEL_MAP = {
+    equipment:   'profile',
+    transforms:  'transform',
+    collections: 'collections',
+    relic:       'relic',
+    trait:       'trait',
+    'skill-buffs': 'buffs'
+};
+
+// ── Build set tabs and view containers for all panels ──
+function renderSetTabs() {
+    document.querySelectorAll('.gc-set-tabs').forEach(function(tabBar) {
+        var html = '';
+        setOrder.forEach(function(id) {
+            var active = id === activeSetId ? ' gc-set-tab-active' : '';
+            var name = getSetName(id);
+            html += '<button class="gc-set-tab' + active + '" data-set="' + id + '">';
+            html += '<span class="gc-set-tab-name" data-set="' + id + '">' + name + '</span>';
+            if (setOrder.length > 2) {
+                html += '<span class="gc-set-tab-remove" data-remove="' + id + '" title="Remove ' + name + '">✕</span>';
+            }
+            html += '</button>';
+        });
+        if (setOrder.length < MAX_SETS) {
+            html += '<button class="gc-set-tab gc-set-tab-add" title="Add new set">+</button>';
+        }
+        tabBar.innerHTML = html;
+    });
+    // Ensure view containers exist for all panels
+    Object.keys(SET_PANEL_MAP).forEach(function(panel) {
+        var prefix = SET_PANEL_MAP[panel];
+        var content = document.querySelector('.gc-set-content[data-panel="' + panel + '"]');
+        if (!content) return;
+        // Remove old containers that no longer exist in setOrder
+        content.querySelectorAll('.gc-set-view').forEach(function(v) {
+            var sid = parseInt(v.getAttribute('data-set'));
+            if (setOrder.indexOf(sid) === -1) v.remove();
+        });
+        // Create containers for new sets
+        setOrder.forEach(function(id) {
+            var elId = prefix + '-' + id;
+            if (!document.getElementById(elId)) {
+                var div = document.createElement('div');
+                div.className = 'gc-profile gc-set-view';
+                div.id = elId;
+                div.setAttribute('data-set', id);
+                content.appendChild(div);
+            }
+        });
+        // Set active class
+        content.querySelectorAll('.gc-set-view').forEach(function(v) {
+            var sid = parseInt(v.getAttribute('data-set'));
+            if (sid === activeSetId) {
+                v.classList.add('gc-set-view-active');
+            } else {
+                v.classList.remove('gc-set-view-active');
+            }
+        });
+    });
+}
+
+function activateSetView(setId) {
+    activeSetId = setId;
+    // Sync all tab bars
+    document.querySelectorAll('.gc-set-tabs').forEach(function(tabBar) {
+        tabBar.querySelectorAll('.gc-set-tab').forEach(function(b) {
+            var bSet = parseInt(b.getAttribute('data-set'));
+            if (bSet === setId) b.classList.add('gc-set-tab-active');
+            else b.classList.remove('gc-set-tab-active');
+        });
+    });
+    // Sync all view containers
+    document.querySelectorAll('.gc-set-content').forEach(function(content) {
+        content.querySelectorAll('.gc-set-view').forEach(function(v) {
+            var sid = parseInt(v.getAttribute('data-set'));
+            if (sid === setId) v.classList.add('gc-set-view-active');
+            else v.classList.remove('gc-set-view-active');
+        });
+    });
+    saveState();
+}
+
 function renderAll() {
+    renderSetTabs();
     renderClassSelector();
     renderWeaponConfig();
-    renderProfile(1);
-    renderProfile(2);
-    renderTransform(1);
-    renderTransform(2);
-    renderCollections(1);
-    renderCollections(2);
-    renderRelic(1);
-    renderRelic(2);
-    renderTraitTab(1);
-    renderTraitTab(2);
-    renderSkillBuffs(1);
-    renderSkillBuffs(2);
+    setOrder.forEach(function(id) {
+        renderProfile(id);
+        renderTransform(id);
+        renderCollections(id);
+        renderRelic(id);
+        renderSkillBuffs(id);
+    });
+    renderTraitTab();
     updateComparison();
 }
 
@@ -260,7 +340,7 @@ function renderSkillBuffs(pid) {
     var sb = profile.skillBuffs;
 
     var html = '<div class="gc-profile-header">';
-    html += '<span class="gc-set-title">SET ' + pid + '</span>';
+    html += '<span class="gc-set-title" data-set="' + pid + '">' + getSetName(pid) + '</span>';
     html += '<button class="gc-reset-btn" onclick="GC.resetSkillBuffs(' + pid + ')" title="Reset skill buffs">↺</button>';
     html += '</div>';
 
@@ -361,7 +441,7 @@ function renderBuffItem(pid, buff, sb) {
 
 // ── Tab switching ──
 // activeTab declared earlier, restored from loadState
-var formsActiveGrade = { 1: 'ultimate', 2: 'ultimate' };
+var formsActiveGrade = {};
 
 // ── Forms Collection rendering ──
 // Returns HTML string for the forms picker (used inline in renderCollections)
@@ -430,21 +510,92 @@ document.getElementById('gc-tab-bar').addEventListener('click', function(e) {
 });
 
 // ── Set Sub-Tab switching ──
-// Delegated listener on body for all set-tab buttons
+// Delegated listener on body for all set-tab buttons (synced across panels)
 document.addEventListener('click', function(e) {
+    // Handle add set button
+    if (e.target.closest('.gc-set-tab-add')) {
+        e.preventDefault();
+        GC.addSet();
+        return;
+    }
+    // Handle remove set button
+    var removeBtn = e.target.closest('.gc-set-tab-remove');
+    if (removeBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        var removeId = parseInt(removeBtn.getAttribute('data-remove'));
+        GC.removeSet(removeId);
+        return;
+    }
     var btn = e.target.closest('.gc-set-tab');
-    if (!btn) return;
-    var tabBar = btn.closest('.gc-set-tabs');
-    if (!tabBar) return;
-    var setId = btn.getAttribute('data-set');
-    // Update active tab button within this bar
-    tabBar.querySelectorAll('.gc-set-tab').forEach(function(b) { b.classList.remove('gc-set-tab-active'); });
-    btn.classList.add('gc-set-tab-active');
-    // Show/hide the set views within the same tab panel
-    var panel = tabBar.closest('.gc-tab-panel');
-    if (!panel) return;
-    panel.querySelectorAll('.gc-set-view').forEach(function(v) { v.classList.remove('gc-set-view-active'); });
-    panel.querySelectorAll('.gc-set-view[data-set="' + setId + '"]').forEach(function(v) { v.classList.add('gc-set-view-active'); });
+    if (!btn || btn.classList.contains('gc-set-tab-add')) return;
+    var setId = parseInt(btn.getAttribute('data-set'));
+    if (!setId || setId === activeSetId) return;
+    activateSetView(setId);
+});
+
+// ── Set tab rename (double-click) ──
+document.addEventListener('dblclick', function(e) {
+    var nameSpan = e.target.closest('.gc-set-tab-name');
+    if (!nameSpan) return;
+    var setId = parseInt(nameSpan.getAttribute('data-set'));
+    if (!setId) return;
+    e.preventDefault();
+    var currentName = getSetName(setId);
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'gc-set-tab-rename-input';
+    input.value = currentName;
+    input.maxLength = 16;
+    nameSpan.replaceWith(input);
+    input.focus();
+    input.select();
+    function finishRename() {
+        var val = input.value.trim();
+        if (!val) val = 'Set ' + setId;
+        if (val.length > 16) val = val.substring(0, 16);
+        setNames[setId] = val;
+        saveState();
+        renderSetTabs();
+        updateComparison();
+    }
+    input.addEventListener('blur', finishRename);
+    input.addEventListener('keydown', function(evt) {
+        if (evt.key === 'Enter') { evt.preventDefault(); input.blur(); }
+        if (evt.key === 'Escape') { input.value = currentName; input.blur(); }
+    });
+});
+
+// ── Double-click rename on set titles inside profile panels ──
+document.addEventListener('dblclick', function(e) {
+    var titleSpan = e.target.closest('.gc-set-title');
+    if (!titleSpan) return;
+    var setId = parseInt(titleSpan.getAttribute('data-set'));
+    if (!setId) return;
+    e.preventDefault();
+    var currentName = getSetName(setId);
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'gc-set-tab-rename-input';
+    input.value = currentName;
+    input.maxLength = 16;
+    titleSpan.replaceWith(input);
+    input.focus();
+    input.select();
+    function finishRename() {
+        var val = input.value.trim();
+        if (!val) val = 'Set ' + setId;
+        if (val.length > 16) val = val.substring(0, 16);
+        setNames[setId] = val;
+        saveState();
+        renderSetTabs();
+        renderAll();
+    }
+    input.addEventListener('blur', finishRename);
+    input.addEventListener('keydown', function(evt) {
+        if (evt.key === 'Enter') { evt.preventDefault(); input.blur(); }
+        if (evt.key === 'Escape') { input.value = currentName; input.blur(); }
+    });
 });
 
 // ── Transform rendering ──
@@ -456,7 +607,7 @@ function renderTransform(pid) {
     var enchLvl = profile.transformEnchant != null ? profile.transformEnchant : 0;
 
     var html = '<div class="gc-profile-header">';
-    html += '<span class="gc-set-title">SET ' + pid + '</span>';
+    html += '<span class="gc-set-title" data-set="' + pid + '">' + getSetName(pid) + '</span>';
     html += '<button class="gc-reset-btn" onclick="GC.resetTransform(' + pid + ')" title="Reset transform">↺</button>';
     html += '</div>';
 
@@ -533,7 +684,7 @@ function renderCollections(pid) {
     }
 
     var html = '<div class="gc-profile-header">';
-    html += '<span class="gc-set-title">SET ' + pid + '</span>';
+    html += '<span class="gc-set-title" data-set="' + pid + '">' + getSetName(pid) + '</span>';
     html += '<button class="gc-reset-btn" onclick="GC.resetCollections(' + pid + ')" title="Reset collections">&#x21BA;</button>';
     html += '</div>';
 
@@ -630,7 +781,7 @@ function renderRelic(pid) {
     html += '<img src="../assets/icons/icon_item_sacredstone_levelup.png" class="gc-relic-header-icon" alt="Relic">';
     html += '<div class="gc-relic-header-info">';
     html += '<span class="gc-relic-header-title">Lord\'s Relic</span>';
-    html += '<span class="gc-relic-header-subtitle">SET ' + pid +'</span>';
+    html += '<span class="gc-relic-header-subtitle">' + getSetName(pid) + '</span>';
     html += '</div>';
     html += '<button class="gc-reset-btn" onclick="GC.resetRelic(' + pid + ')" title="Reset relic">&#x21BA;</button>';
     html += '</div>';
@@ -697,16 +848,20 @@ function renderRelic(pid) {
 }
 
 function renderTraitTab() {
-    [1, 2].forEach(pid => {
+    setOrder.forEach(pid => {
         const el = document.getElementById('trait-' + pid);
         if (!el) return;
         // Normalize class name to match your object keys (lowercase)
         const className = (typeof selectedClass === 'string' ? selectedClass.toLowerCase().trim() : "gladiator");
         // Use the selected class data, or fallback to gladiator if not found
         const classSkills = DAEVANION_SKILLS[className] || DAEVANION_SKILLS["gladiator"];
+        if (!traitSelections[pid]) {
+            traitSelections[pid] = {};
+            [81,82,83,84,85].forEach(function(lvl) { traitSelections[pid][lvl] = 0; });
+        }
         let html = '';
         html += '<div class="gc-profile-header">';
-        html += '<span class="gc-set-title">SET ' + pid + '</span>';
+        html += '<span class="gc-set-title" data-set="' + pid + '">' + getSetName(pid) + '</span>';
         html += '<button class="gc-reset-btn" onclick="GC.resetTrait(' + pid + ')" title="Reset traits">↺</button>';
                 // Reset all traits for a set to first column
                 window.GC = window.GC || {};
@@ -1050,8 +1205,8 @@ function renderProfile(id) {
 
     // ── Header ──
     html += '<div class="gc-profile-header">';
-    html += '<span class="gc-set-title">SET ' + id + '</span>';
-    html += '<button class="gc-reset-btn" onclick="GC.resetProfile(' + id + ')" title="Reset SET ' + id + ' to defaults">↺</button>';
+    html += '<span class="gc-set-title" data-set="' + id + '">' + getSetName(id) + '</span>';
+    html += '<button class="gc-reset-btn" onclick="GC.resetProfile(' + id + ')" title="Reset ' + getSetName(id) + ' to defaults">↺</button>';
     html += '</div>';
 
     // ── Weapons Section ──

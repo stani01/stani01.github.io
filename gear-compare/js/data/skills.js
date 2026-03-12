@@ -189,7 +189,7 @@ var GC_SKILL_DATABASE = {
                       Increases Magic Resist by 200.<br>
                       Increases HP by 1200.`
     },
-    'divineProtection': {
+    'divineProtectionUniversal': {
         name: '(Improved) Divine Protection',
         icon: '../assets/icons/all_heaven_blessing_g2.png',
         id: '5869',
@@ -814,7 +814,7 @@ var GC_SKILL_BUFFS = {
         { key: 'roastChicken', value: '+150 Attack / +2000 HP', stats: { attack: 150, hp: 2000 }, defaultActive: false, excludes: ['suspiciousSteak', 'poscaParty'] },
         { key: 'suspiciousSteak', value: '+550 Crit / +2000 HP', stats: { crit: 550, hp: 2000 }, defaultActive: false, excludes: ['roastChicken', 'poscaParty'] },
         { key: 'poscaParty', value: '+180 Attack / +2300 HP', stats: { attack: 180, hp: 2300 }, defaultActive: false, excludes: ['roastChicken', 'suspiciousSteak'] },
-        { key: 'divineProtection', value: '+5000 Crit', stats: { crit: 5000 }, defaultActive: false },
+        { key: 'divineProtectionUniversal', value: '+5000 Crit', stats: { crit: 5000 }, defaultActive: false },
         { key: 'vaizelCall', value: '+800 Attack / +400 Defs / +120 Evasion ', stats: { attack: 800, physicalDef: 400, magicalDef: 400, evasion: 120 }, defaultActive: false },
         { key: 'blessedLight', value: '+500 Attack', stats: { attack: 500 }, defaultActive: false },
         { key: 'joltingStrike', value: '+600 PvP Attack, +600 PvE Attack', stats: { pvpAttack: 600, pveAttack: 600 }, defaultActive: false },

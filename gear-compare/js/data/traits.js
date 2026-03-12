@@ -350,8 +350,9 @@ function loadTraitSelections() {
         var raw = localStorage.getItem(TRAIT_SELECTIONS_KEY);
         if (raw) {
             var parsed = JSON.parse(raw);
-            // Ensure all levels have a value (default to 0)
-            [1,2].forEach(function(pid) {
+            // Ensure all sets in setOrder have trait data
+            var ids = (typeof setOrder !== 'undefined') ? setOrder : [1, 2];
+            ids.forEach(function(pid) {
                 if (!parsed[pid]) parsed[pid] = {};
                 [81,82,83,84,85].forEach(function(lvl) {
                     if (typeof parsed[pid][lvl] !== 'number') parsed[pid][lvl] = 0;
@@ -362,7 +363,8 @@ function loadTraitSelections() {
     } catch(e) {}
     // Default: all first column
     var def = {};
-    [1,2].forEach(function(pid) {
+    var ids = (typeof setOrder !== 'undefined') ? setOrder : [1, 2];
+    ids.forEach(function(pid) {
         def[pid] = {};
         [81,82,83,84,85].forEach(function(lvl) { def[pid][lvl] = 0; });
     });
