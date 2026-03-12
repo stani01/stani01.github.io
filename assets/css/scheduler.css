@@ -362,7 +362,7 @@
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     overflow-x: auto;
     overflow-y: auto;
-    max-height: 600px;
+    max-height: 800px;
     display: flex;
     flex-direction: column;
     scrollbar-width: thin;
@@ -678,7 +678,7 @@
     .time-value { font-size: 0.8em; }
     .time-label { font-size: 0.5em; }
     .time-date { font-size: 0.65em; }
-    .scheduler-grid-wrapper { margin-left: 0; margin-right: 0; border-radius: 10px; padding: 10px; max-height: 500px; }
+    .scheduler-grid-wrapper { margin-left: 0; margin-right: 0; border-radius: 10px; padding: 10px; max-height: 680px; }
     .scheduler-header, .scheduler-grid { grid-template-columns: 50px repeat(7, 1fr); gap: 4px; }
     .hour-label { font-size: 0.6em; padding: 6px 3px; }
     .scheduler-cell { min-height: 30px; }
