@@ -29,13 +29,24 @@ function calculateDetailedStats(profileId) {
     if (['gladiator', 'templar'].includes(selectedClass)) {
         sources.permanent.attack += 45;
         sources.permanent.hpPercent = 5;
+        sources.permanent.accuracy += 180;
+        sources.permanent.parry += 80;
+    }
+    if (selectedClass === 'gladiator') {
+        sources.permanent.block += 200;
     }
     if (selectedClass === 'templar') {
         sources.permanent.magicalDef += 60;
+        sources.permanent.block += 300;
     }
     if (selectedClass === 'assassin') {
         sources.permanent.crit += 50;
         sources.permanent.magicResist += 60;
+        sources.permanent.accuracy += 180;
+    }
+    if (selectedClass === 'ranger') {
+        sources.permanent.accuracy += 300;
+        sources.permanent.parry += 80;
     }
     if (selectedClass === 'chanter') {
         sources.permanent.attack += 18;
