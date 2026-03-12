@@ -253,6 +253,7 @@ window.GC = {
     setFormsGrade: function(pid, grade) {
         formsActiveGrade[pid] = grade;
         renderCollections(pid);
+        saveState();
     },
 
     selectAllForms: function(pid) {

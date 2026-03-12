@@ -122,6 +122,12 @@ function removeSet(id) {
     delete setNames[id];
     if (typeof traitSelections !== 'undefined') delete traitSelections[id];
     if (typeof formsActiveGrade !== 'undefined') delete formsActiveGrade[id];
+    // Clean up orphaned buff-collapse localStorage keys
+    try {
+        ['universal', 'typed', 'class'].forEach(function(sec) {
+            localStorage.removeItem('gcBuffCollapsed_' + sec + '_' + id);
+        });
+    } catch (e) {}
     // Fix comparison pair
     if (comparisonPair.a === id) comparisonPair.a = setOrder[0];
     if (comparisonPair.b === id) comparisonPair.b = setOrder[Math.min(1, setOrder.length - 1)];
@@ -143,7 +149,8 @@ function saveState() {
             setNames: setNames,
             comparisonPair: comparisonPair,
             nextSetId: nextSetId,
-            activeSetId: activeSetId
+            activeSetId: activeSetId,
+            formsActiveGrade: (typeof formsActiveGrade !== 'undefined') ? formsActiveGrade : {}
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (e) { /* quota exceeded or private mode */ }
@@ -229,6 +236,16 @@ function loadState() {
         if (data.activeTab === 'equipment' || data.activeTab === 'transforms' ||
             data.activeTab === 'collections' || data.activeTab === 'relic' || data.activeTab === 'trait' || data.activeTab === 'skill-buffs') {
             activeTab = data.activeTab;
+        }
+        // Restore formsActiveGrade per set
+        if (typeof formsActiveGrade !== 'undefined' && data.formsActiveGrade && typeof data.formsActiveGrade === 'object') {
+            var validGrades = ['normal', 'large', 'ancient', 'legendary', 'ultimate'];
+            setOrder.forEach(function(id) {
+                var g = data.formsActiveGrade[id];
+                if (g && validGrades.indexOf(g) !== -1) {
+                    formsActiveGrade[id] = g;
+                }
+            });
         }
         return true;
     } catch (e) { return false; }

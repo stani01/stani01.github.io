@@ -1,38 +1,48 @@
 'use strict';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SHARE v3  —  Binary-packed share encoding
+// SHARE v6  —  Binary-packed share encoding (multi-set)
 //
-// Format:  #s=4.<base64-encoded-binary>
+// Format:  #s=6.<base64-encoded-binary>
 //
-// All state is packed into a compact byte array, then base64-encoded.
-// ~350 chars total URL vs ~1000+ for JSON-based v2.
-// v4: ownedForms replaces tfToggled (collections auto-derive from owned forms)
+// Layout:
+//   [Global Header]  — class, weapon config         (4 bytes)
+//   [Multi-set Header] — count, comp pair, names     (variable)
+//   [Profile 1..N]   — full per-profile data         (variable each)
+//
+// No backward compatibility — old v4/v5 links are not supported.
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// ─── Lookup tables (append-only – order must NEVER change) ─────────────────
+// ─── Lookup tables (order is the encoding key — append only) ───────────────
 var SH_CLASSES       = ['gladiator','templar','assassin','ranger','sorcerer','spiritmaster','cleric','chanter','aethertech','gunner','bard','painter'];
 var SH_WTYPES        = ['dagger','sword','mace','revolver','greatsword','polearm','bow','staff','paintRings','orb','spellbook','aetherKey','cannon','harp'];
 var SH_OHTYPES       = ['none','shield','fuse','weapon'];
-var SH_SHIELDSETS    = ['spiked-ciclonica','fighting-spirit','salvation','spiked','ciclonica','none'];
-var SH_SHIELDTYPES   = ['battle','scale'];
-var SH_ACCSETS       = ['aeon-guardian','burning-altar','starshine','none'];
 var SH_ATYPES        = ARMOR_TYPE_OPTIONS.map(function(o) { return o.key; });
 var SH_ASETS         = ['fighting-spirit','acrimony','presumption','none'];
-var SH_WSETS         = ['spiked-helper','salvation','fighting-spirit','jorgoth-t4-v1','jorgoth-t4-v2','jorgoth-t4-v3','jorgoth-t3-v1','jorgoth-t3-v2','jorgoth-t3-v3','acrimony','presumption','vision','spiked','ciclonica-helper','none'];
+var SH_WSETS         = ['fighting-spirit','salvation','spiked','ciclonica-helper','acrimony','presumption','vision','jorgoth-t4-v1','jorgoth-t4-v2','jorgoth-t4-v3','jorgoth-t3-v1','jorgoth-t3-v2','jorgoth-t3-v3','none'];
+var SH_SHIELDSETS    = ['fighting-spirit','salvation','spiked','ciclonica','none'];
+var SH_SHIELDTYPES   = ['battle','scale'];
+var SH_ACCSETS       = ['aeon-guardian','burning-altar','starshine','none'];
 var SH_OATHS         = ['none','silent-skill','legendary-1','legendary-2','legendary-3','ultimate-1','ultimate-2','ultimate-3'];
 var SH_MANAS         = ['none','attack','crit','accuracy','hp','evasion','healBoost','pdef','mdef','magicResist','block','parry'];
-var SH_ASLOTS        = ['helmet','shoulders','chest','pants','gloves','boots'];
-var SH_GEARKEYS      = SH_ASLOTS.concat(['mainWeapon','offHand']);
 var SH_TRANSFORMS    = TRANSFORM_KEYS;
 var SH_MINIONS       = MINIONS.map(function(m) { return m.key; });
 var SH_GLYPH_BONUSES = ACC_BONUSES_GLYPH.map(function(b) { return b.key; });
-var SH_ALL_MANA_KEYS = SH_GEARKEYS.concat(ALL_ACCESSORY_KEYS); // 17 slots
+var SH_ASLOTS        = ['helmet','shoulders','chest','pants','gloves','boots'];
+var SH_GEARKEYS      = SH_ASLOTS.concat(['mainWeapon','offHand']);
+var SH_ALL_MANA_KEYS = SH_GEARKEYS.concat(ALL_ACCESSORY_KEYS); // 17 slots total
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
-function idx(arr, v)       { var i = arr.indexOf(v); return i >= 0 ? i : 0; }
-function val(arr, i)       { return (i >= 0 && i < arr.length) ? arr[i] : arr[0]; }
-function clamp(v, lo, hi)  { return Math.max(lo, Math.min(hi, v)); }
+function idx(arr, v) {
+    var i = arr.indexOf(v);
+    return i >= 0 ? i : 0;
+}
+function val(arr, i) {
+    return (i >= 0 && i < arr.length) ? arr[i] : arr[0];
+}
+function clamp(v, lo, hi) {
+    return Math.max(lo, Math.min(hi, v));
+}
 
 function toBitmask(selected, refList) {
     var mask = 0;
@@ -108,197 +118,194 @@ ByteReader.prototype.bools = function(count) {
     return out;
 };
 
+
 // ═══════════════════════════════════════════════════════════════════════════════
-// ENCODE  — produces "5.<base64>" (multi-set) or "4.<base64>" (legacy 2-set)
+// ENCODE
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// Encode a single profile into the ByteWriter (same as v4 per-profile format)
 function encodeProfile(w, id) {
     var p = state[id];
 
-        // ── Armor type ──
-        w.u8(idx(SH_ATYPES, p.armorType));
+    // ── Armor type (1 byte) ──
+    w.u8(idx(SH_ATYPES, p.armorType));
 
-        // ── Armor slots × 6  (set, enchant, bonuses) ──
-        SH_ASLOTS.forEach(function(sk) {
-            var a = p.armor[sk];
-            var isHigh = (sk === 'helmet' || sk === 'chest' || sk === 'pants');
-            var bonusList = isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
-            w.u8(idx(SH_ASETS, a.set));
-            w.u8(typeof a.enchant === 'number' ? a.enchant : 0);
-            w.u8(toBitmask(a.bonuses, bonusList));
-        });
+    // ── Armor × 6 slots: set(1) + enchant(1) + bonusMask(1) ──
+    SH_ASLOTS.forEach(function(sk) {
+        var a = p.armor[sk];
+        var isHigh = (sk === 'helmet' || sk === 'chest' || sk === 'pants');
+        var bonusList = isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+        w.u8(idx(SH_ASETS, a.set));
+        w.u8(typeof a.enchant === 'number' ? a.enchant : 0);
+        w.u8(toBitmask(a.bonuses, bonusList));
+    });
 
-        // ── Main weapon  (set, enchant, bonuses) ──
-        w.u8(idx(SH_WSETS, p.mainWeapon.set));
-        w.u8(p.mainWeapon.enchant || 9);
-        w.u8(toBitmask(p.mainWeapon.bonuses, (WEAPON_STATS_FIXED[p.mainWeapon.set] || {}).bonuses || []));
+    // ── Main weapon: set(1) + enchant(1) + bonusMask(1) ──
+    w.u8(idx(SH_WSETS, p.mainWeapon.set));
+    w.u8(p.mainWeapon.enchant || 9);
+    w.u8(toBitmask(p.mainWeapon.bonuses, (WEAPON_STATS_FIXED[p.mainWeapon.set] || {}).bonuses || []));
 
-        // ── Off-hand  (set, enchant, bonuses) ──
-        w.u8(idx(SH_WSETS, p.offHand.set));
-        w.u8(p.offHand.enchant || 9);
-        w.u8(toBitmask(p.offHand.bonuses, (WEAPON_STATS_FIXED[p.offHand.set] || {}).bonuses || []));
+    // ── Off-hand: set(1) + enchant(1) + bonusMask(1) ──
+    w.u8(idx(SH_WSETS, p.offHand.set));
+    w.u8(p.offHand.enchant || 9);
+    w.u8(toBitmask(p.offHand.bonuses, (WEAPON_STATS_FIXED[p.offHand.set] || {}).bonuses || []));
 
-        // ── Shield  (set, type, bonuses u16) ──
-        var sh = p.shield;
-        var shData = SHIELD_STATS[sh.set];
-        var shTypeKey = sh.type === 'scale' ? 'scale' : 'battle';
-        var shBonusList = shData ? shData.bonuses[shTypeKey] : [];
-        w.u8(idx(SH_SHIELDSETS, sh.set));
-        w.u8(idx(SH_SHIELDTYPES, sh.type));
-        w.u16(toBitmask(sh.bonuses, shBonusList));
+    // ── Shield: set(1) + type(1) + bonusMask(2) ──
+    var sh = p.shield;
+    var shData = SHIELD_STATS[sh.set];
+    var shTypeKey = sh.type === 'scale' ? 'scale' : 'battle';
+    var shBonusList = shData ? shData.bonuses[shTypeKey] : [];
+    w.u8(idx(SH_SHIELDSETS, sh.set));
+    w.u8(idx(SH_SHIELDTYPES, sh.type));
+    w.u16(toBitmask(sh.bonuses, shBonusList));
 
-        // ── Oaths × 6 ──
-        SH_ASLOTS.forEach(function(sk) {
-            w.u8(idx(SH_OATHS, p.oath[sk]));
-        });
+    // ── Oaths × 6 (1 byte each) ──
+    SH_ASLOTS.forEach(function(sk) {
+        w.u8(idx(SH_OATHS, p.oath[sk]));
+    });
 
-        // ── Manastones  (17 slots × 3 = 51 values, nibble-packed → 26 bytes) ──
-        var manaFlat = [];
-        SH_ALL_MANA_KEYS.forEach(function(gk) {
-            var arr = p.manastones[gk] || [];
-            for (var i = 0; i < 3; i++) {
-                manaFlat.push(idx(SH_MANAS, arr[i] || 'none'));
-            }
-        });
-        w.nibbles(manaFlat);
-
-        // ── Transform ──
-        w.u8(idx(SH_TRANSFORMS, p.transform || 'none'));
-        w.u8(typeof p.transformEnchant === 'number' ? p.transformEnchant : 0);
-
-        // ── Accessories × 9  (set, bonuses u16) ──
-        ALL_ACCESSORY_KEYS.forEach(function(accKey) {
-            var acc = p.accessories[accKey];
-            var statsType = ACC_STATS_TYPE[accKey];
-            var setData = ACCESSORY_STATS[acc.set];
-            var slotData = setData ? setData[statsType] : null;
-            var bonusList = (slotData && slotData.bonuses) ? slotData.bonuses : [];
-            w.u8(idx(SH_ACCSETS, acc.set));
-            w.u16(toBitmask(acc.bonuses, bonusList));
-        });
-
-        // ── Minions ──
-        w.u8(idx(SH_MINIONS, (p.minions && p.minions.main) || 'crit-sita'));
-        w.u8(idx(SH_MINIONS, (p.minions && p.minions.secondary) || 'crit-sita'));
-
-        // ── Glyph  (bonus, attack, pDef, mDef) ──
-        var glyph = p.glyph || {};
-        var gExtra = glyph.extra || {};
-        w.u8(idx(SH_GLYPH_BONUSES, (glyph.bonuses && glyph.bonuses[0]) || 'attack'));
-        w.u8(clamp(gExtra.attack || 0, 0, 250));
-        w.u8(clamp(gExtra.physicalDef || 0, 0, 250));
-        w.u8(clamp(gExtra.magicalDef || 0, 0, 250));
-
-        // ── Owned Forms  (bit-packed, 1 bit per form in ALL_FORM_IDS order) ──
-        var formArr = [];
-        var ownedForms = p.ownedForms || {};
-        for (var i = 0; i < ALL_FORM_IDS.length; i++) {
-            formArr.push(!!ownedForms[ALL_FORM_IDS[i]]);
+    // ── Manastones: 17 slots × 3 = 51 nibbles → 26 bytes ──
+    var manaFlat = [];
+    SH_ALL_MANA_KEYS.forEach(function(gk) {
+        var arr = p.manastones[gk] || [];
+        for (var i = 0; i < 3; i++) {
+            manaFlat.push(idx(SH_MANAS, arr[i] || 'none'));
         }
-        w.bools(formArr, ALL_FORM_IDS.length);
+    });
+    w.nibbles(manaFlat);
 
-        // ── Item Collections  (6 × u16) ──
-        var itemColl = (p.collections && p.collections.itemColl) || {};
-        ITEM_COLL_STATS.forEach(function(cs) {
-            w.u16(clamp(parseInt(itemColl[cs.key]) || 0, 0, cs.max));
-        });
+    // ── Transform: key(1) + enchant(1) ──
+    w.u8(idx(SH_TRANSFORMS, p.transform || 'none'));
+    w.u8(typeof p.transformEnchant === 'number' ? p.transformEnchant : 0);
 
-        // ── Collection Levels ──
-        var cl = p.collLevels || { normal: 6, large: 6, powerful: 6 };
-        w.u8(clamp(cl.normal   || 0, 0, 10));
-        w.u8(clamp(cl.large    || 0, 0, 10));
-        w.u8(clamp(cl.powerful || 0, 0, 10));
+    // ── Accessories × 9: set(1) + bonusMask(2) ──
+    ALL_ACCESSORY_KEYS.forEach(function(accKey) {
+        var acc = p.accessories[accKey];
+        var statsType = ACC_STATS_TYPE[accKey];
+        var setData = ACCESSORY_STATS[acc.set];
+        var slotData = setData ? setData[statsType] : null;
+        var bonusList = (slotData && slotData.bonuses) ? slotData.bonuses : [];
+        w.u8(idx(SH_ACCSETS, acc.set));
+        w.u16(toBitmask(acc.bonuses, bonusList));
+    });
 
-        // ── Relic  (u16) ──
-        w.u16((p.relic && p.relic.level) ? clamp(p.relic.level, 1, 300) : 300);
+    // ── Minions: main(1) + secondary(1) ──
+    w.u8(idx(SH_MINIONS, (p.minions && p.minions.main) || 'crit-sita'));
+    w.u8(idx(SH_MINIONS, (p.minions && p.minions.secondary) || 'crit-sita'));
 
-        // ── Traits × 5 ──
-        var ts = (typeof traitSelections !== 'undefined' && traitSelections[id]) || {};
-        w.u8(clamp(ts[81] || 0, 0, 2));
-        w.u8(clamp(ts[82] || 0, 0, 2));
-        w.u8(clamp(ts[83] || 0, 0, 2));
-        w.u8(clamp(ts[84] || 0, 0, 2));
-        w.u8(clamp(ts[85] || 0, 0, 2));
+    // ── Glyph: enabled(1) + bonus(1) + attack(1) + pDef(1) + mDef(1) ──
+    var glyph = p.glyph || {};
+    var gExtra = glyph.extra || {};
+    w.u8(glyph.enabled === false ? 0 : 1);
+    w.u8(idx(SH_GLYPH_BONUSES, (glyph.bonuses && glyph.bonuses[0]) || 'attack'));
+    w.u8(clamp(gExtra.attack || 0, 0, 250));
+    w.u8(clamp(gExtra.physicalDef || 0, 0, 250));
+    w.u8(clamp(gExtra.magicalDef || 0, 0, 250));
 
-        // ── Skill Buffs (bit-packed) ──
-        var sbArr = [];
-        var sbState = (p.skillBuffs) || {};
-        GC_SKILL_KEYS.forEach(function(k) {
-            sbArr.push(!!sbState[k]);
-        });
-        w.bools(sbArr, GC_SKILL_KEYS.length);
+    // ── Owned Forms: bit-packed (ALL_FORM_IDS.length bits) ──
+    var formArr = [];
+    var ownedForms = p.ownedForms || {};
+    for (var fi = 0; fi < ALL_FORM_IDS.length; fi++) {
+        formArr.push(!!ownedForms[ALL_FORM_IDS[fi]]);
+    }
+    w.bools(formArr, ALL_FORM_IDS.length);
 
-        // ── Glyph enabled (1 byte) ──
-        w.u8((p.glyph && p.glyph.enabled === false) ? 0 : 1);
+    // ── Item Collections: 6 × u16 ──
+    var itemColl = (p.collections && p.collections.itemColl) || {};
+    ITEM_COLL_STATS.forEach(function(cs) {
+        w.u16(clamp(parseInt(itemColl[cs.key]) || 0, 0, cs.max));
+    });
 
-        // ── Skill Enchant Levels ──
-        var sbe = p.skillBuffEnchants || {};
-        w.u8(GC_ENCHANTABLE_KEYS.length);
-        GC_ENCHANTABLE_KEYS.forEach(function(k) {
-            w.u8(sbe[k] || 0);
-        });
+    // ── Collection Levels: 3 × u8 ──
+    var cl = p.collLevels || { normal: 6, large: 6, powerful: 6 };
+    w.u8(clamp(cl.normal || 0, 0, 10));
+    w.u8(clamp(cl.large || 0, 0, 10));
+    w.u8(clamp(cl.powerful || 0, 0, 10));
 
-        // ── Bonus Values (u16 per selected bonus, in definition order) ──
-        // Armor × 6
-        SH_ASLOTS.forEach(function(sk) {
-            var a = p.armor[sk];
-            var isHighBV = (sk === 'helmet' || sk === 'chest' || sk === 'pants');
-            var bvList = isHighBV ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
-            bvList.forEach(function(b) {
-                if (a.bonuses && a.bonuses.indexOf(b.key) !== -1) {
-                    var bv = (a.bonusValues && typeof a.bonusValues[b.key] === 'number') ? a.bonusValues[b.key] : b.value;
-                    w.u16(clamp(bv, 0, b.value));
-                }
-            });
-        });
-        // Main weapon
-        var mwBonusDefs = (WEAPON_STATS_FIXED[p.mainWeapon.set] || {}).bonuses || [];
-        mwBonusDefs.forEach(function(b) {
-            if (p.mainWeapon.bonuses && p.mainWeapon.bonuses.indexOf(b.key) !== -1) {
-                var bv = (p.mainWeapon.bonusValues && typeof p.mainWeapon.bonusValues[b.key] === 'number') ? p.mainWeapon.bonusValues[b.key] : b.value;
+    // ── Relic: u16 ──
+    w.u16((p.relic && p.relic.level) ? clamp(p.relic.level, 1, 300) : 300);
+
+    // ── Traits × 5: u8 each ──
+    var ts = (typeof traitSelections !== 'undefined' && traitSelections[id]) || {};
+    [81, 82, 83, 84, 85].forEach(function(lvl) {
+        w.u8(clamp(ts[lvl] || 0, 0, 2));
+    });
+
+    // ── Skill Buffs: bit-packed (GC_SKILL_KEYS.length bits) ──
+    var sbArr = [];
+    var sbState = p.skillBuffs || {};
+    GC_SKILL_KEYS.forEach(function(k) {
+        sbArr.push(!!sbState[k]);
+    });
+    w.bools(sbArr, GC_SKILL_KEYS.length);
+
+    // ── Skill Enchant Levels: count(1) + level(1) each ──
+    var sbe = p.skillBuffEnchants || {};
+    w.u8(GC_ENCHANTABLE_KEYS.length);
+    GC_ENCHANTABLE_KEYS.forEach(function(k) {
+        w.u8(sbe[k] || 0);
+    });
+
+    // ── Bonus Values: u16 per selected bonus, in definition order ──
+    // Armor × 6
+    SH_ASLOTS.forEach(function(sk) {
+        var a = p.armor[sk];
+        var isHighBV = (sk === 'helmet' || sk === 'chest' || sk === 'pants');
+        var bvList = isHighBV ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+        bvList.forEach(function(b) {
+            if (a.bonuses && a.bonuses.indexOf(b.key) !== -1) {
+                var bv = (a.bonusValues && typeof a.bonusValues[b.key] === 'number') ? a.bonusValues[b.key] : b.value;
                 w.u16(clamp(bv, 0, b.value));
             }
         });
-        // Off-hand
-        var ohBonusDefs = (WEAPON_STATS_FIXED[p.offHand.set] || {}).bonuses || [];
-        ohBonusDefs.forEach(function(b) {
-            if (p.offHand.bonuses && p.offHand.bonuses.indexOf(b.key) !== -1) {
-                var bv = (p.offHand.bonusValues && typeof p.offHand.bonusValues[b.key] === 'number') ? p.offHand.bonusValues[b.key] : b.value;
-                w.u16(clamp(bv, 0, b.value));
-            }
-        });
-        // Shield
-        var shBonusDefsEnc = shData ? shData.bonuses[shTypeKey] : [];
-        shBonusDefsEnc.forEach(function(b) {
-            if (sh.bonuses && sh.bonuses.indexOf(b.key) !== -1) {
-                var bv = (sh.bonusValues && typeof sh.bonusValues[b.key] === 'number') ? sh.bonusValues[b.key] : b.value;
-                w.u16(clamp(bv, 0, b.value));
-            }
-        });
-        // Accessories × 9
-        ALL_ACCESSORY_KEYS.forEach(function(accKey) {
-            var accBV = p.accessories[accKey];
-            var stBV = ACC_STATS_TYPE[accKey];
-            var sdBV = ACCESSORY_STATS[accBV.set];
-            var slBV = sdBV ? sdBV[stBV] : null;
-            var blBV = (slBV && slBV.bonuses) ? slBV.bonuses : [];
-            blBV.forEach(function(b) {
-                if (accBV.bonuses && accBV.bonuses.indexOf(b.key) !== -1) {
-                    var bv = (accBV.bonusValues && typeof accBV.bonusValues[b.key] === 'number') ? accBV.bonusValues[b.key] : b.value;
-                    w.u16(clamp(bv, 0, b.value));
-                }
-            });
-        });
-        // Glyph
-        var glyphBK = (glyph.bonuses && glyph.bonuses[0]) || 'attack';
-        var glyphBDef = ACC_BONUSES_GLYPH.find(function(b) { return b.key === glyphBK; });
-        if (glyphBDef) {
-            var gbv = (glyph.bonusValues && typeof glyph.bonusValues[glyphBK] === 'number') ? glyph.bonusValues[glyphBK] : glyphBDef.value;
-            w.u16(clamp(gbv, 0, glyphBDef.value));
+    });
+    // Main weapon
+    var mwBDefs = (WEAPON_STATS_FIXED[p.mainWeapon.set] || {}).bonuses || [];
+    mwBDefs.forEach(function(b) {
+        if (p.mainWeapon.bonuses && p.mainWeapon.bonuses.indexOf(b.key) !== -1) {
+            var bv = (p.mainWeapon.bonusValues && typeof p.mainWeapon.bonusValues[b.key] === 'number') ? p.mainWeapon.bonusValues[b.key] : b.value;
+            w.u16(clamp(bv, 0, b.value));
         }
+    });
+    // Off-hand
+    var ohBDefs = (WEAPON_STATS_FIXED[p.offHand.set] || {}).bonuses || [];
+    ohBDefs.forEach(function(b) {
+        if (p.offHand.bonuses && p.offHand.bonuses.indexOf(b.key) !== -1) {
+            var bv = (p.offHand.bonusValues && typeof p.offHand.bonusValues[b.key] === 'number') ? p.offHand.bonusValues[b.key] : b.value;
+            w.u16(clamp(bv, 0, b.value));
+        }
+    });
+    // Shield
+    var shBDefsEnc = shData ? shData.bonuses[shTypeKey] : [];
+    shBDefsEnc.forEach(function(b) {
+        if (sh.bonuses && sh.bonuses.indexOf(b.key) !== -1) {
+            var bv = (sh.bonusValues && typeof sh.bonusValues[b.key] === 'number') ? sh.bonusValues[b.key] : b.value;
+            w.u16(clamp(bv, 0, b.value));
+        }
+    });
+    // Accessories × 9
+    ALL_ACCESSORY_KEYS.forEach(function(accKey) {
+        var accBV = p.accessories[accKey];
+        var stBV = ACC_STATS_TYPE[accKey];
+        var sdBV = ACCESSORY_STATS[accBV.set];
+        var slBV = sdBV ? sdBV[stBV] : null;
+        var blBV = (slBV && slBV.bonuses) ? slBV.bonuses : [];
+        blBV.forEach(function(b) {
+            if (accBV.bonuses && accBV.bonuses.indexOf(b.key) !== -1) {
+                var bv = (accBV.bonusValues && typeof accBV.bonusValues[b.key] === 'number') ? accBV.bonusValues[b.key] : b.value;
+                w.u16(clamp(bv, 0, b.value));
+            }
+        });
+    });
+    // Glyph bonus value
+    var glyphBK = (glyph.bonuses && glyph.bonuses[0]) || 'attack';
+    var glyphBDef = ACC_BONUSES_GLYPH.find(function(b) { return b.key === glyphBK; });
+    if (glyphBDef) {
+        var gbv = (glyph.bonusValues && typeof glyph.bonusValues[glyphBK] === 'number') ? glyph.bonusValues[glyphBK] : glyphBDef.value;
+        w.u16(clamp(gbv, 0, glyphBDef.value));
+    }
 }
 
+// ─── Main encode function ──────────────────────────────────────────────────
 function encodeShareString() {
     var w = new ByteWriter();
 
@@ -308,85 +315,36 @@ function encodeShareString() {
     w.u8(idx(SH_OHTYPES, weaponConfig.offHandType));
     w.u8(idx(SH_WTYPES, weaponConfig.offHandWeaponType));
 
-    // ── Multi-set header (v5) ──
-    w.u8(setOrder.length);  // number of sets (2-5)
-    // Comparison pair indices (index into setOrder, not set IDs)
-    w.u8(Math.max(0, setOrder.indexOf(comparisonPair.a)));
-    w.u8(Math.max(0, setOrder.indexOf(comparisonPair.b)));
-    // Set names: length-prefixed UTF-8 strings
+    // ── Multi-set header ──
+    w.u8(setOrder.length);                                          // set count (2-5)
+    w.u8(Math.max(0, setOrder.indexOf(comparisonPair.a)));          // comp pair A index
+    w.u8(Math.max(0, setOrder.indexOf(comparisonPair.b)));          // comp pair B index
+
+    // Set names: length-prefixed ASCII
     setOrder.forEach(function(id) {
         var name = getSetName(id);
         var bytes = [];
         for (var i = 0; i < name.length && bytes.length < 32; i++) {
             var c = name.charCodeAt(i);
-            if (c < 128) bytes.push(c);
-            else { bytes.push(63); } // '?' for non-ASCII
+            bytes.push(c < 128 ? c : 63);  // '?' for non-ASCII
         }
         w.u8(bytes.length);
         bytes.forEach(function(b) { w.u8(b); });
     });
 
-    // Encode each profile
+    // ── Per-profile data ──
     setOrder.forEach(function(id) {
         encodeProfile(w, id);
     });
 
-    return '5.' + w.toBase64();
+    return '6.' + w.toBase64();
 }
+
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // DECODE
 // ═══════════════════════════════════════════════════════════════════════════════
-function decodeShareString(s) {
-    if (!s || s.length < 4) return false;
-    var ver = s.charAt(0);
-    if (s.charAt(1) !== '.') return false;
-    if (ver === '5') {
-        try { return decodeShareV5(s.substring(2)); }
-        catch (e) { return false; }
-    }
-    if (ver === '4') {
-        try { return decodeShareV4(s.substring(2)); }
-        catch (e) { return false; }
-    }
-    return false;
-}
 
-function decodeShareV4(b64) {
-    var r = new ByteReader(b64);
-
-    // ── Global header ──
-    var cls = val(SH_CLASSES, r.u8());
-    if (!CLASS_DATA[cls]) return false;
-    selectedClass = cls;
-
-    weaponConfig = createDefaultWeaponConfig(cls);
-    var mt = val(SH_WTYPES, r.u8());
-    if (CLASS_DATA[cls].weapons.indexOf(mt) !== -1) weaponConfig.mainType = mt;
-    weaponConfig.offHandType = val(SH_OHTYPES, r.u8());
-    weaponConfig.offHandWeaponType = val(SH_WTYPES, r.u8());
-
-    var allowed = getAllowedOffHand(weaponConfig.mainType, cls);
-    if (allowed.indexOf(weaponConfig.offHandType) === -1) {
-        weaponConfig.offHandType = getDefaultOffHand(weaponConfig.mainType, cls);
-    }
-
-    // v4 always has exactly 2 sets
-    setOrder = [1, 2];
-    setNames = { 1: 'Set 1', 2: 'Set 2' };
-    comparisonPair = { a: 1, b: 2 };
-    nextSetId = 3;
-    activeSetId = 1;
-    state = {};
-
-    [1, 2].forEach(function(id) {
-        state[id] = decodeProfileFromReader(r, cls, id);
-    });
-
-    return true;
-}
-
-// Decode a single profile from the ByteReader (shared between v4 and v5)
 function decodeProfileFromReader(r, cls, id) {
     var p = createDefaultProfile(cls);
 
@@ -394,7 +352,7 @@ function decodeProfileFromReader(r, cls, id) {
     var at = val(SH_ATYPES, r.u8());
     if (CLASS_DATA[cls].armorTypes.indexOf(at) !== -1) p.armorType = at;
 
-    // ── Armor slots × 6 ──
+    // ── Armor × 6 ──
     SH_ASLOTS.forEach(function(sk) {
         var aset = val(SH_ASETS, r.u8());
         var aench = r.u8();
@@ -411,7 +369,7 @@ function decodeProfileFromReader(r, cls, id) {
     var mwEnch = r.u8();
     var mwBmask = r.u8();
     if (WEAPON_SET_KEYS.indexOf(mwSet) !== -1 && MAINHAND_EXCLUDED_SETS.indexOf(mwSet) === -1) p.mainWeapon.set = mwSet;
-    if (mwEnch >= 8 && mwEnch <= 15) p.mainWeapon.enchant = mwEnch;
+    if (mwEnch >= 1 && mwEnch <= 15) p.mainWeapon.enchant = mwEnch;
     var mwFixed = WEAPON_STATS_FIXED[p.mainWeapon.set];
     if (mwFixed && mwFixed.bonuses && mwBmask) {
         p.mainWeapon.bonuses = fromBitmask(mwBmask, mwFixed.bonuses, mwFixed.maxBonuses);
@@ -422,7 +380,7 @@ function decodeProfileFromReader(r, cls, id) {
     var ohEnch = r.u8();
     var ohBmask = r.u8();
     if (WEAPON_SET_KEYS.indexOf(ohSet) !== -1 && OFFHAND_EXCLUDED_SETS.indexOf(ohSet) === -1) p.offHand.set = ohSet;
-    if (ohEnch >= 8 && ohEnch <= 15) p.offHand.enchant = ohEnch;
+    if (ohEnch >= 1 && ohEnch <= 15) p.offHand.enchant = ohEnch;
     var ohFixed = WEAPON_STATS_FIXED[p.offHand.set];
     if (ohFixed && ohFixed.bonuses && ohBmask) {
         p.offHand.bonuses = fromBitmask(ohBmask, ohFixed.bonuses, ohFixed.maxBonuses);
@@ -432,7 +390,6 @@ function decodeProfileFromReader(r, cls, id) {
     var shSet = val(SH_SHIELDSETS, r.u8());
     var shType = val(SH_SHIELDTYPES, r.u8());
     var shBmask = r.u16();
-    if (shSet === 'spiked-ciclonica') shSet = 'spiked';
     if (SHIELD_SET_KEYS.indexOf(shSet) !== -1) p.shield.set = shSet;
     if (shType === 'battle' || shType === 'scale') p.shield.type = shType;
     var shData = SHIELD_STATS[p.shield.set];
@@ -451,7 +408,7 @@ function decodeProfileFromReader(r, cls, id) {
     var manaFlat = r.nibbles(SH_ALL_MANA_KEYS.length * 3);
     var mi = 0;
     SH_ALL_MANA_KEYS.forEach(function(gk) {
-        if (!p.manastones[gk]) p.manastones[gk] = ['none','none','none'];
+        if (!p.manastones[gk]) p.manastones[gk] = ['none', 'none', 'none'];
         for (var i = 0; i < 3; i++) {
             p.manastones[gk][i] = val(SH_MANAS, manaFlat[mi++]);
         }
@@ -486,15 +443,16 @@ function decodeProfileFromReader(r, cls, id) {
     };
 
     // ── Glyph ──
+    var glyphEnabled = r.u8();
     p.glyph = {
-        bonuses: [val(SH_GLYPH_BONUSES, r.u8())],
+        enabled:    glyphEnabled !== 0,
+        bonuses:    [val(SH_GLYPH_BONUSES, r.u8())],
         bonusValues: {},
         extra: {
             attack:      clamp(r.u8(), 0, 250),
             physicalDef: clamp(r.u8(), 0, 250),
             magicalDef:  clamp(r.u8(), 0, 250)
-        },
-        enabled: true
+        }
     };
 
     // ── Owned Forms ──
@@ -504,7 +462,7 @@ function decodeProfileFromReader(r, cls, id) {
         if (formBools[fi]) p.ownedForms[ALL_FORM_IDS[fi]] = true;
     }
 
-    // ── Item Collections ──
+    // ── Item Collections (6 × u16) ──
     p.collections = p.collections || { itemColl: {} };
     ITEM_COLL_STATS.forEach(function(cs) {
         p.collections.itemColl[cs.key] = clamp(r.u16(), 0, cs.max);
@@ -531,16 +489,11 @@ function decodeProfileFromReader(r, cls, id) {
     p.skillBuffs = {};
     var allBuffs = getSkillBuffsForClass(cls);
     allBuffs.forEach(function(buff) { p.skillBuffs[buff.key] = !!buff.defaultActive; });
-    if (r.pos < r.buf.length) {
+    if (r.remaining() > 0) {
         var sbBools = r.bools(GC_SKILL_KEYS.length);
         for (var si = 0; si < GC_SKILL_KEYS.length; si++) {
             p.skillBuffs[GC_SKILL_KEYS[si]] = sbBools[si];
         }
-    }
-
-    // ── Glyph enabled ──
-    if (r.remaining() > 0) {
-        p.glyph.enabled = (r.u8() !== 0);
     }
 
     // ── Skill Enchant Levels ──
@@ -560,8 +513,9 @@ function decodeProfileFromReader(r, cls, id) {
         }
     }
 
-    // ── Bonus Values ──
+    // ── Bonus Values (u16 per selected bonus, definition order) ──
     if (r.remaining() > 0) {
+        // Armor × 6
         SH_ASLOTS.forEach(function(sk) {
             var isHighD = (sk === 'helmet' || sk === 'chest' || sk === 'pants');
             var bvListD = isHighD ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
@@ -572,6 +526,7 @@ function decodeProfileFromReader(r, cls, id) {
                 }
             });
         });
+        // Main weapon
         var mwBDefsD = (WEAPON_STATS_FIXED[p.mainWeapon.set] || {}).bonuses || [];
         p.mainWeapon.bonusValues = {};
         mwBDefsD.forEach(function(b) {
@@ -579,6 +534,7 @@ function decodeProfileFromReader(r, cls, id) {
                 p.mainWeapon.bonusValues[b.key] = clamp(r.u16(), 0, b.value);
             }
         });
+        // Off-hand
         var ohBDefsD = (WEAPON_STATS_FIXED[p.offHand.set] || {}).bonuses || [];
         p.offHand.bonusValues = {};
         ohBDefsD.forEach(function(b) {
@@ -586,6 +542,7 @@ function decodeProfileFromReader(r, cls, id) {
                 p.offHand.bonusValues[b.key] = clamp(r.u16(), 0, b.value);
             }
         });
+        // Shield
         var shBDefsD = shData ? shData.bonuses[typeKey] : [];
         p.shield.bonusValues = {};
         shBDefsD.forEach(function(b) {
@@ -593,6 +550,7 @@ function decodeProfileFromReader(r, cls, id) {
                 p.shield.bonusValues[b.key] = clamp(r.u16(), 0, b.value);
             }
         });
+        // Accessories × 9
         ALL_ACCESSORY_KEYS.forEach(function(accKey) {
             var stD = ACC_STATS_TYPE[accKey];
             var sdD = ACCESSORY_STATS[p.accessories[accKey].set];
@@ -605,6 +563,7 @@ function decodeProfileFromReader(r, cls, id) {
                 }
             });
         });
+        // Glyph
         var glyphBKD = p.glyph.bonuses[0];
         var glyphBDefD = ACC_BONUSES_GLYPH.find(function(b) { return b.key === glyphBKD; });
         if (glyphBDefD) {
@@ -615,13 +574,23 @@ function decodeProfileFromReader(r, cls, id) {
     return p;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// V5 DECODER (multi-set)
-// ═══════════════════════════════════════════════════════════════════════════════
-function decodeShareV5(b64) {
+// ─── Main decode function ──────────────────────────────────────────────────
+function decodeShareString(s) {
+    if (!s || s.length < 4) return false;
+    var ver = s.charAt(0);
+    if (s.charAt(1) !== '.') return false;
+    if (ver !== '6') return false;
+    try {
+        return decodeShareV6(s.substring(2));
+    } catch (e) {
+        return false;
+    }
+}
+
+function decodeShareV6(b64) {
     var r = new ByteReader(b64);
 
-    // ── Global header (4 bytes, same as v4) ──
+    // ── Global header (4 bytes) ──
     var cls = val(SH_CLASSES, r.u8());
     if (!CLASS_DATA[cls]) return false;
     selectedClass = cls;
@@ -669,13 +638,19 @@ function decodeShareV5(b64) {
         b: setOrder[clamp(compIdxB, 0, numSets - 1)]
     };
 
-    // Decode each profile
+    // ── Decode each profile ──
     setOrder.forEach(function(id) {
         state[id] = decodeProfileFromReader(r, cls, id);
     });
 
     return true;
 }
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PUBLIC API
+// ═══════════════════════════════════════════════════════════════════════════════
+
 function generateShareLink() {
     return window.location.origin + window.location.pathname + '#s=' + encodeShareString();
 }
