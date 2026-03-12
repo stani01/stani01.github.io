@@ -1,10 +1,5 @@
 'use strict';
 
-function calculateProfileStats(profileId) {
-    var d = calculateDetailedStats(profileId);
-    return d.totals;
-}
-
 function calculateDetailedStats(profileId) {
     var profile = state[profileId];
     var sources = {

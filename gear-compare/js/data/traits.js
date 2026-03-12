@@ -341,12 +341,6 @@ function getDaevanionSkillStats(className, level, skillId) {
     return skill ? skill.stats : {};
 }
 
-// Example trait function: get icon for a selected skill
-function getDaevanionSkillIcon(className, level, skillId) {
-    const skill = getDaevanionSkillObj(className, level, skillId);
-    return skill ? skill.icon : "";
-}
-
 // State to track selections: traits[setId][level] = index(0-2)
 var TRAIT_SELECTIONS_KEY = 'gc-trait-selections-v1';
 var traitSelections = loadTraitSelections();

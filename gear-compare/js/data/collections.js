@@ -448,53 +448,7 @@ function getRelicStats(level, isPhy) {
     return out;
 }
 
-// Returns only the milestones whose level is ≤ the supplied level and match class type
-function getActiveMilestones(level, isPhy) {
-    return RELIC_MILESTONES.filter(function(ms) {
-        return ms.level <= level && (
-            !ms.type || ms.type === 'both' ||
-            (ms.type === 'physical' && isPhy) ||
-            (ms.type === 'magical' && !isPhy)
-        );
-    });
-}
-
-function getTraitStats(pid) {
-    let totals = { 
-        hp: 0, attack: 0, physicalDef: 0, magicalDef: 0, 
-        accuracy: 0, crit: 0, evasion: 0, parry: 0, 
-        magicResist: 0, dp: 0 
-    };
-
-    const className = (typeof selectedClass === 'string' ? selectedClass.toLowerCase() : "gladiator");
-    const classSkills = DAEVANION_SKILLS[className];
-    const selections = traitSelections[pid];
-
-    if (!classSkills) return totals;
-
-    // Check each level (81-85)
-    Object.keys(selections).forEach(lvl => {
-        const selectedIdx = selections[lvl];
-        if (selectedIdx !== null && classSkills[lvl]) {
-            const skillName = classSkills[lvl][selectedIdx];
-            const bonuses = TRAIT_STAT_DATA[skillName];
-
-            if (bonuses) {
-                for (const stat in bonuses) {
-                    if (totals.hasOwnProperty(stat)) {
-                        totals[stat] += bonuses[stat];
-                    }
-                }
-            }
-        }
-    });
-
-    return totals;
-}
-
-
 // Build keys lists
-var ARMOR_TYPE_KEYS = ARMOR_TYPE_OPTIONS.map(function(o) { return o.key; });
 var ARMOR_SET_KEYS  = ARMOR_SETS.map(function(o) { return o.key; });
 var ARMOR_SLOT_KEYS = ARMOR_SLOTS.map(function(o) { return o.key; });
 var WEAPON_SET_KEYS = WEAPON_SETS.map(function(o) { return o.key; });

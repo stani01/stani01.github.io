@@ -201,14 +201,6 @@
     display: block;
 }
 
-/* ── Profiles Layout ── */
-.gc-profiles {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 30px;
-}
-
 .gc-profile {
     background: var(--bg-panel-solid);
     border: 1px solid var(--border-primary);
@@ -371,10 +363,6 @@
     margin-bottom: 0;
 }
 
-.gc-select-inline {
-    width: auto;
-    min-width: 130px;
-}
 
 .gc-armor-type-badge {
     font-size: 0.82em;
@@ -400,12 +388,6 @@
     overflow: hidden;
 }
 
-/* ── Armor List (row-based layout) ── */
-.gc-armor-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
 
 .gc-armor-row {
     display: flex;
@@ -688,30 +670,6 @@
     color: rgba(100, 200, 255, 1);
 }
 
-.gc-collapse-all-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    padding: 3px 10px;
-    border-radius: 6px;
-    font-size: 0.72em;
-    color: rgba(200, 180, 130, 0.8);
-    background: rgba(200, 180, 130, 0.06);
-    border: 1px solid rgba(200, 180, 130, 0.15);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-
-.gc-collapse-all-btn:hover {
-    background: rgba(200, 180, 130, 0.12);
-    border-color: rgba(200, 180, 130, 0.35);
-    color: rgba(200, 180, 130, 1);
-}
-
-.gc-section-label-row .gc-collapse-all-btn {
-    margin-left: auto;
-}
 
 /* ── Accessory Bonus Trigger Button ── */
 .gc-acc-bonus-trigger {
@@ -806,16 +764,6 @@
     letter-spacing: 0.05em;
 }
 
-.gc-glyph-enchant-label {
-    display: flex;
-    width: 100%;
-    font-size: 0.72em;
-    font-weight: 700;
-    color: rgba(200, 180, 130, 0.9);
-    margin-bottom: 2px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
 
 /* Mimic .gc-shield-bonus-btn for radio buttons */
 .gc-glyph-bonus-radio {
@@ -1579,20 +1527,6 @@
     display: block;
 }
 
-.gc-slot-label {
-    font-size: 0.78em;
-    font-weight: 600;
-    color: var(--text-primary);
-    width: 70px;
-    flex-shrink: 0;
-}
-
-.gc-slot-name {
-    font-size: 0.8em;
-    font-weight: 600;
-    color: var(--text-primary);
-    letter-spacing: 0.3px;
-}
 
 /* ── Shared Weapon Config ── */
 .gc-weapon-config {
@@ -1730,36 +1664,7 @@
     font-weight: 700;
 }
 
-.gc-wc-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
 
-.gc-wc-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
-    background: rgba(15, 15, 25, 0.6);
-    border: 1px solid rgba(200, 160, 60, 0.15);
-    border-radius: 8px;
-}
-
-.gc-wc-label {
-    font-size: 0.8em;
-    font-weight: 600;
-    color: var(--text-primary);
-    width: 75px;
-    flex-shrink: 0;
-}
-
-.gc-slot-icon-empty {
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
-    opacity: 0.3;
-}
 
 /* ── None (empty) armor slot ── */
 .gc-slot-icon-none {
@@ -1783,14 +1688,6 @@
     letter-spacing: 0.5px;
 }
 
-/* ── Weapon Notice ── */
-.gc-weapon-notice {
-    font-size: 0.7em;
-    color: rgba(255, 204, 0, 0.5);
-    text-align: center;
-    padding-top: 8px;
-    line-height: 1.4;
-}
 
 /* ── Jorgoth Weapon Tags ── */
 .gc-weapon-tag {
@@ -1814,69 +1711,8 @@
     color: #ffbb44;
 }
 
-/* ── Weapon Grid ── */
-.gc-weapon-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.gc-weapon-icon {
-    width: 48px;
-    height: 48px;
-    margin: 4px auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(10, 10, 18, 0.6);
-    border: 1px solid rgba(200, 160, 60, 0.3);
-    border-radius: 8px;
-}
-
-.gc-weapon-icon img {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-}
-
-.gc-weapon-icon-empty {
-    color: var(--text-dim);
-    font-size: 1.5em;
-}
 
 /* ── Dropdowns ── */
-.gc-select {
-    width: auto;
-    min-width: 0;
-    flex: 1 1 auto;
-    background: rgba(10, 10, 20, 0.9);
-    color: var(--text-primary);
-    border: 1px solid var(--border-dim);
-    border-radius: 5px;
-    padding: 4px 5px;
-    font-size: 0.75em;
-    font-family: inherit;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
-    appearance: auto;
-}
-
-.gc-select:hover,
-.gc-select:focus {
-    border-color: var(--accent-purple);
-    outline: none;
-}
-
-.gc-select-sm {
-    flex: 0 0 auto;
-    margin: 0 1px;
-}
-
-.gc-select:disabled {
-    opacity: 0.35;
-    cursor: default;
-    border-color: rgba(200, 160, 60, 0.08);
-}
 
 /* (Stats panel removed — comparison is now item-based) */
 
@@ -1922,11 +1758,6 @@
     font-size: 1.1em;
 }
 
-.gc-comp-subtitle {
-    color: var(--text-dim);
-    font-size: 0.75em;
-    font-weight: 400;
-}
 
 .gc-comp-table {
     table-layout: fixed;
@@ -1986,15 +1817,6 @@
     background: none;
 }
 
-.gc-comp-category-row td {
-    font-weight: 700;
-    font-size: 0.85em;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--accent);
-    padding: 12px 12px 6px;
-    border-bottom: 1px solid rgba(77, 184, 255, 0.15);
-}
 
 .gc-comp-row td {
     padding: 6px 12px;
@@ -2326,9 +2148,6 @@
     color: rgba(180, 200, 220, 0.75);
 }
 
-.gc-tf-enchant-select {
-    width: 75px;
-}
 
 /* ── Enchant Popup Wrap (for 0-20 transform range) ── */
 .gc-enchant-popup-wrap {
@@ -2396,14 +2215,6 @@
     opacity: 0.35;
 }
 
-/* ── Shield Bonus Picker ── */
-.gc-shield-variant-row {
-    margin: 6px 0 2px;
-}
-
-.gc-shield-bonuses {
-    margin-top: 8px;
-}
 
 .gc-acc-upper {
     display: grid;
@@ -2440,25 +2251,6 @@
     object-fit: contain;
 }
 
-.gc-bonus-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
-}
-
-.gc-bonus-toggle:hover {
-    opacity: 0.8;
-}
-
-.gc-bonus-toggle-arrow {
-    font-size: 0.72em;
-    color: rgba(180, 200, 220, 0.6);
-    width: 10px;
-    text-align: center;
-}
 
 .gc-shield-bonus-grid {
     display: flex;
@@ -2500,11 +2292,6 @@
     background: rgba(220, 80, 80, 0.1);
 }
 
-.gc-shield-bonus-disabled {
-    opacity: 0.35;
-    cursor: default;
-    pointer-events: none;
-}
 
 .gc-shield-bonus-name {
     font-weight: 600;
@@ -2571,9 +2358,6 @@
         position: static;
         height: auto;
     }
-    .gc-profiles {
-        grid-template-columns: 1fr;
-    }
 }
 
 @media (max-width: 700px) {
@@ -2586,20 +2370,8 @@
 }
 
 @media (max-width: 600px) {
-    .gc-weapon-grid {
-        grid-template-columns: 1fr;
-    }
     .gc-armor-row {
         flex-wrap: wrap;
-    }
-    .gc-wc-row {
-        flex-wrap: wrap;
-    }
-    .gc-slot-label {
-        width: 60px;
-    }
-    .gc-wc-label {
-        width: 60px;
     }
     .gc-oath-pick {
         width: 26px;
@@ -2688,23 +2460,6 @@
     border-bottom: 1px solid rgba(181, 101, 245, 0.2);
 }
 
-/* Empty notice (shown while data arrays are unpopulated) */
-.gc-coll-empty-notice {
-    font-size: 0.82em;
-    color: var(--text-dim);
-    background: rgba(255,255,255,0.04);
-    border: 1px dashed rgba(181,101,245,0.25);
-    border-radius: 8px;
-    padding: 12px 14px;
-    line-height: 1.6;
-}
-.gc-coll-empty-notice code {
-    color: var(--accent);
-    background: rgba(77,184,255,0.12);
-    padding: 1px 4px;
-    border-radius: 3px;
-    font-size: 0.95em;
-}
 
 /* Transformation collection toggle buttons grid */
 .gc-coll-tf-scroll {
@@ -2835,12 +2590,6 @@
     white-space: nowrap;
 }
 
-.gc-coll-item-input-wrap {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    justify-content: flex-end;
-}
 
 .gc-coll-item-input {
     width: 72px;
@@ -3079,11 +2828,6 @@
     min-height: 62px;
     align-items: flex-start;
 }
-.gc-relic-skills-empty {
-    font-size: 0.75em;
-    color: var(--text-dim);
-    align-self: center;
-}
 
 /* Each special skill button */
 .gc-relic-skill {
@@ -3221,12 +2965,6 @@
     }
 }
 
-.gc-trait-container {
-    display: flex;
-    gap: 15px;
-    padding: 10px;
-    overflow-x: auto;
-}
 
 .gc-trait-column {
     flex: 1;

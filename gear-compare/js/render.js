@@ -412,12 +412,6 @@ function renderFormsPickerHTML(pid) {
     return html;
 }
 
-// Wrapper for standalone render (called from handlers)
-function renderFormsPicker(pid) {
-    // Forms are now rendered inline in renderCollections, so just re-render that
-    renderCollections(pid);
-}
-
 function activateTab(tab) {
     activeTab = tab;
     document.querySelectorAll('.gc-tab').forEach(function(b) { b.classList.remove('gc-tab-active'); });

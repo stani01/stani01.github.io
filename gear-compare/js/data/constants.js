@@ -29,8 +29,6 @@ function getEffectiveOffHandType(profile) {
     return weaponConfig.offHandType;
 }
 
-// Mace can only use shield (no off-hand weapon, no fuse)
-var MACE_OH_ONLY = ['none', 'shield'];
 
 // Compute allowed off-hand types for a given main weapon + class
 function getAllowedOffHand(mainType, className) {
@@ -281,7 +279,6 @@ var SILENT_SKILL_ICONS = {
     boots:     '../assets/icons/icon_item_rb_shoes_s01.png'
 };
 
-var OATH_FRAME = '../assets/icons/icon_frame_2.png';
 
 function getOathIcon(slotKey, oathKey) {
     if (oathKey === 'silent-skill') return SILENT_SKILL_ICONS[slotKey] || null;
