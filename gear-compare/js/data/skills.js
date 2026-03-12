@@ -282,7 +282,7 @@ var GC_SKILL_DATABASE = {
         usageCost: '0 MP',
         castTime: 'Cast Instantly',
         cooldown: '0s',
-        description: 'Restores 302 MP.<br>Increases Physical Attack by 180.<br>Increases Physical Defence by 250.<br>Active Skill.'
+        description: 'Increases Physical Defence by 250.<br>Increases Block by 500.<br>Increases Parry by 500.<br>Increases Evasion by 450.<br>Active Skill.'
     },
     'wallProtection': {
         name: '(Improved) Wall of Protection',
@@ -826,7 +826,7 @@ var GC_SKILL_BUFFS = {
     universal_phys: [
         { key: 'magicIncitement',  value: '+800 Crit, Acc / +600 Attack', stats: { attack: 600, crit: 800, accuracy: 800 }, defaultActive: false, excludes: ['wordInspiration'] },
         { key: 'invincibilityMantra',  value: '+180 Attack / +250 PDef', stats: { attack: 180, physicalDef: 250 }, defaultActive: false, },
-        { key: 'shieldMantra',  value: '+180 PDef, Block, Parry / +120 Evasion', stats: { physicalDef: 180, block: 180, parry: 180, evasion: 120 }, defaultActive: false, },
+        { key: 'shieldMantra',  value: '+250 PDef / +500 Block, Parry / +450 Evasion', stats: { physicalDef: 250, block: 500, parry: 500, evasion: 450 }, defaultActive: false, },
         { key: 'wallProtection',  value: '+360 Attack', stats: { attack: 360 }, defaultActive: false, },
         { key: 'windHarmony',  value: '+121 Attack', stats: { attack: 121 }, defaultActive: false, },
     ],

@@ -385,9 +385,9 @@ function calculateDetailedStats(profileId) {
 
     // ── Post-processing: HP% passive (gladiator/templar) ──
     // TODO: verify in-game whether this applies to total HP or only base/gear HP
-    if (sources.permanent.hpPercent) {
-        totals.hp += Math.floor(totals.hp * sources.permanent.hpPercent / 100);
-    }
+    // if (sources.permanent.hpPercent) {
+    //     totals.hp += Math.floor(totals.hp * sources.permanent.hpPercent / 100);
+    // }
 
     return { totals: totals, sources: sources };
 }
