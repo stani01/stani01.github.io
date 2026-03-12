@@ -21,7 +21,7 @@ var FS_DEF = {
 
 // Fighting Spirit: common stats by tier (same for all armor types)
 var FS_COMMON = {
-    high: { hp: 3712, attack: 1676, enchDef: 175, enchAtk: 175 },
+    high: { hp: 2368, attack: 1676, enchDef: 175, enchAtk: 175 },
     low:  { hp: 0,    attack: 1200, enchDef: 175, enchAtk: 175 }
 };
 

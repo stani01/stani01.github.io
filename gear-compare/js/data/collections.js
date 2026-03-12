@@ -41,13 +41,13 @@ var TF_COLLECTIONS = [
     { key: 'tf-ereshkigal-warriors', name: 'Ereshkigal\'s Warriors', stat: 'parry', value: 538,
       bonus: '(Level 1) Flame of Illusion: Prigga',
       forms: [982042, 982057, 982034, 982061] },
-    { key: 'tf-what-up-to', name: 'What are you up to?', stat: 'accuracy', value: 110,
+    { key: 'tf-what-up-to', name: 'What are you up to?', stat: 'physicalAccuracy', value: 110,
       bonus: '(Level 1) Flame of Illusion: Ereshkigal',
       forms: [982059, 982057, 982058, 982043, 982040, 982041] },
     { key: 'tf-balaur-never-die', name: 'Balaur Never Die', stat: 'magicResist', value: 538,
       bonus: '(Final) Flame of Illusion: Prigga',
       forms: [982059, 982057, 982058, 982046, 982049, 982061] },
-    { key: 'tf-magical-expert', name: 'Magical Transformation Expert', stat: 'accuracy', value: 551,
+    { key: 'tf-magical-expert', name: 'Magical Transformation Expert', stat: 'magicAccuracy', value: 551,
       bonus: '(Level 2) Cursed Cyclone',
       forms: [982032, 982057, 982062, 982048, 982046, 982044] },
 
@@ -62,9 +62,9 @@ var TF_COLLECTIONS = [
     // -- 14–25: Mixed collections --
     { key: 'tf-we-are-one', name: 'We are one, though we are not the same.', stat: 'physicalDef', value: 152,
       forms: [982026, 982034, 982057, 982063] },
-    { key: 'tf-rgb', name: 'RGB (if painted)', stat: 'accuracy', value: 220,
+    { key: 'tf-rgb', name: 'RGB (if painted)', stat: 'physicalAccuracy', value: 220,
       forms: [982020, 982018, 982066] },
-    { key: 'tf-too-callous', name: 'You\'re too callous', stat: 'accuracy', value: 331,
+    { key: 'tf-too-callous', name: 'You\'re too callous', stat: 'physicalAccuracy', value: 331,
       forms: [982071, 982061, 982042, 982057] },
     { key: 'tf-eternal-death', name: 'Eternal Death', stat: 'spellFortitude', value: 30,
       forms: [982088, 982061, 982039, 982018] },
@@ -97,10 +97,10 @@ var TF_COLLECTIONS = [
       forms: [982040, 982059, 982034, 982046] },
 
     // -- 30–39: Legendary-tier collections with bonuses --
-    { key: 'tf-beritra-warriors', name: 'Beritra\'s Warriors', stat: 'accuracy', value: 110,
+    { key: 'tf-beritra-warriors', name: 'Beritra\'s Warriors', stat: 'magicAccuracy', value: 110,
       bonus: '(Level 1) Flame of Illusion: Beritra',
       forms: [982041, 982058, 982034, 982049] },
-    { key: 'tf-fantastic-agents', name: 'Fantastic Agents', stat: 'accuracy', value: 331,
+    { key: 'tf-fantastic-agents', name: 'Fantastic Agents', stat: 'magicAccuracy', value: 331,
       bonus: '(Level 2) Flame of Illusion: Tower of Challenge',
       forms: [982060, 982047, 982048] },
     { key: 'tf-transform-me', name: 'Now Transform into Me', stat: 'attack', value: 78,
@@ -115,10 +115,10 @@ var TF_COLLECTIONS = [
     { key: 'tf-old-boss', name: 'This Old Boss', stat: 'crit', value: 308,
       bonus: '(Level 2) Flame of Illusion: Beritra',
       forms: [982056, 982062, 982049, 982046] },
-    { key: 'tf-phys-expert', name: 'Physical Transformation Expert', stat: 'accuracy', value: 551,
+    { key: 'tf-phys-expert', name: 'Physical Transformation Expert', stat: 'physicalAccuracy', value: 551,
       bonus: '(Level 2) Flame of Illusion: Ereshkigal',
       forms: [982037, 982055, 982061, 982047, 982045, 982043] },
-    { key: 'tf-eternal-war', name: 'Eternal War', stat: 'accuracy', value: 331,
+    { key: 'tf-eternal-war', name: 'Eternal War', stat: 'physicalAccuracy', value: 331,
       bonus: '(Level 1) Cursed Cyclone',
       forms: [982054, 982048, 982055, 982047] },
     { key: 'tf-im-legendary', name: 'I\'m Legendary', stat: 'magicalDef', value: 190,
@@ -156,7 +156,7 @@ var TF_COLLECTIONS = [
       forms: [982068, 982071, 982073, 982048] },
     { key: 'tf-agent-darkness', name: 'Agent of Darkness', stat: 'strikeFortitude', value: 50,
       forms: [982069, 982070, 982072, 982047] },
-    { key: 'tf-face-outfit', name: 'The face complements the outfit perfectly', stat: 'accuracy', value: 551,
+    { key: 'tf-face-outfit', name: 'The face complements the outfit perfectly', stat: 'magicAccuracy', value: 551,
       forms: [982074, 982073, 982043, 982046, 982039, 982041] },
     { key: 'tf-elyos-asmo', name: 'Battle between Elyos and Asmodians', stat: 'critDmg', value: 80,
       forms: [982050, 982074, 982071, 982069, 982054, 982055] },
@@ -312,12 +312,14 @@ function getCollectionFormNames(coll) {
 //   max     — maximum allowed value (enforced on input)
 //   statKey — comparison stat key this input feeds into
 var ITEM_COLL_STATS = [
-    { key: 'physicalAttack', name: 'Physical Attack',  max: 307,  statKey: 'attack'      },
-    { key: 'physicalDef',    name: 'Physical Defence', max: 415,  statKey: 'physicalDef' },
-    { key: 'critStrike',     name: 'Crit Strike',      max: 1090, statKey: 'crit'        },
-    { key: 'magicAttack',    name: 'Magic Attack',     max: 307,  statKey: 'attack'      },
-    { key: 'magicalDef',     name: 'Magical Defence',  max: 415,  statKey: 'magicalDef'  },
-    { key: 'critSpell',      name: 'Crit Spell',       max: 1090, statKey: 'crit'        },
+    { key: 'physicalAccuracy', name: 'Physical Accuracy', max: 550,  statKey: 'accuracy'    },
+    { key: 'magicAccuracy',    name: 'Magical Accuracy',  max: 550,  statKey: 'accuracy'    },
+    { key: 'critStrike',       name: 'Crit Strike',       max: 1090, statKey: 'crit'        },
+    { key: 'critSpell',        name: 'Crit Spell',        max: 1090, statKey: 'crit'        },
+    { key: 'physicalAttack',   name: 'Physical Attack',   max: 307,  statKey: 'attack'      },
+    { key: 'physicalDef',      name: 'Physical Defence',  max: 415,  statKey: 'physicalDef' },
+    { key: 'magicAttack',      name: 'Magic Attack',      max: 307,  statKey: 'attack'      },
+    { key: 'magicalDef',       name: 'Magical Defence',   max: 415,  statKey: 'magicalDef'  },
 ];
 
 // ═══════════════════════════════════════════════════════════

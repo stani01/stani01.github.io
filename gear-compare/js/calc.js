@@ -65,6 +65,15 @@ function calculateDetailedStats(profileId) {
     if (selectedClass === 'painter') {
         sources.permanent.magicalDef += 300;
     }
+    if (selectedClass === 'aethertech') {
+        // -- base stats --
+        sources.permanent.hp += 24266;
+        sources.permanent.accuracy += 1275;
+        sources.permanent.magicResist += 1275;
+        sources.permanent.evasion += 1295;
+        sources.permanent.parry += 1275;
+        sources.permanent.block += 1275;
+    }
 
     // -- glyph base
     sources.glyph.attack += 50;
@@ -255,6 +264,10 @@ function calculateDetailedStats(profileId) {
                 sources.collections.attack += coll.value;
             } else if (coll.stat === 'magicAttack' && !isPhys) {
                 sources.collections.attack += coll.value;
+            } else if (coll.stat === 'physicalAccuracy' && isPhys) {
+                sources.collections.accuracy += coll.value;
+            } else if (coll.stat === 'magicAccuracy' && !isPhys) {
+                sources.collections.accuracy += coll.value;
             } else if (sources.collections[coll.stat] !== undefined){
                 sources.collections[coll.stat] += coll.value;
             }
@@ -274,9 +287,14 @@ function calculateDetailedStats(profileId) {
             sources.collections[cs.statKey] += val;
         } else if (cs.key === 'magicAttack' && !isPhys) {
             sources.collections[cs.statKey] += val;
+        } else if (cs.key === 'physicalAccuracy' && isPhys){
+            sources.collections[cs.statKey] += val;
+        } else if (cs.key === 'magicAccuracy' && !isPhys){
+            sources.collections[cs.statKey] += val;
         } else if (
             cs.key !== 'critStrike' && cs.key !== 'critSpell' &&
-            cs.key !== 'physicalAttack' && cs.key !== 'magicAttack'
+            cs.key !== 'physicalAttack' && cs.key !== 'magicAttack' &&
+            cs.key !== 'physicalAccuracy' && cs.key !== 'magicAccuracy'
         ) {
             sources.collections[cs.statKey] += val;
         }
