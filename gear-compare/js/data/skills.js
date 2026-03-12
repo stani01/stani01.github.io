@@ -595,7 +595,7 @@ var GC_SKILL_DATABASE = {
         cooldown: '1m',
         description: 'Increases Magic Attack by 700 (+14 per enchant level) for 10s.<br>Increases Healing Boost by 1100.<br>Restores 5628 MP.'
     },
-    'benevolance': {
+    'benevolence': {
         name: '(Improved) Benevolence',
         icon: '../assets/icons/live_pr_a_healershand_g1.png',
         id: '3895',
@@ -604,7 +604,7 @@ var GC_SKILL_DATABASE = {
         usageCost: '-',
         castTime: 'Cast Instantly',
         cooldown: '0s',
-        description: 'Increases Healing Boost by 650.<br>Reduces Magic Attack by 1500.<br>Active Kkill.'
+        description: 'Increases Healing Boost by 650.<br>Reduces Magic Attack by 1500.<br>Active Skill.'
     },
 
     // -- Chanter --
