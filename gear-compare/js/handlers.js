@@ -456,6 +456,16 @@ window.GC = {
         document.getElementById('gcSkillInfoModal').classList.remove('active');
     },
 
+    openJorgothModal: function() {
+        var modal = document.getElementById('gc-jorgoth-modal');
+        if (modal) modal.style.display = 'flex';
+    },
+
+    closeJorgothModal: function() {
+        var modal = document.getElementById('gc-jorgoth-modal');
+        if (modal) modal.style.display = 'none';
+    },
+
     togglePicker: function(pickerId) {
         var menu = document.getElementById(pickerId);
         var wasOpen = menu.classList.contains('gc-picker-open');
@@ -547,11 +557,35 @@ window.GC = {
             return;
         }
 
+        var isWeaponSlot = (slotType === 'main-weapon' || slotType === 'off-weapon');
         var html = '';
         sets.forEach(function(set) {
             var sel = currentSet === set.key ? ' gc-set-option-selected' : '';
             html += '<div class="gc-set-option' + sel + '" onclick="GC.pickSet(' + pid + ',\'' + slotType + '\',\'' + set.key + '\')">';
             html += '<span class="gc-set-option-label">' + set.name + '</span>';
+            if (isWeaponSlot && weaponConfig && weaponConfig.mainType) {
+                var jTag = getJorgothTag(weaponConfig.mainType, set.key);
+                if (jTag === 'masterpiece') {
+                    html += ' <span class="gc-set-tag gc-set-tag-mp">✦ Masterpiece</span>';
+                } else if (jTag === 'extended') {
+                    html += ' <span class="gc-set-tag gc-set-tag-ext">⟐ Ext</span>';
+                }
+                // Best fuse label for 2H weapons (highest bonusAtk variant among T4)
+                if (WEAPON_TYPES[weaponConfig.mainType] && WEAPON_TYPES[weaponConfig.mainType].twoHanded && JORGOTH_WEAPONS[weaponConfig.mainType]) {
+                    var vKey = null;
+                    if (set.key.indexOf('-v1') !== -1) vKey = 'v1';
+                    else if (set.key.indexOf('-v2') !== -1) vKey = 'v2';
+                    else if (set.key.indexOf('-v3') !== -1) vKey = 'v3';
+                    if (vKey) {
+                        var jw = JORGOTH_WEAPONS[weaponConfig.mainType];
+                        var thisAtk = jw[vKey] ? jw[vKey].bonusAtk : 0;
+                        var maxAtk = Math.max(jw.v1.bonusAtk, jw.v2.bonusAtk, jw.v3.bonusAtk);
+                        if (thisAtk > 0 && thisAtk === maxAtk && jw.v1.bonusAtk !== jw.v2.bonusAtk) {
+                            html += ' <span class="gc-set-tag gc-set-tag-fuse">⚔ Best Fuse</span>';
+                        }
+                    }
+                }
+            }
             html += '</div>';
         });
         popup.innerHTML = html;

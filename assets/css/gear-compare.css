@@ -143,6 +143,64 @@
     color: rgba(255, 120, 100, 0.9);
 }
 
+/* ── Two-Column Main Layout ── */
+.gc-main-layout {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 20px;
+    align-items: start;
+}
+.gc-main-left {
+    min-width: 0;
+}
+.gc-main-right {
+    min-width: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    align-self: start;
+}
+
+/* ── Set Sub-Tabs ── */
+.gc-set-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 14px;
+    border-bottom: 2px solid rgba(181, 101, 245, 0.15);
+}
+.gc-set-tab {
+    background: transparent;
+    border: none;
+    color: rgba(180, 200, 220, 0.5);
+    font-family: inherit;
+    font-size: 0.85em;
+    font-weight: 700;
+    padding: 8px 22px 9px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+    letter-spacing: 0.5px;
+}
+.gc-set-tab:hover {
+    color: rgba(200, 170, 255, 0.85);
+}
+.gc-set-tab-active {
+    color: rgba(181, 140, 255, 1);
+    border-bottom-color: rgba(181, 101, 245, 0.7);
+}
+
+/* ── Set View Toggle ── */
+.gc-set-content {
+    position: relative;
+}
+.gc-set-view {
+    display: none;
+}
+.gc-set-view-active {
+    display: block;
+}
+
 /* ── Profiles Layout ── */
 .gc-profiles {
     display: grid;
@@ -158,7 +216,7 @@
     padding: 14px;
     box-shadow: var(--shadow-md);
     min-width: 0;
-    overflow: visibile !important;
+    overflow: visible !important;
 }
 
 .gc-profile-header {
@@ -1255,9 +1313,81 @@
     .gc-minion-selection-grid { grid-template-columns: 1fr; }
 }
 
+/* ── Jorgoth Button ── */
+.gc-jorgoth-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 0;
+    padding: 6px 14px;
+    align-self: center;
+    background: rgba(200, 160, 60, 0.1);
+    border: 1px solid rgba(200, 160, 60, 0.3);
+    border-radius: 8px;
+    color: rgba(200, 160, 60, 0.85);
+    font-family: inherit;
+    font-size: 0.78em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+.gc-jorgoth-btn:hover {
+    background: rgba(200, 160, 60, 0.2);
+    border-color: rgba(200, 160, 60, 0.5);
+}
+
+/* ── Jorgoth Modal ── */
+.gc-jorgoth-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+.gc-jorgoth-modal {
+    background: var(--bg-panel-solid, #1a1a2e);
+    border: 1px solid rgba(200, 160, 60, 0.3);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    max-width: 700px;
+    width: 94%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 0;
+}
+.gc-jorgoth-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(200, 160, 60, 0.15);
+    font-weight: 700;
+    font-size: 0.95em;
+    color: rgba(200, 160, 60, 0.9);
+}
+.gc-jorgoth-modal-close {
+    background: none;
+    border: none;
+    color: rgba(200, 160, 60, 0.7);
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.gc-jorgoth-modal-close:hover {
+    background: rgba(200, 160, 60, 0.15);
+}
+.gc-jorgoth-modal-body {
+    padding: 14px 18px 18px;
+}
+
 /* ── Jorgoth Weapon Stats Legend ── */
 .gc-jorgoth-legend {
-    margin-top: 8px;
+    margin-top: 0;
     background: rgba(15, 15, 25, 0.6);
     border: 1px solid rgba(200, 160, 60, 0.15);
     border-radius: 10px;
@@ -1391,6 +1521,32 @@
     border-radius: 4px;
     padding: 1px 5px;
     white-space: nowrap;
+}
+
+/* ── Set Picker Tags (weapon dropdown labels) ── */
+.gc-set-tag {
+    display: inline-block;
+    font-size: 0.75em;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 1px 5px;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.gc-set-tag-mp {
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.12);
+    border: 1px solid rgba(255, 215, 0, 0.25);
+}
+.gc-set-tag-ext {
+    color: rgba(120, 200, 255, 0.9);
+    background: rgba(120, 200, 255, 0.1);
+    border: 1px solid rgba(120, 200, 255, 0.2);
+}
+.gc-set-tag-fuse {
+    color: rgba(255, 140, 80, 0.95);
+    background: rgba(255, 140, 80, 0.12);
+    border: 1px solid rgba(255, 140, 80, 0.25);
 }
 
 /* ── Equipment Slot (shared armor + weapon) ── */
@@ -1729,14 +1885,33 @@
     background: var(--bg-panel-solid);
     border: 1px solid var(--border-primary);
     border-radius: 14px;
-    padding: 24px;
+    padding: 16px;
     margin-bottom: 30px;
     box-shadow: var(--shadow-md);
+}
+.gc-comparison-sticky {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.gc-comparison-scroll {
+    flex: 1 1 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(181, 101, 245, 0.4) transparent;
+}
+.gc-comparison-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+.gc-comparison-scroll::-webkit-scrollbar-thumb {
+    background: rgba(181, 101, 245, 0.4);
+    border-radius: 3px;
 }
 
 .gc-comparison-header {
     text-align: center;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 }
 
 .gc-comparison-header h2 {
@@ -1744,7 +1919,7 @@
     border-left: none;
     margin-top: 0;
     padding-left: 0;
-    font-size: 1.3em;
+    font-size: 1.1em;
 }
 
 .gc-comp-subtitle {
@@ -1756,18 +1931,28 @@
 .gc-comp-table {
     table-layout: fixed;
     width: 100%;
-    max-width: 800px;
+    max-width: 100%;
     margin: 0 auto;
     border-collapse: collapse;
-    font-size: 0.9em;
+    font-size: 0.82em;
 }
 
 .gc-comp-table thead th {
     color: var(--text-primary);
     font-weight: 700;
-    padding: 10px 12px;
+    padding: 6px 6px;
     border-bottom: 2px solid var(--border-dim);
     text-align: center;
+    position: sticky;
+    background: var(--bg-panel-solid);
+    z-index: 2;
+}
+.gc-comp-summary-row th {
+    top: 0;
+    border-bottom: none;
+}
+.gc-comp-table thead tr:nth-child(2) th {
+    top: 36px;
 }
 
 .gc-comp-th-stat {
@@ -2366,7 +2551,26 @@
 }
 
 /* ── Gear Compare Responsive ── */
+@media (max-width: 1200px) {
+    .gc-main-layout {
+        grid-template-columns: 1fr 1fr;
+    }
+}
 @media (max-width: 1024px) {
+    .gc-main-layout {
+        grid-template-columns: 1fr;
+    }
+    .gc-comparison-sticky {
+        height: auto;
+        overflow: visible;
+    }
+    .gc-comparison-scroll {
+        overflow: visible;
+    }
+    .gc-main-right {
+        position: static;
+        height: auto;
+    }
     .gc-profiles {
         grid-template-columns: 1fr;
     }

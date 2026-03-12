@@ -37,7 +37,8 @@ function updateComparison() {
     html += '<h2>📈 Stat Comparison</h2>';
     html += '</div>';
 
-    // Start the table immediately
+    // Scrollable area wrapping the table
+    html += '<div class="gc-comparison-scroll">';
     html += '<table class="gc-comp-table">';
     html += '<thead>';
 
@@ -132,6 +133,7 @@ function updateComparison() {
     });
 
     html += '</tbody></table>';
+    html += '</div>'; // close gc-comparison-scroll
     panel.innerHTML = html;
 }
 

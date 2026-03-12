@@ -435,6 +435,24 @@ document.getElementById('gc-tab-bar').addEventListener('click', function(e) {
     saveState();
 });
 
+// ── Set Sub-Tab switching ──
+// Delegated listener on body for all set-tab buttons
+document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.gc-set-tab');
+    if (!btn) return;
+    var tabBar = btn.closest('.gc-set-tabs');
+    if (!tabBar) return;
+    var setId = btn.getAttribute('data-set');
+    // Update active tab button within this bar
+    tabBar.querySelectorAll('.gc-set-tab').forEach(function(b) { b.classList.remove('gc-set-tab-active'); });
+    btn.classList.add('gc-set-tab-active');
+    // Show/hide the set views within the same tab panel
+    var panel = tabBar.closest('.gc-tab-panel');
+    if (!panel) return;
+    panel.querySelectorAll('.gc-set-view').forEach(function(v) { v.classList.remove('gc-set-view-active'); });
+    panel.querySelectorAll('.gc-set-view[data-set="' + setId + '"]').forEach(function(v) { v.classList.add('gc-set-view-active'); });
+});
+
 // ── Transform rendering ──
 function renderTransform(pid) {
     var el = document.getElementById('transform-' + pid);
@@ -1015,12 +1033,18 @@ function renderWeaponConfig() {
     html += '</div>';
     html += '</div>';
 
+    // ── Jorgoth button (inline with weapon pickers) ──
+    if (JORGOTH_WEAPONS[mainType]) {
+        html += '<button class="gc-jorgoth-btn" onclick="GC.openJorgothModal()" title="View Jorgoth weapon variants">📊 Jorgoth Variants</button>';
+    }
+
     html += '</div>';
 
-    // ── Jorgoth Weapon Stats Legend ──
-    html += buildJorgothLegend(mainType);
-
     el.innerHTML = html;
+
+    // Update the Jorgoth modal content for the current weapon type
+    var modalBody = document.getElementById('gc-jorgoth-modal-body');
+    if (modalBody) modalBody.innerHTML = buildJorgothLegend(mainType);
 }
 
 function renderProfile(id) {
