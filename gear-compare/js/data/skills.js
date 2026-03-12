@@ -276,7 +276,7 @@ var GC_SKILL_DATABASE = {
     'shieldMantra': {
         name: 'Shield Mantra',
         icon: '../assets/icons/cbt_ch_chant_improveddefend_g1.png',
-        id: '1657',
+        id: '1666',
         class: 'Chanter',
         category: 'Active - Mantra',
         usageCost: '0 MP',
