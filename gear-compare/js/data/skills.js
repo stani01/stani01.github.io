@@ -595,6 +595,17 @@ var GC_SKILL_DATABASE = {
         cooldown: '1m',
         description: 'Increases Magic Attack by 700 (+14 per enchant level) for 10s.<br>Increases Healing Boost by 1100.<br>Restores 5628 MP.'
     },
+    'benevolance': {
+        name: '(Improved) Benevolence',
+        icon: '../assets/icons/live_pr_a_healershand_g1.png',
+        id: '3895',
+        class: 'Cleric',
+        category: 'Passive',
+        usageCost: '-',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: 'Increases Healing Boost by 650.<br>Reduces Magic Attack by 1500.<br>Active Kkill.'
+    },
 
     // -- Chanter --
     'blessingWind': {
@@ -864,6 +875,7 @@ var GC_SKILL_BUFFS = {
     ],
     cleric: [
         { key: 'sacrificialPower', value: '+1600 Attack / +1800 Acc / +1250 Crit / +600 PvE Attack / -1500 Heal', stats: { attack: 1600, accuracy: 1800, crit: 1250, pveAttack: 600, healingBoost: -1500 }, defaultActive: false },
+        { key: 'benevolence', value: '-1500 Attack / +650 HealingBoost', stats: { attack: -1500, healingBoost: 650 }, defaultActive: false },
         { key: 'amplification', value: '+700 Attack / +1100 HealingBoost', stats: { attack: 700, healingBoost: 1100 }, defaultActive: false, enchant: { stat: 'attack', perLevel: 14, maxLevel: 26, defaultLevel: 20 } },
     ],
     chanter: [

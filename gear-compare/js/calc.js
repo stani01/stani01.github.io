@@ -24,17 +24,40 @@ function calculateDetailedStats(profileId) {
         trait: emptyStats(),
         skillBuffs: emptyStats()
     };
+    
+    // -- Class passives (permanent, always-on bonuses) --
     if (['gladiator', 'templar'].includes(selectedClass)) {
         sources.permanent.attack += 45;
+        sources.permanent.hpPercent = 5;
+    }
+    if (selectedClass === 'templar') {
+        sources.permanent.magicalDef += 60;
+    }
+    if (selectedClass === 'assassin') {
+        sources.permanent.crit += 50;
+        sources.permanent.magicResist += 60;
     }
     if (selectedClass === 'chanter') {
         sources.permanent.attack += 18;
+        sources.permanent.magicalDef += 60;
     }
     if (selectedClass === 'sorcerer') {
         sources.permanent.attack += 543;
+        sources.permanent.magicalDef += 300;
+        sources.permanent.concentration += 25;
+    }
+    if (selectedClass === 'spiritmaster') {
+        sources.permanent.attack += 555;
+        sources.permanent.accuracy += 555;
+        sources.permanent.magicalDef += 500;
+        sources.permanent.concentration += 25;
     }
     if (selectedClass === 'bard') {
         sources.permanent.attack += 300;
+        sources.permanent.magicalDef += 300;
+    }
+    if (selectedClass === 'painter') {
+        sources.permanent.magicalDef += 300;
     }
 
     // -- glyph base
@@ -353,6 +376,12 @@ function calculateDetailedStats(profileId) {
             totals.physicalDef -= Math.floor(totals.physicalDef * buff.stats.physicalDefPercentRed / 100);
         }
     });
+
+    // ── Post-processing: HP% passive (gladiator/templar) ──
+    // TODO: verify in-game whether this applies to total HP or only base/gear HP
+    if (sources.permanent.hpPercent) {
+        totals.hp += Math.floor(totals.hp * sources.permanent.hpPercent / 100);
+    }
 
     return { totals: totals, sources: sources };
 }
