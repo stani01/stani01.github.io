@@ -23,7 +23,8 @@ function calculateDetailedStats(profileId) {
     // -- Class passives (permanent, always-on bonuses) --
     if (['gladiator', 'templar'].includes(selectedClass)) {
         sources.permanent.attack += 45;
-        sources.permanent.hpPercent = 5;
+        //sources.permanent.hpPercent = 5;
+        sources.permanent.hp += 2.311;
         sources.permanent.accuracy += 180;
         sources.permanent.parry += 80;
     }
@@ -71,7 +72,7 @@ function calculateDetailedStats(profileId) {
     
     // -- base stats --
     //TODO: check for every class, applies to AT only atm.
-    sources.permanent.hp += 24266;
+    sources.permanent.hp += 24266; // 25547 - 1281
     sources.permanent.accuracy += 1275;
     sources.permanent.magicResist += 1275;
     sources.permanent.evasion += 1275;

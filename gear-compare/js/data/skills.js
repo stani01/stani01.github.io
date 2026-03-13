@@ -807,7 +807,7 @@ var GC_SKILL_BUFFS = {
         { key: 'ascensionJamPvP', value: '+500 PvP Attack / +1000 PvP Def / +10000 HP', stats: { pvpAttack: 500, pvpDefence: 1000, hp: 10000 }, defaultActive: false, excludes: ['ascensionJamPvE'] },
         { key: 'lunaBuff', value: '+380 Attack / +1000 Crit / +5000 HP and more', stats: { hp: 5000, healingBoost: 240, attack: 380, physicalDef: 380, magicalDef: 380, crit: 1000, accuracy: 1100, block: 1100, parry: 1100, evasion: 1100, magicResist:1100 }, defaultActive: false },
         { key: 'leiboJam', value: '+150 PvE Attack / +150 PvE Def', stats: { pveAttack: 150, pveDefence: 150 }, defaultActive: false },
-        { key: 'daevaConqueror', value: '+400 PvE Attack / +400 PvP Attack / +6000 HP', stats: { pveAttack: 400, pvpAttack: 400, hp: 6000 }, defaultActive: false, excludes: ['conqAphsa', 'no1inAion'] },
+        { key: 'daevaConqueror', value: '+400 PvE Attack / +400 PvP Attack / +6000 HP', stats: { pveAttack: 400, pvpAttack: 400, hp: 6000 }, defaultActive: false, excludes: ['conqAphsa', 'no1inAion', 'conqTorm'] },
         { key: 'conqAphsa', value: '+8000 HP', stats: { hp: 8000 }, defaultActive: false, excludes: ['daevaConqueror', 'no1inAion', 'conqTorm'] },
         { key: 'no1inAion', value: '+500 HP', stats: { hp: 500 }, defaultActive: false, excludes: ['daevaConqueror', 'conqAphsa', 'conqTorm'] },
         { key: 'conqTorm', value: '+19 Attack', stats: { attack: 19 }, defaultActive: false, excludes: ['daevaConqueror', 'conqAphsa', 'no1inAion'] },
@@ -821,7 +821,7 @@ var GC_SKILL_BUFFS = {
         { key: 'soulWave', value: '+600 PvP Attack, +600 PvE Attack', stats: { pvpAttack: 600, pveAttack: 600 }, defaultActive: false },
     ],
 
-    // Universal buffs shown only to PHYSICAL classes (gladiator, templar, assassin, ranger, chanter)
+    // Universal buffs shown only to PHYSICAL classes (gladiator, templar, assassin, ranger, chanter, painter)
     // TODO: invincibility mantra, wall of protection, magic of incitement, wind harmony
     universal_phys: [
         { key: 'magicIncitement',  value: '+800 Crit, Acc / +600 Attack', stats: { attack: 600, crit: 800, accuracy: 800 }, defaultActive: false, excludes: ['wordInspiration'] },
@@ -831,12 +831,10 @@ var GC_SKILL_BUFFS = {
         { key: 'windHarmony',  value: '+121 Attack', stats: { attack: 121 }, defaultActive: false, },
     ],
 
-    // Universal buffs shown only to MAGICAL classes (sorcerer, spiritmaster, cleric, aethertech, gunner, bard, painter)
+    // Universal buffs shown only to MAGICAL classes (sorcerer, spiritmaster, cleric, aethertech, gunner, bard)
     // TODO: hmm, we do not have stats boost for magical only, we keep it empty for now.
     universal_mag: [],
 
-    // One dummy skill per class — populate the rest later
-    // Increases Physical Attack by 800.<br>Increases Additional PvP Attack by 800.<br>Reduces Additional PvP Defence by 600.<br>Active Skill.'
     gladiator: [
         { key: 'combatPrep',    value: '+800 Attack / +800 PvP Attack / -600 PvP Def', stats: { attack: 800, pvpAttack: 800, pvpDefence: -600 },  defaultActive: false, excludes: ['defencePrep'] },
         { key: 'defencePrep',    value: '+800 Defs / +800 PvP def / -600 PvP Attack', stats: { defense: 800, pvpDefence: 800, pvpAttack: -600 },  defaultActive: false, excludes: ['combatPrep'] },
