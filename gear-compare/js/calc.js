@@ -105,6 +105,23 @@ function calculateDetailedStats(profileId) {
         STAT_KEYS.forEach(function(k) { sources.armor[k] += (armorStats[k] || 0); });
     });
 
+    // ── Apsu Illusion stats (flat deltas only; bonus overrides are handled
+    //    via elevated bonusValues that getArmorSlotStats already reads) ──
+    if (profile.apsuEnabled) {
+        var apsuInfo = APSU_DATA[selectedClass];
+        if (apsuInfo) {
+            var apsuSlotPiece = profile.armor[apsuInfo.slot];
+            // Only apply when the Apsu slot has Fighting Spirit equipped
+            if (apsuSlotPiece && apsuSlotPiece.set === 'fighting-spirit') {
+                for (var ak in apsuInfo.stats) {
+                    if (apsuInfo.stats.hasOwnProperty(ak) && typeof sources.armor[ak] === 'number') {
+                        sources.armor[ak] += apsuInfo.stats[ak];
+                    }
+                }
+            }
+        }
+    }
+
     // ── Weapon stats (base/bonus/enchant split) ──
     var mwSet = profile.mainWeapon.set;
     var mwType = weaponConfig.mainType;
@@ -149,6 +166,10 @@ function calculateDetailedStats(profileId) {
 
     // Oath pair bonuses
     OATH_PAIRS.forEach(function(pair, pairIdx) {
+        // Skip oath if either armor piece in the pair is 'none'
+        var slot1Set = profile.armor[pair[0]] ? profile.armor[pair[0]].set : 'none';
+        var slot2Set = profile.armor[pair[1]] ? profile.armor[pair[1]].set : 'none';
+        if (slot1Set === 'none' || slot2Set === 'none') return;
         var effectiveOath = getEffectiveOath(profile.oath, pair[0], pair[1]);
         var ob = OATH_BONUS[effectiveOath];
         if (ob) {

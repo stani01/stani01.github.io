@@ -3,6 +3,7 @@
 
 window.GC = {
     selectClass: function(className) {
+        var prevClass = selectedClass;
         selectedClass = className;
         var cls = CLASS_DATA[className];
         // Always reset weapon config to class defaults
@@ -12,6 +13,40 @@ window.GC = {
             if (cls.armorTypes.indexOf(p.armorType) === -1) {
                 p.armorType = cls.armorTypes[0];
             }
+            // Clamp bonus values that were elevated by a previous class's Apsu bonusOverride
+            var prevApsu = APSU_DATA[prevClass];
+            if (prevApsu && prevApsu.bonusOverride && p.apsuEnabled) {
+                var piece = p.armor[prevApsu.slot];
+                if (piece && piece.bonusValues) {
+                    var isHigh = (prevApsu.slot === 'helmet' || prevApsu.slot === 'chest' || prevApsu.slot === 'pants');
+                    var fsBonusList = isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+                    for (var bk in prevApsu.bonusOverride) {
+                        var fsDef = fsBonusList.find(function(b) { return b.key === bk; });
+                        if (fsDef && typeof piece.bonusValues[bk] === 'number' && piece.bonusValues[bk] > fsDef.value) {
+                            piece.bonusValues[bk] = fsDef.value;
+                        }
+                    }
+                }
+            }
+            // If the new class has Apsu with bonusOverride and Apsu is enabled, raise values
+            var newApsu = APSU_DATA[className];
+            if (newApsu && newApsu.bonusOverride && p.apsuEnabled) {
+                var newPiece = p.armor[newApsu.slot];
+                if (newPiece) {
+                    if (!newPiece.bonusValues) newPiece.bonusValues = {};
+                    var isHighNew = (newApsu.slot === 'helmet' || newApsu.slot === 'chest' || newApsu.slot === 'pants');
+                    var fsListNew = isHighNew ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+                    for (var bk2 in newApsu.bonusOverride) {
+                        var fsDefNew = fsListNew.find(function(b) { return b.key === bk2; });
+                        if (fsDefNew) {
+                            var cur = newPiece.bonusValues[bk2];
+                            if (cur === undefined || cur === fsDefNew.value) {
+                                newPiece.bonusValues[bk2] = newApsu.bonusOverride[bk2];
+                            }
+                        }
+                    }
+                }
+            }
         });
         renderAll();
         saveState();
@@ -19,6 +54,39 @@ window.GC = {
 
     setArmorType: function(pid, armorType) {
         state[pid].armorType = armorType;
+        renderProfile(pid);
+        updateComparison();
+        saveState();
+    },
+
+    toggleApsu: function(pid) {
+        var p = state[pid];
+        p.apsuEnabled = !p.apsuEnabled;
+        var apsuInfo = APSU_DATA[selectedClass];
+        if (apsuInfo && apsuInfo.bonusOverride) {
+            var piece = p.armor[apsuInfo.slot];
+            if (piece) {
+                if (!piece.bonusValues) piece.bonusValues = {};
+                var isHigh = (apsuInfo.slot === 'helmet' || apsuInfo.slot === 'chest' || apsuInfo.slot === 'pants');
+                var fsBonusList = isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+                for (var bk in apsuInfo.bonusOverride) {
+                    var fsDef = fsBonusList.find(function(b) { return b.key === bk; });
+                    if (!fsDef) continue;
+                    if (p.apsuEnabled) {
+                        // Upgrade: if at FS default (or unset), raise to Apsu max
+                        var cur = piece.bonusValues[bk];
+                        if (cur === undefined || cur === fsDef.value) {
+                            piece.bonusValues[bk] = apsuInfo.bonusOverride[bk];
+                        }
+                    } else {
+                        // Downgrade: clamp back to FS max
+                        if (typeof piece.bonusValues[bk] === 'number' && piece.bonusValues[bk] > fsDef.value) {
+                            piece.bonusValues[bk] = fsDef.value;
+                        }
+                    }
+                }
+            }
+        }
         renderProfile(pid);
         updateComparison();
         saveState();
@@ -1047,16 +1115,27 @@ window.GC = {
         var html = '<div class="gc-acc-bonus-popup-title">Armor Bonus (Max 4)</div>';
         html += '<div class="gc-shield-bonus-grid">';
         
+        // Check for Apsu bonus overrides on this slot
+        var apsuOverride = null;
+        var prof = state[pid];
+        if (prof.apsuEnabled) {
+            var apsuInfo = APSU_DATA[selectedClass];
+            if (apsuInfo && apsuInfo.slot === slotKey && apsuInfo.bonusOverride) {
+                apsuOverride = apsuInfo.bonusOverride;
+            }
+        }
+
         bonusOptions.forEach(function(b) {
+            var maxVal = (apsuOverride && apsuOverride[b.key]) ? apsuOverride[b.key] : b.value;
             var isOn = picked.indexOf(b.key) !== -1;
             var cls = 'gc-shield-bonus-btn' + (isOn ? ' gc-shield-bonus-on' : '');
             html += '<div class="' + cls + '" onclick="GC.toggleArmorBonus(' + pid + ',\'' + slotKey + '\',\'' + b.key + '\')">';
             html += '<span class="gc-shield-bonus-name">' + b.name + '</span>';
             if (isOn) {
-                var cv = (armor.bonusValues && typeof armor.bonusValues[b.key] === 'number') ? armor.bonusValues[b.key] : b.value;
-                html += '<input type="number" class="gc-bonus-val-input" min="0" max="' + b.value + '" value="' + cv + '" onclick="event.stopPropagation()" onchange="GC.setBonusValue(' + pid + ',\'armor\',\'' + slotKey + '\',\'' + b.key + '\',this.value,' + b.value + ')">';
+                var cv = (armor.bonusValues && typeof armor.bonusValues[b.key] === 'number') ? armor.bonusValues[b.key] : maxVal;
+                html += '<input type="number" class="gc-bonus-val-input" min="0" max="' + maxVal + '" value="' + cv + '" onclick="event.stopPropagation()" onchange="GC.setBonusValue(' + pid + ',\'armor\',\'' + slotKey + '\',\'' + b.key + '\',this.value,' + maxVal + ')">';
             } else {
-                html += '<span class="gc-shield-bonus-val">+' + b.value.toLocaleString() + '</span>';
+                html += '<span class="gc-shield-bonus-val">+' + maxVal.toLocaleString() + '</span>';
             }
             html += '</div>';
         });

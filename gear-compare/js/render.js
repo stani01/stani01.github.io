@@ -1351,6 +1351,16 @@ function renderProfile(id) {
         var singleOpt = ARMOR_TYPE_OPTIONS.find(function(o) { return o.key === classInfo.armorTypes[0]; });
         html += '<span class="gc-armor-type-badge">' + singleOpt.name + '</span>';
     }
+    // Apsu Illusion toggle
+    var apsuInfo = APSU_DATA[selectedClass];
+    if (apsuInfo) {
+        var apsuSlotName = apsuInfo.slot.charAt(0).toUpperCase() + apsuInfo.slot.slice(1);
+        var apsuActive = profile.apsuEnabled ? ' gc-apsu-active' : '';
+        html += '<span class="gc-apsu-toggle' + apsuActive + '" onclick="GC.toggleApsu(' + id + ')" title="Apsu Illusion (' + apsuSlotName + ')">';
+        html += '<span class="gc-apsu-check">' + (profile.apsuEnabled ? '✓' : '') + '</span>';
+        html += 'Apsu';
+        html += '</span>';
+    }
     html += '</div>';
 
     var LEFT_SLOTS  = ['helmet', 'chest', 'pants'];

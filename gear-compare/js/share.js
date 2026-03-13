@@ -126,8 +126,8 @@ ByteReader.prototype.bools = function(count) {
 function encodeProfile(w, id) {
     var p = state[id];
 
-    // ── Armor type (1 byte) ──
-    w.u8(idx(SH_ATYPES, p.armorType));
+    // ── Armor type (1 byte) + Apsu flag (bit 3) ──
+    w.u8(idx(SH_ATYPES, p.armorType) | (p.apsuEnabled ? 8 : 0));
 
     // ── Armor × 6 slots: set(1) + enchant(1) + bonusMask(1) ──
     SH_ASLOTS.forEach(function(sk) {
@@ -247,14 +247,17 @@ function encodeProfile(w, id) {
 
     // ── Bonus Values: u16 per selected bonus, in definition order ──
     // Armor × 6
+    var apsuInfoEnc = p.apsuEnabled ? APSU_DATA[selectedClass] : null;
     SH_ASLOTS.forEach(function(sk) {
         var a = p.armor[sk];
         var isHighBV = (sk === 'helmet' || sk === 'chest' || sk === 'pants');
         var bvList = isHighBV ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+        var apsuOvrEnc = (apsuInfoEnc && apsuInfoEnc.slot === sk && apsuInfoEnc.bonusOverride) ? apsuInfoEnc.bonusOverride : null;
         bvList.forEach(function(b) {
             if (a.bonuses && a.bonuses.indexOf(b.key) !== -1) {
-                var bv = (a.bonusValues && typeof a.bonusValues[b.key] === 'number') ? a.bonusValues[b.key] : b.value;
-                w.u16(clamp(bv, 0, b.value));
+                var maxBV = (apsuOvrEnc && apsuOvrEnc[b.key]) ? apsuOvrEnc[b.key] : b.value;
+                var bv = (a.bonusValues && typeof a.bonusValues[b.key] === 'number') ? a.bonusValues[b.key] : maxBV;
+                w.u16(clamp(bv, 0, maxBV));
             }
         });
     });
@@ -348,8 +351,10 @@ function encodeShareString() {
 function decodeProfileFromReader(r, cls, id) {
     var p = createDefaultProfile(cls);
 
-    // ── Armor type ──
-    var at = val(SH_ATYPES, r.u8());
+    // ── Armor type + Apsu flag ──
+    var armorRaw = r.u8();
+    var at = val(SH_ATYPES, armorRaw & 0x07);
+    p.apsuEnabled = !!(armorRaw & 0x08);
     if (CLASS_DATA[cls].armorTypes.indexOf(at) !== -1) p.armorType = at;
 
     // ── Armor × 6 ──
@@ -516,13 +521,16 @@ function decodeProfileFromReader(r, cls, id) {
     // ── Bonus Values (u16 per selected bonus, definition order) ──
     if (r.remaining() > 0) {
         // Armor × 6
+        var apsuInfoD = p.apsuEnabled ? APSU_DATA[cls] : null;
         SH_ASLOTS.forEach(function(sk) {
             var isHighD = (sk === 'helmet' || sk === 'chest' || sk === 'pants');
             var bvListD = isHighD ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+            var apsuOvr = (apsuInfoD && apsuInfoD.slot === sk && apsuInfoD.bonusOverride) ? apsuInfoD.bonusOverride : null;
             p.armor[sk].bonusValues = {};
             bvListD.forEach(function(b) {
                 if (p.armor[sk].bonuses && p.armor[sk].bonuses.indexOf(b.key) !== -1) {
-                    p.armor[sk].bonusValues[b.key] = clamp(r.u16(), 0, b.value);
+                    var maxBV = (apsuOvr && apsuOvr[b.key]) ? apsuOvr[b.key] : b.value;
+                    p.armor[sk].bonusValues[b.key] = clamp(r.u16(), 0, maxBV);
                 }
             });
         });

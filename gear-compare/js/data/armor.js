@@ -1,5 +1,25 @@
 'use strict';
 
+// ── Apsu Illusion data: stat deltas vs Fighting Spirit, per class ──
+var APSU_DATA = {
+    gladiator:    { slot: 'chest',     stats: { hp: 1000, attack: 20 }, bonusOverride: { hp: 5000 } },
+    templar:      { slot: 'chest',     stats: { hp: 1000, attack: 20 }, bonusOverride: { hp: 5000 } },
+    aethertech:   { slot: 'chest',     stats: { hp: 1000, attack: 20 } },
+    chanter:      { slot: 'gloves',    stats: { attack: 20, magicalDef: 46, physicalDef: 3 } },
+    cleric:       { slot: 'gloves',    stats: { attack: 20, physicalDef: 50 } },
+    bard:         { slot: 'pants',     stats: { hp: 645, attack: 20, magicalDef: -368, physicalDef: 214 } },
+    painter:      { slot: 'shoulders', stats: { magicalDef: 50, attack: 20 } },
+    ranger:       { slot: 'boots',     stats: { magicalDef: 97, attack: 20, physicalDef: -46 } },
+    assassin:     { slot: 'boots',     stats: { magicalDef: 97, attack: 20, physicalDef: -46 } },
+    gunner:       { slot: 'shoulders', stats: { attack: 20, magicalDef: 50 } },
+    sorcerer:     { slot: 'helmet',    stats: { hp: 1000, attack: 20 } },
+    spiritmaster: { slot: 'helmet',    stats: { hp: 1000, attack: 20 } }
+};
+
+function getApsuSlotForClass(className) {
+    var data = APSU_DATA[className];
+    return data ? data.slot : null;
+}
 
 // Fighting Spirit: slot tier mapping
 var FS_TIER = {

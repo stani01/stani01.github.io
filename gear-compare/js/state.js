@@ -56,6 +56,7 @@ function createDefaultProfile(className) {
     ARMOR_SLOTS.forEach(function(slot) {
         profile.manastones[slot.key] = [defaultMana, defaultMana, defaultMana];
     });
+    profile.apsuEnabled = false;
     profile.manastones.mainWeapon = [defaultMana, defaultMana, defaultMana];
     profile.manastones.offHand = [defaultMana, defaultMana, defaultMana];
     // Initialize acc manastones (3 slots each)
@@ -263,7 +264,11 @@ function restoreProfile(id, saved, cls) {
             if (saved.armorType && cls.armorTypes.indexOf(saved.armorType) !== -1) {
                 p.armorType = saved.armorType;
             }
+            if (typeof saved.apsuEnabled === 'boolean') {
+                p.apsuEnabled = saved.apsuEnabled;
+            }
             if (saved.armor) {
+                var apsuInfoRestore = p.apsuEnabled ? APSU_DATA[selectedClass] : null;
                 ARMOR_SLOTS.forEach(function(slot) {
                     var sa = saved.armor[slot.key];
                     if (sa) {
@@ -276,7 +281,18 @@ function restoreProfile(id, saved, cls) {
                         }
                         if (sa.bonusValues) {
                             var isHighBV = (slot.key === 'helmet' || slot.key === 'chest' || slot.key === 'pants');
-                            restoreBonusValues(p.armor[slot.key].bonusValues, sa.bonusValues, isHighBV ? FS_BONUSES_HIGH : FS_BONUSES_LOW);
+                            var baseBonusList = isHighBV ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+                            // If Apsu is active for this slot, temporarily raise caps for overridden bonuses
+                            var apsuOvrRestore = (apsuInfoRestore && apsuInfoRestore.slot === slot.key && apsuInfoRestore.bonusOverride) ? apsuInfoRestore.bonusOverride : null;
+                            if (apsuOvrRestore) {
+                                var adjustedList = baseBonusList.map(function(b) {
+                                    if (apsuOvrRestore[b.key]) return { key: b.key, value: apsuOvrRestore[b.key] };
+                                    return b;
+                                });
+                                restoreBonusValues(p.armor[slot.key].bonusValues, sa.bonusValues, adjustedList);
+                            } else {
+                                restoreBonusValues(p.armor[slot.key].bonusValues, sa.bonusValues, baseBonusList);
+                            }
                         }
                     }
                 });
