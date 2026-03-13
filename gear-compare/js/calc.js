@@ -66,14 +66,17 @@ function calculateDetailedStats(profileId) {
         sources.permanent.magicalDef += 300;
     }
     if (selectedClass === 'aethertech') {
-        // -- base stats --
-        sources.permanent.hp += 24266;
-        sources.permanent.accuracy += 1275;
-        sources.permanent.magicResist += 1275;
-        sources.permanent.evasion += 1295;
-        sources.permanent.parry += 1275;
-        sources.permanent.block += 1275;
+        sources.permanent.evasion += 20;
     }
+    
+    // -- base stats --
+    //TODO: check for every class, applies to AT only atm.
+    sources.permanent.hp += 24266;
+    sources.permanent.accuracy += 1275;
+    sources.permanent.magicResist += 1275;
+    sources.permanent.evasion += 1275;
+    sources.permanent.parry += 1275;
+    sources.permanent.block += 1275;
 
     // -- glyph base
     sources.glyph.attack += 50;
