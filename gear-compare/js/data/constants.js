@@ -124,7 +124,8 @@ var ARMOR_SETS = [
     { key: 'none',            name: 'None' },
     { key: 'fighting-spirit', name: 'Fighting Spirit' },
     { key: 'acrimony',        name: 'Acrimony' },
-    { key: 'presumption',     name: 'Presumption' }
+    { key: 'presumption',     name: 'Presumption' },
+    { key: 'obstinacy',       name: 'Obstinacy' }
 ];
 
 var EMPTY_ARMOR_ICON = '../assets/icons/icon_empty_slot.svg';
@@ -230,7 +231,7 @@ var MANASTONE_PRESETS = [
 // Get number of manastone slots for a gear piece
 function getManastoneSlotCount(setKey) {
     if (setKey === 'none') return 0;
-    if (setKey === 'acrimony' || setKey === 'presumption') return 1;
+    if (setKey === 'acrimony' || setKey === 'presumption' || setKey === 'obstinacy') return 1;
     return 3;
 }
 

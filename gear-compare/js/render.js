@@ -1551,7 +1551,7 @@ function renderArmorSlot(pid, slot, armor, profile, material) {
     }
 
     // Enchant (only for acrimony/presumption)
-    var hasArmorEnchant = (armor.set === 'acrimony' || armor.set === 'presumption');
+    var hasArmorEnchant = (armor.set === 'acrimony' || armor.set === 'presumption' || armor.set === 'obstinacy');
     if (hasArmorEnchant) {
         html += '<span class="gc-enchant-trigger" onclick="GC.openEnchantPicker(' + pid + ',\'armor:' + slot.key + '\',this)">+' + armor.enchant + '</span>';
     }
