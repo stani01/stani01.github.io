@@ -115,6 +115,18 @@ var PRES_ENCHANT = {
     15: { attack: { low: 531, mid: 655, high: 735 }, def: { low: 1274, mid: 1611, high: 1743 }, hp: { low: 5868, mid: 6753, high: 7629 } }
 };
 
+// Obstinacy enchant bonuses: { mr, def, hp } each with { low, mid, high }
+var OBST_ENCHANT = {
+    8:  { magicResist: { low: 933, mid: 1024, high: 1212 }, def: { low: 387, mid: 491, high: 530 }, hp: { low: 2155, mid: 2480, high: 2802 } },
+    9:  { magicResist: { low: 1162, mid: 1276, high: 1511 }, def: { low: 482, mid: 612, high: 660 }, hp: { low: 2685, mid: 3090, high: 3491 } },
+    10: { magicResist: { low: 1392, mid: 1528, high: 1809 }, def: { low: 577, mid: 732, high: 791 }, hp: { low: 3216, mid: 3701, high: 4181 } },
+    11: { magicResist: { low: 1622, mid: 1780, high: 2107 }, def: { low: 672, mid: 853, high: 921 }, hp: { low: 3746, mid: 4311, high: 4870 } },
+    12: { magicResist: { low: 1851, mid: 2032, high: 2406 }, def: { low: 768, mid: 974, high: 1051 }, hp: { low: 4276, mid: 4921, high: 5560 } },
+    13: { magicResist: { low: 2081, mid: 2284, high: 2704 }, def: { low: 863, mid: 1095, high: 1182 }, hp: { low: 4807, mid: 5532, high: 6250 } },
+    14: { magicResist: { low: 2310, mid: 2536, high: 3003 }, def: { low: 958, mid: 1216, high: 1312 }, hp: { low: 5337, mid: 6142, high: 6939 } },
+    15: { magicResist: { low: 2540, mid: 2788, high: 3301 }, def: { low: 1053, mid: 1336, high: 1443 }, hp: { low: 5868, mid: 6753, high: 7629 } }
+};
+
 // Calculate actual stats for one armor slot
 function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBonuses, bonusValues) {
     var s = emptyStats();
@@ -145,7 +157,7 @@ function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBon
                 }
             });
         }
-    } else if (setKey === 'acrimony' || setKey === 'presumption') {
+    } else if (setKey === 'acrimony' || setKey === 'presumption' || setKey === 'obstinacy') {
         var tier = EX_TIER[slotKey];
         var baseDef = EX_BASE_DEF[armorType];
         if (!baseDef) return s;
@@ -158,14 +170,20 @@ function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBon
         // Base bonus
         if (setKey === 'acrimony') {
             s.attack += 20; s.physicalDef += 10; s.magicalDef += 10; s.hp += 20; s.crit += 20;
-        } else {
+        } else if (setKey === 'presumption') {
             s.attack += 20; s.physicalDef += 20; s.magicalDef += 20; s.hp += 20;
+        } else if (setKey === 'obstinacy') {
+            s.magicResist += 30; s.physicalDef += 15; s.magicalDef += 15; s.hp += 20;
         }
         // Enchant bonuses (+8 to +15)
-        var bonusTable = (setKey === 'acrimony') ? ACRI_ENCHANT : PRES_ENCHANT;
+        var bonusTable = (setKey === 'acrimony') ? ACRI_ENCHANT : (setKey === 'presumption') ? PRES_ENCHANT : OBST_ENCHANT;
         if (enchantLevel >= 8 && bonusTable[enchantLevel]) {
             var b = bonusTable[enchantLevel];
-            s.attack += b.attack[tier];
+            if (setKey === 'obstinacy') {
+                s.magicResist += b.magicResist[tier];
+            }else {
+                s.attack += b.attack[tier];
+            }
             s.physicalDef += b.def[tier];
             s.magicalDef += b.def[tier];
             s.hp += b.hp[tier];

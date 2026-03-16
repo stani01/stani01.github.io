@@ -681,8 +681,11 @@ window.GC = {
             sets = SHIELD_SETS;
             currentSet = state[pid].shield.set;
         } else if (slotType.indexOf('armor:') === 0) {
-            sets = ARMOR_SETS;
-            currentSet = state[pid].armor[slotType.substring(6)].set;
+            var armorSlotKey = slotType.substring(6);
+            sets = ARMOR_SETS.filter(function(s) {
+                return !s.slots || s.slots.indexOf(armorSlotKey) !== -1;
+            });
+            currentSet = state[pid].armor[armorSlotKey].set;
         } else if (slotType.indexOf('acc:') === 0) {
             sets = ACCESSORY_SETS;
             currentSet = state[pid].accessories[slotType.substring(4)].set;

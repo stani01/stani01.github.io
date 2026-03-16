@@ -24,7 +24,7 @@ function calculateDetailedStats(profileId) {
     if (['gladiator', 'templar'].includes(selectedClass)) {
         sources.permanent.attack += 45;
         //sources.permanent.hpPercent = 5;
-        sources.permanent.hp += 2.311;
+        sources.permanent.hp += 2311;
         sources.permanent.accuracy += 180;
         sources.permanent.parry += 80;
     }
