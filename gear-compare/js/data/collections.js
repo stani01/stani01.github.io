@@ -314,12 +314,16 @@ function getCollectionFormNames(coll) {
 var ITEM_COLL_STATS = [
     { key: 'physicalAccuracy', name: 'Physical Accuracy', max: 550,  statKey: 'accuracy'    },
     { key: 'magicAccuracy',    name: 'Magical Accuracy',  max: 550,  statKey: 'accuracy'    },
-    { key: 'critStrike',       name: 'Crit Strike',       max: 1090, statKey: 'crit'        },
-    { key: 'critSpell',        name: 'Crit Spell',        max: 1090, statKey: 'crit'        },
+    { key: 'critStrike',       name: 'Crit Strike',       max: 1290, statKey: 'crit'        },
+    { key: 'critSpell',        name: 'Crit Spell',        max: 1290, statKey: 'crit'        },
     { key: 'physicalAttack',   name: 'Physical Attack',   max: 307,  statKey: 'attack'      },
     { key: 'physicalDef',      name: 'Physical Defence',  max: 415,  statKey: 'physicalDef' },
     { key: 'magicAttack',      name: 'Magic Attack',      max: 307,  statKey: 'attack'      },
     { key: 'magicalDef',       name: 'Magical Defence',   max: 415,  statKey: 'magicalDef'  },
+    { key: 'magicResist',      name: 'Magic Resist',      max: 1070, statKey: 'magicResist' },
+    { key: 'evasion',          name: 'Evasion',           max: 1070, statKey: 'evasion'     },
+    { key: 'parry',            name: 'Parry',             max: 1000, statKey: 'parry'       },
+    { key: 'block',            name: 'Block',             max: 1000, statKey: 'block'       },
 ];
 
 // ===========================================================
