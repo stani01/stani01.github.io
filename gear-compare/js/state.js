@@ -65,7 +65,7 @@ function createDefaultProfile(className) {
     });
     // Initialize collections state
     profile.collections = { itemColl: {} };
-    profile.collLevels = { normal: 6, large: 6, powerful: 6 };
+    profile.collLevels = { normal: 7, large: 7, powerful: 7 };
     ITEM_COLL_STATS.forEach(function(cs) { profile.collections.itemColl[cs.key] = cs.max; });
     // Initialize relic state
     profile.relic = { level: 300 };

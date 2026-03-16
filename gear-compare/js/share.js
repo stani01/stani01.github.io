@@ -216,7 +216,7 @@ function encodeProfile(w, id) {
     });
 
     // -- Collection Levels: 3 * u8 --
-    var cl = p.collLevels || { normal: 6, large: 6, powerful: 6 };
+    var cl = p.collLevels || { normal: 7, large: 7, powerful: 7 };
     w.u8(clamp(cl.normal || 0, 0, 10));
     w.u8(clamp(cl.large || 0, 0, 10));
     w.u8(clamp(cl.powerful || 0, 0, 10));

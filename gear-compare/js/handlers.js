@@ -421,7 +421,7 @@ window.GC = {
     resetCollections: function(pid) {
         var p = state[pid];
         p.collections = { itemColl: {} };
-        p.collLevels = { normal: 6, large: 6, powerful: 6 };
+        p.collLevels = { normal: 7, large: 7, powerful: 7 };
         ITEM_COLL_STATS.forEach(function(cs) { p.collections.itemColl[cs.key] = cs.max; });
         renderCollections(pid);
         updateComparison();
