@@ -125,7 +125,7 @@ var ARMOR_SETS = [
     { key: 'fighting-spirit', name: 'Fighting Spirit' },
     { key: 'acrimony',        name: 'Acrimony' },
     { key: 'presumption',     name: 'Presumption' },
-    { key: 'obstinacy',       name: 'Obstinacy' }
+    { key: 'obstinacy',       name: 'Obstinacy', slots: ['helmet', 'pants', 'gloves'] }
 ];
 
 var EMPTY_ARMOR_ICON = '../assets/icons/icon_empty_slot.svg';
