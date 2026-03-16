@@ -99,14 +99,14 @@ var ARMOR_SLOTS = [
     { key: 'boots',     iconKey: 'shoes' }
 ];
 
-// Armor material → icon URL prefix
+// Armor material -> icon URL prefix
 var ARMOR_MAT_PREFIX = { plate: 'pl', chain: 'ch', leather: 'lt', cloth: 'rb' };
 
 function getArmorIcon(material, slotIconKey) {
     return '../assets/icons/icon_item_equip_' + ARMOR_MAT_PREFIX[material] + '_' + slotIconKey + '_f01.png';
 }
 function getArmorMaterial(armorType) {
-    return armorType.split('-')[1]; // 'physical-plate' → 'plate'
+    return armorType.split('-')[1]; // 'physical-plate' -> 'plate'
 }
 
 var ARMOR_TYPE_OPTIONS = [
@@ -195,7 +195,7 @@ var OATH_OPTIONS = [
     { key: 'ultimate-3',   name: 'Ultimate 3',   rank: 6 }
 ];
 
-// ── Manastone System ──
+// -- Manastone System --
 var MANASTONE_ICON = '../assets/icons/icon_item_matter_option_f01.png';
 var EMPTY_SLOT_ICON = '../assets/icons/icon_option_slot.png';
 
@@ -236,9 +236,9 @@ function getManastoneSlotCount(setKey) {
 }
 
 // Oath stat bonuses per pair type
-// shoulders+helmet → HP + ACC (accuracy + magicalAccuracy)
-// chest+pants      → HP + DEF (physicalDef + magicalDef)
-// gloves+boots     → HP + ATK (attack)
+// shoulders+helmet -> HP + ACC (accuracy + magicalAccuracy)
+// chest+pants      -> HP + DEF (physicalDef + magicalDef)
+// gloves+boots     -> HP + ATK (attack)
 // Both slots must have a real oath (not none/silent-skill) to activate
 var OATH_BONUS = {
     'none':         { hp: 0,    def: 0,   attack: 0,   acc: 0 },

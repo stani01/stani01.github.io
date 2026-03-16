@@ -5,10 +5,10 @@
 //
 // Each skill entry contains:
 //   - name, icon, id, class, category, usageCost, castTime, cooldown, description
-//     (for the info popup — same format as aion-calc)
+//     (for the info popup - same format as aion-calc)
 //   - type: 'buff' | 'debuff'  (buff = adds stats, debuff = reduces enemy stats)
 //   - value: short display text shown on the buff item
-//   - stats: { statKey: amount }  — flat stat additions applied to the profile
+//   - stats: { statKey: amount }  - flat stat additions applied to the profile
 //
 // Stats keys match STAT_KEYS from constants.js:
 //   hp, attack, accuracy, crit, critDmg, healingBoost, pvpAttack, pveAttack,

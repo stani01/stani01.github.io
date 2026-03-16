@@ -27,7 +27,7 @@ var ACCESSORY_SETS = [
 ];
 var ACCESSORY_SET_KEYS = ACCESSORY_SETS.map(function(s) { return s.key; });
 
-// Map accessory slot key → stats lookup type
+// Map accessory slot key -> stats lookup type
 var ACC_STATS_TYPE = {
     'feather': 'feather', 'wings': 'wings', 'bracelet': 'feather',
     'earring1': 'earring', 'earring2': 'earring', 'necklace': 'necklace',

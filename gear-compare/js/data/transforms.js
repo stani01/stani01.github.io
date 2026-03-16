@@ -1,9 +1,9 @@
 'use strict';
 
 
-// Stat display definitions — [base, perEnchant] format in each transform
-// Physical stats: accuracy, critStrike → map to comparison 'accuracy', 'crit'
-// Magical stats:  magicAccuracy, critSpell → map to comparison 'accuracy', 'crit' for magic classes
+// Stat display definitions - [base, perEnchant] format in each transform
+// Physical stats: accuracy, critStrike -> map to comparison 'accuracy', 'crit'
+// Magical stats:  magicAccuracy, critSpell -> map to comparison 'accuracy', 'crit' for magic classes
 // Display-only: attackSpeed, castSpeed, moveSpeed (not enchantable)
 var TRANSFORM_STAT_DEFS = [
     { key: 'attackSpeed',   name: 'Atk. Speed',      unit: '%',  display: true },
@@ -38,20 +38,20 @@ var FORM_GRADES = [
     { key: 'ultimate',  name: 'Ultimate',  color: '#f35d50' }
 ];
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ===============================================================================
 // UNIFIED TRANSFORMS DATABASE
 //
-// All forms in the game — ultimates have full stats, others have stats: {} for now.
+// All forms in the game - ultimates have full stats, others have stats: {} for now.
 // Used for BOTH the transform picker (ultimates + 'none') AND the forms collection.
 //
-// Stats format: [base, perEnchant] — total at enchant N = base + perEnchant × N
+// Stats format: [base, perEnchant] - total at enchant N = base + perEnchant * N
 // Display-only speeds are flat numbers (no enchant scaling)
-// ═══════════════════════════════════════════════════════════════════════════════
+// ===============================================================================
 var TRANSFORMS = [
-    // ── Special None entry (transform picker only) ──
+    // -- Special None entry (transform picker only) --
     { key: 'none', name: 'None', icon: '../assets/icons/icon_frame_2.png', grade: null, stats: {} },
 
-    // ── Ultimate ──
+    // -- Ultimate --
     { key: 'kaisinel', id: 982050, name: 'Kaisinel', grade: 'ultimate', icon: '../assets/icons/trans_finality_kaisinel.png', stats: {
         attackSpeed: 60, castSpeed: 45, moveSpeed: 100,
         accuracy: [378, 19], magicAccuracy: [378, 19], critStrike: [331, 17], critSpell: [331, 17],
@@ -140,7 +140,7 @@ var TRANSFORMS = [
         pvpDefence: [241, 12], pveDefence: [241, 12]
     }},
 
-    // ── Legendary (stats TBD) ──
+    // -- Legendary (stats TBD) --
     { key: 'hamerun',              id: 982043, name: 'Hamerun',              grade: 'legendary', icon: '../assets/icons/trans_relic_hamerun.png', stats: {} },
     { key: 'bollvig',              id: 982044, name: 'Bollvig',              grade: 'legendary', icon: '../assets/icons/trans_relic_vampire.png', stats: {} },
     { key: 'kromede',              id: 982045, name: 'Kromede',              grade: 'legendary', icon: '../assets/icons/trans_relic_cromede.png', stats: {} },
@@ -176,7 +176,7 @@ var TRANSFORMS = [
     { key: 'keyboard-ranger',      id: 982093, name: 'Keyboard Ranger',      grade: 'legendary', icon: '../assets/icons/trans_relic_keyboardranger.png', stats: {} },
     { key: 'aphsaranta-adventurer', id: 982109, name: 'Aphsaranta Adventurer', grade: 'legendary', icon: '../assets/icons/trans_finality_foxaviator.png', stats: {} },
 
-    // ── Ancient (stats TBD) ──
+    // -- Ancient (stats TBD) --
     { key: 'baa',                  id: 982032, name: 'Baa',                    grade: 'ancient', icon: '../assets/icons/trans_ancient_sheep.png', stats: {} },
     { key: 'desert-fox',           id: 982033, name: 'Desert Fox',             grade: 'ancient', icon: '../assets/icons/trans_ancient_fox.png', stats: {} },
     { key: 'tiamat-dragonbound',   id: 982034, name: 'Tiamat Dragonbound',     grade: 'ancient', icon: '../assets/icons/trans_ancient_fanatic.png', stats: {} },
@@ -203,7 +203,7 @@ var TRANSFORMS = [
     { key: 'warm-snow-fox',        id: 982105, name: 'Warm Snow Fox',          grade: 'ancient', icon: '../assets/icons/trans_ancient_foxsweater_f.png', stats: {} },
     { key: 'snuggly-snow-fox',     id: 982106, name: 'Snuggly Snow Fox',       grade: 'ancient', icon: '../assets/icons/trans_ancient_foxsweater_m.png', stats: {} },
 
-    // ── Large / Greater (stats TBD) ──
+    // -- Large / Greater (stats TBD) --
     { key: 'wyvern-of-victory',    id: 982018, name: 'Wyvern of Victory', grade: 'large', icon: '../assets/icons/trans_rare_dragonolympic.png', stats: {} },
     { key: 'shugo',                id: 982019, name: 'Shugo',             grade: 'large', icon: '../assets/icons/trans_rare_rabbitshugoblue.png', stats: {} },
     { key: 'super-shugo',          id: 982020, name: 'Super Shugo',       grade: 'large', icon: '../assets/icons/trans_rare_rabbitshugored.png', stats: {} },
@@ -221,7 +221,7 @@ var TRANSFORMS = [
     { key: 'naughty-rabbit',       id: 982051, name: 'Naughty Rabbit',    grade: 'large', icon: '../assets/icons/trans_rare_yellowrabbit.png', stats: {} },
     { key: 'golden-tin',           id: 982052, name: 'Golden Tin',        grade: 'large', icon: '../assets/icons/trans_rare_goldencan.png', stats: {} },
 
-    // ── Normal (stats TBD) ──
+    // -- Normal (stats TBD) --
     { key: 'polar-bear',           id: 982000, name: 'Polar Bear',        grade: 'normal', icon: '../assets/icons/trans_common_whitebear.png', stats: {} },
     { key: 'anubite',              id: 982001, name: 'Anubite',           grade: 'normal', icon: '../assets/icons/trans_common_skeleton.png', stats: {} },
     { key: 'pink-tiger',           id: 982002, name: 'Pink Tiger',        grade: 'normal', icon: '../assets/icons/trans_common_pinktiger.png', stats: {} },
@@ -242,7 +242,7 @@ var TRANSFORMS = [
     { key: 'powerful-panda',       id: 982017, name: 'Powerful Panda',     grade: 'normal', icon: '../assets/icons/trans_common_eventpanda.png', stats: {} },
 ];
 
-// ── Derived lookups ──
+// -- Derived lookups --
 var TRANSFORM_KEYS = TRANSFORMS.map(function(t) { return t.key; });
 
 // Ultimate-only list for the transform picker (includes 'none')

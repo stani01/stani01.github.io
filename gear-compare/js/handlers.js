@@ -309,7 +309,7 @@ window.GC = {
         saveState();
     },
 
-    // ── Forms Collection handlers ──
+    // -- Forms Collection handlers --
     toggleForm: function(pid, formId) {
         if (!state[pid].ownedForms) state[pid].ownedForms = {};
         state[pid].ownedForms[formId] = !state[pid].ownedForms[formId];
@@ -398,7 +398,7 @@ window.GC = {
         if (tooltip) tooltip.style.display = 'none';
     },
 
-    // ── Collections handlers ──
+    // -- Collections handlers --
 
 
     setItemColl: function(pid, key, rawVal) {
@@ -428,7 +428,7 @@ window.GC = {
         saveState();
     },
 
-    // ── Relic handlers ──
+    // -- Relic handlers --
     // Light: syncs sibling control + comparison, no DOM rebuild (keeps focus)
     setRelicLevelLight: function(pid, rawVal) {
         var val = Math.max(0, Math.min(300, parseInt(rawVal) || 0));
@@ -474,7 +474,7 @@ window.GC = {
         saveState();
     },
 
-    // ── Skill Buff handlers ──
+    // -- Skill Buff handlers --
     toggleBuffSection: function(gridId, sectionKey, pid) {
         var grid = document.getElementById(gridId);
         if (!grid) return;
@@ -571,7 +571,7 @@ window.GC = {
                 '<div class="skill-info-name">' + skill.name + '</div>' +
                 '<div class="skill-info-id">ID: ' + skill.id + '</div>' +
             '</div>' +
-            '<button class="skill-info-close" onclick="GC.closeSkillInfo()">×</button>' +
+            '<button class="skill-info-close" onclick="GC.closeSkillInfo()">*</button>' +
         '</div>' +
         '<div class="skill-info-body">' +
             '<div class="skill-info-row"><div class="skill-info-label">Class:</div><div class="skill-info-value skill-info-class-container">' + classDisplay + '</div></div>' +
@@ -1288,7 +1288,7 @@ window.GC = {
         popup.style.left = left + 'px';
     },
 
-    // ── Manastone Modal Handlers ──
+    // -- Manastone Modal Handlers --
     openManaModal: function(pid, scrollToGear) {
         closeOathPopup();
         closeSetPopup();
@@ -1551,7 +1551,7 @@ function renderAccBonusPopupContent(popup, pid, slotKey) {
     var slotDef = ACCESSORY_SLOTS_UPPER.concat(ACCESSORY_SLOTS_LOWER_L, ACCESSORY_SLOTS_LOWER_R).find(function(s) { return s.key === slotKey; });
     var slotLabel = slotDef ? slotDef.name : slotKey;
 
-    var html = '<div class="gc-acc-bonus-popup-title">' + slotLabel + ' — Bonuses (' + picked.length + '/' + maxB + ')</div>';
+    var html = '<div class="gc-acc-bonus-popup-title">' + slotLabel + ' - Bonuses (' + picked.length + '/' + maxB + ')</div>';
     html += '<div class="gc-shield-bonus-grid">';
     slotData.bonuses.forEach(function(b) {
         var isOn = picked.indexOf(b.key) !== -1;
@@ -1578,7 +1578,7 @@ function renderWeaponBonusPopupContent(popup, pid, slot) {
     var picked = weapon.bonuses || [];
     var label = slot === 'mainWeapon' ? 'Main Weapon' : 'Off-Hand';
 
-    var html = '<div class="gc-acc-bonus-popup-title">' + label + ' — Bonuses (' + picked.length + '/' + maxB + ')</div>';
+    var html = '<div class="gc-acc-bonus-popup-title">' + label + ' - Bonuses (' + picked.length + '/' + maxB + ')</div>';
     html += '<div class="gc-shield-bonus-grid">';
     fixed.bonuses.forEach(function(b) {
         var isOn = picked.indexOf(b.key) !== -1;
@@ -1606,7 +1606,7 @@ function renderShieldBonusPopupContent(popup, pid) {
     var bonusList = shData.bonuses[typeKey] || [];
     var picked = sh.bonuses || [];
 
-    var html = '<div class="gc-acc-bonus-popup-title">Shield — Bonuses (' + picked.length + '/' + maxB + ')</div>';
+    var html = '<div class="gc-acc-bonus-popup-title">Shield - Bonuses (' + picked.length + '/' + maxB + ')</div>';
     html += '<div class="gc-shield-bonus-grid">';
     bonusList.forEach(function(b) {
         var isOn = picked.indexOf(b.key) !== -1;

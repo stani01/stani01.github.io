@@ -1,27 +1,27 @@
 'use strict';
 
 
-// Transformation Collection buttons — each entry is a toggleable bonus.
+// Transformation Collection buttons - each entry is a toggleable bonus.
 // Stat categories represented: 'attack', 'crit', 'physicalDef'+'magicalDef' (add both),
 // 'physicalDef', 'magicalDef', or any other COMPARISON_STATS key.
 // For collections that boost both defences use two entries with the same visual grouping.
-// Add new entries by appending — do NOT remove or reorder existing entries.
+// Add new entries by appending - do NOT remove or reorder existing entries.
 //
 // Format: { key, name, stat, value }
-//   key   — unique identifier (string, append-only)
-//   name  — label shown on the toggle button
-//   stat  — comparison stat key the bonus is added to
-//   value — flat bonus applied when toggled ON
+//   key   - unique identifier (string, append-only)
+//   name  - label shown on the toggle button
+//   stat  - comparison stat key the bonus is added to
+//   value - flat bonus applied when toggled ON
 //
 // Example:
 // Format: { key, name, stat, value, forms?, gradeReq?, bonus? }
-//   key      — unique identifier (string)
-//   name     — collection title
-//   stat     — comparison stat key (attack, crit, critDmg, physicalDef, magicalDef, …)
-//   value    — flat bonus applied when collection is active
-//   forms    — (optional) array of form IDs required to complete this collection
-//   gradeReq — (optional) { grade, count } for grade-based conqueror collections
-//   bonus    — (optional) extra reward text shown in the UI
+//   key      - unique identifier (string)
+//   name     - collection title
+//   stat     - comparison stat key (attack, crit, critDmg, physicalDef, magicalDef, …)
+//   value    - flat bonus applied when collection is active
+//   forms    - (optional) array of form IDs required to complete this collection
+//   gradeReq - (optional) { grade, count } for grade-based conqueror collections
+//   bonus    - (optional) extra reward text shown in the UI
 var TF_COLLECTIONS = [
     // -- 1–6: Basic collections --
     { key: 'tf-dog-bunny', name: 'Time of Dog and Bunny', stat: 'parry', value: 108,
@@ -307,10 +307,10 @@ function getCollectionFormNames(coll) {
 // critStrike and critSpell both map to 'crit'.  Add new rows by appending.
 //
 // Format: { key, name, max, statKey }
-//   key     — unique identifier used in state storage
-//   name    — label shown next to the input
-//   max     — maximum allowed value (enforced on input)
-//   statKey — comparison stat key this input feeds into
+//   key     - unique identifier used in state storage
+//   name    - label shown next to the input
+//   max     - maximum allowed value (enforced on input)
+//   statKey - comparison stat key this input feeds into
 var ITEM_COLL_STATS = [
     { key: 'physicalAccuracy', name: 'Physical Accuracy', max: 550,  statKey: 'accuracy'    },
     { key: 'magicAccuracy',    name: 'Magical Accuracy',  max: 550,  statKey: 'accuracy'    },
@@ -322,9 +322,9 @@ var ITEM_COLL_STATS = [
     { key: 'magicalDef',       name: 'Magical Defence',   max: 415,  statKey: 'magicalDef'  },
 ];
 
-// ═══════════════════════════════════════════════════════════
+// ===========================================================
 // RELIC DATA
-// ═══════════════════════════════════════════════════════════
+// ===========================================================
 
 var RELIC_LEVEL_STAT_RANGES = [
     { from: 1, to: 50, stats: { hp: 100, attack: 3, crit: 2 } },
@@ -353,13 +353,13 @@ var RELIC_LEVEL_STATS = expandRelicLevelStats(RELIC_LEVEL_STAT_RANGES);
 // Milestone bonuses unlocked when a specific relic level is reached.
 // Active milestones (≤ current level) are shown with their icons.
 // Upcoming milestones (> current level) appear greyed-out.
-// Append-only — do NOT remove or reorder existing entries.
+// Append-only - do NOT remove or reorder existing entries.
 //
 // Format: { level, name, icon, stats }
-//   level — relic level required to unlock this bonus
-//   name  — milestone label
-//   icon  — URL string for the buff icon (use '../assets/icons/...' paths)
-//   stats — object { statKey: value } added to the comparison totals
+//   level - relic level required to unlock this bonus
+//   name  - milestone label
+//   icon  - URL string for the buff icon (use '../assets/icons/...' paths)
+//   stats - object { statKey: value } added to the comparison totals
 //           (may be omitted if the milestone is display-only)
 //
 // Example:
@@ -418,7 +418,7 @@ var MINIONS = [
 ];
 
 // Calculate cumulative relic stats for a given level (sums all entries ≤ level)
-// Sums only RELIC_LEVEL_STATS thresholds — used for the stats bars display.
+// Sums only RELIC_LEVEL_STATS thresholds - used for the stats bars display.
 function getRelicLevelStats(level) {
     var out = emptyStats();
     RELIC_LEVEL_STATS.forEach(function(entry) {
@@ -429,7 +429,7 @@ function getRelicLevelStats(level) {
     return out;
 }
 
-// Full relic stats (level thresholds + milestone skills) — used for comparison totals.
+// Full relic stats (level thresholds + milestone skills) - used for comparison totals.
 function getRelicStats(level, isPhy) {
     var out = getRelicLevelStats(level);
     RELIC_MILESTONES.forEach(function(ms) {

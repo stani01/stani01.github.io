@@ -95,9 +95,9 @@
     (function() {
         'use strict';
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // DATA CONSTANTS
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
         // One-handed: dagger, sword, mace, revolver
         // Two-handed: everything else
@@ -193,14 +193,14 @@
             { key: 'boots',     iconKey: 'shoes' }
         ];
 
-        // Armor material → icon URL prefix
+        // Armor material -> icon URL prefix
         var ARMOR_MAT_PREFIX = { plate: 'pl', chain: 'ch', leather: 'lt', cloth: 'rb' };
 
         function getArmorIcon(material, slotIconKey) {
             return 'assets/icons/icon_item_equip_' + ARMOR_MAT_PREFIX[material] + '_' + slotIconKey + '_f01.png';
         }
         function getArmorMaterial(armorType) {
-            return armorType.split('-')[1]; // 'physical-plate' → 'plate'
+            return armorType.split('-')[1]; // 'physical-plate' -> 'plate'
         }
 
         var ARMOR_TYPE_OPTIONS = [
@@ -253,7 +253,7 @@
             { key: 'ultimate-3',   name: 'Ultimate 3',   rank: 6 }
         ];
 
-        // ── Manastone System ──
+        // -- Manastone System --
         var MANASTONE_ICON = 'assets/icons/icon_item_matter_option_f01.png';
         var EMPTY_SLOT_ICON = 'assets/icons/icon_option_slot.png';
 
@@ -293,9 +293,9 @@
         }
 
         // Oath stat bonuses per pair type
-        // shoulders+helmet → HP + ACC (accuracy + magicalAccuracy)
-        // chest+pants      → HP + DEF (physicalDef + magicalDef)
-        // gloves+boots     → HP + ATK (attack)
+        // shoulders+helmet -> HP + ACC (accuracy + magicalAccuracy)
+        // chest+pants      -> HP + DEF (physicalDef + magicalDef)
+        // gloves+boots     -> HP + ATK (attack)
         // Both slots must have a real oath (not none/silent-skill) to activate
         var OATH_BONUS = {
             'none':         { hp: 0,    def: 0,   attack: 0,   acc: 0 },
@@ -429,13 +429,13 @@
 
         var STAT_KEYS = COMPARISON_STATS.map(function(s) { return s.key; });
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // TRANSFORMATION DATA
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
-        // Stat display definitions — [base, perEnchant] format in each transform
-        // Physical stats: accuracy, critStrike → map to comparison 'accuracy', 'crit'
-        // Magical stats:  magicAccuracy, critSpell → map to comparison 'accuracy', 'crit' for magic classes
+        // Stat display definitions - [base, perEnchant] format in each transform
+        // Physical stats: accuracy, critStrike -> map to comparison 'accuracy', 'crit'
+        // Magical stats:  magicAccuracy, critSpell -> map to comparison 'accuracy', 'crit' for magic classes
         // Display-only: attackSpeed, castSpeed, moveSpeed (not enchantable)
         var TRANSFORM_STAT_DEFS = [
             { key: 'attackSpeed',   name: 'Atk. Speed',      unit: '%',  display: true },
@@ -461,8 +461,8 @@
 
         var TF_NONE_ICON = 'assets/icons/icon_frame_2.png';
 
-        // All 14 ultimate transforms (display order: Kaisinel → Dark Dragon King)
-        // Stats format: [base, perEnchant] — total at enchant N = base + perEnchant × N
+        // All 14 ultimate transforms (display order: Kaisinel -> Dark Dragon King)
+        // Stats format: [base, perEnchant] - total at enchant N = base + perEnchant * N
         // Display-only speeds are flat numbers (no enchant scaling)
         var TRANSFORMS = [
             { key: 'none', name: 'None', icon: TF_NONE_ICON, stats: {} },
@@ -688,9 +688,9 @@
             return stats;
         }
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // ITEM DATABASE
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
         function emptyStats() {
             var s = {};
@@ -698,21 +698,21 @@
             return s;
         }
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // COLLECTIONS DATA
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
-        // Transformation Collection buttons — each entry is a toggleable bonus.
+        // Transformation Collection buttons - each entry is a toggleable bonus.
         // Stat categories represented: 'attack', 'crit', 'physicalDef'+'magicalDef' (add both),
         // 'physicalDef', 'magicalDef', or any other COMPARISON_STATS key.
         // For collections that boost both defences use two entries with the same visual grouping.
-        // Add new entries by appending — do NOT remove or reorder existing entries.
+        // Add new entries by appending - do NOT remove or reorder existing entries.
         //
         // Format: { key, name, stat, value }
-        //   key   — unique identifier (string, append-only)
-        //   name  — label shown on the toggle button
-        //   stat  — comparison stat key the bonus is added to
-        //   value — flat bonus applied when toggled ON
+        //   key   - unique identifier (string, append-only)
+        //   name  - label shown on the toggle button
+        //   stat  - comparison stat key the bonus is added to
+        //   value - flat bonus applied when toggled ON
         //
         // Example:
         //   { key: 'tf-atk-1', name: 'Fighter Coll. I',  stat: 'attack',      value:  50 },
@@ -720,7 +720,7 @@
         var TF_COLLECTIONS = [
             // Format: { key, name, stat, value }
             // stat must be a key from COMPARISON_STATS (e.g. 'attack', 'crit', 'parry', 'physicalDef', ...)
-            // Append-only — do NOT remove or reorder existing entries.
+            // Append-only - do NOT remove or reorder existing entries.
             //{ key: 'tf-coll-dog-bunny', name: 'Time of Dog and Bunny', stat: 'parry', value: 108 },
             { key: 'tf-col-tin-bunny', name: 'Tin Man with Bunny', stat: 'physicalDef', value: 38 },
             { key: 'tf-col-gift-set', name: 'Full Gift Set', stat: 'magicalDef', value: 38 },
@@ -788,10 +788,10 @@
         // critStrike and critSpell both map to 'crit'.  Add new rows by appending.
         //
         // Format: { key, name, max, statKey }
-        //   key     — unique identifier used in state storage
-        //   name    — label shown next to the input
-        //   max     — maximum allowed value (enforced on input)
-        //   statKey — comparison stat key this input feeds into
+        //   key     - unique identifier used in state storage
+        //   name    - label shown next to the input
+        //   max     - maximum allowed value (enforced on input)
+        //   statKey - comparison stat key this input feeds into
         var ITEM_COLL_STATS = [
             { key: 'physicalAttack', name: 'Physical Attack',  max: 307,  statKey: 'attack'      },
             { key: 'physicalDef',    name: 'Physical Defence', max: 415,  statKey: 'physicalDef' },
@@ -801,9 +801,9 @@
             { key: 'critSpell',      name: 'Crit Spell',       max: 1090, statKey: 'crit'        },
         ];
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // RELIC DATA
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
         var RELIC_LEVEL_STAT_RANGES = [
             { from: 1, to: 50, stats: { hp: 100, attack: 3, crit: 2 } },
@@ -832,13 +832,13 @@
         // Milestone bonuses unlocked when a specific relic level is reached.
         // Active milestones (≤ current level) are shown with their icons.
         // Upcoming milestones (> current level) appear greyed-out.
-        // Append-only — do NOT remove or reorder existing entries.
+        // Append-only - do NOT remove or reorder existing entries.
         //
         // Format: { level, name, icon, stats }
-        //   level — relic level required to unlock this bonus
-        //   name  — milestone label
-        //   icon  — URL string for the buff icon (use 'assets/icons/...' paths)
-        //   stats — object { statKey: value } added to the comparison totals
+        //   level - relic level required to unlock this bonus
+        //   name  - milestone label
+        //   icon  - URL string for the buff icon (use 'assets/icons/...' paths)
+        //   stats - object { statKey: value } added to the comparison totals
         //           (may be omitted if the milestone is display-only)
         //
         // Example:
@@ -897,7 +897,7 @@
         ];
 
         // Calculate cumulative relic stats for a given level (sums all entries ≤ level)
-        // Sums only RELIC_LEVEL_STATS thresholds — used for the stats bars display.
+        // Sums only RELIC_LEVEL_STATS thresholds - used for the stats bars display.
         function getRelicLevelStats(level) {
             var out = emptyStats();
             RELIC_LEVEL_STATS.forEach(function(entry) {
@@ -908,7 +908,7 @@
             return out;
         }
 
-        // Full relic stats (level thresholds + milestone skills) — used for comparison totals.
+        // Full relic stats (level thresholds + milestone skills) - used for comparison totals.
         function getRelicStats(level, isPhy) {
             var out = getRelicLevelStats(level);
             RELIC_MILESTONES.forEach(function(ms) {
@@ -981,9 +981,9 @@
         var WEAPON_SET_KEYS = WEAPON_SETS.map(function(o) { return o.key; });
         var WEAPON_TYPE_KEYS = Object.keys(WEAPON_TYPES);
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // ARMOR STATS DATABASE (real values)
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
         // Fighting Spirit: slot tier mapping
         var FS_TIER = {
@@ -1137,9 +1137,9 @@
             return s;
         }
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // WEAPON STATS DATABASE (real values)
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
         // Fixed-stat weapons (stats baked in, only vary by 2h/1h)
         // pvpStat/pveStat: which pvp/pve stat keys the bonus/enchant values map to
@@ -1172,7 +1172,7 @@
         // Jorgoth: shared enchant bonuses (applied on top of per-weapon data)
         var JORGOTH_ENCHANT = { enchAtk1h: 223, enchAtk2h: 371, enchDef1h: 61, enchDef2h: 101 };
 
-        // Jorgoth: per weapon type × variant (v1=left in item manual, v3=right)
+        // Jorgoth: per weapon type * variant (v1=left in item manual, v3=right)
         // Each entry: { baseAtk, hp, bonusDef, bonusAtk, crit, acc, healingBoost?, tag? }
         // tag: 'extended' = Extended weapon, 'masterpiece' = Jorgoth's Masterpiece buff
         // Common: baseDef=170, baseAcc=2568 (added in getWeaponStats)
@@ -1301,9 +1301,9 @@
         // Acrimony/Presumption weapon base values
         var EXTREME_WEAPON_BASE = { baseAtk: 4950, bonusAtk: 20, baseDef: 170, baseAcc: 2568 };
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // ACCESSORY STATS DATABASE
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
         var ACCESSORY_SLOTS_UPPER = [
             { key: 'feather',  name: 'Feather',  icon: 'assets/icons/icon_item_equip_feather_f01.png' },
@@ -1330,7 +1330,7 @@
         ];
         var ACCESSORY_SET_KEYS = ACCESSORY_SETS.map(function(s) { return s.key; });
 
-        // Map accessory slot key → stats lookup type
+        // Map accessory slot key -> stats lookup type
         var ACC_STATS_TYPE = {
             'feather': 'feather', 'wings': 'wings', 'bracelet': 'feather',
             'earring1': 'earring', 'earring2': 'earring', 'necklace': 'necklace',
@@ -1430,9 +1430,9 @@
             }
         };
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // DAEVA TRAITS DATABASE
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
         // DAEVANION_SKILLS: Each skill has id, stats, and icon
         const DAEVANION_SKILLS = {
@@ -1881,7 +1881,7 @@
                 var w = JORGOTH_WEAPONS[weaponType][vKey];
                 if (w) {
                     var je = JORGOTH_ENCHANT;
-                    // T3: override baseAtk (5200→4700, 2250→2000)
+                    // T3: override baseAtk (5200->4700, 2250->2000)
                     var effectiveBaseAtk = isT3 ? (w.baseAtk === 2250 ? 2000 : 4700) : w.baseAtk;
                     base.attack      = effectiveBaseAtk;
                     base.physicalDef = 170;
@@ -1940,9 +1940,9 @@
             return { baseAtk: 0, base: base, bonus: bonus, enchant: enchant };
         }
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // SHIELD STATS DATABASE
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
         var SHIELD_SETS = [
             { key: 'spiked',          name: 'Spiked (PvP)' },
@@ -1954,8 +1954,8 @@
 
         // Each shield set defines: base stats, enchant bonuses (flat totals),
         // selectable bonuses (max picks), and optional pvp/pve base stats.
-        // battle vs scale: pDef↔mDef swapped in base, accuracy→accuracy stays same key,
-        //   but attack→attack stays same key (unified). The BONUS list differs:
+        // battle vs scale: pDef↔mDef swapped in base, accuracy->accuracy stays same key,
+        //   but attack->attack stays same key (unified). The BONUS list differs:
         //   battle: accuracy + attack (physical), scale: accuracy + attack (magical)
         //   We store them in the same unified keys since class context determines interpretation.
         var SHIELD_STATS = {
@@ -2097,8 +2097,8 @@
 
         // Calculate total shield stats for a given configuration
         // classPhysical: true if class is physical, false if magical
-        //   battle shield → attack/crit/accuracy are physical; if class is magical → zero them
-        //   scale shield  → attack/crit/accuracy are magical; if class is physical → zero them
+        //   battle shield -> attack/crit/accuracy are physical; if class is magical -> zero them
+        //   scale shield  -> attack/crit/accuracy are magical; if class is physical -> zero them
         function getShieldStats(shieldSet, shieldType, selectedBonuses, classPhysical) {
             var stats = emptyStats();
             var data = SHIELD_STATS[shieldSet];
@@ -2185,9 +2185,9 @@
             }
         }
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // STATE
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
         function createDefaultWeaponConfig(className) {
             var cls = CLASS_DATA[className];
@@ -2456,9 +2456,9 @@
             2: createDefaultProfile('gladiator')
         };
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // STAT CALCULATION
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
         function calculateProfileStats(profileId) {
             var d = calculateDetailedStats(profileId);
@@ -2523,7 +2523,7 @@
                 STAT_KEYS.forEach(function(k) { sources.armor[k] += (armorStats[k] || 0); });
             });
 
-            // ── Weapon stats (base/bonus/enchant split) ──
+            // -- Weapon stats (base/bonus/enchant split) --
             var mwSet = profile.mainWeapon.set;
             var mwType = weaponConfig.mainType;
             var mainParts = getWeaponParts(mwSet, mwType, profile.mainWeapon.enchant, profile.mainWeapon.bonuses);
@@ -2669,7 +2669,7 @@
                 sources.minion[k] += (mStats[k] || 0); 
             });
 
-            // ── Transformation Collection bonuses (toggle-based) ──
+            // -- Transformation Collection bonuses (toggle-based) --
             var tfToggled = (profile.collections && profile.collections.tfToggled) ? profile.collections.tfToggled : {};
             TF_COLLECTIONS.forEach(function(coll) {
                 if (!tfToggled[coll.key]) return;
@@ -2696,7 +2696,7 @@
                 }
             });
 
-            // ── Item Collection bonuses (numeric input) ──
+            // -- Item Collection bonuses (numeric input) --
             var itemColl = (profile.collections && profile.collections.itemColl) ? profile.collections.itemColl : {};
 
             ITEM_COLL_STATS.forEach(function(cs) {
@@ -2737,7 +2737,7 @@
             /* POWERFUL (attack) */
             sources.collLevels.attack += sum([0,8,12,16,20,24],lv.powerful);
 
-            // ── Relic stats ──
+            // -- Relic stats --
             if (profile.relic && profile.relic.level > 0) {
                 var relicStats = getRelicStats(profile.relic.level, isPhys);
                 STAT_KEYS.forEach(function(k) { sources.relic[k] += (relicStats[k] || 0); });
@@ -2790,9 +2790,9 @@
             return { totals: totals, sources: sources };
         }
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // RENDERING
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
         function msIndicator(pid, gearKey, setKey, profile) {
             var slots = getManastoneSlotCount(setKey);
@@ -2810,7 +2810,7 @@
             return '<span class="gc-ms-indicator' + cls + '" title="Manastones: ' + filled + '/' + slots + '">' + icons + '</span>';
         }
 
-        // ── Manastone Modal ──
+        // -- Manastone Modal --
         function getGearLabel(gearKey) {
             if (gearKey === 'mainWeapon') return 'Main Weapon';
             if (gearKey === 'offHand') return 'Off-Hand';
@@ -2860,7 +2860,7 @@
             // Title bar
             html += '<div class="gc-mana-titlebar">';
             html += '<img src="' + MANASTONE_ICON + '" class="gc-mana-title-icon" alt="">';
-            html += '<span class="gc-mana-title">Manastones — SET ' + pid + '</span>';
+            html += '<span class="gc-mana-title">Manastones - SET ' + pid + '</span>';
             html += '<span class="gc-mana-close" onclick="GC.closeManaModal()">✕</span>';
             html += '</div>';
 
@@ -3010,7 +3010,7 @@
             updateComparison();
         }
 
-        // ── Tab switching ──
+        // -- Tab switching --
         // activeTab declared earlier, restored from loadState
         function activateTab(tab) {
             activeTab = tab;
@@ -3029,7 +3029,7 @@
             saveState();
         });
 
-        // ── Transform rendering ──
+        // -- Transform rendering --
         function renderTransform(pid) {
             var el = document.getElementById('transform-' + pid);
             var profile = state[pid];
@@ -3050,7 +3050,7 @@
                 var noneCls = tf.key === 'none' ? ' gc-tf-icon-none' : '';
                 html += '<div class="gc-tf-icon' + sel + noneCls + '" onclick="GC.setTransform(' + pid + ',\'' + tf.key + '\')" title="' + tf.name + '">';
                 if (tf.key === 'none') {
-                    html += '<span class="gc-tf-none-dash">—</span>';
+                    html += '<span class="gc-tf-none-dash">-</span>';
                 } else {
                     html += '<img src="' + tf.icon + '" alt="' + tf.name + '">';
                     html += '<span class="gc-tf-icon-label">' + tf.name + '</span>';
@@ -3097,7 +3097,7 @@
             el.innerHTML = html;
         }
 
-        // ── Collections rendering ──
+        // -- Collections rendering --
         function renderCollections(pid) {
             var el = document.getElementById('collections-' + pid);
             var scrollParent = el.querySelector('.gc-coll-tf-scroll');
@@ -3120,7 +3120,7 @@
             html += '<button class="gc-reset-btn" onclick="GC.resetCollections(' + pid + ')" title="Reset collections">&#x21BA;</button>';
             html += '</div>';
 
-            // ── Item Collections ──
+            // -- Item Collections --
             html += '<div class="gc-section-label gc-coll-section-label">\uD83C\uDF92 Item Collections</div>';
             html += '<div class="gc-coll-header">';
             html += '<div class="gc-coll-levels">';
@@ -3144,7 +3144,7 @@
             });
             html += '</div>';
 
-            // ── Transformation Collections ──
+            // -- Transformation Collections --
             var allOn = TF_COLLECTIONS.every(function(coll) { return tfToggled[coll.key]; });
             var tfOnCount = TF_COLLECTIONS.filter(function(coll) { return tfToggled[coll.key]; }).length;
             var tfMax = TF_COLLECTIONS.length;
@@ -3160,7 +3160,7 @@
                 var statName = statDef ? statDef.name : coll.stat;
                 html += '<div class="gc-coll-btn' + (isOn ? ' gc-coll-btn-on' : '') + '"';
                 html += ' onclick="GC.toggleTFCollection(' + pid + ',\'' + coll.key + '\')"';
-                html += ' title="' + (isOn ? 'Active — click to deactivate' : 'Inactive — click to activate') + '">';
+                html += ' title="' + (isOn ? 'Active - click to deactivate' : 'Inactive - click to activate') + '">';
                 html += '<span class="gc-coll-btn-title">' + coll.name + '</span>';
                 html += '<span class="gc-coll-btn-stat">+' + coll.value.toLocaleString() + ' ' + statName + '</span>';
                 html += '</div>';
@@ -3172,7 +3172,7 @@
             if (newScrollParent) newScrollParent.scrollTop = scrollTop;
         }
 
-        // ── Relic rendering (in-game style) ──
+        // -- Relic rendering (in-game style) --
         function renderRelic(pid) {
             var isPhy = isPhysicalClass(selectedClass);
             var el = document.getElementById('relic-' + pid);
@@ -3183,7 +3183,7 @@
 
             var html = '<div class="gc-relic-panel">';
 
-            // ─── Header: stone icon + title + reset ───
+            // --- Header: stone icon + title + reset ---
             html += '<div class="gc-relic-header">';
             html += '<img src="assets/icons/icon_item_sacredstone_levelup.png" class="gc-relic-header-icon" alt="Relic">';
             html += '<div class="gc-relic-header-info">';
@@ -3193,7 +3193,7 @@
             html += '<button class="gc-reset-btn" onclick="GC.resetRelic(' + pid + ')" title="Reset relic">&#x21BA;</button>';
             html += '</div>';
 
-            // ─── Level row: number input + slider ───
+            // --- Level row: number input + slider ---
             html += '<div class="gc-relic-level-row">';
             html += '<span class="gc-relic-level-label">Level</span>';
             html += '<input type="number" class="gc-relic-level-input" min="0" max="300" value="' + level + '"';
@@ -3205,7 +3205,7 @@
             html += '<span class="gc-relic-level-max">/ 300</span>';
             html += '</div>';
 
-            // ─── Special skills row ───
+            // --- Special skills row ---
             html += '<div class="gc-relic-skills-label">Relic Skill</div>';
             html += '<div class="gc-relic-skills-row">';
             RELIC_MILESTONES.filter(function(ms) {
@@ -3234,7 +3234,7 @@
             });
             html += '</div>';
 
-            // ─── Stats grid ───
+            // --- Stats grid ---
             html += '<div class="gc-relic-stats-label">Stats at Level ' + level + '</div>';
             html += '<div class="gc-relic-stats-grid">';
             RELIC_STAT_DEFS.forEach(function(def) {
@@ -3328,7 +3328,7 @@
             el.innerHTML = html;
         }
 
-        // ── Jorgoth Weapon Stats Legend ──
+        // -- Jorgoth Weapon Stats Legend --
         function buildJorgothLegend(weaponType) {
             var data = JORGOTH_WEAPONS[weaponType];
             if (!data) return '';
@@ -3345,7 +3345,7 @@
                 { key: 'v3', label: 'T4 v3', data: data.v3 }
             ];
 
-            // T3 alternatives for all variants (baseAtk: 5200→4700, 2250→2000)
+            // T3 alternatives for all variants (baseAtk: 5200->4700, 2250->2000)
             var t3Variants = ['v1', 'v2', 'v3'].map(function(vk) {
                 return { key: vk, label: 'T3 ' + vk, data: data[vk], isT3: true };
             });
@@ -3392,7 +3392,7 @@
             }
 
             var html = '<div class="gc-jorgoth-legend">';
-            html += '<div class="gc-jorgoth-legend-title">Jorgoth Variants — ' + WEAPON_TYPES[weaponType].name + '</div>';
+            html += '<div class="gc-jorgoth-legend-title">Jorgoth Variants - ' + WEAPON_TYPES[weaponType].name + '</div>';
             html += '<table class="gc-jorgoth-table">';
             html += '<thead><tr>';
             html += '<th></th><th>Bonus Atk</th><th>Crit</th><th>Acc</th><th>Def</th><th>HP</th>';
@@ -3408,13 +3408,13 @@
                 var rowClass = isMasterpiece ? ' gc-jorgoth-row-mp' : '';
                 html += '<tr class="gc-jorgoth-row' + rowClass + '">';
                 html += '<td class="gc-jorgoth-variant">' + r.label + '</td>';
-                html += '<td' + hlClass('bonusAtk', r.bonusAtk) + '>' + (r.bonusAtk || '—') + '</td>';
-                html += '<td' + hlClass('crit', r.crit) + '>' + (r.crit || '—') + '</td>';
-                html += '<td' + hlClass('acc', r.acc) + '>' + (r.acc || '—') + '</td>';
+                html += '<td' + hlClass('bonusAtk', r.bonusAtk) + '>' + (r.bonusAtk || '-') + '</td>';
+                html += '<td' + hlClass('crit', r.crit) + '>' + (r.crit || '-') + '</td>';
+                html += '<td' + hlClass('acc', r.acc) + '>' + (r.acc || '-') + '</td>';
                 html += '<td' + hlClass('def', r.def) + '>' + r.def + '</td>';
                 html += '<td' + hlClass('hp', r.hp) + '>' + r.hp.toLocaleString() + '</td>';
                 if (hasHeal) {
-                    html += '<td' + hlClass('heal', r.heal) + '>' + (r.heal || '—') + '</td>';
+                    html += '<td' + hlClass('heal', r.heal) + '>' + (r.heal || '-') + '</td>';
                 }
                 // Tags
                 html += '<td class="gc-jorgoth-tags">';
@@ -3447,13 +3447,13 @@
                 var rowClass = isMasterpiece ? ' gc-jorgoth-row-mp' : '';
                 html += '<tr class="gc-jorgoth-row gc-jorgoth-row-t3' + rowClass + '">';
                 html += '<td class="gc-jorgoth-variant">' + r.label + '</td>';
-                html += '<td' + t3HlClass('bonusAtk', r.bonusAtk) + '>' + (r.bonusAtk || '—') + '</td>';
-                html += '<td' + t3HlClass('crit', r.crit) + '>' + (r.crit || '—') + '</td>';
-                html += '<td' + t3HlClass('acc', r.acc) + '>' + (r.acc || '—') + '</td>';
+                html += '<td' + t3HlClass('bonusAtk', r.bonusAtk) + '>' + (r.bonusAtk || '-') + '</td>';
+                html += '<td' + t3HlClass('crit', r.crit) + '>' + (r.crit || '-') + '</td>';
+                html += '<td' + t3HlClass('acc', r.acc) + '>' + (r.acc || '-') + '</td>';
                 html += '<td' + t3HlClass('def', r.def) + '>' + r.def + '</td>';
                 html += '<td' + t3HlClass('hp', r.hp) + '>' + r.hp.toLocaleString() + '</td>';
                 if (hasHeal) {
-                    html += '<td' + t3HlClass('heal', r.heal) + '>' + (r.heal || '—') + '</td>';
+                    html += '<td' + t3HlClass('heal', r.heal) + '>' + (r.heal || '-') + '</td>';
                 }
                 html += '<td class="gc-jorgoth-tags">';
                 if (isMasterpiece) html += '<span class="gc-jorgoth-tag-mp">✦ Masterpiece</span>';
@@ -3543,7 +3543,7 @@
             var html = '<div class="gc-profile-header"><span class="gc-wc-title">⚔️ Weapon Setup</span><button class="gc-reset-btn" onclick="GC.resetWeapons()" title="Reset to defaults">↺</button></div>';
             html += '<div class="gc-wc-slots">';
 
-            // Main weapon — icon picker
+            // Main weapon - icon picker
             html += '<div class="gc-wc-item">';
             html += '<div class="gc-wc-item-label">Main</div>';
             html += '<div class="gc-icon-picker" onclick="GC.togglePicker(\'main-picker\')">';
@@ -3560,7 +3560,7 @@
             html += '</div>';
             html += '</div>';
 
-            // Off-hand — icon picker (unified: none/shield/fuse/weapons)
+            // Off-hand - icon picker (unified: none/shield/fuse/weapons)
             var ohChoices = getOffHandChoices(mainType, selectedClass);
             var ohKey = getCurrentOffHandKey();
             var ohChoice = ohChoices.find(function(c) { return c.key === ohKey; }) || ohChoices[0];
@@ -3587,7 +3587,7 @@
 
             html += '</div>';
 
-            // ── Jorgoth Weapon Stats Legend ──
+            // -- Jorgoth Weapon Stats Legend --
             html += buildJorgothLegend(mainType);
 
             el.innerHTML = html;
@@ -3600,13 +3600,13 @@
             var material = getArmorMaterial(profile.armorType);
             var html = '';
 
-            // ── Header ──
+            // -- Header --
             html += '<div class="gc-profile-header">';
             html += '<span class="gc-set-title">SET ' + id + '</span>';
             html += '<button class="gc-reset-btn" onclick="GC.resetProfile(' + id + ')" title="Reset SET ' + id + ' to defaults">↺</button>';
             html += '</div>';
 
-            // ── Weapons Section ──
+            // -- Weapons Section --
             html += '<div class="gc-section">';
             html += '<div class="gc-section-label-row">';
             html += '<span class="gc-section-label">🗡️ Weapons</span>';
@@ -3614,7 +3614,7 @@
             html += '<span class="gc-ms-btn" onclick="GC.openManaModal(' + id + ')" title="Manastones"><img src="' + MANASTONE_ICON + '" alt="Manastones"> Manastones</span>';
             html += '</div>';
             html += '<div class="gc-armor-columns">';
-            // ── Left: Main Weapon ──
+            // -- Left: Main Weapon --
             html += '<div class="gc-armor-col">';
             var mwt = WEAPON_TYPES[weaponConfig.mainType];
             html += '<div class="gc-armor-row">';
@@ -3647,12 +3647,12 @@
             }
             html += '</div>';
             html += '</div>';
-            // ── Right: Off-Hand / Shield / Fuse ──
+            // -- Right: Off-Hand / Shield / Fuse --
             html += '<div class="gc-armor-col">';
             if (weaponConfig.offHandType !== 'none') {
                 var ohType = weaponConfig.offHandType;
                 if (ohType === 'shield') {
-                    // ── Shield section ──
+                    // -- Shield section --
                     var sh = profile.shield;
                     var shData = SHIELD_STATS[sh.set];
                     var shSetObj = SHIELD_SETS.find(function(s) { return s.key === sh.set; }) || SHIELD_SETS[0];
@@ -3714,7 +3714,7 @@
             html += '</div>';
             html += '</div></div>';
 
-            // ── Armor Section ──
+            // -- Armor Section --
             html += '<div class="gc-section">';
             html += '<div class="gc-section-label-row">';
             html += '<span class="gc-section-label">🛡️ Armor</span>';
@@ -3744,7 +3744,7 @@
             html += '</div>';
             html += '</div></div>';
 
-            // ── Accessories Section ──
+            // -- Accessories Section --
             html += '<div class="gc-section">';
             html += '<div class="gc-section-label">💎 Accessories</div>';
             // Upper row: feather, wings, bracelet
@@ -3909,9 +3909,9 @@
             return html;
         }
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // COMPARISON TABLE
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
         var SOURCE_LABELS = [
               { key: 'weapons',     icon: 'assets/icons/icon_ui_equipment.png', name: 'Weapons' },
@@ -4025,7 +4025,7 @@
                             if (sv1 === 0 && sv2 === 0) return;
                             var sd = sv1 - sv2;
                             var sdClass = sd > 0 ? 'gc-diff-positive' : sd < 0 ? 'gc-diff-negative' : 'gc-diff-zero';
-                            var sdText = sd > 0 ? '+' + formatNum(sd) : sd < 0 ? formatNum(sd) : '—';
+                            var sdText = sd > 0 ? '+' + formatNum(sd) : sd < 0 ? formatNum(sd) : '-';
                             html += '<tr class="gc-comp-source-row" data-parent="' + stat.key + '">';
                             html += '<td class="gc-comp-source-label">';
                             if (typeof sl.icon === 'string' && (sl.icon.endsWith('.png') || sl.icon.endsWith('.jpg') || sl.icon.endsWith('.jpeg') || sl.icon.endsWith('.svg'))) {
@@ -4053,9 +4053,9 @@
             return n.toLocaleString();
         }
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // EVENT HANDLERS
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
         window.GC = {
             selectClass: function(className) {
@@ -4203,7 +4203,7 @@
                 saveState();
             },
 
-            // ── Collections handlers ──
+            // -- Collections handlers --
             toggleTFCollection: function(pid, key) {
                 var p = state[pid];
                 if (!p.collections) { p.collections = { tfToggled: {}, itemColl: {} }; }
@@ -4252,7 +4252,7 @@
                 saveState();
             },
 
-            // ── Relic handlers ──
+            // -- Relic handlers --
             // Light: syncs sibling control + comparison, no DOM rebuild (keeps focus)
             setRelicLevelLight: function(pid, rawVal) {
                 var val = Math.max(0, Math.min(300, parseInt(rawVal) || 0));
@@ -4894,7 +4894,7 @@
                 popup.style.left = left + 'px';
             },
 
-            // ── Manastone Modal Handlers ──
+            // -- Manastone Modal Handlers --
             openManaModal: function(pid, scrollToGear) {
                 closeOathPopup();
                 closeSetPopup();
@@ -5150,7 +5150,7 @@
             var slotDef = ACCESSORY_SLOTS_UPPER.concat(ACCESSORY_SLOTS_LOWER_L, ACCESSORY_SLOTS_LOWER_R).find(function(s) { return s.key === slotKey; });
             var slotLabel = slotDef ? slotDef.name : slotKey;
 
-            var html = '<div class="gc-acc-bonus-popup-title">' + slotLabel + ' — Bonuses (' + picked.length + '/' + maxB + ')</div>';
+            var html = '<div class="gc-acc-bonus-popup-title">' + slotLabel + ' - Bonuses (' + picked.length + '/' + maxB + ')</div>';
             html += '<div class="gc-shield-bonus-grid">';
             slotData.bonuses.forEach(function(b) {
                 var isOn = picked.indexOf(b.key) !== -1;
@@ -5172,7 +5172,7 @@
             var picked = weapon.bonuses || [];
             var label = slot === 'mainWeapon' ? 'Main Weapon' : 'Off-Hand';
 
-            var html = '<div class="gc-acc-bonus-popup-title">' + label + ' — Bonuses (' + picked.length + '/' + maxB + ')</div>';
+            var html = '<div class="gc-acc-bonus-popup-title">' + label + ' - Bonuses (' + picked.length + '/' + maxB + ')</div>';
             html += '<div class="gc-shield-bonus-grid">';
             fixed.bonuses.forEach(function(b) {
                 var isOn = picked.indexOf(b.key) !== -1;
@@ -5195,7 +5195,7 @@
             var bonusList = shData.bonuses[typeKey] || [];
             var picked = sh.bonuses || [];
 
-            var html = '<div class="gc-acc-bonus-popup-title">Shield — Bonuses (' + picked.length + '/' + maxB + ')</div>';
+            var html = '<div class="gc-acc-bonus-popup-title">Shield - Bonuses (' + picked.length + '/' + maxB + ')</div>';
             html += '<div class="gc-shield-bonus-grid">';
             bonusList.forEach(function(b) {
                 var isOn = picked.indexOf(b.key) !== -1;
@@ -5329,11 +5329,11 @@
             }
         });
 
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
         // SHARE LINK (compact positional encoding)
-        // ═══════════════════════════════════════════════════════════
+        // ===========================================================
 
-        // Fixed lookup tables for encoding — order must never change (append only)
+        // Fixed lookup tables for encoding - order must never change (append only)
         var SH_CLASSES   = ['gladiator','templar','assassin','ranger','sorcerer','spiritmaster','cleric','chanter','aethertech','gunner','bard','painter'];
         var SH_WTYPES    = ['dagger','sword','mace','revolver','greatsword','polearm','bow','staff','paintRings','orb','spellbook','aetherKey','cannon','harp'];
         var SH_OHTYPES   = ['none','shield','fuse','weapon'];
@@ -5349,7 +5349,7 @@
         var SH_MANAS     = ['none','attack','crit','accuracy','hp','evasion','healBoost','pdef','mdef','magicResist','block','parry']; // 12
         // Armor slot order (fixed)
         var SH_ASLOTS    = ['helmet','shoulders','chest','pants','gloves','boots'];
-        // Gear order for manastones: 6 armor + mainWeapon + offHand = 8 × 3 = 24 chars
+        // Gear order for manastones: 6 armor + mainWeapon + offHand = 8 * 3 = 24 chars
         var SH_GEARKEYS  = SH_ASLOTS.concat(['mainWeapon','offHand']);
         var SH_TRANSFORMS = TRANSFORM_KEYS; // append-only
 
@@ -5364,7 +5364,7 @@
             s += shEnc(SH_OHTYPES, weaponConfig.offHandType);
             s += shEnc(SH_WTYPES, weaponConfig.offHandWeaponType);
 
-            // Encode each profile: armorType(1) + 6×armor(set+ench=2) + mw(2) + oh(2) + 6×oath(1) + 24×mana(1) = 47
+            // Encode each profile: armorType(1) + 6*armor(set+ench=2) + mw(2) + oh(2) + 6*oath(1) + 24*mana(1) = 47
             [1, 2].forEach(function(id) {
                 var p = state[id];
                 s += shEnc(SH_ATYPES, p.armorType);
@@ -5403,7 +5403,7 @@
                 // Encode mask as 2 base36 chars (max 1296, need 512)
                 s += Math.floor(mask / 36).toString(36);
                 s += (mask % 36).toString(36);
-                // Weapon bonuses: 1 char each for mainWeapon and offHand (5 bonuses → bitmask 0-31, fits in 1 base36 char)
+                // Weapon bonuses: 1 char each for mainWeapon and offHand (5 bonuses -> bitmask 0-31, fits in 1 base36 char)
                 [p.mainWeapon, p.offHand].forEach(function(w) {
                     var wFixed = WEAPON_STATS_FIXED[w.set];
                     if (wFixed && wFixed.bonuses) {
@@ -5417,7 +5417,7 @@
                         s += '0';
                     }
                 });
-                // Accessories: 9 slots × (set(1) + bonusMask(2)) = 27 chars
+                // Accessories: 9 slots * (set(1) + bonusMask(2)) = 27 chars
                 ALL_ACCESSORY_KEYS.forEach(function(accKey) {
                     var acc = p.accessories[accKey];
                     s += shEnc(SH_ACCSETS, acc.set);
@@ -5434,7 +5434,7 @@
                     s += Math.floor(accMask / 36).toString(36);
                     s += (accMask % 36).toString(36);
                 });
-                // Accessory manastones: 9 slots × 3 manastone slots = 27 chars
+                // Accessory manastones: 9 slots * 3 manastone slots = 27 chars
                 ALL_ACCESSORY_KEYS.forEach(function(accKey) {
                     var ms = p.manastones[accKey] || [];
                     for (var i = 0; i < 3; i++) {
@@ -5526,7 +5526,7 @@
                     var shType = shDec(SH_SHIELDTYPES, next());
                     var shVar = 'pvp';
                     if (ver <= '8') {
-                        // v6-v8: consume legacy variant char and map old spiked-ciclonica → spiked/ciclonica
+                        // v6-v8: consume legacy variant char and map old spiked-ciclonica -> spiked/ciclonica
                         shVar = shDec(SH_SHIELDVARS, next());
                     }
                     if (ver === '6') { next(); /* consume legacy enchant char */ }
@@ -5663,9 +5663,9 @@
             }
         });
 
-        // ══════════════════════════════════════════════════════════
+        // ==========================================================
         // INIT
-        // ══════════════════════════════════════════════════════════
+        // ==========================================================
 
         if (!loadShareFromURL()) {
             loadState();

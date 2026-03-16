@@ -1,6 +1,6 @@
 'use strict';
 
-// ── Apsu Illusion data: stat deltas vs Fighting Spirit, per class ──
+// -- Apsu Illusion data: stat deltas vs Fighting Spirit, per class --
 var APSU_DATA = {
     gladiator:    { slot: 'chest',     stats: { hp: 1000, attack: 20 }, bonusOverride: { hp: 5000 } },
     templar:      { slot: 'chest',     stats: { hp: 1000, attack: 20 }, bonusOverride: { hp: 5000 } },
@@ -131,7 +131,7 @@ var OBST_ENCHANT = {
 function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBonuses, bonusValues) {
     var s = emptyStats();
 
-    // No armor equipped — return zero stats
+    // No armor equipped - return zero stats
     if (setKey === 'none') return s;
 
     if (setKey === 'fighting-spirit') {

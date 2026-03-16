@@ -335,7 +335,7 @@
 }
 
 .page-scheduler .legend-item.active { opacity: 1; }
-/* Remove automatic dimming of legend items on click — keep full opacity */
+/* Remove automatic dimming of legend items on click - keep full opacity */
 .page-scheduler .legend-item:not(.active) { opacity: 1; }
 
 .page-scheduler .legend-color {

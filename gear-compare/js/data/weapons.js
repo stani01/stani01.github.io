@@ -32,7 +32,7 @@ var WEAPON_STATS_FIXED = {
 // Jorgoth: shared enchant bonuses (applied on top of per-weapon data)
 var JORGOTH_ENCHANT = { enchAtk1h: 223, enchAtk2h: 371, enchDef1h: 61, enchDef2h: 101 };
 
-// Jorgoth: per weapon type × variant (v1=left in item manual, v3=right)
+// Jorgoth: per weapon type * variant (v1=left in item manual, v3=right)
 // Each entry: { baseAtk, hp, bonusDef, bonusAtk, crit, acc, healingBoost?, tag? }
 // tag: 'extended' = Extended weapon, 'masterpiece' = Jorgoth's Masterpiece buff
 // Common: baseDef=170, baseAcc=2568 (added in getWeaponStats)

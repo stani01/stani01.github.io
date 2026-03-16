@@ -133,7 +133,7 @@ function updateComparison() {
                     if (sv1 === 0 && sv2 === 0) return;
                     var sd = sv1 - sv2;
                     var sdClass = sd > 0 ? 'gc-diff-positive' : sd < 0 ? 'gc-diff-negative' : 'gc-diff-zero';
-                    var sdText = sd > 0 ? '+' + formatNum(sd) : sd < 0 ? formatNum(sd) : '—';
+                    var sdText = sd > 0 ? '+' + formatNum(sd) : sd < 0 ? formatNum(sd) : '-';
                     html += '<tr class="gc-comp-source-row" data-parent="' + stat.key + '">';
                     html += '<td class="gc-comp-source-label">';
                     if (typeof sl.icon === 'string' && (sl.icon.endsWith('.png') || sl.icon.endsWith('.jpg') || sl.icon.endsWith('.jpeg') || sl.icon.endsWith('.svg'))) {

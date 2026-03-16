@@ -106,8 +106,8 @@ function calculateDetailedStats(profileId) {
         STAT_KEYS.forEach(function(k) { sources.armor[k] += (armorStats[k] || 0); });
     });
 
-    // ── Apsu Illusion stats (flat deltas only; bonus overrides are handled
-    //    via elevated bonusValues that getArmorSlotStats already reads) ──
+    // -- Apsu Illusion stats (flat deltas only; bonus overrides are handled
+    //    via elevated bonusValues that getArmorSlotStats already reads) --
     if (profile.apsuEnabled) {
         var apsuInfo = APSU_DATA[selectedClass];
         if (apsuInfo) {
@@ -123,7 +123,7 @@ function calculateDetailedStats(profileId) {
         }
     }
 
-    // ── Weapon stats (base/bonus/enchant split) ──
+    // -- Weapon stats (base/bonus/enchant split) --
     var mwSet = profile.mainWeapon.set;
     var mwType = weaponConfig.mainType;
     var mainParts = getWeaponParts(mwSet, mwType, profile.mainWeapon.enchant, profile.mainWeapon.bonuses, profile.mainWeapon.bonusValues);
@@ -281,7 +281,7 @@ function calculateDetailedStats(profileId) {
         sources.minion[k] += (mStats[k] || 0); 
     });
 
-    // ── Transformation Collection bonuses (auto-activated from owned forms) ──
+    // -- Transformation Collection bonuses (auto-activated from owned forms) --
     var ownedForms = profile.ownedForms || {};
     TF_COLLECTIONS.forEach(function(coll) {
         if (!isCollectionComplete(coll, ownedForms)) return;
@@ -298,7 +298,7 @@ function calculateDetailedStats(profileId) {
             }
     });
 
-    // ── Item Collection bonuses (numeric input) ──
+    // -- Item Collection bonuses (numeric input) --
     var itemColl = (profile.collections && profile.collections.itemColl) ? profile.collections.itemColl : {};
 
     ITEM_COLL_STATS.forEach(function(cs) {
@@ -344,7 +344,7 @@ function calculateDetailedStats(profileId) {
     /* POWERFUL (attack) */
     sources.collLevels.attack += sum([0,8,12,16,20,24],lv.powerful);
 
-    // ── Relic stats ──
+    // -- Relic stats --
     if (profile.relic && profile.relic.level > 0) {
         var relicStats = getRelicStats(profile.relic.level, isPhys);
         STAT_KEYS.forEach(function(k) { sources.relic[k] += (relicStats[k] || 0); });
@@ -386,7 +386,7 @@ function calculateDetailedStats(profileId) {
         });
     }
 
-    // ── Skill Buff stats ──
+    // -- Skill Buff stats --
     var sb = profile.skillBuffs || {};
     var sbe = profile.skillBuffEnchants || {};
     var allBuffs = getSkillBuffsForClass(selectedClass);
@@ -418,7 +418,7 @@ function calculateDetailedStats(profileId) {
         srcKeys.forEach(function(sk) { totals[k] += sources[sk][k]; });
     });
 
-    // ── Post-processing: percentage modifiers from skill buffs ──
+    // -- Post-processing: percentage modifiers from skill buffs --
     allBuffs.forEach(function(buff) {
         if (!sb[buff.key] || !buff.stats) return;
         if (buff.stats.physicalDefPercentRed) {
@@ -426,7 +426,7 @@ function calculateDetailedStats(profileId) {
         }
     });
 
-    // ── Post-processing: HP% passive (gladiator/templar) ──
+    // -- Post-processing: HP% passive (gladiator/templar) --
     // TODO: verify in-game whether this applies to total HP or only base/gear HP
     // if (sources.permanent.hpPercent) {
     //     totals.hp += Math.floor(totals.hp * sources.permanent.hpPercent / 100);

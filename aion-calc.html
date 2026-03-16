@@ -614,7 +614,7 @@
                         <strong>Skill Casts:</strong> ⌊Duration (sec) / Cooldown (sec)⌋
                     </div>
                     <div class="dl-item">
-                        <strong>Expected Crits:</strong> Casts × Crit Chance %<br>
+                        <strong>Expected Crits:</strong> Casts * Crit Chance %<br>
                         <span class="dl-note">Expected number of critical hits in the duration</span>
                     </div>
                     <div class="dl-item">
@@ -622,11 +622,11 @@
                         <span class="dl-note">Spread between best and worst case scenarios</span>
                     </div>
                     <div class="dl-item">
-                        <strong>Std Deviation (σ):</strong> √[n × p × (1-p) × (CritDmg - NormalDmg)²]<br>
+                        <strong>Std Deviation (σ):</strong> √[n * p * (1-p) * (CritDmg - NormalDmg)²]<br>
                         <span class="dl-note">Where n=casts, p=crit chance. Measures variability in damage outcomes.</span>
                     </div>
                     <div class="dl-item">
-                        <strong>Coefficient of Variation (CoV):</strong> (Std Dev / Expected Dmg) × 100%<br>
+                        <strong>Coefficient of Variation (CoV):</strong> (Std Dev / Expected Dmg) * 100%<br>
                         <span class="dl-note">Normalized measure of consistency: lower = more predictable</span>
                     </div>
                     <div class="dl-item">
@@ -1615,7 +1615,7 @@
                     <div class="skill-info-name">${skill.name}</div>
                     <div class="skill-info-id">ID: ${skill.id}</div>
                 </div>
-                <button class="skill-info-close" onclick="closeSkillInfo()">×</button>
+                <button class="skill-info-close" onclick="closeSkillInfo()">*</button>
             </div>
             <div class="skill-info-body">
                 <div class="skill-info-row">
@@ -3710,7 +3710,7 @@
                 const buffContribution = attackBonus + modeAttackBonus;
                 const buffMultiplier = ((1 + shards / 100) * (1 + normalBuffs / 100) * (1 + extraBuffs / 100)).toFixed(2);
                 enemyDefenseResult.textContent = `~${Math.round(solvedDefense).toLocaleString()} Def`;
-                enemyDefenseDetails.textContent = `${details} | Total Atk: ${totalAtk.toLocaleString()} (Base: ${baseAttackWithoutBuffs.toLocaleString()} + Buffs: ${buffContribution.toLocaleString()}) | Damage × ${buffMultiplier}`;
+                enemyDefenseDetails.textContent = `${details} | Total Atk: ${totalAtk.toLocaleString()} (Base: ${baseAttackWithoutBuffs.toLocaleString()} + Buffs: ${buffContribution.toLocaleString()}) | Damage * ${buffMultiplier}`;
             }
         }
 
