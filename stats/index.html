@@ -25,7 +25,7 @@
         <div><strong>FIND CRIT %</strong></div>
           <div class="result-details" style="margin-top: 6px;">
             <label for="critStat" style="display: block; margin-bottom: 6px;">Crit Strike/Spell in character profile</label>
-            <input type="text" id="critStat" value="" placeholder="e.g. 12000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
+            <input type="text" id="critStat" value="" placeholder="e.g. 12000" oninput="calculate(); saveSession()" onblur="validateCritInput(); calculate(); saveSession()" style="width: 220px;">
           </div>
           <div class="result-val" id="critPercentageResult">--</div>
       </div>
@@ -33,7 +33,7 @@
         <div><strong>FIND RESIST/EVADE %</strong></div>
           <div class="result-details" style="margin-top: 6px;">
             <label for="effectiveResist" style="display: block; margin-bottom: 6px;">Your MR/Evasion - enemy Accuracy (Effective resist)</label>
-            <input type="text" id="effectiveResist" value="" placeholder="e.g. 2000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
+            <input type="text" id="effectiveResist" value="" placeholder="e.g. 2000" oninput="calculate(); saveSession()" onblur="validateResistInput(); calculate(); saveSession()" style="width: 220px;">
           </div>
           <div class="result-val" id="resistEvadeResult">--</div>
         </div>
@@ -64,7 +64,10 @@ function calculateCritPercentage() {
     }
     
     // Formula: ROUNDDOWN((X*170)/(24000+X))
-    const critPercentage = Math.floor((x * 170) / (24000 + x));
+    let critPercentage = Math.floor((x * 170) / (24000 + x));
+    
+    // Cap at 100%
+    critPercentage = Math.min(critPercentage, 100);
     critResultEl.textContent = critPercentage + '%';
 }
 
@@ -84,14 +87,28 @@ function calculateResistEvadePercentage() {
     }
     
     // Formula: ROUNDDOWN((120*X)/(24000+X))
-    const resistPercentage = Math.floor((120 * x) / (24000 + x));
+    let resistPercentage = Math.floor((120 * x) / (24000 + x));
+    
+    // Cap at 100%
+    resistPercentage = Math.min(resistPercentage, 100);
     resistResultEl.textContent = resistPercentage + '%';
 }
 
-function validateInput(el, min, max) {
+function validateCritInput() {
+    const el = document.getElementById('critStat');
     const val = parseFloat(el.value);
     if (!isNaN(val)) {
-        el.value = Math.max(min, Math.min(max, val));
+        // Max crit value to reach 100%: (X*170)/(24000+X) = 100 => X = 34286
+        el.value = Math.max(0, Math.min(34286, val));
+    }
+}
+
+function validateResistInput() {
+    const el = document.getElementById('effectiveResist');
+    const val = parseFloat(el.value);
+    if (!isNaN(val)) {
+        // Max resist value to reach 100%: (120*X)/(24000+X) = 100 => X = 120000
+        el.value = Math.max(0, Math.min(120000, val));
     }
 }
 
