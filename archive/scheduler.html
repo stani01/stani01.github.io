@@ -10,8 +10,7 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="../assets/css/common.css?v=10.0">
-    <link rel="stylesheet" href="../assets/css/scheduler.css?v=10.0">
+    <link rel="stylesheet" href="assets/css/aion-tools.css?v=4.3">
 </head>
 <body class="page-scheduler">
     <div class="container">
@@ -130,14 +129,14 @@
             { name: 'Inggison + Gelkmaros + Core', type: 'fortress', days: [3, 6], times: ['21:00'], duration: 60,
                 details: `Siege rewards: AP and honor points for rankings; enchantment stones.`
             },
-            { name: 'Bassen', type: 'fortress', days: [5], times: ['21:00'], duration: 30,
+            { name: 'Bassen', type: 'fortress', days: [3], times: ['22:00'], duration: 60,
                 details: `Siege rewards: AP and honor points for rankings; enchantment stones.`
             },
-            { name: 'Prades', type: 'fortress', days: [5], times: ['21:30'], duration: 30,
+            { name: 'Prades', type: 'fortress', days: [6], times: ['22:00'], duration: 60,
                 details: `Siege rewards: AP and honor points for rankings; enchantment stones.`
             },
-            // Arena of Chaos (2h)
-            { name: 'Arena of Chaos', type: 'arena', days: [0, 1, 2, 3, 4, 5, 6], times: ['12:00', '18:00', '23:00'], duration: 120,
+            // Arena of Chaos (60m)
+            { name: 'Arena of Chaos', type: 'arena', days: [0, 1, 2, 3, 4, 5, 6, 7], times: ['12:00', '19:00', '00:00'], duration: 60,
                 details: `Only source for heroic trophies used to buy Lunaris/Solaris/Izar weapons, ultimate manastones, and various items.`
             }
         ];
@@ -427,16 +426,13 @@
             const now = new Date();
             const currentHour = now.getHours();
 
-            // Get all unique local hours that have events (including multi-hour spans)
+            // Get all unique local hours that have events
             const hoursWithEvents = new Set();
             events.forEach(event => {
-                const durationHours = Math.ceil((event.duration || 60) / 60);
                 event.times.forEach(timeStr => {
                     const [serverHour, serverMinute] = timeStr.split(':').map(Number);
                     const { hour: localHour } = convertServerTimeToLocal(serverHour, serverMinute);
-                    for (let h = 0; h < durationHours; h++) {
-                        hoursWithEvents.add((localHour + h) % 24);
-                    }
+                    hoursWithEvents.add(localHour);
                 });
             });
 
@@ -476,80 +472,112 @@
                         }
                     }
 
-                    // Collect events for this slot (including multi-hour continuations)
-                    const slotEvents = [];
-                    events.forEach(event => {
-                        const duration = event.duration || 60;
-                        const durationHours = Math.ceil(duration / 60);
-                        for (const serverDay of event.days) {
-                            for (const timeStr of event.times) {
+                    // Check for events at this local hour and day
+                    const eventsAtThisTime = events.filter(e => {
+                        for (let serverDay of e.days) {
+                            for (let timeStr of e.times) {
                                 const [serverHour, serverMinute] = timeStr.split(':').map(Number);
                                 const { hour: eventLocalHour, dayOffset } = convertServerTimeToLocal(serverHour, serverMinute);
-
+                                
+                                // Calculate which local day this event occurs on
                                 let eventLocalDay = serverDay + dayOffset;
                                 if (eventLocalDay < 0) eventLocalDay += 7;
                                 if (eventLocalDay >= 7) eventLocalDay -= 7;
-
-                                for (let h = 0; h < durationHours; h++) {
-                                    let checkHour = eventLocalHour + h;
-                                    let checkDay = eventLocalDay;
-                                    if (checkHour >= 24) {
-                                        checkHour -= 24;
-                                        checkDay = (checkDay + 1) % 7;
-                                    }
-                                    if (checkDay === day && checkHour === localHour) {
-                                        slotEvents.push({
-                                            event,
-                                            minute: h === 0 ? serverMinute : 0,
-                                            isStart: h === 0,
-                                            serverTime: timeStr
-                                        });
-                                    }
+                                
+                                // Check if this event matches the current day and hour
+                                if (eventLocalDay === day && eventLocalHour === localHour) {
+                                    return true;
                                 }
                             }
                         }
+                        return false;
                     });
 
-                    if (slotEvents.length > 0) {
-                        // Sort by minute
-                        slotEvents.sort((a, b) => a.minute - b.minute);
-
-                        // Group events by minute
-                        const minuteGroups = {};
-                        slotEvents.forEach(data => {
-                            if (!minuteGroups[data.minute]) minuteGroups[data.minute] = [];
-                            minuteGroups[data.minute].push(data);
-                        });
-                        const sortedMinutes = Object.keys(minuteGroups).map(Number).sort((a, b) => a - b);
-
-                        // Each minute group is a vertical slice; within a group, events go side-by-side
-                        sortedMinutes.forEach(min => {
-                            const group = minuteGroups[min];
-
-                            // Wrap in a row if multiple events at this minute
-                            const container = group.length > 1
-                                ? document.createElement('div')
-                                : null;
-                            if (container) {
-                                container.className = 'event-row-group';
-                                cell.appendChild(container);
+                    if (eventsAtThisTime.length > 1) {
+                        // Multiple events in same hour - position vertically by minute
+                        const eventTimesData = eventsAtThisTime.map(event => {
+                            // Find the matching time/day for this event
+                            for (let serverDay of event.days) {
+                                for (let timeStr of event.times) {
+                                    const [serverHour, serverMinute] = timeStr.split(':').map(Number);
+                                    const { hour: eventLocalHour, dayOffset } = convertServerTimeToLocal(serverHour, serverMinute);
+                                    
+                                    let eventLocalDay = serverDay + dayOffset;
+                                    if (eventLocalDay < 0) eventLocalDay += 7;
+                                    if (eventLocalDay >= 7) eventLocalDay -= 7;
+                                    
+                                    if (eventLocalDay === day && eventLocalHour === localHour) {
+                                        return { event, minute: serverMinute };
+                                    }
+                                }
                             }
-
-                            group.forEach(data => {
-                                const eventDiv = document.createElement('div');
-                                eventDiv.className = `scheduler-event event-${data.event.type}`;
-                                if (!data.isStart) eventDiv.classList.add('event-continuation');
-                                eventDiv.dataset.eventIndex = events.indexOf(data.event);
-                                eventDiv.dataset.serverTime = data.serverTime;
-
-                                const isMobile = window.innerWidth <= 768;
-                                const displayName = isMobile ? shortenEventName(data.event.name) : data.event.name;
-                                eventDiv.innerHTML = `<span class="event-label">${displayName}</span>`;
-                                eventDiv.title = data.event.name + (data.isStart ? '' : ' (ongoing)');
-
-                                (container || cell).appendChild(eventDiv);
-                            });
+                            return { event, minute: 0 }; // fallback, shouldn't happen
                         });
+                        
+                        // Sort by minute
+                        eventTimesData.sort((a, b) => a.minute - b.minute);
+                        
+                        // Create events with vertical positioning
+                        eventTimesData.forEach((data, index) => {
+                            const eventDiv = document.createElement('div');
+                                eventDiv.className = `scheduler-event event-${data.event.type}`;
+                                // no per-event current-hour overlay; highlight applies to the cell only
+                            
+                            const topPercent = (data.minute / 60) * 100;
+                            const nextMinute = index < eventTimesData.length - 1 ? eventTimesData[index + 1].minute : 60;
+                            const heightPercent = ((nextMinute - data.minute) / 60) * 100;
+                            
+                            eventDiv.style.position = 'absolute';
+                            eventDiv.style.top = `${topPercent}%`;
+                            eventDiv.style.height = `${heightPercent}%`;
+                            eventDiv.style.width = '100%';
+                            // store event index and server time for details panel
+                            eventDiv.dataset.eventIndex = events.indexOf(data.event);
+                            eventDiv.dataset.serverTime = `${String(data.minute).padStart(2,'0')}`; // minute only
+                            // clicking events does nothing (details shown via legend)
+                            
+                            const isMobile = window.innerWidth <= 768;
+                            const displayName = isMobile ? shortenEventName(data.event.name) : data.event.name;
+                            eventDiv.innerHTML = `<span class="event-label">${displayName}</span>`;
+                            eventDiv.title = data.event.name;
+                            
+                            cell.appendChild(eventDiv);
+                        });
+                    } else if (eventsAtThisTime.length === 1) {
+                        // Single event - display normally
+                        // Find the matching time/day for this event
+                        let eventTimeStr = '';
+                        for (let serverDay of eventsAtThisTime[0].days) {
+                            for (let timeStr of eventsAtThisTime[0].times) {
+                                const [serverHour, serverMinute] = timeStr.split(':').map(Number);
+                                const { hour: eventLocalHour, dayOffset } = convertServerTimeToLocal(serverHour, serverMinute);
+                                
+                                let eventLocalDay = serverDay + dayOffset;
+                                if (eventLocalDay < 0) eventLocalDay += 7;
+                                if (eventLocalDay >= 7) eventLocalDay -= 7;
+                                
+                                if (eventLocalDay === day && eventLocalHour === localHour) {
+                                    eventTimeStr = timeStr;
+                                    break;
+                                }
+                            }
+                            if (eventTimeStr) break;
+                        }
+                        
+                        const eventDiv = document.createElement('div');
+                        eventDiv.className = `scheduler-event event-${eventsAtThisTime[0].type}`;
+                        // no per-event current-hour overlay; highlight applies to the cell only
+                        
+                        const isMobile = window.innerWidth <= 768;
+                        const displayName = isMobile ? shortenEventName(eventsAtThisTime[0].name) : eventsAtThisTime[0].name;
+                        eventDiv.innerHTML = `<span class="event-label">${displayName}</span>`;
+                        eventDiv.title = eventsAtThisTime[0].name;
+                        // store event index and server time for details panel
+                        eventDiv.dataset.eventIndex = events.indexOf(eventsAtThisTime[0]);
+                        eventDiv.dataset.serverTime = eventTimeStr || '';
+                        // clicking events does nothing (details shown via legend)
+
+                        cell.appendChild(eventDiv);
                     }
 
                     grid.appendChild(cell);
@@ -817,6 +845,6 @@
             // No separate progressive fill interval; highlight updates on the 1s interval above
         });
     </script>
-    <script src="../assets/js/site-common.js"></script>
+    <script src="assets/js/site-common.js"></script>
 </body>
 </html>

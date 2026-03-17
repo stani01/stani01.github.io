@@ -250,9 +250,29 @@ window.GC = {
     },
 
     resetAll: function() {
+        // Clean up any extra sets from localStorage
+        setOrder.forEach(function(id) {
+            if (id !== 1 && id !== 2) {
+                try {
+                    ['universal', 'typed', 'class'].forEach(function(sec) {
+                        localStorage.removeItem('gcBuffCollapsed_' + sec + '_' + id);
+                    });
+                } catch (e) {}
+                if (typeof formsActiveGrade !== 'undefined') delete formsActiveGrade[id];
+            }
+        });
+        // Reset set metadata to defaults
+        setOrder = [1, 2];
+        setNames = { 1: 'Set 1', 2: 'Set 2' };
+        comparisonPair = { a: 1, b: 2 };
+        nextSetId = 3;
+        activeSetId = 1;
+        // Reset weapon config and profiles
         weaponConfig = createDefaultWeaponConfig(selectedClass);
+        state = {};
         setOrder.forEach(function(id) {
             state[id] = createDefaultProfile(selectedClass);
+            if (typeof formsActiveGrade !== 'undefined') formsActiveGrade[id] = 'ultimate';
         });
         traitSelections = {};
         setOrder.forEach(function(pid) {

@@ -243,6 +243,12 @@
     box-shadow: 0 0 6px rgba(181, 101, 245, 0.25);
 }
 
+/* -- Set Tab: Drag-to-reorder -- */
+.gc-set-tab[draggable="true"] { cursor: grab; }
+.gc-set-tab-dragging { opacity: 0.35; cursor: grabbing !important; }
+.gc-set-tab-drop-before { box-shadow: -3px 0 0 rgba(181, 101, 245, 0.9); }
+.gc-set-tab-drop-after  { box-shadow:  3px 0 0 rgba(181, 101, 245, 0.9); }
+
 /* -- Copy X->Y Popup -- */
 .gc-copy-popup {
     position: fixed;

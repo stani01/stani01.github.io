@@ -648,6 +648,11 @@ function decodeShareV6(b64) {
         b: setOrder[clamp(compIdxB, 0, numSets - 1)]
     };
 
+    // Reset formsActiveGrade for the new sets
+    if (typeof formsActiveGrade !== 'undefined') {
+        setOrder.forEach(function(id) { formsActiveGrade[id] = 'ultimate'; });
+    }
+
     // -- Decode each profile --
     setOrder.forEach(function(id) {
         state[id] = decodeProfileFromReader(r, cls, id);

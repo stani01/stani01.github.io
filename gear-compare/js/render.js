@@ -246,7 +246,7 @@ function renderSetTabs() {
         setOrder.forEach(function(id) {
             var active = id === activeSetId ? ' gc-set-tab-active' : '';
             var name = getSetName(id);
-            html += '<button class="gc-set-tab' + active + '" data-set="' + id + '">';
+            html += '<button class="gc-set-tab' + active + '" data-set="' + id + '" draggable="true">';
             html += '<span class="gc-set-tab-name" data-set="' + id + '">' + name + '</span>';
             if (setOrder.length > 2) {
                 html += '<span class="gc-set-tab-remove" data-remove="' + id + '" title="Remove ' + name + '">✕</span>';
@@ -595,6 +595,71 @@ document.addEventListener('dblclick', function(e) {
     input.addEventListener('keydown', function(evt) {
         if (evt.key === 'Enter') { evt.preventDefault(); input.blur(); }
         if (evt.key === 'Escape') { input.value = currentName; input.blur(); }
+    });
+});
+
+// -- Set tab drag-to-reorder --
+var dragSetId = null;
+
+document.addEventListener('dragstart', function(e) {
+    var btn = e.target.closest('.gc-set-tab');
+    if (!btn || btn.classList.contains('gc-set-tab-add')) return;
+    var setId = parseInt(btn.getAttribute('data-set'));
+    if (!setId) return;
+    dragSetId = setId;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(setId));
+    setTimeout(function() { btn.classList.add('gc-set-tab-dragging'); }, 0);
+});
+
+document.addEventListener('dragover', function(e) {
+    if (!dragSetId) return;
+    var btn = e.target.closest('.gc-set-tab');
+    if (!btn || btn.classList.contains('gc-set-tab-add')) return;
+    var targetId = parseInt(btn.getAttribute('data-set'));
+    if (!targetId || targetId === dragSetId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    document.querySelectorAll('.gc-set-tab-drop-before, .gc-set-tab-drop-after').forEach(function(b) {
+        b.classList.remove('gc-set-tab-drop-before', 'gc-set-tab-drop-after');
+    });
+    var rect = btn.getBoundingClientRect();
+    btn.classList.add(e.clientX < rect.left + rect.width / 2 ? 'gc-set-tab-drop-before' : 'gc-set-tab-drop-after');
+});
+
+document.addEventListener('dragleave', function(e) {
+    var tabs = e.target.closest('.gc-set-tabs');
+    if (!tabs) return;
+    if (!e.relatedTarget || !tabs.contains(e.relatedTarget)) {
+        tabs.querySelectorAll('.gc-set-tab-drop-before, .gc-set-tab-drop-after').forEach(function(b) {
+            b.classList.remove('gc-set-tab-drop-before', 'gc-set-tab-drop-after');
+        });
+    }
+});
+
+document.addEventListener('drop', function(e) {
+    if (!dragSetId) return;
+    var btn = e.target.closest('.gc-set-tab');
+    if (!btn || btn.classList.contains('gc-set-tab-add')) return;
+    var targetId = parseInt(btn.getAttribute('data-set'));
+    if (!targetId || targetId === dragSetId) { dragSetId = null; return; }
+    e.preventDefault();
+    var rect = btn.getBoundingClientRect();
+    var insertBefore = e.clientX < rect.left + rect.width / 2;
+    var fromIdx = setOrder.indexOf(dragSetId);
+    setOrder.splice(fromIdx, 1);
+    var toIdx = setOrder.indexOf(targetId);
+    setOrder.splice(insertBefore ? toIdx : toIdx + 1, 0, dragSetId);
+    dragSetId = null;
+    renderSetTabs();
+    updateComparison();
+    saveState();
+});
+
+document.addEventListener('dragend', function() {
+    dragSetId = null;
+    document.querySelectorAll('.gc-set-tab').forEach(function(b) {
+        b.classList.remove('gc-set-tab-dragging', 'gc-set-tab-drop-before', 'gc-set-tab-drop-after');
     });
 });
 
