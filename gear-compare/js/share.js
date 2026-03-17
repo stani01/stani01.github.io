@@ -368,7 +368,7 @@ function decodeProfileFromReader(r, cls, id) {
         if (aench >= 8 && aench <= 15) p.armor[sk].enchant = aench;
         var isHigh = (sk === 'helmet' || sk === 'chest' || sk === 'pants');
         var bonusList = isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
-        if (abmask > 0) p.armor[sk].bonuses = fromBitmask(abmask, bonusList, 4);
+        p.armor[sk].bonuses = fromBitmask(abmask, bonusList, 4);
     });
 
     // -- Main weapon --
@@ -378,7 +378,7 @@ function decodeProfileFromReader(r, cls, id) {
     if (WEAPON_SET_KEYS.indexOf(mwSet) !== -1 && MAINHAND_EXCLUDED_SETS.indexOf(mwSet) === -1) p.mainWeapon.set = mwSet;
     if (mwEnch >= 1 && mwEnch <= 15) p.mainWeapon.enchant = mwEnch;
     var mwFixed = WEAPON_STATS_FIXED[p.mainWeapon.set];
-    if (mwFixed && mwFixed.bonuses && mwBmask) {
+    if (mwFixed && mwFixed.bonuses) {
         p.mainWeapon.bonuses = fromBitmask(mwBmask, mwFixed.bonuses, mwFixed.maxBonuses);
     }
 
@@ -389,7 +389,7 @@ function decodeProfileFromReader(r, cls, id) {
     if (WEAPON_SET_KEYS.indexOf(ohSet) !== -1 && OFFHAND_EXCLUDED_SETS.indexOf(ohSet) === -1) p.offHand.set = ohSet;
     if (ohEnch >= 1 && ohEnch <= 15) p.offHand.enchant = ohEnch;
     var ohFixed = WEAPON_STATS_FIXED[p.offHand.set];
-    if (ohFixed && ohFixed.bonuses && ohBmask) {
+    if (ohFixed && ohFixed.bonuses) {
         p.offHand.bonuses = fromBitmask(ohBmask, ohFixed.bonuses, ohFixed.maxBonuses);
     }
 
@@ -403,7 +403,7 @@ function decodeProfileFromReader(r, cls, id) {
     var typeKey = p.shield.type === 'scale' ? 'scale' : 'battle';
     var shBonusList = shData ? shData.bonuses[typeKey] : [];
     var shMaxB = shData ? shData.maxBonuses : 0;
-    if (shBmask) p.shield.bonuses = fromBitmask(shBmask, shBonusList, shMaxB);
+    p.shield.bonuses = fromBitmask(shBmask, shBonusList, shMaxB);
 
     // -- Oaths * 6 --
     SH_ASLOTS.forEach(function(sk) {
@@ -437,9 +437,6 @@ function decodeProfileFromReader(r, cls, id) {
         if (slotData && slotData.bonuses) {
             var maxB = slotData.maxBonuses || 4;
             p.accessories[accKey].bonuses = fromBitmask(accBmask, slotData.bonuses, maxB);
-            if (p.accessories[accKey].bonuses.length === 0) {
-                p.accessories[accKey].bonuses = getDefaultAccBonuses(p.accessories[accKey].set, accKey);
-            }
         }
     });
 
