@@ -448,7 +448,7 @@ function getWeaponParts(setKey, weaponType, enchantLevel, selectedBonuses, bonus
         var w = JORGOTH_WEAPONS[weaponType][vKey];
         if (w) {
             var je = JORGOTH_ENCHANT;
-            // T3: override baseAtk (5200→4700, 2250→2000)
+            // T3: override baseAtk (5200->4700, 2250->2000)
             var effectiveBaseAtk = isT3 ? (w.baseAtk === 2250 ? 2000 : 4700) : w.baseAtk;
             base.attack      = effectiveBaseAtk;
             base.physicalDef = 170;

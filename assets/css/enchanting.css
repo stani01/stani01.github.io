@@ -2,7 +2,7 @@
    PAGE-SPECIFIC STYLES: ENCHANTING SIMULATOR
    ============================================ */
 
-/* ── Page-calculator layout (body padding + container) ── */
+/* -- Page-calculator layout (body padding + container) -- */
 .page-calculator .container {
     max-width: 1200px;
     margin: 0 auto;

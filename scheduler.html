@@ -320,7 +320,7 @@
                 const remainingSec = Math.max(0, Math.floor((first.end - now) / 1000));
                 const remMin = Math.floor(remainingSec / 60);
                 const remSec = remainingSec % 60;
-                currentInfo.textContent = `${first.event.name} — ${remMin}m ${remSec}s remaining`;
+                currentInfo.textContent = `${first.event.name} - ${remMin}m ${remSec}s remaining`;
                 currentInfo.style.color = getEventColor(first.event.type);
             } else {
                 currentSection.style.display = 'none';

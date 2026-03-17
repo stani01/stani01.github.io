@@ -3119,7 +3119,7 @@ flex: 1;
 }
 
 .page-scheduler .legend-item.active { opacity: 1; }
-/* Remove automatic dimming of legend items on click — keep full opacity */
+/* Remove automatic dimming of legend items on click - keep full opacity */
 .page-scheduler .legend-item:not(.active) { opacity: 1; }
 
 .page-scheduler .legend-color {
@@ -3861,7 +3861,7 @@ flex: 1;
     margin-bottom: 12px;
 }
 
-/* ── Share Bar ── */
+/* -- Share Bar -- */
 .gc-share-bar {
     display: flex;
     justify-content: center;
@@ -3906,7 +3906,7 @@ flex: 1;
     color: rgba(255, 120, 100, 0.9);
 }
 
-/* ── Profiles Layout ── */
+/* -- Profiles Layout -- */
 .gc-profiles {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -3966,7 +3966,7 @@ flex: 1;
     text-transform: uppercase;
 }
 
-/* ── Sections inside profile ── */
+/* -- Sections inside profile -- */
 .gc-section {
     margin-bottom: 18px;
 }
@@ -3995,7 +3995,7 @@ flex: 1;
     margin-left: 4px;
 }
 
-/* ── Shared Class Selector ── */
+/* -- Shared Class Selector -- */
 .gc-class-selector {
     background: var(--bg-panel-solid);
     border: 1px solid var(--border-primary);
@@ -4064,7 +4064,7 @@ flex: 1;
     color: var(--accent);
 }
 
-/* ── Section Label Row (label + inline dropdown) ── */
+/* -- Section Label Row (label + inline dropdown) -- */
 .gc-section-label-row {
     display: flex;
     align-items: center;
@@ -4090,7 +4090,7 @@ flex: 1;
     background: rgba(181, 101, 245, 0.08);
 }
 
-/* ── Armor Columns (2-col layout) ── */
+/* -- Armor Columns (2-col layout) -- */
 .gc-armor-columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -4105,7 +4105,7 @@ flex: 1;
     overflow: hidden;
 }
 
-/* ── Armor List (row-based layout) ── */
+/* -- Armor List (row-based layout) -- */
 .gc-armor-list {
     display: flex;
     flex-direction: column;
@@ -4218,7 +4218,7 @@ flex: 1;
     letter-spacing: 0.02em;
 }
 
-/* ── Set Picker (weapon/armor set selection) ── */
+/* -- Set Picker (weapon/armor set selection) -- */
 .gc-set-trigger {
     display: flex;
     align-items: center;
@@ -4304,7 +4304,7 @@ flex: 1;
     letter-spacing: 0.02em;
 }
 
-/* ── Enchant Trigger Badge ── */
+/* -- Enchant Trigger Badge -- */
 .gc-enchant-trigger {
     display: inline-flex;
     align-items: center;
@@ -4336,7 +4336,7 @@ flex: 1;
     font-size: 0.68em;
 }
 
-/* ── Manastone Inline Indicator (dots on gear rows) ── */
+/* -- Manastone Inline Indicator (dots on gear rows) -- */
 .gc-ms-indicator {
     display: inline-flex;
     align-items: center;
@@ -4367,7 +4367,7 @@ flex: 1;
     opacity: 0.85;
 }
 
-/* ── Manastone Button (in weapons section title row) ── */
+/* -- Manastone Button (in weapons section title row) -- */
 .gc-section-label-row .gc-ms-btn {
     margin-left: auto;
 }
@@ -4418,7 +4418,7 @@ flex: 1;
     margin-left: auto;
 }
 
-/* ── Accessory Bonus Trigger Button ── */
+/* -- Accessory Bonus Trigger Button -- */
 .gc-acc-bonus-trigger {
     display: inline-flex;
     align-items: center;
@@ -4441,7 +4441,7 @@ flex: 1;
     color: rgba(200, 180, 130, 1);
 }
 
-/* ── Accessory Bonus Popup ── */
+/* -- Accessory Bonus Popup -- */
 .gc-acc-bonus-popup {
     display: none;
     position: fixed;
@@ -4493,7 +4493,7 @@ flex: 1;
     width: 100%;
 }
 
-/* ── Bonus Radio Grid (Left Side) ── */
+/* -- Bonus Radio Grid (Left Side) -- */
 .gc-glyph-bonus-row {
     display: flex;
     flex-wrap: wrap;
@@ -4575,7 +4575,7 @@ flex: 1;
     color: rgba(160, 230, 160, 0.95);
 }
 
-/* ── Extra Stats Inputs (Right Side) ── */
+/* -- Extra Stats Inputs (Right Side) -- */
 .gc-glyph-extra-row {
     display: flex;
     flex-direction: column;
@@ -4653,7 +4653,7 @@ flex: 1;
     }
 }
 
-/* ── Manastone Modal ── */
+/* -- Manastone Modal -- */
 .gc-mana-modal {
     display: none;
     position: fixed;
@@ -4733,7 +4733,7 @@ flex: 1;
     color: rgba(255, 80, 80, 0.9);
 }
 
-/* ── Manastone Presets ── */
+/* -- Manastone Presets -- */
 .gc-mana-presets {
     display: flex;
     flex-wrap: wrap;
@@ -4774,7 +4774,7 @@ flex: 1;
     color: rgba(255, 100, 100, 1);
 }
 
-/* ── Section Label in Mana Modal ── */
+/* -- Section Label in Mana Modal -- */
 .gc-mana-section-label {
     font-size: 13px;
     font-weight: 600;
@@ -4784,7 +4784,7 @@ flex: 1;
     text-transform: uppercase;
 }
 
-/* ── Scrollable body wrapper ── */
+/* -- Scrollable body wrapper -- */
 .gc-mana-body {
     overflow-y: auto;
     flex: 1;
@@ -4811,7 +4811,7 @@ flex: 1;
     background: rgba(100, 200, 255, 0.45);
 }
 
-/* ── Gear List in Modal ── */
+/* -- Gear List in Modal -- */
 .gc-mana-gear-list {
     padding: 10px 16px;
     display: flex;
@@ -4914,7 +4914,7 @@ flex: 1;
     font-style: italic;
 }
 
-/* ── Manastone Slot Picker (popup options) ── */
+/* -- Manastone Slot Picker (popup options) -- */
 .gc-mana-option-icon {
     width: 22px;
     height: 22px;
@@ -5018,7 +5018,7 @@ flex: 1;
     .gc-minion-selection-grid { grid-template-columns: 1fr; }
 }
 
-/* ── Jorgoth Weapon Stats Legend ── */
+/* -- Jorgoth Weapon Stats Legend -- */
 .gc-jorgoth-legend {
     margin-top: 8px;
     background: rgba(15, 15, 25, 0.6);
@@ -5156,7 +5156,7 @@ flex: 1;
     white-space: nowrap;
 }
 
-/* ── Equipment Slot (shared armor + weapon) ── */
+/* -- Equipment Slot (shared armor + weapon) -- */
 .gc-slot {
     background: rgba(15, 15, 25, 0.8);
     border: 1px solid rgba(200, 160, 60, 0.25);
@@ -5201,7 +5201,7 @@ flex: 1;
     letter-spacing: 0.3px;
 }
 
-/* ── Shared Weapon Config ── */
+/* -- Shared Weapon Config -- */
 .gc-weapon-config {
     background: var(--bg-panel-solid);
     border: 1px solid var(--border-primary);
@@ -5222,7 +5222,7 @@ flex: 1;
     width: fit-content;
 }
 
-/* ── Icon Picker (weapon setup) ── */
+/* -- Icon Picker (weapon setup) -- */
 .gc-wc-item {
     display: flex;
     flex-direction: column;
@@ -5375,7 +5375,7 @@ flex: 1;
     letter-spacing: 0.5px;
 }
 
-/* ── Weapon Notice ── */
+/* -- Weapon Notice -- */
 .gc-weapon-notice {
     font-size: 0.7em;
     color: rgba(255, 204, 0, 0.5);
@@ -5384,7 +5384,7 @@ flex: 1;
     line-height: 1.4;
 }
 
-/* ── Jorgoth Weapon Tags ── */
+/* -- Jorgoth Weapon Tags -- */
 .gc-weapon-tag {
     display: inline-block;
     padding: 2px 8px;
@@ -5406,7 +5406,7 @@ flex: 1;
     color: #ffbb44;
 }
 
-/* ── Weapon Grid ── */
+/* -- Weapon Grid -- */
 .gc-weapon-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -5436,7 +5436,7 @@ flex: 1;
     font-size: 1.5em;
 }
 
-/* ── Dropdowns ── */
+/* -- Dropdowns -- */
 .gc-select {
     width: auto;
     min-width: 0;
@@ -5470,9 +5470,9 @@ flex: 1;
     border-color: rgba(200, 160, 60, 0.08);
 }
 
-/* (Stats panel removed — comparison is now item-based) */
+/* (Stats panel removed - comparison is now item-based) */
 
-/* ── Comparison Table ── */
+/* -- Comparison Table -- */
 .gc-comparison {
     background: var(--bg-panel-solid);
     border: 1px solid var(--border-primary);
@@ -5598,7 +5598,7 @@ flex: 1;
     color: #555;
 }
 
-/* ── Summary Badges ── */
+/* -- Summary Badges -- */
 .gc-comp-summary {
     display: flex;
     justify-content: center;
@@ -5635,7 +5635,7 @@ flex: 1;
     color: rgba(200, 200, 200, 0.6);
 }
 
-/* ── Stat Bar Visualization ── */
+/* -- Stat Bar Visualization -- */
 .gc-comp-bar-wrap {
     width: 100%;
     position: relative;
@@ -5679,7 +5679,7 @@ flex: 1;
     color: rgba(255, 255, 255, 0.95);
 }
 
-/* ── Expandable Row + Chevron ── */
+/* -- Expandable Row + Chevron -- */
 .gc-comp-expandable {
     cursor: pointer;
 }
@@ -5701,7 +5701,7 @@ flex: 1;
     color: rgba(100, 200, 255, 0.8);
 }
 
-/* ── Source Breakdown Rows ── */
+/* -- Source Breakdown Rows -- */
 .gc-comp-source-row {
     display: none;
 }
@@ -5735,7 +5735,7 @@ flex: 1;
     font-size: 0.9em;
 }
 
-/* ── Tabs ── */
+/* -- Tabs -- */
 .gc-tab-bar {
     display: flex;
     gap: 4px;
@@ -5796,7 +5796,7 @@ flex: 1;
     display: block;
 }
 
-/* ── Transform Icon Grid ── */
+/* -- Transform Icon Grid -- */
 .gc-tf-grid {
     display: flex;
     flex-wrap: wrap;
@@ -5869,7 +5869,7 @@ flex: 1;
     font-weight: 700;
 }
 
-/* ── Transform Enchant Row ── */
+/* -- Transform Enchant Row -- */
 .gc-tf-enchant-row {
     display: flex;
     align-items: center;
@@ -5887,7 +5887,7 @@ flex: 1;
     width: 75px;
 }
 
-/* ── Enchant Popup Wrap (for 0-20 transform range) ── */
+/* -- Enchant Popup Wrap (for 0-20 transform range) -- */
 .gc-enchant-popup-wrap {
     flex-direction: row;
     flex-wrap: wrap;
@@ -5899,7 +5899,7 @@ flex: 1;
     justify-content: center;
 }
 
-/* ── Transform Stat Preview ── */
+/* -- Transform Stat Preview -- */
 .gc-tf-stats {
     background: rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(100, 140, 180, 0.1);
@@ -5953,7 +5953,7 @@ flex: 1;
     opacity: 0.35;
 }
 
-/* ── Shield Bonus Picker ── */
+/* -- Shield Bonus Picker -- */
 .gc-shield-variant-row {
     margin: 6px 0 2px;
 }
@@ -6077,7 +6077,7 @@ flex: 1;
     color: rgba(160, 230, 160, 0.95);
 }
 
-/* ── Gear Compare Responsive ── */
+/* -- Gear Compare Responsive -- */
 @media (max-width: 1024px) {
     .gc-profiles {
         grid-template-columns: 1fr;
@@ -6177,7 +6177,7 @@ flex: 1;
     }
 }
 /* ============================================
-   GEAR COMPARE — COLLECTIONS TAB
+   GEAR COMPARE - COLLECTIONS TAB
    ============================================ */
 
 .gc-coll-section-label {
@@ -6268,7 +6268,7 @@ flex: 1;
     color: var(--accent);
 }
 
-/* Item collections grid — CSS grid keeps all inputs column-aligned */
+/* Item collections grid - CSS grid keeps all inputs column-aligned */
 .gc-coll-item-grid {
     display: grid;
     grid-template-columns: 1fr 72px 52px;
@@ -6411,17 +6411,17 @@ flex: 1;
 } */
 
 /* ============================================
-   GEAR COMPARE — RELIC TAB (in-game style)
+   GEAR COMPARE - RELIC TAB (in-game style)
    ============================================ */
 
-/* Outer panel — sits inside .gc-profile */
+/* Outer panel - sits inside .gc-profile */
 .gc-relic-panel {
     display: flex;
     flex-direction: column;
     gap: 0;
 }
 
-/* ── Header ── */
+/* -- Header -- */
 .gc-relic-header {
     display: flex;
     align-items: center;
@@ -6465,7 +6465,7 @@ flex: 1;
     transform: none;
 }
 
-/* ── Level row ── */
+/* -- Level row -- */
 .gc-relic-level-row {
     display: flex;
     align-items: center;
@@ -6512,7 +6512,7 @@ flex: 1;
     white-space: nowrap;
 }
 
-/* ── Special Skills row ── */
+/* -- Special Skills row -- */
 .gc-relic-skills-label {
     font-size: 0.72em;
     font-weight: 700;
@@ -6597,7 +6597,7 @@ flex: 1;
     overflow: visible !important;
 }
 
-/* ── Stats section ── */
+/* -- Stats section -- */
 .gc-relic-stats-label {
     font-size: 0.72em;
     font-weight: 700;

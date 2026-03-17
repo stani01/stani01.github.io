@@ -12,8 +12,8 @@ var SHIELD_SET_KEYS = SHIELD_SETS.map(function(s) { return s.key; });
 
 // Each shield set defines: base stats, enchant bonuses (flat totals),
 // selectable bonuses (max picks), and optional pvp/pve base stats.
-// battle vs scale: pDef↔mDef swapped in base, accuracy→accuracy stays same key,
-//   but attack→attack stays same key (unified). The BONUS list differs:
+// battle vs scale: pDef↔mDef swapped in base, accuracy->accuracy stays same key,
+//   but attack->attack stays same key (unified). The BONUS list differs:
 //   battle: accuracy + attack (physical), scale: accuracy + attack (magical)
 //   We store them in the same unified keys since class context determines interpretation.
 var SHIELD_STATS = {
@@ -155,8 +155,8 @@ var SHIELD_STATS = {
 
 // Calculate total shield stats for a given configuration
 // classPhysical: true if class is physical, false if magical
-//   battle shield → attack/crit/accuracy are physical; if class is magical → zero them
-//   scale shield  → attack/crit/accuracy are magical; if class is physical → zero them
+//   battle shield -> attack/crit/accuracy are physical; if class is magical -> zero them
+//   scale shield  -> attack/crit/accuracy are magical; if class is physical -> zero them
 function getShieldStats(shieldSet, shieldType, selectedBonuses, classPhysical, bonusValues) {
     var stats = emptyStats();
     if (shieldSet === 'none') return stats;

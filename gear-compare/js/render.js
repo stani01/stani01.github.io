@@ -16,7 +16,7 @@ function msIndicator(pid, gearKey, setKey, profile) {
     return '<span class="gc-ms-indicator' + cls + '" title="Manastones: ' + filled + '/' + slots + '">' + icons + '</span>';
 }
 
-// ── Manastone Modal ──
+// -- Manastone Modal --
 function getGearLabel(gearKey) {
     if (gearKey === 'mainWeapon') return 'Main Weapon';
     if (gearKey === 'offHand') return 'Off-Hand';
@@ -77,7 +77,7 @@ function renderManaModal(pid, scrollToGear) {
     // Title bar
     html += '<div class="gc-mana-titlebar">';
     html += '<img src="' + MANASTONE_ICON + '" class="gc-mana-title-icon" alt="">';
-    html += '<span class="gc-mana-title">Manastones — ' + getSetName(pid) + '</span>';
+    html += '<span class="gc-mana-title">Manastones - ' + getSetName(pid) + '</span>';
     html += '<span class="gc-mana-close" onclick="GC.closeManaModal()">✕</span>';
     html += '</div>';
 
@@ -229,7 +229,7 @@ function renderManaModal(pid, scrollToGear) {
     return html;
 }
 
-// ── Panel-to-prefix mapping for set view containers ──
+// -- Panel-to-prefix mapping for set view containers --
 var SET_PANEL_MAP = {
     equipment:   'profile',
     transforms:  'transform',
@@ -239,7 +239,7 @@ var SET_PANEL_MAP = {
     'skill-buffs': 'buffs'
 };
 
-// ── Build set tabs and view containers for all panels ──
+// -- Build set tabs and view containers for all panels --
 function renderSetTabs() {
     document.querySelectorAll('.gc-set-tabs').forEach(function(tabBar) {
         var html = '';
@@ -327,7 +327,7 @@ function renderAll() {
     updateComparison();
 }
 
-// ── Skill Buffs rendering ──
+// -- Skill Buffs rendering --
 function renderSkillBuffs(pid) {
     var el = document.getElementById('buffs-' + pid);
     if (!el) return;
@@ -439,11 +439,11 @@ function renderBuffItem(pid, buff, sb) {
     return html;
 }
 
-// ── Tab switching ──
+// -- Tab switching --
 // activeTab declared earlier, restored from loadState
 var formsActiveGrade = {};
 
-// ── Forms Collection rendering ──
+// -- Forms Collection rendering --
 // Returns HTML string for the forms picker (used inline in renderCollections)
 function renderFormsPickerHTML(pid) {
     var profile = state[pid];
@@ -509,7 +509,7 @@ document.getElementById('gc-tab-bar').addEventListener('click', function(e) {
     saveState();
 });
 
-// ── Set Sub-Tab switching ──
+// -- Set Sub-Tab switching --
 // Delegated listener on body for all set-tab buttons (synced across panels)
 document.addEventListener('click', function(e) {
     // Handle add set button
@@ -534,7 +534,7 @@ document.addEventListener('click', function(e) {
     activateSetView(setId);
 });
 
-// ── Set tab rename (double-click) ──
+// -- Set tab rename (double-click) --
 document.addEventListener('dblclick', function(e) {
     var nameSpan = e.target.closest('.gc-set-tab-name');
     if (!nameSpan) return;
@@ -566,7 +566,7 @@ document.addEventListener('dblclick', function(e) {
     });
 });
 
-// ── Double-click rename on set titles inside profile panels ──
+// -- Double-click rename on set titles inside profile panels --
 document.addEventListener('dblclick', function(e) {
     var titleSpan = e.target.closest('.gc-set-title');
     if (!titleSpan) return;
@@ -598,7 +598,7 @@ document.addEventListener('dblclick', function(e) {
     });
 });
 
-// ── Transform rendering ──
+// -- Transform rendering --
 function renderTransform(pid) {
     var el = document.getElementById('transform-' + pid);
     var profile = state[pid];
@@ -619,7 +619,7 @@ function renderTransform(pid) {
         var noneCls = tf.key === 'none' ? ' gc-tf-icon-none' : '';
         html += '<div class="gc-tf-icon' + sel + noneCls + '" onclick="GC.setTransform(' + pid + ',\'' + tf.key + '\')" title="' + tf.name + '">';
         if (tf.key === 'none') {
-            html += '<span class="gc-tf-none-dash">—</span>';
+            html += '<span class="gc-tf-none-dash">-</span>';
         } else {
             html += '<img src="' + tf.icon + '" alt="' + tf.name + '">';
             html += '<span class="gc-tf-icon-label">' + tf.name + '</span>';
@@ -666,7 +666,7 @@ function renderTransform(pid) {
     el.innerHTML = html;
 }
 
-// ── Collections rendering ──
+// -- Collections rendering --
 function renderCollections(pid) {
     var el = document.getElementById('collections-' + pid);
     var scrollParent = el.querySelector('.gc-coll-tf-scroll');
@@ -680,7 +680,7 @@ function renderCollections(pid) {
     var ownedForms = profile.ownedForms || {};
 
     if (!profile.collLevels) {
-        profile.collLevels = { normal: 6, large: 6, powerful: 6 };
+        profile.collLevels = { normal: 7, large: 7, powerful: 7 };
     }
 
     var html = '<div class="gc-profile-header">';
@@ -688,7 +688,7 @@ function renderCollections(pid) {
     html += '<button class="gc-reset-btn" onclick="GC.resetCollections(' + pid + ')" title="Reset collections">&#x21BA;</button>';
     html += '</div>';
 
-    // ── Item Collections ──
+    // -- Item Collections --
     html += '<div class="gc-section-label gc-coll-section-label">\uD83C\uDF92 Item Collections</div>';
     html += '<div class="gc-coll-header">';
     html += '<div class="gc-coll-levels">';
@@ -712,10 +712,10 @@ function renderCollections(pid) {
     });
     html += '</div>';
 
-    // ── Owned Forms picker (inline) ──
+    // -- Owned Forms picker (inline) --
     html += renderFormsPickerHTML(pid);
 
-    // ── Transformation Collections (auto-activated from owned forms) ──
+    // -- Transformation Collections (auto-activated from owned forms) --
     var completedCount = TF_COLLECTIONS.filter(function(coll) { return isCollectionComplete(coll, ownedForms); }).length;
     var tfMax = TF_COLLECTIONS.length;
     html += '<div class="gc-section-label gc-coll-section-label" style="margin-top:16px">\uD83D\uDD2E Transformation Collections <span class="gc-coll-count">(' + completedCount + '/' + tfMax + ')</span>';
@@ -765,7 +765,7 @@ function renderCollections(pid) {
     if (newScrollParent) newScrollParent.scrollTop = scrollTop;
 }
 
-// ── Relic rendering (in-game style) ──
+// -- Relic rendering (in-game style) --
 function renderRelic(pid) {
     var isPhy = isPhysicalClass(selectedClass);
     var el = document.getElementById('relic-' + pid);
@@ -776,7 +776,7 @@ function renderRelic(pid) {
 
     var html = '<div class="gc-relic-panel">';
 
-    // ─── Header: stone icon + title + reset ───
+    // --- Header: stone icon + title + reset ---
     html += '<div class="gc-relic-header">';
     html += '<img src="../assets/icons/icon_item_sacredstone_levelup.png" class="gc-relic-header-icon" alt="Relic">';
     html += '<div class="gc-relic-header-info">';
@@ -786,7 +786,7 @@ function renderRelic(pid) {
     html += '<button class="gc-reset-btn" onclick="GC.resetRelic(' + pid + ')" title="Reset relic">&#x21BA;</button>';
     html += '</div>';
 
-    // ─── Level row: number input + slider ───
+    // --- Level row: number input + slider ---
     html += '<div class="gc-relic-level-row">';
     html += '<span class="gc-relic-level-label">Level</span>';
     html += '<input type="number" class="gc-relic-level-input" min="0" max="300" value="' + level + '"';
@@ -798,7 +798,7 @@ function renderRelic(pid) {
     html += '<span class="gc-relic-level-max">/ 300</span>';
     html += '</div>';
 
-    // ─── Special skills row ───
+    // --- Special skills row ---
     html += '<div class="gc-relic-skills-label">Relic Skill</div>';
     html += '<div class="gc-relic-skills-row">';
     RELIC_MILESTONES.filter(function(ms) {
@@ -827,7 +827,7 @@ function renderRelic(pid) {
     });
     html += '</div>';
 
-    // ─── Stats grid ───
+    // --- Stats grid ---
     html += '<div class="gc-relic-stats-label">Stats at Level ' + level + '</div>';
     html += '<div class="gc-relic-stats-grid">';
     RELIC_STAT_DEFS.forEach(function(def) {
@@ -925,7 +925,7 @@ function renderClassSelector() {
     el.innerHTML = html;
 }
 
-// ── Jorgoth Weapon Stats Legend ──
+// -- Jorgoth Weapon Stats Legend --
 function buildJorgothLegend(weaponType) {
     var data = JORGOTH_WEAPONS[weaponType];
     if (!data) return '';
@@ -942,7 +942,7 @@ function buildJorgothLegend(weaponType) {
         { key: 'v3', label: 'T4 v3', data: data.v3 }
     ];
 
-    // T3 alternatives for all variants (baseAtk: 5200→4700, 2250→2000)
+    // T3 alternatives for all variants (baseAtk: 5200->4700, 2250->2000)
     var t3Variants = ['v1', 'v2', 'v3'].map(function(vk) {
         return { key: vk, label: 'T3 ' + vk, data: data[vk], isT3: true };
     });
@@ -989,7 +989,7 @@ function buildJorgothLegend(weaponType) {
     }
 
     var html = '<div class="gc-jorgoth-legend">';
-    html += '<div class="gc-jorgoth-legend-title">Jorgoth Variants — ' + WEAPON_TYPES[weaponType].name + '</div>';
+    html += '<div class="gc-jorgoth-legend-title">Jorgoth Variants - ' + WEAPON_TYPES[weaponType].name + '</div>';
     html += '<table class="gc-jorgoth-table">';
     html += '<thead><tr>';
     html += '<th></th><th>Bonus Atk</th><th>Crit</th><th>Acc</th><th>Def</th><th>HP</th>';
@@ -1005,13 +1005,13 @@ function buildJorgothLegend(weaponType) {
         var rowClass = isMasterpiece ? ' gc-jorgoth-row-mp' : '';
         html += '<tr class="gc-jorgoth-row' + rowClass + '">';
         html += '<td class="gc-jorgoth-variant">' + r.label + '</td>';
-        html += '<td' + hlClass('bonusAtk', r.bonusAtk) + '>' + (r.bonusAtk || '—') + '</td>';
-        html += '<td' + hlClass('crit', r.crit) + '>' + (r.crit || '—') + '</td>';
-        html += '<td' + hlClass('acc', r.acc) + '>' + (r.acc || '—') + '</td>';
+        html += '<td' + hlClass('bonusAtk', r.bonusAtk) + '>' + (r.bonusAtk || '-') + '</td>';
+        html += '<td' + hlClass('crit', r.crit) + '>' + (r.crit || '-') + '</td>';
+        html += '<td' + hlClass('acc', r.acc) + '>' + (r.acc || '-') + '</td>';
         html += '<td' + hlClass('def', r.def) + '>' + r.def + '</td>';
         html += '<td' + hlClass('hp', r.hp) + '>' + r.hp.toLocaleString() + '</td>';
         if (hasHeal) {
-            html += '<td' + hlClass('heal', r.heal) + '>' + (r.heal || '—') + '</td>';
+            html += '<td' + hlClass('heal', r.heal) + '>' + (r.heal || '-') + '</td>';
         }
         // Tags
         html += '<td class="gc-jorgoth-tags">';
@@ -1044,13 +1044,13 @@ function buildJorgothLegend(weaponType) {
         var rowClass = isMasterpiece ? ' gc-jorgoth-row-mp' : '';
         html += '<tr class="gc-jorgoth-row gc-jorgoth-row-t3' + rowClass + '">';
         html += '<td class="gc-jorgoth-variant">' + r.label + '</td>';
-        html += '<td' + t3HlClass('bonusAtk', r.bonusAtk) + '>' + (r.bonusAtk || '—') + '</td>';
-        html += '<td' + t3HlClass('crit', r.crit) + '>' + (r.crit || '—') + '</td>';
-        html += '<td' + t3HlClass('acc', r.acc) + '>' + (r.acc || '—') + '</td>';
+        html += '<td' + t3HlClass('bonusAtk', r.bonusAtk) + '>' + (r.bonusAtk || '-') + '</td>';
+        html += '<td' + t3HlClass('crit', r.crit) + '>' + (r.crit || '-') + '</td>';
+        html += '<td' + t3HlClass('acc', r.acc) + '>' + (r.acc || '-') + '</td>';
         html += '<td' + t3HlClass('def', r.def) + '>' + r.def + '</td>';
         html += '<td' + t3HlClass('hp', r.hp) + '>' + r.hp.toLocaleString() + '</td>';
         if (hasHeal) {
-            html += '<td' + t3HlClass('heal', r.heal) + '>' + (r.heal || '—') + '</td>';
+            html += '<td' + t3HlClass('heal', r.heal) + '>' + (r.heal || '-') + '</td>';
         }
         html += '<td class="gc-jorgoth-tags">';
         if (isMasterpiece) html += '<span class="gc-jorgoth-tag-mp">✦ Masterpiece</span>';
@@ -1069,7 +1069,7 @@ function buildJorgothLegend(weaponType) {
 }
 
 function buildCollDropdown(pid, key, label) {
-    var lvl = (state[pid].collLevels && state[pid].collLevels[key]) || 6;
+    var lvl = (state[pid].collLevels && state[pid].collLevels[key]) || 7;
     
     var html = '<div class="gc-coll-level-box" style="display:flex; flex-direction:column; align-items:center; gap:4px;">';
     html += '<span class="gc-coll-level-label">' + label + '</span>';
@@ -1077,7 +1077,7 @@ function buildCollDropdown(pid, key, label) {
     // Added gc-coll-select class and data-type
     html += '<select class="gc-coll-select gc-coll-level-select" data-type="' + key + '" onchange="GC.setCollectionLevel(' + pid + ',\'' + key + '\',this.value)">';
     
-    for (var i = 1; i <= 6; i++) {
+    for (var i = 1; i <= 7; i++) {
         var sel = (i == lvl) ? ' selected' : '';
         // Initially show ONLY the level number for the closed state
         html += '<option value="' + i + '"' + sel + '>' + i + '</option>';
@@ -1092,9 +1092,9 @@ function buildCollDropdown(pid, key, label) {
 function getCollectionStatDescription(type, level) {
     // These match your sources.collections logic exactly
     var statsMap = {
-        'normal':   { name: 'Accuracy', values: [0, 10, 15, 20, 30, 45] },
-        'large':    { name: 'Defences', values: [0, 6, 10, 12, 14, 18] },
-        'powerful': { name: 'Attack',   values: [0, 8, 12, 16, 20, 24] }
+        'normal':   { name: 'Accuracy', values: [0, 10, 15, 20, 30, 45, 60] },
+        'large':    { name: 'Defences', values: [0, 6, 10, 12, 14, 18, 22] },
+        'powerful': { name: 'Attack',   values: [0, 8, 12, 16, 20, 24, 28] }
     };
     
     var data = statsMap[type];
@@ -1140,7 +1140,7 @@ function renderWeaponConfig() {
     var html = '<div class="gc-profile-header"><span class="gc-wc-title">⚔️ Weapon Setup</span><button class="gc-reset-btn" onclick="GC.resetWeapons()" title="Reset to defaults">↺</button></div>';
     html += '<div class="gc-wc-slots">';
 
-    // Main weapon — icon picker
+    // Main weapon - icon picker
     html += '<div class="gc-wc-item">';
     html += '<div class="gc-wc-item-label">Main</div>';
     html += '<div class="gc-icon-picker" onclick="GC.togglePicker(\'main-picker\')">';
@@ -1157,7 +1157,7 @@ function renderWeaponConfig() {
     html += '</div>';
     html += '</div>';
 
-    // Off-hand — icon picker (unified: none/shield/fuse/weapons)
+    // Off-hand - icon picker (unified: none/shield/fuse/weapons)
     var ohChoices = getOffHandChoices(mainType, selectedClass);
     var ohKey = getCurrentOffHandKey();
     var ohChoice = ohChoices.find(function(c) { return c.key === ohKey; }) || ohChoices[0];
@@ -1182,7 +1182,7 @@ function renderWeaponConfig() {
     html += '</div>';
     html += '</div>';
 
-    // ── Jorgoth button (inline with weapon pickers) ──
+    // -- Jorgoth button (inline with weapon pickers) --
     if (JORGOTH_WEAPONS[mainType]) {
         html += '<button class="gc-jorgoth-btn" onclick="GC.openJorgothModal()" title="View Jorgoth weapon variants">📊 Jorgoth Variants</button>';
     }
@@ -1203,13 +1203,13 @@ function renderProfile(id) {
     var material = getArmorMaterial(profile.armorType);
     var html = '';
 
-    // ── Header ──
+    // -- Header --
     html += '<div class="gc-profile-header">';
     html += '<span class="gc-set-title" data-set="' + id + '">' + getSetName(id) + '</span>';
     html += '<button class="gc-reset-btn" onclick="GC.resetProfile(' + id + ')" title="Reset ' + getSetName(id) + ' to defaults">↺</button>';
     html += '</div>';
 
-    // ── Weapons Section ──
+    // -- Weapons Section --
     html += '<div class="gc-section">';
     html += '<div class="gc-section-label-row">';
     html += '<span class="gc-section-label">🗡️ Weapons</span>';
@@ -1217,7 +1217,7 @@ function renderProfile(id) {
     html += '<span class="gc-ms-btn" onclick="GC.openManaModal(' + id + ')" title="Manastones"><img src="' + MANASTONE_ICON + '" alt="Manastones"> Manastones</span>';
     html += '</div>';
     html += '<div class="gc-armor-columns">';
-    // ── Left: Main Weapon ──
+    // -- Left: Main Weapon --
     html += '<div class="gc-armor-col">';
     var mwt = WEAPON_TYPES[weaponConfig.mainType];
     html += '<div class="gc-armor-row">';
@@ -1258,13 +1258,13 @@ function renderProfile(id) {
     }
     html += '</div>';
     html += '</div>';
-    // ── Right: Off-Hand / Shield / Fuse ──
+    // -- Right: Off-Hand / Shield / Fuse --
     html += '<div class="gc-armor-col">';
     var effectiveOH = getEffectiveOffHandType(profile);
     if (effectiveOH !== 'none') {
         var ohType = effectiveOH;
         if (ohType === 'shield') {
-            // ── Shield section ──
+            // -- Shield section --
             var sh = profile.shield;
             var shData = SHIELD_STATS[sh.set];
             var shSetObj = SHIELD_SETS.find(function(s) { return s.key === sh.set; }) || SHIELD_SETS[0];
@@ -1340,7 +1340,7 @@ function renderProfile(id) {
     html += '</div>';
     html += '</div></div>';
 
-    // ── Armor Section ──
+    // -- Armor Section --
     html += '<div class="gc-section">';
     html += '<div class="gc-section-label-row">';
     html += '<span class="gc-section-label">🛡️ Armor</span>';
@@ -1380,7 +1380,7 @@ function renderProfile(id) {
     html += '</div>';
     html += '</div></div>';
 
-    // ── Accessories Section ──
+    // -- Accessories Section --
     html += '<div class="gc-section">';
     html += '<div class="gc-section-label">💎 Accessories</div>';
     // Upper row: feather, wings, bracelet

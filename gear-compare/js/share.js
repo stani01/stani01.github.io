@@ -1,24 +1,24 @@
 'use strict';
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// SHARE v6  —  Binary-packed share encoding (multi-set)
+// ===============================================================================
+// SHARE v6  -  Binary-packed share encoding (multi-set)
 //
 // Format:  #s=6.<base64-encoded-binary>
 //
 // Layout:
-//   [Global Header]  — class, weapon config         (4 bytes)
-//   [Multi-set Header] — count, comp pair, names     (variable)
-//   [Profile 1..N]   — full per-profile data         (variable each)
+//   [Global Header]  - class, weapon config         (4 bytes)
+//   [Multi-set Header] - count, comp pair, names     (variable)
+//   [Profile 1..N]   - full per-profile data         (variable each)
 //
-// No backward compatibility — old v4/v5 links are not supported.
-// ═══════════════════════════════════════════════════════════════════════════════
+// No backward compatibility - old v4/v5 links are not supported.
+// ===============================================================================
 
-// ─── Lookup tables (order is the encoding key — append only) ───────────────
+// --- Lookup tables (order is the encoding key - append only) ---------------
 var SH_CLASSES       = ['gladiator','templar','assassin','ranger','sorcerer','spiritmaster','cleric','chanter','aethertech','gunner','bard','painter'];
 var SH_WTYPES        = ['dagger','sword','mace','revolver','greatsword','polearm','bow','staff','paintRings','orb','spellbook','aetherKey','cannon','harp'];
 var SH_OHTYPES       = ['none','shield','fuse','weapon'];
 var SH_ATYPES        = ARMOR_TYPE_OPTIONS.map(function(o) { return o.key; });
-var SH_ASETS         = ['fighting-spirit','acrimony','presumption','none'];
+var SH_ASETS         = ['fighting-spirit','acrimony','presumption','none','obstinacy'];
 var SH_WSETS         = ['fighting-spirit','salvation','spiked','ciclonica-helper','acrimony','presumption','vision','jorgoth-t4-v1','jorgoth-t4-v2','jorgoth-t4-v3','jorgoth-t3-v1','jorgoth-t3-v2','jorgoth-t3-v3','none'];
 var SH_SHIELDSETS    = ['fighting-spirit','salvation','spiked','ciclonica','none'];
 var SH_SHIELDTYPES   = ['battle','scale'];
@@ -32,7 +32,7 @@ var SH_ASLOTS        = ['helmet','shoulders','chest','pants','gloves','boots'];
 var SH_GEARKEYS      = SH_ASLOTS.concat(['mainWeapon','offHand']);
 var SH_ALL_MANA_KEYS = SH_GEARKEYS.concat(ALL_ACCESSORY_KEYS); // 17 slots total
 
-// ─── Helpers ───────────────────────────────────────────────────────────────
+// --- Helpers ---------------------------------------------------------------
 function idx(arr, v) {
     var i = arr.indexOf(v);
     return i >= 0 ? i : 0;
@@ -65,7 +65,7 @@ function fromBitmask(mask, refList, maxPicks) {
     return out;
 }
 
-// ─── Binary stream helpers ─────────────────────────────────────────────────
+// --- Binary stream helpers -------------------------------------------------
 function ByteWriter() { this.buf = []; }
 ByteWriter.prototype.u8 = function(v) { this.buf.push(v & 0xFF); };
 ByteWriter.prototype.u16 = function(v) { this.buf.push((v >> 8) & 0xFF, v & 0xFF); };
@@ -119,17 +119,17 @@ ByteReader.prototype.bools = function(count) {
 };
 
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ===============================================================================
 // ENCODE
-// ═══════════════════════════════════════════════════════════════════════════════
+// ===============================================================================
 
 function encodeProfile(w, id) {
     var p = state[id];
 
-    // ── Armor type (1 byte) + Apsu flag (bit 3) ──
+    // -- Armor type (1 byte) + Apsu flag (bit 3) --
     w.u8(idx(SH_ATYPES, p.armorType) | (p.apsuEnabled ? 8 : 0));
 
-    // ── Armor × 6 slots: set(1) + enchant(1) + bonusMask(1) ──
+    // -- Armor * 6 slots: set(1) + enchant(1) + bonusMask(1) --
     SH_ASLOTS.forEach(function(sk) {
         var a = p.armor[sk];
         var isHigh = (sk === 'helmet' || sk === 'chest' || sk === 'pants');
@@ -139,17 +139,17 @@ function encodeProfile(w, id) {
         w.u8(toBitmask(a.bonuses, bonusList));
     });
 
-    // ── Main weapon: set(1) + enchant(1) + bonusMask(1) ──
+    // -- Main weapon: set(1) + enchant(1) + bonusMask(1) --
     w.u8(idx(SH_WSETS, p.mainWeapon.set));
     w.u8(p.mainWeapon.enchant || 9);
     w.u8(toBitmask(p.mainWeapon.bonuses, (WEAPON_STATS_FIXED[p.mainWeapon.set] || {}).bonuses || []));
 
-    // ── Off-hand: set(1) + enchant(1) + bonusMask(1) ──
+    // -- Off-hand: set(1) + enchant(1) + bonusMask(1) --
     w.u8(idx(SH_WSETS, p.offHand.set));
     w.u8(p.offHand.enchant || 9);
     w.u8(toBitmask(p.offHand.bonuses, (WEAPON_STATS_FIXED[p.offHand.set] || {}).bonuses || []));
 
-    // ── Shield: set(1) + type(1) + bonusMask(2) ──
+    // -- Shield: set(1) + type(1) + bonusMask(2) --
     var sh = p.shield;
     var shData = SHIELD_STATS[sh.set];
     var shTypeKey = sh.type === 'scale' ? 'scale' : 'battle';
@@ -158,12 +158,12 @@ function encodeProfile(w, id) {
     w.u8(idx(SH_SHIELDTYPES, sh.type));
     w.u16(toBitmask(sh.bonuses, shBonusList));
 
-    // ── Oaths × 6 (1 byte each) ──
+    // -- Oaths * 6 (1 byte each) --
     SH_ASLOTS.forEach(function(sk) {
         w.u8(idx(SH_OATHS, p.oath[sk]));
     });
 
-    // ── Manastones: 17 slots × 3 = 51 nibbles → 26 bytes ──
+    // -- Manastones: 17 slots * 3 = 51 nibbles -> 26 bytes --
     var manaFlat = [];
     SH_ALL_MANA_KEYS.forEach(function(gk) {
         var arr = p.manastones[gk] || [];
@@ -173,11 +173,11 @@ function encodeProfile(w, id) {
     });
     w.nibbles(manaFlat);
 
-    // ── Transform: key(1) + enchant(1) ──
+    // -- Transform: key(1) + enchant(1) --
     w.u8(idx(SH_TRANSFORMS, p.transform || 'none'));
     w.u8(typeof p.transformEnchant === 'number' ? p.transformEnchant : 0);
 
-    // ── Accessories × 9: set(1) + bonusMask(2) ──
+    // -- Accessories * 9: set(1) + bonusMask(2) --
     ALL_ACCESSORY_KEYS.forEach(function(accKey) {
         var acc = p.accessories[accKey];
         var statsType = ACC_STATS_TYPE[accKey];
@@ -188,11 +188,11 @@ function encodeProfile(w, id) {
         w.u16(toBitmask(acc.bonuses, bonusList));
     });
 
-    // ── Minions: main(1) + secondary(1) ──
+    // -- Minions: main(1) + secondary(1) --
     w.u8(idx(SH_MINIONS, (p.minions && p.minions.main) || 'crit-sita'));
     w.u8(idx(SH_MINIONS, (p.minions && p.minions.secondary) || 'crit-sita'));
 
-    // ── Glyph: enabled(1) + bonus(1) + attack(1) + pDef(1) + mDef(1) ──
+    // -- Glyph: enabled(1) + bonus(1) + attack(1) + pDef(1) + mDef(1) --
     var glyph = p.glyph || {};
     var gExtra = glyph.extra || {};
     w.u8(glyph.enabled === false ? 0 : 1);
@@ -201,7 +201,7 @@ function encodeProfile(w, id) {
     w.u8(clamp(gExtra.physicalDef || 0, 0, 250));
     w.u8(clamp(gExtra.magicalDef || 0, 0, 250));
 
-    // ── Owned Forms: bit-packed (ALL_FORM_IDS.length bits) ──
+    // -- Owned Forms: bit-packed (ALL_FORM_IDS.length bits) --
     var formArr = [];
     var ownedForms = p.ownedForms || {};
     for (var fi = 0; fi < ALL_FORM_IDS.length; fi++) {
@@ -209,28 +209,28 @@ function encodeProfile(w, id) {
     }
     w.bools(formArr, ALL_FORM_IDS.length);
 
-    // ── Item Collections: 6 × u16 ──
+    // -- Item Collections: 6 * u16 --
     var itemColl = (p.collections && p.collections.itemColl) || {};
     ITEM_COLL_STATS.forEach(function(cs) {
         w.u16(clamp(parseInt(itemColl[cs.key]) || 0, 0, cs.max));
     });
 
-    // ── Collection Levels: 3 × u8 ──
-    var cl = p.collLevels || { normal: 6, large: 6, powerful: 6 };
+    // -- Collection Levels: 3 * u8 --
+    var cl = p.collLevels || { normal: 7, large: 7, powerful: 7 };
     w.u8(clamp(cl.normal || 0, 0, 10));
     w.u8(clamp(cl.large || 0, 0, 10));
     w.u8(clamp(cl.powerful || 0, 0, 10));
 
-    // ── Relic: u16 ──
+    // -- Relic: u16 --
     w.u16((p.relic && p.relic.level) ? clamp(p.relic.level, 1, 300) : 300);
 
-    // ── Traits × 5: u8 each ──
+    // -- Traits * 5: u8 each --
     var ts = (typeof traitSelections !== 'undefined' && traitSelections[id]) || {};
     [81, 82, 83, 84, 85].forEach(function(lvl) {
         w.u8(clamp(ts[lvl] || 0, 0, 2));
     });
 
-    // ── Skill Buffs: bit-packed (GC_SKILL_KEYS.length bits) ──
+    // -- Skill Buffs: bit-packed (GC_SKILL_KEYS.length bits) --
     var sbArr = [];
     var sbState = p.skillBuffs || {};
     GC_SKILL_KEYS.forEach(function(k) {
@@ -238,15 +238,15 @@ function encodeProfile(w, id) {
     });
     w.bools(sbArr, GC_SKILL_KEYS.length);
 
-    // ── Skill Enchant Levels: count(1) + level(1) each ──
+    // -- Skill Enchant Levels: count(1) + level(1) each --
     var sbe = p.skillBuffEnchants || {};
     w.u8(GC_ENCHANTABLE_KEYS.length);
     GC_ENCHANTABLE_KEYS.forEach(function(k) {
         w.u8(sbe[k] || 0);
     });
 
-    // ── Bonus Values: u16 per selected bonus, in definition order ──
-    // Armor × 6
+    // -- Bonus Values: u16 per selected bonus, in definition order --
+    // Armor * 6
     var apsuInfoEnc = p.apsuEnabled ? APSU_DATA[selectedClass] : null;
     SH_ASLOTS.forEach(function(sk) {
         var a = p.armor[sk];
@@ -285,7 +285,7 @@ function encodeProfile(w, id) {
             w.u16(clamp(bv, 0, b.value));
         }
     });
-    // Accessories × 9
+    // Accessories * 9
     ALL_ACCESSORY_KEYS.forEach(function(accKey) {
         var accBV = p.accessories[accKey];
         var stBV = ACC_STATS_TYPE[accKey];
@@ -308,17 +308,17 @@ function encodeProfile(w, id) {
     }
 }
 
-// ─── Main encode function ──────────────────────────────────────────────────
+// --- Main encode function --------------------------------------------------
 function encodeShareString() {
     var w = new ByteWriter();
 
-    // ── Global header (4 bytes) ──
+    // -- Global header (4 bytes) --
     w.u8(idx(SH_CLASSES, selectedClass));
     w.u8(idx(SH_WTYPES, weaponConfig.mainType));
     w.u8(idx(SH_OHTYPES, weaponConfig.offHandType));
     w.u8(idx(SH_WTYPES, weaponConfig.offHandWeaponType));
 
-    // ── Multi-set header ──
+    // -- Multi-set header --
     w.u8(setOrder.length);                                          // set count (2-5)
     w.u8(Math.max(0, setOrder.indexOf(comparisonPair.a)));          // comp pair A index
     w.u8(Math.max(0, setOrder.indexOf(comparisonPair.b)));          // comp pair B index
@@ -335,7 +335,7 @@ function encodeShareString() {
         bytes.forEach(function(b) { w.u8(b); });
     });
 
-    // ── Per-profile data ──
+    // -- Per-profile data --
     setOrder.forEach(function(id) {
         encodeProfile(w, id);
     });
@@ -344,32 +344,34 @@ function encodeShareString() {
 }
 
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ===============================================================================
 // DECODE
-// ═══════════════════════════════════════════════════════════════════════════════
+// ===============================================================================
 
 function decodeProfileFromReader(r, cls, id) {
     var p = createDefaultProfile(cls);
 
-    // ── Armor type + Apsu flag ──
+    // -- Armor type + Apsu flag --
     var armorRaw = r.u8();
     var at = val(SH_ATYPES, armorRaw & 0x07);
     p.apsuEnabled = !!(armorRaw & 0x08);
     if (CLASS_DATA[cls].armorTypes.indexOf(at) !== -1) p.armorType = at;
 
-    // ── Armor × 6 ──
+    // -- Armor * 6 --
     SH_ASLOTS.forEach(function(sk) {
         var aset = val(SH_ASETS, r.u8());
         var aench = r.u8();
         var abmask = r.u8();
-        if (ARMOR_SET_KEYS.indexOf(aset) !== -1) p.armor[sk].set = aset;
+        // Validate set is known and allowed for this slot
+        var asetDef = ARMOR_SETS.find(function(s) { return s.key === aset; });
+        if (asetDef && (!asetDef.slots || asetDef.slots.indexOf(sk) !== -1)) p.armor[sk].set = aset;
         if (aench >= 8 && aench <= 15) p.armor[sk].enchant = aench;
         var isHigh = (sk === 'helmet' || sk === 'chest' || sk === 'pants');
         var bonusList = isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
         if (abmask > 0) p.armor[sk].bonuses = fromBitmask(abmask, bonusList, 4);
     });
 
-    // ── Main weapon ──
+    // -- Main weapon --
     var mwSet = val(SH_WSETS, r.u8());
     var mwEnch = r.u8();
     var mwBmask = r.u8();
@@ -380,7 +382,7 @@ function decodeProfileFromReader(r, cls, id) {
         p.mainWeapon.bonuses = fromBitmask(mwBmask, mwFixed.bonuses, mwFixed.maxBonuses);
     }
 
-    // ── Off-hand ──
+    // -- Off-hand --
     var ohSet = val(SH_WSETS, r.u8());
     var ohEnch = r.u8();
     var ohBmask = r.u8();
@@ -391,7 +393,7 @@ function decodeProfileFromReader(r, cls, id) {
         p.offHand.bonuses = fromBitmask(ohBmask, ohFixed.bonuses, ohFixed.maxBonuses);
     }
 
-    // ── Shield ──
+    // -- Shield --
     var shSet = val(SH_SHIELDSETS, r.u8());
     var shType = val(SH_SHIELDTYPES, r.u8());
     var shBmask = r.u16();
@@ -403,13 +405,13 @@ function decodeProfileFromReader(r, cls, id) {
     var shMaxB = shData ? shData.maxBonuses : 0;
     if (shBmask) p.shield.bonuses = fromBitmask(shBmask, shBonusList, shMaxB);
 
-    // ── Oaths × 6 ──
+    // -- Oaths * 6 --
     SH_ASLOTS.forEach(function(sk) {
         var o = val(SH_OATHS, r.u8());
         if (SH_OATHS.indexOf(o) !== -1) p.oath[sk] = o;
     });
 
-    // ── Manastones (nibble-packed) ──
+    // -- Manastones (nibble-packed) --
     var manaFlat = r.nibbles(SH_ALL_MANA_KEYS.length * 3);
     var mi = 0;
     SH_ALL_MANA_KEYS.forEach(function(gk) {
@@ -419,12 +421,12 @@ function decodeProfileFromReader(r, cls, id) {
         }
     });
 
-    // ── Transform ──
+    // -- Transform --
     var tf = val(SH_TRANSFORMS, r.u8());
     if (TRANSFORM_KEYS.indexOf(tf) !== -1) p.transform = tf;
     p.transformEnchant = clamp(r.u8(), 0, 20);
 
-    // ── Accessories × 9 ──
+    // -- Accessories * 9 --
     ALL_ACCESSORY_KEYS.forEach(function(accKey) {
         var accSet = val(SH_ACCSETS, r.u8());
         var accBmask = r.u16();
@@ -441,13 +443,13 @@ function decodeProfileFromReader(r, cls, id) {
         }
     });
 
-    // ── Minions ──
+    // -- Minions --
     p.minions = {
         main:      val(SH_MINIONS, r.u8()),
         secondary: val(SH_MINIONS, r.u8())
     };
 
-    // ── Glyph ──
+    // -- Glyph --
     var glyphEnabled = r.u8();
     p.glyph = {
         enabled:    glyphEnabled !== 0,
@@ -460,37 +462,37 @@ function decodeProfileFromReader(r, cls, id) {
         }
     };
 
-    // ── Owned Forms ──
+    // -- Owned Forms --
     var formBools = r.bools(ALL_FORM_IDS.length);
     p.ownedForms = {};
     for (var fi = 0; fi < ALL_FORM_IDS.length; fi++) {
         if (formBools[fi]) p.ownedForms[ALL_FORM_IDS[fi]] = true;
     }
 
-    // ── Item Collections (6 × u16) ──
+    // -- Item Collections (6 * u16) --
     p.collections = p.collections || { itemColl: {} };
     ITEM_COLL_STATS.forEach(function(cs) {
         p.collections.itemColl[cs.key] = clamp(r.u16(), 0, cs.max);
     });
 
-    // ── Collection Levels ──
+    // -- Collection Levels --
     p.collLevels = {
         normal:   clamp(r.u8(), 0, 10),
         large:    clamp(r.u8(), 0, 10),
         powerful: clamp(r.u8(), 0, 10)
     };
 
-    // ── Relic ──
+    // -- Relic --
     p.relic = { level: clamp(r.u16(), 1, 300) };
 
-    // ── Traits ──
+    // -- Traits --
     if (typeof traitSelections === 'undefined') traitSelections = {};
     traitSelections[id] = {};
     [81, 82, 83, 84, 85].forEach(function(lvl) {
         traitSelections[id][lvl] = clamp(r.u8(), 0, 2);
     });
 
-    // ── Skill Buffs (bit-packed) ──
+    // -- Skill Buffs (bit-packed) --
     p.skillBuffs = {};
     var allBuffs = getSkillBuffsForClass(cls);
     allBuffs.forEach(function(buff) { p.skillBuffs[buff.key] = !!buff.defaultActive; });
@@ -501,7 +503,7 @@ function decodeProfileFromReader(r, cls, id) {
         }
     }
 
-    // ── Skill Enchant Levels ──
+    // -- Skill Enchant Levels --
     p.skillBuffEnchants = {};
     allBuffs.forEach(function(buff) {
         if (buff.enchant) {
@@ -518,9 +520,9 @@ function decodeProfileFromReader(r, cls, id) {
         }
     }
 
-    // ── Bonus Values (u16 per selected bonus, definition order) ──
+    // -- Bonus Values (u16 per selected bonus, definition order) --
     if (r.remaining() > 0) {
-        // Armor × 6
+        // Armor * 6
         var apsuInfoD = p.apsuEnabled ? APSU_DATA[cls] : null;
         SH_ASLOTS.forEach(function(sk) {
             var isHighD = (sk === 'helmet' || sk === 'chest' || sk === 'pants');
@@ -558,7 +560,7 @@ function decodeProfileFromReader(r, cls, id) {
                 p.shield.bonusValues[b.key] = clamp(r.u16(), 0, b.value);
             }
         });
-        // Accessories × 9
+        // Accessories * 9
         ALL_ACCESSORY_KEYS.forEach(function(accKey) {
             var stD = ACC_STATS_TYPE[accKey];
             var sdD = ACCESSORY_STATS[p.accessories[accKey].set];
@@ -582,7 +584,7 @@ function decodeProfileFromReader(r, cls, id) {
     return p;
 }
 
-// ─── Main decode function ──────────────────────────────────────────────────
+// --- Main decode function --------------------------------------------------
 function decodeShareString(s) {
     if (!s || s.length < 4) return false;
     var ver = s.charAt(0);
@@ -598,7 +600,7 @@ function decodeShareString(s) {
 function decodeShareV6(b64) {
     var r = new ByteReader(b64);
 
-    // ── Global header (4 bytes) ──
+    // -- Global header (4 bytes) --
     var cls = val(SH_CLASSES, r.u8());
     if (!CLASS_DATA[cls]) return false;
     selectedClass = cls;
@@ -614,7 +616,7 @@ function decodeShareV6(b64) {
         weaponConfig.offHandType = getDefaultOffHand(weaponConfig.mainType, cls);
     }
 
-    // ── Multi-set header ──
+    // -- Multi-set header --
     var numSets = clamp(r.u8(), 2, MAX_SETS);
     var compIdxA = r.u8();
     var compIdxB = r.u8();
@@ -646,7 +648,7 @@ function decodeShareV6(b64) {
         b: setOrder[clamp(compIdxB, 0, numSets - 1)]
     };
 
-    // ── Decode each profile ──
+    // -- Decode each profile --
     setOrder.forEach(function(id) {
         state[id] = decodeProfileFromReader(r, cls, id);
     });
@@ -655,9 +657,9 @@ function decodeShareV6(b64) {
 }
 
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ===============================================================================
 // PUBLIC API
-// ═══════════════════════════════════════════════════════════════════════════════
+// ===============================================================================
 
 function generateShareLink() {
     return window.location.origin + window.location.pathname + '#s=' + encodeShareString();
