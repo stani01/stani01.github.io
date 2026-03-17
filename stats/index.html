@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f0f12">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <title id="page-title">AION 8.X - Statistics Finder</title>
+    <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
+    <link rel="stylesheet" href="../assets/css/common.css?v=10.0">
+    <link rel="stylesheet" href="../assets/css/aion-calc.css?v=10.0">
+</head>
+<body class="page-calculator">
+
+<div class="container">
+    <h1>Aion 8.X: Statistics Finder</h1>
+    <div class="calculator">
+      <div class="result-box">
+        <div><strong>FIND CRIT %</strong></div>
+          <div class="result-details" style="margin-top: 6px;">
+            <label for="critStat" style="display: block; margin-bottom: 6px;">Crit Strike/Spell in character profile</label>
+            <input type="text" id="critStat" value="" placeholder="e.g. 12000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
+          </div>
+          <div class="result-val" id="critPercentageResult">--</div>
+      </div>
+      <div class="result-box">
+        <div><strong>FIND RESIST/EVADE %</strong></div>
+          <div class="result-details" style="margin-top: 6px;">
+            <label for="effectiveResist" style="display: block; margin-bottom: 6px;">Your MR/Evasion - enemy Accuracy (Effective resist)</label>
+            <input type="text" id="effectiveResist" value="" placeholder="e.g. 2000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
+          </div>
+          <div class="result-val" id="resistEvadeResult">--</div>
+        </div>
+    </div>
+
+    <div id="site-footer"></div>
+</div>
+
+<script>
+function calculate() {
+    calculateCritPercentage();
+    calculateResistEvadePercentage();
+}
+
+function calculateCritPercentage() {
+    const critStatInput = document.getElementById('critStat').value.trim();
+    const critResultEl = document.getElementById('critPercentageResult');
+    
+    if (!critStatInput) {
+        critResultEl.textContent = '--';
+        return;
+    }
+    
+    const x = parseFloat(critStatInput);
+    if (isNaN(x) || x < 0) {
+        critResultEl.textContent = 'Invalid input';
+        return;
+    }
+    
+    // Formula: ROUNDDOWN((X*170)/(24000+X))
+    const critPercentage = Math.floor((x * 170) / (24000 + x));
+    critResultEl.textContent = critPercentage + '%';
+}
+
+function calculateResistEvadePercentage() {
+    const resistInput = document.getElementById('effectiveResist').value.trim();
+    const resistResultEl = document.getElementById('resistEvadeResult');
+    
+    if (!resistInput) {
+        resistResultEl.textContent = '--';
+        return;
+    }
+    
+    const x = parseFloat(resistInput);
+    if (isNaN(x) || x < 0) {
+        resistResultEl.textContent = 'Invalid input';
+        return;
+    }
+    
+    // Formula: ROUNDDOWN((120*X)/(24000+X))
+    const resistPercentage = Math.floor((120 * x) / (24000 + x));
+    resistResultEl.textContent = resistPercentage + '%';
+}
+
+function validateInput(el, min, max) {
+    const val = parseFloat(el.value);
+    if (!isNaN(val)) {
+        el.value = Math.max(min, Math.min(max, val));
+    }
+}
+
+function saveSession() {
+    const state = {
+        critStat: document.getElementById('critStat').value,
+        effectiveResist: document.getElementById('effectiveResist').value
+    };
+    localStorage.setItem('stats-page-state', JSON.stringify(state));
+}
+
+function loadSession() {
+    const saved = localStorage.getItem('stats-page-state');
+    if (saved) {
+        try {
+            const state = JSON.parse(saved);
+            if (state.critStat) document.getElementById('critStat').value = state.critStat;
+            if (state.effectiveResist) document.getElementById('effectiveResist').value = state.effectiveResist;
+            calculate();
+        } catch (e) {
+            console.error('Failed to load session:', e);
+        }
+    }
+}
+
+// Load saved state on page load
+window.addEventListener('DOMContentLoaded', loadSession);
+</script>
+<script src="../assets/js/site-common.js"></script>
+
+</body>
+</html>

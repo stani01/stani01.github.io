@@ -16,7 +16,8 @@
         { label: 'Retail EU Scheduler',    href: '/scheduler/' },
         { label: 'Damage Calculator',      href: '/aion-calc/' },
         { label: 'Enchanting Simulator',   href: '/enchanting/' },
-        { label: 'Gear Compare',           href: '/gear-compare/' }
+        { label: 'Gear Compare',           href: '/gear-compare/' },
+        { label: 'Statistics Finder',      href: '/stats/' }
     ];
     var _pathParts = window.location.pathname.split('/').filter(function(p) { return p !== ''; });
     var currentPage = _pathParts.length > 0 ? '/' + _pathParts[0] + '/' : '/';
