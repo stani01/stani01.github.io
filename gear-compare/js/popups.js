@@ -1,5 +1,11 @@
 'use strict';
 
+// Calculate crit percentage from crit stat (Formula: ROUNDDOWN((X*170)/(24000+X)))
+function calculateCritPercentage(critStat) {
+    if (critStat <= 0) return 0;
+    var percentage = Math.floor((critStat * 170) / (24000 + critStat));
+    return Math.min(percentage, 100);
+}
 
 var SOURCE_LABELS = [
       { key: 'weapons',     icon: '../assets/icons/icon_ui_equipment.png', name: 'Weapons' },
@@ -120,9 +126,15 @@ function updateComparison() {
     
             html += '<tr class="gc-comp-row' + (hasBreakdown ? ' gc-comp-expandable' : '') + '" data-stat="' + stat.key + '">';
             html += '<td class="gc-comp-stat">' + stat.name + (hasBreakdown ? ' <span class="gc-comp-chevron">▸</span>' : '') + '</td>';
-            html += '<td class="gc-comp-val' + winCls1 + '"><div class="gc-comp-bar-wrap"><div class="gc-comp-bar gc-comp-bar-1" style="width:' + pct1 + '%"></div><span class="gc-comp-val-text">' + formatNum(v1) + '</span></div></td>';
+            var displayVal1 = formatNum(v1);
+            var displayVal2 = formatNum(v2);
+            if (stat.key === 'crit') {
+                displayVal1 = formatNum(v1) + ' (' + calculateCritPercentage(v1) + '%)';
+                displayVal2 = formatNum(v2) + ' (' + calculateCritPercentage(v2) + '%)';
+            }
+            html += '<td class="gc-comp-val' + winCls1 + '"><div class="gc-comp-bar-wrap"><div class="gc-comp-bar gc-comp-bar-1" style="width:' + pct1 + '%"></div><span class="gc-comp-val-text">' + displayVal1 + '</span></div></td>';
             html += '<td class="gc-comp-diff ' + diffClass + '">' + diffText + '</td>';
-            html += '<td class="gc-comp-val' + winCls2 + '"><div class="gc-comp-bar-wrap"><div class="gc-comp-bar gc-comp-bar-2" style="width:' + pct2 + '%"></div><span class="gc-comp-val-text">' + formatNum(v2) + '</span></div></td>';
+            html += '<td class="gc-comp-val' + winCls2 + '"><div class="gc-comp-bar-wrap"><div class="gc-comp-bar gc-comp-bar-2" style="width:' + pct2 + '%"></div><span class="gc-comp-val-text">' + displayVal2 + '</span></div></td>';
             html += '</tr>';
     
             // Source breakdown rows (hidden by default)
