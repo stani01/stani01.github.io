@@ -13,8 +13,8 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="../assets/css/common.css?v=14.0">
-    <link rel="stylesheet" href="../assets/css/stats.css?v=14.0">
+    <link rel="stylesheet" href="../assets/css/common.css?v=15.0">
+    <link rel="stylesheet" href="../assets/css/stats.css?v=15.0">
 </head>
 <body class="page-calculator">
 
@@ -176,8 +176,9 @@ function validateResistInput() {
     const el = document.getElementById('yourResist');
     const val = parseFloat(el.value);
     if (!isNaN(val)) {
-        // Clamp to reasonable value (max is around 300000 for resist purposes)
-        el.value = Math.max(0, Math.min(300000, val));
+        // Clamp to reasonable value (max is around 150000 for resist purposes)
+        const enemyAccuracy = parseFloat(document.getElementById('enemyAccuracy').value) || 0;
+        el.value = Math.max(0, Math.min(120000 + enemyAccuracy, val));
     }
 }
 
@@ -186,7 +187,7 @@ function validateAccuracyInput() {
     const val = parseFloat(el.value);
     if (!isNaN(val)) {
         // Clamp to reasonable value
-        el.value = Math.max(0, Math.min(300000, val));
+        el.value = Math.max(0, Math.min(30000, val));
     }
 }
 
