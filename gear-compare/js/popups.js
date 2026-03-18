@@ -128,13 +128,17 @@ function updateComparison() {
             html += '<td class="gc-comp-stat">' + stat.name + (hasBreakdown ? ' <span class="gc-comp-chevron">▸</span>' : '') + '</td>';
             var displayVal1 = formatNum(v1);
             var displayVal2 = formatNum(v2);
+            var tooltipVal1 = v1;
+            var tooltipVal2 = v2;
             if (stat.key === 'crit') {
                 displayVal1 = formatNum(v1) + ' (' + calculateCritPercentage(v1) + '%)';
                 displayVal2 = formatNum(v2) + ' (' + calculateCritPercentage(v2) + '%)';
+                tooltipVal1 = 'Crit: ' + v1 + ' (' + calculateCritPercentage(v1) + '%)';
+                tooltipVal2 = 'Crit: ' + v2 + ' (' + calculateCritPercentage(v2) + '%)';
             }
-            html += '<td class="gc-comp-val' + winCls1 + '"><div class="gc-comp-bar-wrap"><div class="gc-comp-bar gc-comp-bar-1" style="width:' + pct1 + '%"></div><span class="gc-comp-val-text">' + displayVal1 + '</span></div></td>';
+            html += '<td class="gc-comp-val' + winCls1 + '"><div class="gc-comp-bar-wrap"><div class="gc-comp-bar gc-comp-bar-1" style="width:' + pct1 + '%"></div><span class="gc-comp-val-text" title="' + tooltipVal1 + '">' + displayVal1 + '</span></div></td>';
             html += '<td class="gc-comp-diff ' + diffClass + '">' + diffText + '</td>';
-            html += '<td class="gc-comp-val' + winCls2 + '"><div class="gc-comp-bar-wrap"><div class="gc-comp-bar gc-comp-bar-2" style="width:' + pct2 + '%"></div><span class="gc-comp-val-text">' + displayVal2 + '</span></div></td>';
+            html += '<td class="gc-comp-val' + winCls2 + '"><div class="gc-comp-bar-wrap"><div class="gc-comp-bar gc-comp-bar-2" style="width:' + pct2 + '%"></div><span class="gc-comp-val-text" title="' + tooltipVal2 + '">' + displayVal2 + '</span></div></td>';
             html += '</tr>';
     
             // Source breakdown rows (hidden by default)
