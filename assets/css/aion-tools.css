@@ -5669,6 +5669,7 @@ flex: 1;
 .gc-comp-val-text {
     position: relative;
     z-index: 1;
+    white-space: nowrap;
 }
 
 .gc-comp-val-win {
