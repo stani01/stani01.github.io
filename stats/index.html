@@ -61,8 +61,8 @@
 
     <!-- How It Works Section -->
     <div class="info-section">
-      <button class="info-toggle" onclick="toggleInfo()">ℹ️ How It Works</button>
-      <div class="info-content" id="infoContent" style="display: none;">
+      <div class="info-title">ℹ️ How It Works</div>
+      <div class="info-content">
         <div class="info-group">
           <h3>📊 Crit Hit Chance</h3>
           <p>Formula: <code>(170 × Crit Stat) ÷ (24000 + Crit Stat)</code></p>
@@ -73,8 +73,8 @@
           <p>Formula: <code>(120 × Effective Resist) ÷ (24000 + Effective Resist)</code></p>
           <p><strong>Effective Resist</strong> = Your Resist/Evasion - Enemy Accuracy</p>
           <ul>
-            <li><strong>Magic Resist</strong> reduces damage from <strong>Magic Accuracy</strong> attacks</li>
-            <li><strong>Evasion</strong> reduces damage from <strong>Accuracy</strong> (physical) attacks</li>
+            <li><strong>Magic Resist</strong> reduces the ability to hit from <strong>Magic Accuracy</strong> attacks (a.k.a. resisting the hit - 0 dmg)</li>
+            <li><strong>Evasion</strong> reduces the ability to hit from <strong>Accuracy</strong> (physical) attacks (a.k.a. evading the hit - 0 dmg)</li>
           </ul>
           <p><em>If enemy accuracy is higher than your resist, the result will be 0%.</em></p>
         </div>
@@ -217,15 +217,7 @@ function loadSession() {
 // Load saved state on page load
 window.addEventListener('DOMContentLoaded', loadSession);
 
-// Toggle info section
-function toggleInfo() {
-    const infoContent = document.getElementById('infoContent');
-    if (infoContent.style.display === 'none') {
-        infoContent.style.display = 'block';
-    } else {
-        infoContent.style.display = 'none';
-    }
-}
+
 </script>
 <script src="../assets/js/site-common.js"></script>
 

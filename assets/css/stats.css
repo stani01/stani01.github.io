@@ -1,27 +1,5 @@
 /* Statistics Finder Page Styles */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-:root {
-    --bg-main: #0f0f12;
-    --bg-panel: #1a1a1f;
-    --text-primary: #fff;
-    --text-muted: #a0a0a0;
-    --accent: #64a8ff;
-    --warning: #4dff4d;
-}
-
-html, body {
-    background: var(--bg-main);
-    color: var(--text-primary);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 16px;
-}
-
 .container {
     max-width: 900px;
     margin: 0 auto;
@@ -39,12 +17,12 @@ h1 {
 /* Stats page tip */
 .stats-page-tip {
     padding: 12px 16px;
-    background: rgba(100, 150, 200, 0.08);
+    background: rgba(30, 30, 40, 0.5);
     border-left: 3px solid var(--accent);
     border-radius: 4px;
     margin-bottom: 20px;
     font-size: 0.9em;
-    color: #b0d4ff;
+    color: var(--text-muted);
     line-height: 1.5;
 }
 
@@ -62,17 +40,16 @@ h1 {
 
 /* Result box styling */
 .result-box.stats-calculator {
-    background: linear-gradient(135deg, rgba(27, 45, 70, 0.6), rgba(27, 40, 60, 0.4));
-    border: 1px solid rgba(100, 150, 200, 0.3);
+    background: var(--bg-panel-solid);
+    border: 1px solid var(--border-dim);
     padding: 28px;
     border-radius: 10px;
     text-align: center;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease;
 }
 
 .result-box.stats-calculator:hover {
-    border-color: rgba(100, 150, 200, 0.5);
-    background: linear-gradient(135deg, rgba(27, 50, 80, 0.7), rgba(27, 45, 70, 0.5));
+    border-color: #5d5d68;
 }
 
 .result-box.stats-calculator > div:first-child {
@@ -104,7 +81,7 @@ h1 {
     max-width: 240px;
     padding: 10px 12px;
     background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(100, 150, 200, 0.4);
+    border: 1px solid var(--border-dim);
     border-radius: 5px;
     color: #fff;
     font-size: 0.95em;
@@ -116,7 +93,7 @@ h1 {
     outline: none;
     background: rgba(0, 0, 0, 0.6);
     border-color: var(--accent);
-    box-shadow: 0 0 8px rgba(100, 150, 200, 0.2);
+    box-shadow: 0 0 6px rgba(77, 184, 255, 0.2);
 }
 
 .stats-calculator input[type="text"]::placeholder {
@@ -158,10 +135,7 @@ h1 {
 }
 
 .result-val.valid {
-    background: linear-gradient(90deg, rgba(100, 150, 200, 0.1), transparent);
-    padding: 20px;
-    border-radius: 6px;
-    border-left: 4px solid var(--accent);
+    padding: 10px 0;
 }
 
 .result-val.error {
@@ -187,37 +161,22 @@ h1 {
 
 /* Info section styling */
 .info-section {
-    margin-top: 40px;
+    margin-top: 30px;
     padding: 24px;
-    background: linear-gradient(135deg, rgba(27, 45, 70, 0.3), rgba(27, 40, 60, 0.2));
-    border: 1px solid rgba(100, 150, 200, 0.2);
+    background: var(--bg-panel-solid);
+    border: 1px solid var(--border-dim);
     border-radius: 10px;
 }
 
-.info-toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(100, 150, 200, 0.15);
-    border: 1px solid rgba(100, 150, 200, 0.3);
-    color: var(--accent);
-    padding: 12px 16px;
-    border-radius: 6px;
+.info-title {
     font-size: 1em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    width: 100%;
-    text-align: left;
-}
-
-.info-toggle:hover {
-    background: rgba(100, 150, 200, 0.25);
-    border-color: rgba(100, 150, 200, 0.5);
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    margin-bottom: 16px;
 }
 
 .info-content {
-    margin-top: 16px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
