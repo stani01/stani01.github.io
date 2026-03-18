@@ -13,36 +13,97 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="../assets/css/common.css?v=13.0">
-    <link rel="stylesheet" href="../assets/css/aion-calc.css?v=13.0">
+    <link rel="stylesheet" href="../assets/css/common.css?v=14.0">
+    <link rel="stylesheet" href="../assets/css/stats.css?v=14.0">
 </head>
 <body class="page-calculator">
 
 <div class="container">
     <h1>Statistics Finder</h1>
+    
+    <!-- General Tip -->
+    <div class="stats-page-tip">
+        <strong>💡 Tip:</strong> Text boxes accept math expressions (e.g., 20000+1320 or 15000-760)
+    </div>
+    
     <div class="calculator">
-      <div class="result-box">
-        <div><strong>FIND CRIT %</strong></div>
-          <div class="result-details" style="margin-top: 6px;">
-            <label for="critStat" style="display: block; margin-bottom: 6px;">Crit Strike/Spell in character profile</label>
-            <input type="text" id="critStat" value="" placeholder="e.g. 12000" oninput="calculate(); saveSession()" onblur="validateCritInput(); calculate(); saveSession()" style="width: 220px;">
-          </div>
-          <div class="result-val" id="critPercentageResult">--</div>
-      </div>
-      <div class="result-box">
-        <div><strong>FIND RESIST/EVADE %</strong></div>
-          <div class="result-details" style="margin-top: 6px;">
-            <label for="effectiveResist" style="display: block; margin-bottom: 6px;">Your MR/Evasion - enemy Accuracy (Effective resist)</label>
-            <input type="text" id="effectiveResist" value="" placeholder="e.g. 2000" oninput="calculate(); saveSession()" onblur="validateResistInput(); calculate(); saveSession()" style="width: 220px;">
-          </div>
-          <div class="result-val" id="resistEvadeResult">--</div>
+      <div class="result-box stats-calculator">
+        <div>📊 FIND CRIT %</div>
+        <div class="input-group">
+          <label for="critStat">Crit Strike/Spell in character profile</label>
+          <input type="text" id="critStat" value="" placeholder="e.g. 12000" oninput="calculate(); saveSession()" onblur="validateCritInput(); calculate(); saveSession()">
         </div>
+        <div class="result-container">
+          <span class="result-label">Crit Hit Chance:</span>
+          <div class="result-val valid" id="critPercentageResult">--</div>
+        </div>
+      </div>
+
+      <div class="result-box stats-calculator">
+        <div>🛡️ FIND RESIST/EVADE %</div>
+
+        <div class="input-group">
+          <label for="yourResist">Your Resist/Evasion (from character profile)</label>
+          <input type="text" id="yourResist" value="" placeholder="e.g. 2000" oninput="calculate(); saveSession()" onblur="validateResistInput(); calculate(); saveSession()">
+        </div>
+
+        <div class="input-group">
+          <label for="enemyAccuracy">Enemy Accuracy (Physical or Magic)</label>
+          <input type="text" id="enemyAccuracy" value="" placeholder="e.g. 1500" oninput="calculate(); saveSession()" onblur="validateAccuracyInput(); calculate(); saveSession()">
+        </div>
+
+        <div class="result-container">
+          <span class="result-label">Effective Resistance:</span>
+          <div class="result-val valid" id="resistEvadeResult">--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="info-section">
+      <button class="info-toggle" onclick="toggleInfo()">ℹ️ How It Works</button>
+      <div class="info-content" id="infoContent" style="display: none;">
+        <div class="info-group">
+          <h3>📊 Crit Hit Chance</h3>
+          <p>Formula: <code>(170 × Crit Stat) ÷ (24000 + Crit Stat)</code></p>
+          <p>Determines your base chance to land a critical hit. Capped at 100%.</p>
+        </div>
+        <div class="info-group">
+          <h3>🛡️ Resist/Evade Percentage</h3>
+          <p>Formula: <code>(120 × Effective Resist) ÷ (24000 + Effective Resist)</code></p>
+          <p><strong>Effective Resist</strong> = Your Resist/Evasion - Enemy Accuracy</p>
+          <ul>
+            <li><strong>Magic Resist</strong> reduces damage from <strong>Magic Accuracy</strong> attacks</li>
+            <li><strong>Evasion</strong> reduces damage from <strong>Accuracy</strong> (physical) attacks</li>
+          </ul>
+          <p><em>If enemy accuracy is higher than your resist, the result will be 0%.</em></p>
+        </div>
+      </div>
     </div>
 
     <div id="site-footer"></div>
 </div>
 
 <script>
+// Parse input that may contain math expressions (e.g., "20000+1320" or "15000-760")
+function parseExpression(input) {
+    try {
+        // Check if input contains operators
+        if (/[+\-*/%()]/.test(input)) {
+            // Validate the expression only contains safe characters
+            if (!/^[\d+\-*/%().\s]+$/.test(input)) {
+                return NaN;
+            }
+            // Use Function constructor for safer evaluation than eval()
+            const result = new Function('return ' + input)();
+            return result;
+        }
+        return parseFloat(input);
+    } catch (e) {
+        return NaN;
+    }
+}
+
 function calculate() {
     calculateCritPercentage();
     calculateResistEvadePercentage();
@@ -57,7 +118,7 @@ function calculateCritPercentage() {
         return;
     }
     
-    const x = parseFloat(critStatInput);
+    const x = parseExpression(critStatInput);
     if (isNaN(x) || x < 0) {
         critResultEl.textContent = 'Invalid input';
         return;
@@ -72,21 +133,29 @@ function calculateCritPercentage() {
 }
 
 function calculateResistEvadePercentage() {
-    const resistInput = document.getElementById('effectiveResist').value.trim();
+    const yourResistInput = document.getElementById('yourResist').value.trim();
+    const enemyAccuracyInput = document.getElementById('enemyAccuracy').value.trim();
     const resistResultEl = document.getElementById('resistEvadeResult');
     
-    if (!resistInput) {
+    if (!yourResistInput || !enemyAccuracyInput) {
         resistResultEl.textContent = '--';
         return;
     }
     
-    const x = parseFloat(resistInput);
-    if (isNaN(x) || x < 0) {
+    const yourResist = parseExpression(yourResistInput);
+    const enemyAccuracy = parseExpression(enemyAccuracyInput);
+    
+    if (isNaN(yourResist) || isNaN(enemyAccuracy) || yourResist < 0 || enemyAccuracy < 0) {
         resistResultEl.textContent = 'Invalid input';
         return;
     }
     
-    // Formula: ROUNDDOWN((120*X)/(24000+X))
+    // Calculate effective resist (your resist - enemy accuracy)
+    const effectiveResist = yourResist - enemyAccuracy;
+    
+    // Formula: ROUNDDOWN((120*X)/(24000+X)) where X is effective resist
+    // If effective resist is negative, clamp to 0 for calculation
+    const x = Math.max(0, effectiveResist);
     let resistPercentage = Math.floor((120 * x) / (24000 + x));
     
     // Cap at 100%
@@ -104,18 +173,28 @@ function validateCritInput() {
 }
 
 function validateResistInput() {
-    const el = document.getElementById('effectiveResist');
+    const el = document.getElementById('yourResist');
     const val = parseFloat(el.value);
     if (!isNaN(val)) {
-        // Max resist value to reach 100%: (120*X)/(24000+X) = 100 => X = 120000
-        el.value = Math.max(0, Math.min(120000, val));
+        // Clamp to reasonable value (max is around 300000 for resist purposes)
+        el.value = Math.max(0, Math.min(300000, val));
+    }
+}
+
+function validateAccuracyInput() {
+    const el = document.getElementById('enemyAccuracy');
+    const val = parseFloat(el.value);
+    if (!isNaN(val)) {
+        // Clamp to reasonable value
+        el.value = Math.max(0, Math.min(300000, val));
     }
 }
 
 function saveSession() {
     const state = {
         critStat: document.getElementById('critStat').value,
-        effectiveResist: document.getElementById('effectiveResist').value
+        yourResist: document.getElementById('yourResist').value,
+        enemyAccuracy: document.getElementById('enemyAccuracy').value
     };
     localStorage.setItem('stats-page-state', JSON.stringify(state));
 }
@@ -126,7 +205,8 @@ function loadSession() {
         try {
             const state = JSON.parse(saved);
             if (state.critStat) document.getElementById('critStat').value = state.critStat;
-            if (state.effectiveResist) document.getElementById('effectiveResist').value = state.effectiveResist;
+            if (state.yourResist) document.getElementById('yourResist').value = state.yourResist;
+            if (state.enemyAccuracy) document.getElementById('enemyAccuracy').value = state.enemyAccuracy;
             calculate();
         } catch (e) {
             console.error('Failed to load session:', e);
@@ -136,6 +216,16 @@ function loadSession() {
 
 // Load saved state on page load
 window.addEventListener('DOMContentLoaded', loadSession);
+
+// Toggle info section
+function toggleInfo() {
+    const infoContent = document.getElementById('infoContent');
+    if (infoContent.style.display === 'none') {
+        infoContent.style.display = 'block';
+    } else {
+        infoContent.style.display = 'none';
+    }
+}
 </script>
 <script src="../assets/js/site-common.js"></script>
 
