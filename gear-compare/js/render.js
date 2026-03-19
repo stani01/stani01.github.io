@@ -1129,6 +1129,34 @@ function buildJorgothLegend(weaponType) {
     });
 
     html += '</tbody></table>';
+
+    // T2 Requirements section
+    var t2Sources = (typeof JORGOTH_T2_SOURCES !== 'undefined') && JORGOTH_T2_SOURCES[weaponType];
+    if (t2Sources) {
+        html += '<div class="gc-jorgoth-t2-section">';
+        html += '<div class="gc-jorgoth-t2-section-title">T2 Weapons Needed to Upgrade to T3</div>';
+        html += '<div class="gc-jorgoth-t2-cards">';
+        ['v1', 'v2', 'v3'].forEach(function(vk) {
+            var t2 = t2Sources[vk];
+            if (!t2) return;
+            html += '<div class="gc-jorgoth-t2-card">';
+            html += '<div class="gc-jorgoth-t2-card-header">T3 ' + vk + ' needs</div>';
+            html += '<div class="gc-jorgoth-t2-card-name">' + t2.name + '</div>';
+            html += '<div class="gc-jorgoth-t2-card-stats">';
+            if (t2.attack) html += '<span class="gc-jorgoth-t2-stat">Attack +<b>' + t2.attack + '</b></span>';
+            if (t2.crit)   html += '<span class="gc-jorgoth-t2-stat">Crit +<b>' + t2.crit + '</b></span>';
+            if (t2.acc)    html += '<span class="gc-jorgoth-t2-stat">Accuracy +<b>' + t2.acc + '</b></span>';
+            if (t2.healingBoost) html += '<span class="gc-jorgoth-t2-stat">Healing Boost +<b>' + t2.healingBoost + '</b></span>';
+            if (t2.physicalDef)  html += '<span class="gc-jorgoth-t2-stat">Physical Defence +<b>' + t2.physicalDef + '</b></span>';
+            if (t2.magicalDef)   html += '<span class="gc-jorgoth-t2-stat">Magical Defence +<b>' + t2.magicalDef + '</b></span>';
+            if (t2.hp)     html += '<span class="gc-jorgoth-t2-stat">HP +<b>' + t2.hp.toLocaleString() + '</b></span>';
+            html += '</div>';
+            html += '</div>';
+        });
+        html += '</div>';
+        html += '</div>';
+    }
+
     html += '</div>';
     return html;
 }

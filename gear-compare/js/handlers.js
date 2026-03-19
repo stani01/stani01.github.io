@@ -621,6 +621,15 @@ window.GC = {
         if (modal) modal.style.display = 'none';
     },
 
+    toggleT2Source: function(rowId) {
+        var row = document.getElementById(rowId);
+        if (!row) return;
+        var isHidden = row.style.display === 'none' || row.style.display === '';
+        row.style.display = isHidden ? 'table-row' : 'none';
+        var btn = document.querySelector('[data-t2-target="' + rowId + '"]');
+        if (btn) btn.classList.toggle('gc-jorgoth-t2-btn-active', isHidden);
+    },
+
     togglePicker: function(pickerId) {
         var menu = document.getElementById(pickerId);
         var wasOpen = menu.classList.contains('gc-picker-open');
