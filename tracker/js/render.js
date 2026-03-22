@@ -30,10 +30,7 @@ function renderTabs() {
             removeBtn.innerHTML = '✕';
             removeBtn.onclick = function(e) {
                 e.stopPropagation();
-                if (confirm('Remove tab "' + tabData.name + '"?')) {
-                    removeTab(tabId);
-                    renderAll();
-                }
+                TK.removeTab(tabId);
             };
             btn.appendChild(removeBtn);
         }
@@ -46,11 +43,7 @@ function renderTabs() {
     addBtn.className = 'tracker-tab-add';
     addBtn.innerHTML = '+';
     addBtn.onclick = function() {
-        var name = prompt('Enter tab name:');
-        if (name && name.trim()) {
-            addCustomTab(name.trim());
-            renderAll();
-        }
+        TK.openAddTabDialog();
     };
     tabBar.appendChild(addBtn);
 }

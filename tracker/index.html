@@ -10,13 +10,13 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="../assets/css/common.css?v=15.0">
-    <link rel="stylesheet" href="../assets/css/tracker.css?v=15.0">
+    <link rel="stylesheet" href="../assets/css/common.css?v=16.0">
+    <link rel="stylesheet" href="../assets/css/tracker.css?v=16.0">
 </head>
 <body class="page-tracker">
     <div class="container">
         <h1>AION Tracker</h1>
-        <div class="subtitle">Track your progress | AION Retail 8.x</div>
+        <div class="subtitle">Track your progress</div>
 
         <div class="tracker-main">
             <!-- Tab Bar -->
@@ -34,17 +34,16 @@
             <h2 id="tracker-modal-title">Enter Value</h2>
             <button class="tracker-modal-close" onclick="TK.closeModal()">✕</button>
         </div>
-        <div class="tracker-modal-body">
+        <div class="tracker-modal-body" id="tracker-modal-body">
             <input type="text" class="tracker-modal-input" id="tracker-modal-input" placeholder="Enter text here..." />
         </div>
-        <div class="tracker-modal-footer">
+        <div class="tracker-modal-footer" id="tracker-modal-footer">
             <button class="tracker-modal-btn tracker-modal-btn-cancel" onclick="TK.closeModal()">Cancel</button>
-            <button class="tracker-modal-btn tracker-modal-btn-confirm" onclick="TK.confirmModal()">Confirm</button>
+            <button class="tracker-modal-btn tracker-modal-btn-confirm" onclick="processModalConfirm()">Confirm</button>
         </div>
     </div>
 
-    <script src="../assets/js/site-common.js"></script>
-
+    <div id="site-footer"></div>
     <!-- Data modules -->
     <script src="js/data/instances.js"></script>
 
@@ -53,5 +52,6 @@
     <script src="js/render.js"></script>
     <script src="js/handlers.js"></script>
     <script src="js/main.js"></script>
+    <script src="../assets/js/site-common.js"></script>
 </body>
 </html>
