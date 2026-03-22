@@ -17,7 +17,8 @@
         { label: 'Damage Calculator',      href: '/aion-calc/' },
         { label: 'Enchanting Simulator',   href: '/enchanting/' },
         { label: 'Gear Compare',           href: '/gear-compare/' },
-        { label: 'Statistics Finder',      href: '/stats/' }
+        { label: 'Statistics Finder',      href: '/stats/' },
+        { label: 'Progress Tracker',       href: '/tracker/' }
     ];
     var _pathParts = window.location.pathname.split('/').filter(function(p) { return p !== ''; });
     var currentPage = _pathParts.length > 0 ? '/' + _pathParts[0] + '/' : '/';

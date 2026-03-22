@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f0c29">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>AION Tracker</title>
+    <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
+    <link rel="stylesheet" href="../assets/css/common.css?v=15.0">
+    <link rel="stylesheet" href="../assets/css/tracker.css?v=15.0">
+</head>
+<body class="page-tracker">
+    <div class="container">
+        <h1>AION Tracker</h1>
+        <div class="subtitle">Track your progress | AION Retail 8.x</div>
+
+        <div class="tracker-main">
+            <!-- Tab Bar -->
+            <div class="tracker-tab-bar" id="tracker-tab-bar"></div>
+
+            <!-- Tab Content -->
+            <div class="tracker-content" id="tracker-content"></div>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div class="tracker-modal-overlay" id="tracker-modal-overlay" onclick="TK.closeModal()"></div>
+    <div class="tracker-modal" id="tracker-modal">
+        <div class="tracker-modal-header">
+            <h2 id="tracker-modal-title">Enter Value</h2>
+            <button class="tracker-modal-close" onclick="TK.closeModal()">✕</button>
+        </div>
+        <div class="tracker-modal-body">
+            <input type="text" class="tracker-modal-input" id="tracker-modal-input" placeholder="Enter text here..." />
+        </div>
+        <div class="tracker-modal-footer">
+            <button class="tracker-modal-btn tracker-modal-btn-cancel" onclick="TK.closeModal()">Cancel</button>
+            <button class="tracker-modal-btn tracker-modal-btn-confirm" onclick="TK.confirmModal()">Confirm</button>
+        </div>
+    </div>
+
+    <script src="../assets/js/site-common.js"></script>
+
+    <!-- Data modules -->
+    <script src="js/data/instances.js"></script>
+
+    <!-- Application modules -->
+    <script src="js/state.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/handlers.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
