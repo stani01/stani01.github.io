@@ -16,13 +16,14 @@ var modalState = {
 function showModal(title, placeholder, currentValue, action, charId, tabId, modalType) {
     modalType = modalType || 'input';
     
-    var modalEl = document.getElementById('tracker-modal');
-    var footerEl = document.getElementById('tracker-modal-footer');
     var bodyEl = document.getElementById('tracker-modal-body');
+    var footerEl = document.getElementById('tracker-modal-footer');
+    var cancelBtn = document.querySelector('.tracker-modal-btn-cancel');
+    var confirmBtn = document.querySelector('.tracker-modal-btn-confirm');
     
     document.getElementById('tracker-modal-title').textContent = title;
     
-    // Clear and set up body based on modal type
+    // Clear body and set up based on modal type
     bodyEl.innerHTML = '';
     
     if (modalType === 'alert') {
@@ -31,6 +32,8 @@ function showModal(title, placeholder, currentValue, action, charId, tabId, moda
         msg.style.margin = '0';
         msg.textContent = currentValue;
         bodyEl.appendChild(msg);
+        cancelBtn.style.display = 'none';
+        confirmBtn.textContent = 'OK';
     } else {
         // Input modal
         var input = document.createElement('input');
@@ -40,32 +43,17 @@ function showModal(title, placeholder, currentValue, action, charId, tabId, moda
         input.placeholder = placeholder || '';
         input.value = currentValue || '';
         bodyEl.appendChild(input);
-        input.focus();
         
-        // Allow Enter key to confirm
-        input.onkeypress = function(e) {
-            if (e.key === 'Enter') processModalConfirm();
-        };
-    }
-    
-    // Set up footer based on modal type
-    footerEl.innerHTML = '';
-    
-    var cancelBtn = document.createElement('button');
-    cancelBtn.className = 'tracker-modal-btn tracker-modal-btn-cancel';
-    cancelBtn.textContent = 'Cancel';
-    cancelBtn.onclick = function() { TK.closeModal(); };
-    footerEl.appendChild(cancelBtn);
-    
-    var confirmBtn = document.createElement('button');
-    confirmBtn.className = 'tracker-modal-btn tracker-modal-btn-confirm';
-    confirmBtn.textContent = modalType === 'alert' ? 'OK' : 'Confirm';
-    confirmBtn.onclick = function() { processModalConfirm(); };
-    footerEl.appendChild(confirmBtn);
-    
-    // Hide cancel button for alerts
-    if (modalType === 'alert') {
-        cancelBtn.style.display = 'none';
+        // Allow Enter key to confirm (on next frame to avoid event listener issues)
+        requestAnimationFrame(function() {
+            input.focus();
+            input.onkeypress = function(e) {
+                if (e.key === 'Enter') processModalConfirm();
+            };
+        });
+        
+        cancelBtn.style.display = '';
+        confirmBtn.textContent = 'Confirm';
     }
     
     // Store state
@@ -75,8 +63,15 @@ function showModal(title, placeholder, currentValue, action, charId, tabId, moda
     modalState.currentValue = currentValue;
     modalState.modalType = modalType;
     
-    document.getElementById('tracker-modal-overlay').classList.add('active');
-    modalEl.classList.add('active');
+    // Show modal (will trigger CSS animation once)
+    var overlay = document.getElementById('tracker-modal-overlay');
+    var modal = document.getElementById('tracker-modal');
+    
+    // Prevent scroll on body when modal is open
+    document.body.style.overflow = 'hidden';
+    
+    overlay.classList.add('active');
+    modal.classList.add('active');
 }
 
 function processModalConfirm() {
@@ -247,12 +242,23 @@ function showModalError(message) {
 window.TK = {
     // Show/hide modal
     closeModal: function() {
-        document.getElementById('tracker-modal-overlay').classList.remove('active');
-        document.getElementById('tracker-modal').classList.remove('active');
+        var overlay = document.getElementById('tracker-modal-overlay');
+        var modal = document.getElementById('tracker-modal');
         var input = document.getElementById('tracker-modal-input');
+        
+        // Performance: remove classes immediately
+        overlay.classList.remove('active');
+        modal.classList.remove('active');
+        
+        // Restore scroll
+        document.body.style.overflow = '';
+        
+        // Clean up
         if (input) input.style.borderColor = '';
         var errorMsg = document.querySelector('.tracker-modal-error');
         if (errorMsg) errorMsg.remove();
+        
+        // Reset state
         modalState = { 
             action: null, charId: null, tabId: null, currentValue: '', 
             fieldType: null, fieldLabel: null, fieldMaxValue: null, fieldOptions: [],
