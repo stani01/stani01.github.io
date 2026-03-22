@@ -13,6 +13,13 @@ var modalState = {
     modalType: 'input' // 'input', 'confirm', 'alert'
 };
 
+// Drag and drop state
+var dragState = {
+    draggedElement: null,
+    draggedOverElement: null,
+    dragType: null // 'char' or 'field'
+};
+
 function showModal(title, placeholder, currentValue, action, charId, tabId, modalType) {
     modalType = modalType || 'input';
     
@@ -307,6 +314,31 @@ window.TK = {
         );
     },
 
+    // Set total ducats for current character
+    setTotalDucats: function(value) {
+        setTotalDucats(value);
+        var input = document.getElementById('tracker-total-ducats');
+        if (input) input.value = getTotalDucats();
+    },
+
+    // Increment total ducats
+    incrementTotalDucats: function() {
+        var current = getTotalDucats();
+        var newValue = Math.min(current + 1, 1000);
+        setTotalDucats(newValue);
+        var input = document.getElementById('tracker-total-ducats');
+        if (input) input.value = newValue;
+    },
+
+    // Decrement total ducats
+    decrementTotalDucats: function() {
+        var current = getTotalDucats();
+        var newValue = Math.max(current - 1, 0);
+        setTotalDucats(newValue);
+        var input = document.getElementById('tracker-total-ducats');
+        if (input) input.value = newValue;
+    },
+
     // Switch to a character
     switchCharacter: function(charId) {
         switchCharacter(charId);
@@ -449,5 +481,83 @@ window.TK = {
             tabId,
             'confirm'
         );
+    },
+
+    // === CHARACTER DRAG AND DROP ===
+    dragStartChar: function(event) {
+        dragState.draggedElement = event.target.closest('.tracker-char-tab');
+        dragState.dragType = 'char';
+        dragState.draggedElement.style.opacity = '0.5';
+        event.dataTransfer.effectAllowed = 'move';
+    },
+
+    dragOverChar: function(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+        var el = event.target.closest('.tracker-char-tab');
+        if (el && el !== dragState.draggedElement) {
+            dragState.draggedOverElement = el;
+            el.style.borderLeft = '3px solid rgba(150, 200, 255, 0.8)';
+        }
+    },
+
+    dropChar: function(event) {
+        event.preventDefault();
+        if (dragState.draggedElement && dragState.draggedOverElement && dragState.draggedElement !== dragState.draggedOverElement) {
+            var fromIndex = parseInt(dragState.draggedElement.getAttribute('data-char-index'));
+            var toIndex = parseInt(dragState.draggedOverElement.getAttribute('data-char-index'));
+            reorderCharacters(fromIndex, toIndex);
+            renderDucatTab(
+                document.getElementById('tracker-content'),
+                trackerState.ducat
+            );
+        }
+    },
+
+    dragEndChar: function(event) {
+        dragState.draggedElement.style.opacity = '1';
+        if (dragState.draggedOverElement) {
+            dragState.draggedOverElement.style.borderLeft = '';
+        }
+        dragState.draggedElement = null;
+        dragState.draggedOverElement = null;
+    },
+
+    // === FIELD DRAG AND DROP ===
+    dragStartField: function(event) {
+        dragState.draggedElement = event.target.closest('.tracker-custom-field');
+        dragState.dragType = 'field';
+        dragState.draggedElement.style.opacity = '0.5';
+        event.dataTransfer.effectAllowed = 'move';
+    },
+
+    dragOverField: function(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+        var el = event.target.closest('.tracker-custom-field');
+        if (el && el !== dragState.draggedElement) {
+            dragState.draggedOverElement = el;
+            el.style.borderTop = '2px solid rgba(150, 200, 255, 0.8)';
+        }
+    },
+
+    dropField: function(event) {
+        event.preventDefault();
+        if (dragState.draggedElement && dragState.draggedOverElement && dragState.draggedElement !== dragState.draggedOverElement) {
+            var tabId = dragState.draggedElement.getAttribute('data-tab-id');
+            var fromIndex = parseInt(dragState.draggedElement.getAttribute('data-field-index'));
+            var toIndex = parseInt(dragState.draggedOverElement.getAttribute('data-field-index'));
+            reorderFields(tabId, fromIndex, toIndex);
+            renderActiveTabContent();
+        }
+    },
+
+    dragEndField: function(event) {
+        dragState.draggedElement.style.opacity = '1';
+        if (dragState.draggedOverElement) {
+            dragState.draggedOverElement.style.borderTop = '';
+        }
+        dragState.draggedElement = null;
+        dragState.draggedOverElement = null;
     }
 };

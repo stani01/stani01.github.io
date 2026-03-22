@@ -10,7 +10,7 @@ var nextTabId = 1;
 
 // Initialize default character data for ducat
 function createDefaultCharacterData(charId, charName) {
-    var data = { id: charId, name: charName, runs: {} };
+    var data = { id: charId, name: charName, runs: {}, totalDucats: 0 };
     DUCAT_INSTANCES.forEach(function(inst) {
         data.runs[inst.id] = 0;
     });
@@ -108,6 +108,10 @@ function loadTrackerState() {
                             char.runs[inst.id] = 0;
                         }
                     });
+                    // Ensure totalDucats exists
+                    if (typeof char.totalDucats !== 'number') {
+                        char.totalDucats = 0;
+                    }
                 }
             }
             
@@ -214,6 +218,26 @@ function resetDucatRuns(charId) {
         char.runs[inst.id] = 0;
     });
     saveTrackerState();
+}
+
+// Set total ducats for specific character
+function setTotalDucats(value, charId) {
+    if (!trackerState.ducat || !trackerState.ducat.characters) return;
+    var char = charId ? trackerState.ducat.characters[charId] : trackerState.ducat.characters[trackerState.ducat.activeCharacterId];
+    if (!char) return;
+    
+    // Clamp value between 0 and 1000
+    value = Math.max(0, Math.min(parseInt(value) || 0, 1000));
+    char.totalDucats = value;
+    saveTrackerState();
+}
+
+// Get total ducats for specific character
+function getTotalDucats(charId) {
+    if (!trackerState.ducat || !trackerState.ducat.characters) return 0;
+    var char = charId ? trackerState.ducat.characters[charId] : trackerState.ducat.characters[trackerState.ducat.activeCharacterId];
+    if (!char) return 0;
+    return char.totalDucats || 0;
 }
 
 // Add a new character
@@ -328,6 +352,50 @@ function updateFieldProperties(tabId, fieldIndex, properties) {
     var field = tab.fields[fieldIndex];
     if (properties.maxValue !== undefined) field.maxValue = properties.maxValue;
     if (properties.options !== undefined) field.options = properties.options;
+    
+    saveTrackerState();
+}
+
+// Reorder characters in ducat
+function reorderCharacters(fromIndex, toIndex) {
+    if (!trackerState.ducat || !trackerState.ducat.characters) return;
+    
+    var charIds = Object.keys(trackerState.ducat.characters);
+    if (fromIndex < 0 || fromIndex >= charIds.length || toIndex < 0 || toIndex >= charIds.length) return;
+    
+    // Get the character ID to move
+    var charId = charIds[fromIndex];
+    
+    // Remove from old position
+    charIds.splice(fromIndex, 1);
+    
+    // Insert at new position
+    charIds.splice(toIndex, 0, charId);
+    
+    // Rebuild the characters object in new order
+    var newCharacters = {};
+    charIds.forEach(function(id) {
+        newCharacters[id] = trackerState.ducat.characters[id];
+    });
+    trackerState.ducat.characters = newCharacters;
+    
+    saveTrackerState();
+}
+
+// Reorder fields in custom tab
+function reorderFields(tabId, fromIndex, toIndex) {
+    var tab = trackerState[tabId];
+    if (!tab || !tab.fields || fromIndex < 0 || fromIndex >= tab.fields.length) return;
+    if (toIndex < 0 || toIndex >= tab.fields.length) return;
+    
+    // Get the field to move
+    var field = tab.fields[fromIndex];
+    
+    // Remove from old position
+    tab.fields.splice(fromIndex, 1);
+    
+    // Insert at new position
+    tab.fields.splice(toIndex, 0, field);
     
     saveTrackerState();
 }

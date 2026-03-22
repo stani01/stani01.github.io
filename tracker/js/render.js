@@ -75,9 +75,16 @@ function renderDucatTab(container, tabData) {
     html += '    <div class="tracker-char-tabs">';
 
     var characters = getAllCharacters();
-    characters.forEach(function(char) {
+    characters.forEach(function(char, index) {
         var isActive = trackerState.ducat.activeCharacterId === char.id;
         html += '        <button class="tracker-char-tab' + (isActive ? ' tracker-char-tab-active' : '') + '" ';
+        html += '                draggable="true" ';
+        html += '                data-char-id="' + char.id + '" ';
+        html += '                data-char-index="' + index + '" ';
+        html += '                ondragstart="TK.dragStartChar(event)" ';
+        html += '                ondragover="TK.dragOverChar(event)" ';
+        html += '                ondrop="TK.dropChar(event)" ';
+        html += '                ondragend="TK.dragEndChar(event)" ';
         html += '                onclick="TK.switchCharacter(\'' + char.id + '\')" ';
         html += '                title="' + char.name + '">';
         html += '            <span class="tracker-char-name" ondblclick="event.stopPropagation(); TK.openRenameCharDialog(\'' + char.id + '\')" title="Double-click to rename">' + char.name + '</span>';
@@ -118,6 +125,21 @@ function renderDucatTab(container, tabData) {
 
     html += '</div>';
 
+    // Total ducats section
+    html += '<div class="tracker-total-ducats-section">';
+    html += '    <div class="tracker-total-ducats-label">Total Ducats<img src="../assets/icons/coin_05.png"></div> ';
+    var totalDucats = getTotalDucats();
+    html += '    <div class="tracker-total-ducats-input-group">';
+    html += '        <button class="tracker-btn-minus" onclick="TK.decrementTotalDucats()">−</button>';
+    html += '        <input type="number" class="tracker-total-ducats-input" ';
+    html += '               id="tracker-total-ducats" ';
+    html += '               value="' + totalDucats + '" min="0" max="1000" ';
+    html += '               onchange="TK.setTotalDucats(this.value)" />';
+    html += '        <button class="tracker-btn-plus" onclick="TK.incrementTotalDucats()">+</button>';
+    html += '        <span class="tracker-total-ducats-max">/1000</span>';
+    html += '    </div>';
+    html += '</div>';
+
     container.innerHTML = html;
 }
 
@@ -135,9 +157,16 @@ function renderCustomTab(container, tabData) {
         html += '    <p class="tracker-empty-message">No fields yet. Click "+ Add Field" to get started.</p>';
     } else {
         tabData.fields.forEach(function(field, index) {
-            html += '    <div class="tracker-custom-field">';
+            html += '    <div class="tracker-custom-field" ';
+            html += '        draggable="true" ';
+            html += '        data-tab-id="' + tabData.id + '" ';
+            html += '        data-field-index="' + index + '" ';
+            html += '        ondragstart="TK.dragStartField(event)" ';
+            html += '        ondragover="TK.dragOverField(event)" ';
+            html += '        ondrop="TK.dropField(event)" ';
+            html += '        ondragend="TK.dragEndField(event)">';
             html += '        <div class="tracker-custom-field-header">';
-            html += '            <label>' + field.label + '</label>';
+            html += '            <label>' + field.label + ' <span class="tracker-drag-handle">⋮⋮</span></label>';
             html += '            <button class="tracker-field-delete" onclick="TK.removeField(\'' + tabData.id + '\', ' + index + ')">✕</button>';
             html += '        </div>';
 

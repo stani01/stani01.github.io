@@ -98,6 +98,20 @@
 
 .tracker-tab-remove:hover {
     color: #ff6b6b;
+}
+
+/* Draggable character tabs */
+.tracker-char-tab {
+    cursor: grab;
+}
+
+.tracker-char-tab:active {
+    cursor: grabbing;
+}
+
+.tracker-char-tab[draggable="true"]:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
     transform: scale(1.2);
 }
 
@@ -371,6 +385,76 @@
     -moz-appearance: textfield;
 }
 
+/* Total Ducats Section */
+.tracker-total-ducats-section {
+    margin-top: 30px;
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(100, 150, 255, 0.08) 0%, rgba(150, 100, 255, 0.08) 100%);
+    border: 1px solid rgba(100, 150, 255, 0.25);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tracker-total-ducats-label {
+    color: #a0a0ff;
+    font-size: 0.9em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tracker-total-ducats-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(100, 150, 255, 0.3);
+    border-radius: 6px;
+    padding: 8px;
+    max-width: fit-content;
+}
+
+.tracker-total-ducats-input {
+    width: 100px;
+    background: rgba(0, 0, 0, 0.3);
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    padding: 8px 12px;
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    transition: box-shadow 0.08s ease;
+}
+
+.tracker-total-ducats-input:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(100, 150, 255, 0.4);
+}
+
+.tracker-total-ducats-input::-webkit-outer-spin-button,
+.tracker-total-ducats-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.tracker-total-ducats-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.tracker-total-ducats-max {
+    color: #888;
+    font-size: 0.95em;
+    font-weight: 600;
+    margin-left: 4px;
+}
+
 /* ============================================
    CUSTOM TAB STYLES
    ============================================ */
@@ -423,6 +507,17 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    cursor: grab;
+    transition: background-color 0.1s ease, box-shadow 0.1s ease;
+}
+
+.tracker-custom-field:active {
+    cursor: grabbing;
+}
+
+.tracker-custom-field[draggable="true"]:hover {
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 12px rgba(100, 150, 255, 0.15);
 }
 
 .tracker-custom-field-header {
@@ -439,6 +534,20 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tracker-drag-handle {
+    color: #666;
+    font-size: 0.8em;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.tracker-custom-field:hover .tracker-drag-handle {
+    opacity: 1;
 }
 
 .tracker-field-delete {
