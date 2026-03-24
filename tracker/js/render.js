@@ -273,6 +273,38 @@ function renderCustomTab(container, tabData) {
                 }
                 html += '        </select>';
                 html += '        <button class="tracker-field-config" onclick="TK.openConfigureDropdown(\'' + tabData.id + '\', ' + index + ', \'' + field.label + '\')">⚙ Configure</button>';
+            } else if (field.type === 'checkbox') {
+                var isChecked = field.value === true;
+                html += '        <button class="tracker-field-checkbox-btn' + (isChecked ? ' checked' : '') + '"';
+                html += '                onclick="TK.toggleCheckbox(\'' + tabData.id + '\', ' + index + ')">';
+                html += '            <span class="tracker-field-cb-icon">' + (isChecked ? '✓' : '') + '</span>';
+                html += '            <span class="tracker-field-cb-label">' + (isChecked ? 'Done' : 'Not done') + '</span>';
+                html += '        </button>';
+            } else if (field.type === 'checklist') {
+                html += '        <div class="tracker-field-checklist">';
+                if (field.options && field.options.length > 0) {
+                    field.options.forEach(function(opt) {
+                        var checked = field.value && typeof field.value === 'object' && field.value[opt];
+                        html += '            <div class="tracker-field-checklist-item' + (checked ? ' checked' : '') + '"';
+                        html += '                data-tab-id="' + tabData.id + '"';
+                        html += '                data-field-index="' + index + '"';
+                        html += '                data-option-key="' + opt.replace(/"/g, '&quot;') + '"';
+                        html += '                onclick="TK.toggleChecklistItem(this)">';
+                        html += '                <span class="tracker-field-cli-check">' + (checked ? '✓' : '') + '</span>';
+                        html += '                <span class="tracker-field-cli-label">' + opt + '</span>';
+                        html += '            </div>';
+                    });
+                } else {
+                    html += '            <p class="tracker-field-info">No items yet. Click Configure to add.</p>';
+                }
+                html += '        </div>';
+                html += '        <button class="tracker-field-config" onclick="TK.openConfigureDropdown(\'' + tabData.id + '\', ' + index + ', \'' + field.label + '\')">⚙ Configure</button>';
+            } else if (field.type === 'note') {
+                var noteVal = (field.value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                html += '        <textarea class="tracker-field-textarea"';
+                html += '                data-tab-id="' + tabData.id + '"';
+                html += '                data-field-index="' + index + '"';
+                html += '                onchange="TK.updateField(this)">' + noteVal + '</textarea>';
             }
 
             html += '    </div>';

@@ -926,10 +926,6 @@
     color: #ffb0b0;
 }
 
-.tracker-modal-body {
-    padding: 24px 20px;
-}
-
 .tracker-modal-input {
     width: 100%;
     padding: 12px 16px;
@@ -1008,6 +1004,314 @@
     color: #8196bb;
     font-size: 0.78em;
 }
+
+/* ============================================
+   ADD FIELD MODAL STYLES
+   ============================================ */
+
+.tracker-modal-body {
+    padding: 24px 20px;
+    overflow-y: auto;
+    max-height: 55vh;
+}
+
+.tracker-modal-field-label {
+    display: block;
+    color: #a8b9d8;
+    font-size: 0.85em;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    margin-bottom: 6px;
+}
+
+.tracker-field-type-row {
+    margin-bottom: 14px;
+}
+
+.tracker-field-type-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tracker-field-type-btn {
+    padding: 6px 16px;
+    border: 1px solid rgba(100, 150, 255, 0.3);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.2);
+    color: #8899bb;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.tracker-field-type-btn:hover {
+    border-color: rgba(100, 150, 255, 0.5);
+    background: rgba(100, 150, 255, 0.1);
+    color: #bbccee;
+}
+
+.tracker-field-type-btn.active {
+    border-color: rgba(100, 180, 255, 0.7);
+    background: rgba(100, 150, 255, 0.2);
+    color: #c8e5ff;
+}
+
+.tracker-field-label-row,
+.tracker-field-extra-row {
+    margin-bottom: 14px;
+}
+
+.tracker-field-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.tracker-field-option-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.tracker-field-option-input {
+    flex: 1;
+    padding: 8px 12px !important;
+}
+
+.tracker-field-remove-option-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    padding: 0;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.2);
+    color: #ff8c8c;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.tracker-field-remove-option-btn:hover {
+    background: rgba(255, 107, 107, 0.2);
+    border-color: rgba(255, 107, 107, 0.4);
+    color: #ffb0b0;
+}
+
+.tracker-field-add-option-btn {
+    background: rgba(80, 160, 80, 0.1);
+    border: 1px solid rgba(80, 160, 80, 0.3);
+    color: #88cc88;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.tracker-field-add-option-btn:hover {
+    background: rgba(80, 160, 80, 0.2);
+    border-color: rgba(80, 160, 80, 0.5);
+    color: #aaddaa;
+}
+
+/* ============================================
+   SCROLLBARS — MODAL BODY & OPTION LISTS
+   ============================================ */
+
+.tracker-modal-body,
+.tracker-field-options-list {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 150, 255, 0.4) rgba(0, 0, 0, 0.15);
+}
+
+.tracker-modal-body::-webkit-scrollbar,
+.tracker-field-options-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.tracker-modal-body::-webkit-scrollbar-track,
+.tracker-field-options-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+}
+
+.tracker-modal-body::-webkit-scrollbar-thumb,
+.tracker-field-options-list::-webkit-scrollbar-thumb {
+    background: rgba(100, 150, 255, 0.4);
+    border-radius: 3px;
+}
+
+.tracker-modal-body::-webkit-scrollbar-thumb:hover,
+.tracker-field-options-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 150, 255, 0.65);
+}
+
+/* ============================================
+   CHECKBOX FIELD
+   ============================================ */
+
+.tracker-field-checkbox-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(100, 150, 255, 0.25);
+    border-radius: 8px;
+    color: #7a8faa;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.tracker-field-checkbox-btn:hover {
+    background: rgba(100, 150, 255, 0.08);
+    border-color: rgba(100, 150, 255, 0.4);
+    color: #aabbdd;
+}
+
+.tracker-field-checkbox-btn.checked {
+    background: rgba(80, 200, 120, 0.12);
+    border-color: rgba(80, 200, 120, 0.5);
+    color: #88ddaa;
+}
+
+.tracker-field-checkbox-btn.checked:hover {
+    background: rgba(80, 200, 120, 0.2);
+    border-color: rgba(80, 200, 120, 0.7);
+}
+
+.tracker-field-cb-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 1px solid rgba(100, 150, 255, 0.35);
+    background: rgba(0, 0, 0, 0.2);
+    font-size: 0.85em;
+    color: #88ddaa;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.tracker-field-checkbox-btn.checked .tracker-field-cb-icon {
+    background: rgba(80, 200, 120, 0.25);
+    border-color: rgba(80, 200, 120, 0.6);
+}
+
+/* ============================================
+   CHECKLIST FIELD
+   ============================================ */
+
+.tracker-field-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.tracker-field-checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(100, 150, 255, 0.15);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.1s ease, border-color 0.1s ease;
+    user-select: none;
+}
+
+.tracker-field-checklist-item:hover {
+    background: rgba(100, 150, 255, 0.07);
+    border-color: rgba(100, 150, 255, 0.3);
+}
+
+.tracker-field-checklist-item.checked {
+    background: rgba(80, 200, 120, 0.08);
+    border-color: rgba(80, 200, 120, 0.35);
+}
+
+.tracker-field-checklist-item.checked:hover {
+    background: rgba(80, 200, 120, 0.15);
+    border-color: rgba(80, 200, 120, 0.5);
+}
+
+.tracker-field-cli-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border-radius: 4px;
+    border: 1px solid rgba(100, 150, 255, 0.3);
+    background: rgba(0, 0, 0, 0.2);
+    font-size: 0.78em;
+    color: #88ddaa;
+    transition: background 0.1s ease, border-color 0.1s ease;
+}
+
+.tracker-field-checklist-item.checked .tracker-field-cli-check {
+    background: rgba(80, 200, 120, 0.25);
+    border-color: rgba(80, 200, 120, 0.6);
+}
+
+.tracker-field-cli-label {
+    color: #b8c8de;
+    font-size: 0.92em;
+}
+
+.tracker-field-checklist-item.checked .tracker-field-cli-label {
+    color: #88ddaa;
+}
+
+/* ============================================
+   NOTE FIELD (TEXTAREA)
+   ============================================ */
+
+.tracker-field-textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(100, 150, 255, 0.25);
+    border-radius: 8px;
+    color: #c8d8ee;
+    font-size: 0.92em;
+    font-family: inherit;
+    resize: vertical;
+    box-sizing: border-box;
+    transition: border-color 0.1s ease, box-shadow 0.1s ease;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 150, 255, 0.35) rgba(0, 0, 0, 0.15);
+}
+
+.tracker-field-textarea:focus {
+    outline: none;
+    border-color: rgba(100, 150, 255, 0.5);
+    box-shadow: 0 0 10px rgba(100, 150, 255, 0.15);
+}
+
+.tracker-field-textarea::placeholder {
+    color: #556;
+}
+
+.tracker-field-textarea::-webkit-scrollbar { width: 5px; }
+.tracker-field-textarea::-webkit-scrollbar-track { background: rgba(0,0,0,0.15); border-radius: 3px; }
+.tracker-field-textarea::-webkit-scrollbar-thumb { background: rgba(100,150,255,0.35); border-radius: 3px; }
+.tracker-field-textarea::-webkit-scrollbar-thumb:hover { background: rgba(100,150,255,0.6); }
 
 .tracker-modal-footer {
     display: flex;

@@ -365,17 +365,39 @@ function updateCustomField(tabId, fieldIndex, value) {
 function addFieldToTab(tabId, fieldType, fieldLabel, maxValue, options) {
     var tab = trackerState[tabId];
     if (!tab || tab.isDefault) return;
-    
+
+    var defaultValue = '';
+    if (fieldType === 'checkbox') defaultValue = false;
+    else if (fieldType === 'checklist') defaultValue = {};
+
     var field = {
         id: 'field-' + Date.now(),
-        type: fieldType, // 'text', 'number', 'dropdown'
+        type: fieldType, // 'text', 'number', 'dropdown', 'checkbox', 'checklist', 'note'
         label: fieldLabel,
-        value: '',
-        maxValue: maxValue || null, // For number fields
-        options: options || [] // For dropdown fields
+        value: defaultValue,
+        maxValue: maxValue || null,
+        options: options || []
     };
-    
+
     tab.fields.push(field);
+    saveTrackerState();
+}
+
+// Toggle a checkbox field
+function toggleCheckboxField(tabId, fieldIndex) {
+    var tab = trackerState[tabId];
+    if (!tab || tab.isDefault || fieldIndex < 0 || fieldIndex >= tab.fields.length) return;
+    tab.fields[fieldIndex].value = !tab.fields[fieldIndex].value;
+    saveTrackerState();
+}
+
+// Toggle one item in a checklist field
+function toggleChecklistItem(tabId, fieldIndex, optionKey) {
+    var tab = trackerState[tabId];
+    if (!tab || tab.isDefault || fieldIndex < 0 || fieldIndex >= tab.fields.length) return;
+    var field = tab.fields[fieldIndex];
+    if (!field.value || typeof field.value !== 'object') field.value = {};
+    field.value[optionKey] = !field.value[optionKey];
     saveTrackerState();
 }
 
