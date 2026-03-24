@@ -10,7 +10,7 @@ var nextTabId = 1;
 
 // Initialize default character data for ducat
 function createDefaultCharacterData(charId, charName) {
-    var data = { id: charId, name: charName, runs: {}, totalDucats: 0 };
+    var data = { id: charId, name: charName, classKey: 'gladiator', runs: {}, totalDucats: 0 };
     DUCAT_INSTANCES.forEach(function(inst) {
         data.runs[inst.id] = 0;
     });
@@ -111,6 +111,10 @@ function loadTrackerState() {
                     // Ensure totalDucats exists
                     if (typeof char.totalDucats !== 'number') {
                         char.totalDucats = 0;
+                    }
+                    // Ensure classKey exists and is valid
+                    if (typeof char.classKey !== 'string' || !isValidCharacterClass(char.classKey)) {
+                        char.classKey = 'gladiator';
                     }
                 }
             }
@@ -286,6 +290,37 @@ function renameCharacter(charId, newName) {
     if (!trackerState.ducat.characters[charId]) return false;
     
     trackerState.ducat.characters[charId].name = newName;
+    saveTrackerState();
+    return true;
+}
+
+function getCharacterClassKeys() {
+    if (typeof CLASS_ORDER !== 'undefined' && Array.isArray(CLASS_ORDER) && CLASS_ORDER.length > 0) {
+        return CLASS_ORDER.slice();
+    }
+    if (typeof CLASS_DATA !== 'undefined' && CLASS_DATA && typeof CLASS_DATA === 'object') {
+        return Object.keys(CLASS_DATA);
+    }
+    return ['gladiator'];
+}
+
+function isValidCharacterClass(classKey) {
+    return getCharacterClassKeys().indexOf(classKey) !== -1;
+}
+
+function getCharacterClass(charId) {
+    if (!trackerState.ducat || !trackerState.ducat.characters) return 'gladiator';
+    var char = trackerState.ducat.characters[charId] || trackerState.ducat.characters[trackerState.ducat.activeCharacterId];
+    if (!char || !isValidCharacterClass(char.classKey)) return 'gladiator';
+    return char.classKey;
+}
+
+function setCharacterClass(charId, classKey) {
+    if (!trackerState.ducat || !trackerState.ducat.characters) return false;
+    if (!trackerState.ducat.characters[charId]) return false;
+    if (!isValidCharacterClass(classKey)) return false;
+
+    trackerState.ducat.characters[charId].classKey = classKey;
     saveTrackerState();
     return true;
 }

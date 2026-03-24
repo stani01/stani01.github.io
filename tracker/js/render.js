@@ -1,5 +1,54 @@
 'use strict';
 
+function getTrackerClassData(classKey) {
+    if (typeof CLASS_DATA !== 'undefined' && CLASS_DATA && CLASS_DATA[classKey]) {
+        return CLASS_DATA[classKey];
+    }
+    return { name: 'Unknown', icon: '../assets/icons/icon_frame_2.png' };
+}
+
+function getCharacterClassInfo(charId) {
+    var classKey = getCharacterClass(charId);
+    var classData = getTrackerClassData(classKey);
+    return {
+        key: classKey,
+        name: classData.name,
+        icon: classData.icon
+    };
+}
+
+function refreshDucatOverview() {
+    var overview = document.querySelector('.tracker-ducat-overview');
+    if (!overview) return;
+
+    var characters = getAllCharacters();
+    if (characters.length === 0) return;
+
+    var lowestDucats = Math.min.apply(null, characters.map(function(char) { return getTotalDucats(char.id); }));
+    characters.forEach(function(char) {
+        var pill = overview.querySelector('[data-char-id="' + char.id + '"]');
+        if (!pill) return;
+
+        var charDucats = getTotalDucats(char.id);
+        var classInfo = getCharacterClassInfo(char.id);
+        var needsFarm = characters.length > 1 && charDucats === lowestDucats;
+        var isActive = trackerState.ducat.activeCharacterId === char.id;
+
+        var ducatValueEl = pill.querySelector('.tracker-ducat-pill-value');
+        if (ducatValueEl) ducatValueEl.textContent = charDucats;
+
+        var classIconEl = pill.querySelector('.tracker-ducat-pill-class-icon');
+        if (classIconEl) {
+            classIconEl.src = classInfo.icon;
+            classIconEl.alt = classInfo.name;
+        }
+
+        pill.classList.toggle('tracker-ducat-pill-low', needsFarm);
+        pill.classList.toggle('tracker-ducat-pill-active', isActive);
+        pill.setAttribute('data-char-name', char.name);
+    });
+}
+
 function renderAll() {
     renderTabs();
     renderActiveTabContent();
@@ -64,9 +113,30 @@ function renderActiveTabContent() {
 
 function renderDucatTab(container, tabData) {
     var html = '';
+    var characters = getAllCharacters();
+    var lowestDucats = characters.length > 0
+        ? Math.min.apply(null, characters.map(function(char) { return getTotalDucats(char.id); }))
+        : 0;
 
     html += '<div class="tracker-ducat-header">';
-    html += '    <h2>Ducat Tracking</h2>';
+    html += '    <div class="tracker-ducat-header-main">';
+    html += '        <h2>Ducat Tracking</h2>';
+    html += '        <div class="tracker-ducat-overview">';
+    characters.forEach(function(char) {
+        var classInfo = getCharacterClassInfo(char.id);
+        var charDucats = getTotalDucats(char.id);
+        var isActive = trackerState.ducat.activeCharacterId === char.id;
+        var needsFarm = characters.length > 1 && charDucats === lowestDucats;
+        html += '            <div class="tracker-ducat-pill' + (isActive ? ' tracker-ducat-pill-active' : '') + (needsFarm ? ' tracker-ducat-pill-low' : '') + '" data-char-id="' + char.id + '" data-char-name="' + char.name + '">';
+        html += '                <span class="tracker-ducat-pill-class-btn">';
+        html += '                    <img src="' + classInfo.icon + '" class="tracker-ducat-pill-class-icon" alt="' + classInfo.name + '">';
+        html += '                </span>';
+        html += '                <img src="../assets/icons/coin_05.png" class="tracker-ducat-pill-icon" alt="">';
+        html += '                <span class="tracker-ducat-pill-value">' + charDucats + '</span>';
+        html += '            </div>';
+    });
+    html += '        </div>';
+    html += '    </div>';
     html += '    <button class="tracker-reset-all-btn" onclick="TK.resetDucatChar()" title="Reset all runs to 0">🔄 Reset All</button>';
     html += '</div>';
 
@@ -74,8 +144,8 @@ function renderDucatTab(container, tabData) {
     html += '<div class="tracker-char-tabs-wrapper">';
     html += '    <div class="tracker-char-tabs">';
 
-    var characters = getAllCharacters();
     characters.forEach(function(char, index) {
+        var charClassInfo = getCharacterClassInfo(char.id);
         var isActive = trackerState.ducat.activeCharacterId === char.id;
         html += '        <button class="tracker-char-tab' + (isActive ? ' tracker-char-tab-active' : '') + '" ';
         html += '                draggable="true" ';
@@ -87,6 +157,9 @@ function renderDucatTab(container, tabData) {
         html += '                ondragend="TK.dragEndChar(event)" ';
         html += '                onclick="TK.switchCharacter(\'' + char.id + '\')" ';
         html += '                title="' + char.name + '">';
+        html += '            <span class="tracker-char-class-btn" onclick="event.stopPropagation(); TK.openClassDialog(\'' + char.id + '\')" title="Class: ' + charClassInfo.name + '">';
+        html += '                <img src="' + charClassInfo.icon + '" class="tracker-char-class-icon" alt="' + charClassInfo.name + '">';
+        html += '            </span>';
         html += '            <span class="tracker-char-name" ondblclick="event.stopPropagation(); TK.openRenameCharDialog(\'' + char.id + '\')" title="Double-click to rename">' + char.name + '</span>';
         if (characters.length > 1) {
             html += '            <span class="tracker-char-remove" onclick="event.stopPropagation(); TK.removeCharacter(\'' + char.id + '\')">✕</span>';

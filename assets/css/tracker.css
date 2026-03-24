@@ -149,15 +149,115 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
     margin-bottom: 25px;
     padding-bottom: 15px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tracker-ducat-header-main {
+    min-width: 0;
+    flex: 1;
 }
 
 .tracker-ducat-header h2 {
     color: #fff;
     font-size: 1.8em;
     margin: 0;
+}
+
+.tracker-ducat-overview {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tracker-ducat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.04);
+    color: #bcd4f3;
+    border-radius: 999px;
+    padding: 5px 9px;
+    font-size: 0.8em;
+    line-height: 1;
+    cursor: default;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    min-width: 78px;
+}
+
+.tracker-ducat-pill::after {
+    content: attr(data-char-name);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 6px);
+    transform: translateX(-50%);
+    background: rgba(8, 12, 26, 0.96);
+    border: 1px solid rgba(150, 190, 255, 0.35);
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: #eaf3ff;
+    font-size: 0.78em;
+    font-weight: 600;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.08s ease, visibility 0.08s ease;
+    z-index: 8;
+}
+
+.tracker-ducat-pill:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tracker-ducat-pill:hover {
+    border-color: rgba(160, 205, 255, 0.35);
+    background: rgba(140, 190, 255, 0.08);
+}
+
+.tracker-ducat-pill-active {
+    border-color: rgba(140, 190, 255, 0.45);
+    background: rgba(140, 190, 255, 0.15);
+}
+
+.tracker-ducat-pill-low {
+    border-color: rgba(255, 190, 90, 0.45);
+}
+
+.tracker-ducat-pill-class-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.tracker-ducat-pill-class-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tracker-ducat-pill-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.tracker-ducat-pill-value {
+    color: #ffdd82;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
 }
 
 .tracker-reset-all-btn {
@@ -177,6 +277,21 @@
     border-color: rgba(255, 107, 107, 0.6);
     color: #ffb0b0;
     box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+}
+
+@media (max-width: 720px) {
+    .tracker-ducat-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tracker-reset-all-btn {
+        width: 100%;
+    }
+
+    .tracker-ducat-pill {
+        max-width: none;
+    }
 }
 
 /* ============================================
@@ -211,6 +326,32 @@
     transition: all 0.2s ease;
     position: relative;
     max-width: 140px;
+}
+
+.tracker-char-class-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(170, 210, 255, 0.35);
+    background: rgba(15, 25, 50, 0.55);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tracker-char-class-btn:hover {
+    border-color: rgba(170, 210, 255, 0.7);
+    box-shadow: 0 0 8px rgba(110, 175, 255, 0.3);
+}
+
+.tracker-char-class-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .tracker-char-name {

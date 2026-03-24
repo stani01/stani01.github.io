@@ -6,6 +6,7 @@ var modalState = {
     charId: null,
     tabId: null,
     currentValue: '',
+    selectOptions: [],
     fieldType: null,
     fieldLabel: null,
     fieldMaxValue: null,
@@ -20,8 +21,9 @@ var dragState = {
     dragType: null // 'char' or 'field'
 };
 
-function showModal(title, placeholder, currentValue, action, charId, tabId, modalType) {
+function showModal(title, placeholder, currentValue, action, charId, tabId, modalType, selectOptions) {
     modalType = modalType || 'input';
+    selectOptions = selectOptions || [];
     
     var bodyEl = document.getElementById('tracker-modal-body');
     var footerEl = document.getElementById('tracker-modal-footer');
@@ -41,6 +43,30 @@ function showModal(title, placeholder, currentValue, action, charId, tabId, moda
         bodyEl.appendChild(msg);
         cancelBtn.style.display = 'none';
         confirmBtn.textContent = 'OK';
+    } else if (modalType === 'select') {
+        var selectEl = document.createElement('select');
+        selectEl.className = 'tracker-modal-input';
+        selectEl.id = 'tracker-modal-select';
+
+        selectOptions.forEach(function(opt) {
+            var optionEl = document.createElement('option');
+            optionEl.value = opt.value;
+            optionEl.textContent = opt.label;
+            if (opt.value === currentValue) optionEl.selected = true;
+            selectEl.appendChild(optionEl);
+        });
+
+        bodyEl.appendChild(selectEl);
+
+        requestAnimationFrame(function() {
+            selectEl.focus();
+            selectEl.onkeypress = function(e) {
+                if (e.key === 'Enter') processModalConfirm();
+            };
+        });
+
+        cancelBtn.style.display = '';
+        confirmBtn.textContent = 'Confirm';
     } else {
         // Input modal
         var input = document.createElement('input');
@@ -68,6 +94,7 @@ function showModal(title, placeholder, currentValue, action, charId, tabId, moda
     modalState.charId = charId;
     modalState.tabId = tabId;
     modalState.currentValue = currentValue;
+    modalState.selectOptions = selectOptions;
     modalState.modalType = modalType;
     
     // Show modal (will trigger CSS animation once)
@@ -86,9 +113,15 @@ function processModalConfirm() {
         TK.closeModal();
         return;
     }
-    
-    var input = document.getElementById('tracker-modal-input');
-    var value = input ? input.value.trim() : '';
+
+    var value = '';
+    if (modalState.modalType === 'select') {
+        var selectEl = document.getElementById('tracker-modal-select');
+        value = selectEl ? selectEl.value : '';
+    } else {
+        var input = document.getElementById('tracker-modal-input');
+        value = input ? input.value.trim() : '';
+    }
     
     if (!value && modalState.action !== 'rename-character') {
         showModalError('Please enter a value');
@@ -125,6 +158,18 @@ function processModalAction(value) {
                 TK.closeModal();
             } else {
                 TK.closeModal();
+            }
+            break;
+
+        case 'set-character-class':
+            if (setCharacterClass(modalState.charId, value)) {
+                renderDucatTab(
+                    document.getElementById('tracker-content'),
+                    trackerState.ducat
+                );
+                TK.closeModal();
+            } else {
+                showModalError('Please choose a valid class');
             }
             break;
         
@@ -267,7 +312,7 @@ window.TK = {
         
         // Reset state
         modalState = { 
-            action: null, charId: null, tabId: null, currentValue: '', 
+            action: null, charId: null, tabId: null, currentValue: '', selectOptions: [],
             fieldType: null, fieldLabel: null, fieldMaxValue: null, fieldOptions: [],
             modalType: 'input'
         };
@@ -319,6 +364,7 @@ window.TK = {
         setTotalDucats(value);
         var input = document.getElementById('tracker-total-ducats');
         if (input) input.value = getTotalDucats();
+        refreshDucatOverview();
     },
 
     // Increment total ducats
@@ -328,6 +374,7 @@ window.TK = {
         setTotalDucats(newValue);
         var input = document.getElementById('tracker-total-ducats');
         if (input) input.value = newValue;
+        refreshDucatOverview();
     },
 
     // Decrement total ducats
@@ -337,6 +384,7 @@ window.TK = {
         setTotalDucats(newValue);
         var input = document.getElementById('tracker-total-ducats');
         if (input) input.value = newValue;
+        refreshDucatOverview();
     },
 
     // Switch to a character
@@ -390,6 +438,30 @@ window.TK = {
             charId,
             null,
             'input'
+        );
+    },
+
+    // Pick class for a character
+    openClassDialog: function(charId) {
+        var char = trackerState.ducat.characters[charId];
+        if (!char) return;
+
+        var classOptions = getCharacterClassKeys().map(function(classKey) {
+            var classData = (typeof CLASS_DATA !== 'undefined' && CLASS_DATA && CLASS_DATA[classKey])
+                ? CLASS_DATA[classKey]
+                : { name: classKey };
+            return { value: classKey, label: classData.name };
+        });
+
+        showModal(
+            'Choose Class for ' + char.name,
+            '',
+            getCharacterClass(charId),
+            'set-character-class',
+            charId,
+            null,
+            'select',
+            classOptions
         );
     },
 
