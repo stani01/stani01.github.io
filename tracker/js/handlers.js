@@ -43,6 +43,70 @@ function showModal(title, placeholder, currentValue, action, charId, tabId, moda
         bodyEl.appendChild(msg);
         cancelBtn.style.display = 'none';
         confirmBtn.textContent = 'OK';
+    } else if (modalType === 'add-character') {
+        var nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.className = 'tracker-modal-input';
+        nameInput.id = 'tracker-modal-input';
+        nameInput.placeholder = placeholder || '';
+        nameInput.value = currentValue || '';
+        bodyEl.appendChild(nameInput);
+
+        var classRow = document.createElement('div');
+        classRow.className = 'tracker-modal-class-row';
+
+        var classLabel = document.createElement('label');
+        classLabel.className = 'tracker-modal-class-label';
+        classLabel.textContent = 'Class';
+        classRow.appendChild(classLabel);
+
+        var classPicker = document.createElement('div');
+        classPicker.className = 'tracker-modal-class-picker';
+        classPicker.id = 'tracker-modal-class-picker';
+
+        selectOptions.forEach(function(opt) {
+            var classData = getTrackerClassData(opt.value);
+            var optionEl = document.createElement('span');
+            optionEl.className = 'tracker-modal-class-option';
+            optionEl.setAttribute('data-class-key', opt.value);
+            optionEl.setAttribute('title', classData.name);
+            optionEl.onclick = function(e) {
+                TK.selectModalCharacterClass(e, opt.value);
+            };
+
+            var iconEl = document.createElement('img');
+            iconEl.className = 'tracker-modal-class-option-icon';
+            iconEl.src = classData.icon;
+            iconEl.alt = classData.name;
+            optionEl.appendChild(iconEl);
+
+            classPicker.appendChild(optionEl);
+        });
+
+        classRow.appendChild(classPicker);
+
+        var classValueInput = document.createElement('input');
+        classValueInput.type = 'hidden';
+        classValueInput.id = 'tracker-modal-class-value';
+        classValueInput.value = '';
+        classRow.appendChild(classValueInput);
+
+        var classHint = document.createElement('div');
+        classHint.className = 'tracker-modal-class-hint';
+        classHint.textContent = 'Default - Gladiator';
+        classRow.appendChild(classHint);
+
+        bodyEl.appendChild(classRow);
+
+        requestAnimationFrame(function() {
+            nameInput.focus();
+            nameInput.onkeypress = function(e) {
+                if (e.key === 'Enter') processModalConfirm();
+            };
+        });
+
+        cancelBtn.style.display = '';
+        confirmBtn.textContent = 'Confirm';
     } else if (modalType === 'select') {
         var selectEl = document.createElement('select');
         selectEl.className = 'tracker-modal-input';
@@ -137,6 +201,10 @@ function processModalAction(value) {
         case 'add-character':
             var charId = addCharacter(value);
             if (charId) {
+                var classValueInput = document.getElementById('tracker-modal-class-value');
+                if (classValueInput && classValueInput.value) {
+                    setCharacterClass(charId, classValueInput.value);
+                }
                 switchCharacter(charId);
                 renderDucatTab(
                     document.getElementById('tracker-content'),
@@ -161,18 +229,6 @@ function processModalAction(value) {
             }
             break;
 
-        case 'set-character-class':
-            if (setCharacterClass(modalState.charId, value)) {
-                renderDucatTab(
-                    document.getElementById('tracker-content'),
-                    trackerState.ducat
-                );
-                TK.closeModal();
-            } else {
-                showModalError('Please choose a valid class');
-            }
-            break;
-        
         case 'add-field-type':
             if (['text', 'number', 'dropdown'].indexOf(value.toLowerCase()) !== -1) {
                 modalState.fieldType = value.toLowerCase();
@@ -396,8 +452,34 @@ window.TK = {
         );
     },
 
+    // Select class in Add Character modal (second click clears selection)
+    selectModalCharacterClass: function(event, classKey) {
+        if (event) event.stopPropagation();
+
+        var classValueInput = document.getElementById('tracker-modal-class-value');
+        var classPicker = document.getElementById('tracker-modal-class-picker');
+        if (!classValueInput || !classPicker) return;
+
+        var isSameSelection = classValueInput.value === classKey;
+        classValueInput.value = isSameSelection ? '' : classKey;
+
+        classPicker.querySelectorAll('.tracker-modal-class-option').forEach(function(optionEl) {
+            optionEl.classList.remove('tracker-modal-class-option-active');
+        });
+
+        if (!isSameSelection) {
+            var selectedEl = classPicker.querySelector('[data-class-key="' + classKey + '"]');
+            if (selectedEl) selectedEl.classList.add('tracker-modal-class-option-active');
+        }
+    },
+
     // Add a new character
     openAddCharDialog: function() {
+        var classOptions = getCharacterClassKeys().map(function(classKey) {
+            var classData = getTrackerClassData(classKey);
+            return { value: classKey, label: classData.name };
+        });
+
         showModal(
             'Add Character',
             'Character ' + (Object.keys(trackerState.ducat.characters).length + 1),
@@ -405,7 +487,8 @@ window.TK = {
             'add-character',
             null,
             null,
-            'input'
+            'add-character',
+            classOptions
         );
     },
 
@@ -441,28 +524,33 @@ window.TK = {
         );
     },
 
-    // Pick class for a character
-    openClassDialog: function(charId) {
-        var char = trackerState.ducat.characters[charId];
-        if (!char) return;
+    // Toggle inline class menu for a character tab
+    toggleClassMenu: function(event, charId) {
+        var menu = document.getElementById('tracker-class-menu-' + charId);
+        if (!menu) return;
 
-        var classOptions = getCharacterClassKeys().map(function(classKey) {
-            var classData = (typeof CLASS_DATA !== 'undefined' && CLASS_DATA && CLASS_DATA[classKey])
-                ? CLASS_DATA[classKey]
-                : { name: classKey };
-            return { value: classKey, label: classData.name };
+        var shouldOpen = !menu.classList.contains('tracker-char-class-menu-active');
+        TK.closeClassMenus();
+        if (shouldOpen) {
+            menu.classList.add('tracker-char-class-menu-active');
+        }
+    },
+
+    // Close all inline class menus
+    closeClassMenus: function() {
+        document.querySelectorAll('.tracker-char-class-menu-active').forEach(function(menu) {
+            menu.classList.remove('tracker-char-class-menu-active');
         });
+    },
 
-        showModal(
-            'Choose Class for ' + char.name,
-            '',
-            getCharacterClass(charId),
-            'set-character-class',
-            charId,
-            null,
-            'select',
-            classOptions
+    // Set class from inline icon menu
+    selectCharacterClass: function(charId, classKey) {
+        if (!setCharacterClass(charId, classKey)) return;
+        renderDucatTab(
+            document.getElementById('tracker-content'),
+            trackerState.ducat
         );
+        TK.closeClassMenus();
     },
 
     // Update custom field value and save to localStorage
@@ -633,3 +721,9 @@ window.TK = {
         dragState.draggedOverElement = null;
     }
 };
+
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.tracker-char-class-menu') && !event.target.closest('.tracker-char-class-btn')) {
+        TK.closeClassMenus();
+    }
+});

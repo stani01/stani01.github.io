@@ -110,8 +110,8 @@
 }
 
 .tracker-char-tab[draggable="true"]:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: scale(1.2);
+    background: rgba(115, 165, 235, 0.14);
+    border-color: rgba(125, 175, 245, 0.32);
 }
 
 .tracker-tab-add {
@@ -339,12 +339,61 @@
     justify-content: center;
     flex-shrink: 0;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .tracker-char-class-btn:hover {
-    border-color: rgba(170, 210, 255, 0.7);
-    box-shadow: 0 0 8px rgba(110, 175, 255, 0.3);
+    border-color: rgba(170, 210, 255, 0.55);
+    background: rgba(25, 40, 72, 0.7);
+}
+
+.tracker-char-class-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 8px;
+    display: none;
+    grid-template-columns: repeat(6, 24px);
+    gap: 6px;
+    padding: 8px;
+    background: rgba(10, 16, 36, 0.97);
+    border: 1px solid rgba(140, 190, 255, 0.35);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    z-index: 40;
+}
+
+.tracker-char-class-menu-active {
+    display: grid;
+}
+
+.tracker-char-class-option {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(170, 210, 255, 0.25);
+    background: rgba(17, 30, 58, 0.75);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.tracker-char-class-option:hover {
+    border-color: rgba(170, 210, 255, 0.5);
+    background: rgba(28, 45, 80, 0.8);
+}
+
+.tracker-char-class-option-active {
+    border-color: rgba(255, 218, 120, 0.8);
+    box-shadow: 0 0 8px rgba(255, 218, 120, 0.28);
+}
+
+.tracker-char-class-option-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .tracker-char-class-icon {
@@ -363,14 +412,13 @@
 }
 
 .tracker-char-name:hover {
-    opacity: 0.8;
-    text-decoration: underline;
+    opacity: 0.92;
 }
 
 .tracker-char-tab:hover {
-    background: rgba(100, 150, 255, 0.2);
-    border-color: rgba(100, 150, 255, 0.4);
-    color: #c8e5ff;
+    background: rgba(110, 160, 230, 0.14);
+    border-color: rgba(120, 170, 240, 0.34);
+    color: #b8ddff;
 }
 
 .tracker-char-tab-active {
@@ -903,6 +951,62 @@
 
 .tracker-modal-input::placeholder {
     color: #666;
+}
+
+.tracker-modal-class-row {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tracker-modal-class-label {
+    color: #a8b9d8;
+    font-size: 0.85em;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+.tracker-modal-class-picker {
+    display: grid;
+    grid-template-columns: repeat(6, 28px);
+    gap: 8px;
+    justify-content: start;
+}
+
+.tracker-modal-class-option {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(170, 210, 255, 0.3);
+    background: rgba(17, 30, 58, 0.75);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.tracker-modal-class-option:hover {
+    border-color: rgba(170, 210, 255, 0.5);
+    background: rgba(28, 45, 80, 0.8);
+}
+
+.tracker-modal-class-option-active {
+    border-color: rgba(255, 218, 120, 0.85);
+    box-shadow: 0 0 8px rgba(255, 218, 120, 0.3);
+}
+
+.tracker-modal-class-option-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.tracker-modal-class-hint {
+    color: #8196bb;
+    font-size: 0.78em;
 }
 
 .tracker-modal-footer {

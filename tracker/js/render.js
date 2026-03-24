@@ -146,6 +146,7 @@ function renderDucatTab(container, tabData) {
 
     characters.forEach(function(char, index) {
         var charClassInfo = getCharacterClassInfo(char.id);
+        var classKeys = getCharacterClassKeys();
         var isActive = trackerState.ducat.activeCharacterId === char.id;
         html += '        <button class="tracker-char-tab' + (isActive ? ' tracker-char-tab-active' : '') + '" ';
         html += '                draggable="true" ';
@@ -157,9 +158,18 @@ function renderDucatTab(container, tabData) {
         html += '                ondragend="TK.dragEndChar(event)" ';
         html += '                onclick="TK.switchCharacter(\'' + char.id + '\')" ';
         html += '                title="' + char.name + '">';
-        html += '            <span class="tracker-char-class-btn" onclick="event.stopPropagation(); TK.openClassDialog(\'' + char.id + '\')" title="Class: ' + charClassInfo.name + '">';
+        html += '            <span class="tracker-char-class-btn" onclick="event.stopPropagation(); TK.toggleClassMenu(event, \'' + char.id + '\')" title="Class: ' + charClassInfo.name + '">';
         html += '                <img src="' + charClassInfo.icon + '" class="tracker-char-class-icon" alt="' + charClassInfo.name + '">';
         html += '            </span>';
+        html += '            <div class="tracker-char-class-menu" id="tracker-class-menu-' + char.id + '" onclick="event.stopPropagation()">';
+        classKeys.forEach(function(classKey) {
+            var classData = getTrackerClassData(classKey);
+            var isCurrentClass = classKey === charClassInfo.key;
+            html += '                <span class="tracker-char-class-option' + (isCurrentClass ? ' tracker-char-class-option-active' : '') + '" onclick="event.stopPropagation(); TK.selectCharacterClass(\'' + char.id + '\', \'' + classKey + '\')" title="' + classData.name + '">';
+            html += '                    <img src="' + classData.icon + '" class="tracker-char-class-option-icon" alt="' + classData.name + '">';
+            html += '                </span>';
+        });
+        html += '            </div>';
         html += '            <span class="tracker-char-name" ondblclick="event.stopPropagation(); TK.openRenameCharDialog(\'' + char.id + '\')" title="Double-click to rename">' + char.name + '</span>';
         if (characters.length > 1) {
             html += '            <span class="tracker-char-remove" onclick="event.stopPropagation(); TK.removeCharacter(\'' + char.id + '\')">✕</span>';
