@@ -13,8 +13,8 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="../assets/css/common.css?v=3.0">
-    <link rel="stylesheet" href="../assets/css/enchanting.css?v=3.0">
+    <link rel="stylesheet" href="../assets/css/common.css?v=4.0">
+    <link rel="stylesheet" href="../assets/css/enchanting.css?v=4.0">
 </head>
 <body class="page-calculator">
 
@@ -34,6 +34,7 @@
                 <img src="../assets/icons/icon_item_equip_odian_green_03.png" alt="Odian" class="tab-icon">
             </button>
             <button class="tab-btn" onclick="switchTab('oath')"><img src="../assets/icons/icon_item_equipment_skill_stone.png" alt="Pledge" class="tab-label-icon"> Ultimate Oath</button>
+            <button class="tab-btn" onclick="switchTab('stigma')"><img src="../assets/icons/icon_item_matter_enchant_stigma_01.png" alt="Stigma" class="tab-label-icon"> Stigma</button>
         </div>
 
         <!-- EXTREME GEAR TAB -->
@@ -234,7 +235,7 @@
                         <label for="oath-option">📍 Target Result</label>
                         <div id="oath-option-container" class="oath-dropdown-container">
                             <button id="oath-option-btn" type="button" onclick="toggleOathDropdown()" class="oath-dropdown-btn">
-                                <img id="oath-option-btn-icon" src="" alt="" class="oath-btn-icon">
+                                <img id="oath-option-btn-icon" src="" alt="" class="oath-btn-icon" style="display:none">
                                 <span id="oath-option-btn-text">-- Choose item type first --</span>
                             </button>
                             <div id="oath-option-dropdown" class="oath-dropdown-list" style="display: none;">
@@ -265,6 +266,62 @@
 
                 <div class="output-container output-container-full" id="oath-output">
                     <div class="output-line header">Select an item type and skill to begin...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STIGMA TAB -->
+        <div id="stigma" class="tab-content">
+            <div class="simulator-panel">
+                <div class="sim-panel-header">
+                    <div class="simulator-info">
+                        <strong>Stigma Enchanting</strong><br>
+                        Simulate enchanting a stigma from start to end level. On failure the level drops by 1 (floor +0), but there is a chance to keep the current level. On success, a critical hit may advance the stigma by +2 or +3.
+                    </div>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label for="stigma-start">📍 Start Level</label>
+                        <select id="stigma-start" onchange="updateStigmaEnd()">
+                            <option value="0" selected>Level 0</option>
+                            <option value="1">Level 1</option>
+                            <option value="2">Level 2</option>
+                            <option value="3">Level 3</option>
+                            <option value="4">Level 4</option>
+                            <option value="5">Level 5</option>
+                            <option value="6">Level 6</option>
+                            <option value="7">Level 7</option>
+                            <option value="8">Level 8</option>
+                            <option value="9">Level 9</option>
+                            <option value="10">Level 10</option>
+                            <option value="11">Level 11</option>
+                            <option value="12">Level 12</option>
+                            <option value="13">Level 13</option>
+                            <option value="14">Level 14</option>
+                            <option value="15">Level 15</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="stigma-end">🏁 End Level</label>
+                        <select id="stigma-end" onchange="saveStigmaEnd()">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="sim-button" onclick="runStigmaSimulation()"><img src="../assets/icons/icon_item_matter_enchant_stigma_01.png" alt="Stigma Stone" class="sim-btn-icon"> Run Simulation</button>
+                    <button id="stigma-event-btn" class="event-toggle-btn" onclick="toggleStigmaEvent()">🎉 Event OFF</button>
+                    <button class="clear-button" onclick="clearStigmaOutput()">Clear Output</button>
+                    <button class="info-button" onclick="toggleRates('stigma')" title="Show stigma enchantment rates">ℹ️ Rates</button>
+                </div>
+
+                <div class="enchant-loading-bar" id="stigma-loading"></div>
+
+                <div class="output-container" id="stigma-output">
+                    <div class="output-line header">Output will appear here...</div>
                 </div>
             </div>
         </div>
@@ -624,6 +681,47 @@
                     <p>
                         <strong style="color: #ff4d4d;">⚠️ Weapon Skills:</strong> When enchanting weapons, the system randomly selects between Legendary (40% chance) and Ultimate (60% chance) rarity. Level 3 enhancements are recommended for optimal success rates.
                     </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- STIGMA RATES MODAL -->
+        <div id="stigma-rates-modal" class="rates-modal" onclick="if(event.target === this) this.style.display='none'">
+            <div class="rates-modal-content rates-modal-content-sm">
+                <span class="close" onclick="toggleRates('stigma')">&times;</span><br>
+
+                <h3 class="rates-heading-rune">Stigma Enchantment Rates</h3>
+
+                <table class="rates-table">
+                    <thead>
+                        <tr>
+                            <th>Level</th>
+                            <th class="cell-success">Success</th>
+                            <th class="cell-warning">Keep Level</th>
+                            <th style="color:#4db8ff">+2 Crit</th>
+                            <th style="color:#ffd700">+3 Crit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>0 -> 1</td><td class="cell-success">100%</td><td class="cell-warning">5%</td><td style="color:#4db8ff">13%</td><td style="color:#ffd700">5%</td></tr>
+                        <tr><td>1 -> 2</td><td class="cell-success">95%</td><td class="cell-warning">5%</td><td style="color:#4db8ff">13%</td><td style="color:#ffd700">4%</td></tr>
+                        <tr><td>2 -> 3</td><td class="cell-success">90%</td><td class="cell-warning">5%</td><td style="color:#4db8ff">13%</td><td style="color:#ffd700">3%</td></tr>
+                        <tr><td>3 -> 4</td><td class="cell-success">80%</td><td class="cell-warning">10%</td><td style="color:#4db8ff">8%</td><td style="color:#ffd700">2%</td></tr>
+                        <tr><td>4 -> 5</td><td class="cell-success">70%</td><td class="cell-warning">10%</td><td style="color:#4db8ff">8%</td><td style="color:#ffd700">1%</td></tr>
+                        <tr><td>5 -> 6</td><td>60%</td><td class="cell-warning">16%</td><td style="color:#4db8ff">5%</td><td class="cell-muted">—</td></tr>
+                        <tr><td>6 -> 7</td><td>50%</td><td class="cell-warning">20%</td><td style="color:#4db8ff">5%</td><td class="cell-muted">—</td></tr>
+                        <tr><td>7 -> 8</td><td>40%</td><td class="cell-warning">20%</td><td style="color:#4db8ff">5%</td><td class="cell-muted">—</td></tr>
+                        <tr><td>8 -> 9</td><td class="cell-danger">30%</td><td class="cell-warning">20%</td><td style="color:#4db8ff">3%</td><td class="cell-muted">—</td></tr>
+                        <tr><td>9 -> 10</td><td class="cell-danger">20%</td><td class="cell-warning">20%</td><td style="color:#4db8ff">1%</td><td class="cell-muted">—</td></tr>
+                        <tr><td>10 -> 12</td><td class="cell-danger">20%</td><td class="cell-warning">20%</td><td style="color:#4db8ff">1%</td><td class="cell-muted">—</td></tr>
+                        <tr><td>13 -> 15</td><td class="cell-danger">20% <span style="color:#ffd700">(30% 🎉)</span></td><td class="cell-warning">20%</td><td style="color:#4db8ff">1%</td><td class="cell-muted">—</td></tr>
+                    </tbody>
+                </table>
+                <div class="rates-info">
+                    <p><strong>Keep Level:</strong> On fail, this % chance prevents the level from dropping.</p>
+                    <p><strong style="color:#4ade80">🔒 Safe Spots:</strong> +6, +9, +12 — on fail, level never drops below these.</p>
+                    <p><strong>+2 / +3 Crit:</strong> On success, rolls for a critical that advances by +2 or +3 instead of +1.</p>
+                    <p><strong style="color:#ffd700">🎉 Event:</strong> Levels 13–15 success rate increases from 20% to 30%.</p>
                 </div>
             </div>
         </div>
@@ -1209,6 +1307,15 @@
             } catch(e) {}
             updateRuneEnd();
             
+            // Restore saved stigma start if present, then populate end options
+            try {
+                const savedStart = parseInt(localStorage.getItem('stigmaStart'));
+                if (!isNaN(savedStart) && document.getElementById('stigma-start')) {
+                    document.getElementById('stigma-start').value = savedStart;
+                }
+            } catch(e) {}
+            updateStigmaEnd();
+            
             // Restore last active tab
             const savedTab = localStorage.getItem('activeTab') || 'extreme';
             const tabBtn = document.querySelector(`button[onclick="switchTab('${savedTab}')"]`);
@@ -1316,6 +1423,148 @@
         // Provide a clear function on reset
         function clearExtremeSession() {
             localStorage.removeItem(EXTREME_SESSION_KEY);
+        }
+
+        // --- Stigma Enchanting System ---
+        const STIGMA_DATA = [
+            { success: 100, keepLevel: 5,  crit2: 13, crit3: 5 },  // 0
+            { success: 95,  keepLevel: 5,  crit2: 13, crit3: 4 },  // 1
+            { success: 90,  keepLevel: 5,  crit2: 13, crit3: 3 },  // 2
+            { success: 80,  keepLevel: 10, crit2: 8,  crit3: 2 },  // 3
+            { success: 70,  keepLevel: 10, crit2: 8,  crit3: 1 },  // 4
+            { success: 60,  keepLevel: 16, crit2: 5,  crit3: 0 },  // 5
+            { success: 50,  keepLevel: 20, crit2: 5,  crit3: 0 },  // 6
+            { success: 40,  keepLevel: 20, crit2: 5,  crit3: 0 },  // 7
+            { success: 30,  keepLevel: 20, crit2: 3,  crit3: 0 },  // 8
+            { success: 20,  keepLevel: 20, crit2: 1,  crit3: 0 },  // 9
+            { success: 20,  keepLevel: 20, crit2: 1,  crit3: 0 },  // 10
+            { success: 20,  keepLevel: 20, crit2: 1,  crit3: 0 },  // 11
+            { success: 20,  keepLevel: 20, crit2: 1,  crit3: 0 },  // 12
+            { success: 20,  keepLevel: 20, crit2: 1,  crit3: 0 },  // 13
+            { success: 20,  keepLevel: 20, crit2: 1,  crit3: 0 }   // 14
+        ];
+        const STIGMA_MAX_LEVEL = 15;
+        let stigmaEventOn = false;
+
+        function updateStigmaEnd() {
+            const startLevel = parseInt(document.getElementById('stigma-start').value);
+            try { localStorage.setItem('stigmaStart', startLevel); } catch(e){}
+            const endSelect = document.getElementById('stigma-end');
+            const currentEnd = parseInt(endSelect.value) || startLevel + 1;
+            endSelect.innerHTML = '';
+            for (let i = startLevel + 1; i <= STIGMA_MAX_LEVEL; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Level ${i}`;
+                if (i === startLevel + 1 || i === currentEnd) option.selected = true;
+                endSelect.appendChild(option);
+            }
+            try {
+                const savedEnd = parseInt(localStorage.getItem('stigmaEnd'));
+                if (savedEnd && savedEnd > startLevel && savedEnd <= STIGMA_MAX_LEVEL) {
+                    endSelect.value = savedEnd;
+                }
+            } catch(e) {}
+        }
+
+        function saveStigmaEnd() {
+            const endSelect = document.getElementById('stigma-end');
+            if (!endSelect) return;
+            try { localStorage.setItem('stigmaEnd', endSelect.value); } catch(e){}
+        }
+
+        function toggleStigmaEvent() {
+            stigmaEventOn = !stigmaEventOn;
+            const btn = document.getElementById('stigma-event-btn');
+            if (stigmaEventOn) {
+                btn.classList.add('active');
+                btn.textContent = '🎉 Event ON';
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = '🎉 Event OFF';
+            }
+        }
+
+        function runStigmaSimulation() {
+            const startLevel = parseInt(document.getElementById('stigma-start').value);
+            const endLevel = parseInt(document.getElementById('stigma-end').value);
+            const panel = document.getElementById('stigma');
+            const output = document.getElementById('stigma-output');
+            const simBtn = panel.querySelector('button.sim-button');
+            const clearBtn = panel.querySelector('button.clear-button');
+            const loadingBar = document.getElementById('stigma-loading');
+
+            if (simBtn) simBtn.disabled = true;
+            if (clearBtn) clearBtn.disabled = true;
+            if (loadingBar) loadingBar.classList.add('active');
+
+            setTimeout(() => {
+                const result = simulateStigmaEnchanting(startLevel, endLevel, stigmaEventOn);
+                try { localStorage.setItem('stigmaStart', startLevel); localStorage.setItem('stigmaEnd', endLevel); } catch(e){}
+
+                let breakdownHTML = '';
+                for (let i = startLevel; i < Math.min(endLevel, STIGMA_MAX_LEVEL); i++) {
+                    if (result.attemptsByLevel[i] > 0) {
+                        breakdownHTML += `<div>+${i} → +${i+1}: <strong>${result.attemptsByLevel[i]}</strong> attempt${result.attemptsByLevel[i] !== 1 ? 's' : ''}</div>`;
+                    }
+                }
+
+                output.innerHTML = `<div class="output-line summary rune-summary">
+                    <strong>ENCHANTMENT COMPLETE</strong>
+                    <div style="margin-top:8px">Target: <strong>+${endLevel}</strong>${stigmaEventOn ? ' <span style="color:#ffd700;">🎉 Event ON</span>' : ''}</div>
+                    <div style="margin-top:8px">📊 FINAL RESULTS</div>
+                    <div style="margin-top:6px"><strong>✓ Total Stones Used:</strong> ${result.totalStones}</div>
+                    <div style="margin-top:8px">📈 ATTEMPT BREAKDOWN</div>
+                    <div style="margin-top:4px; font-size:0.9em; color:#ccc;">${breakdownHTML}</div>
+                </div>`;
+
+                if (loadingBar) loadingBar.classList.remove('active');
+                if (simBtn) simBtn.disabled = false;
+                if (clearBtn) clearBtn.disabled = false;
+            }, 320);
+        }
+
+        function simulateStigmaEnchanting(startLevel, endLevel, isEventOn) {
+            let level = startLevel;
+            let stones = 0;
+            const attemptsByLevel = new Array(STIGMA_MAX_LEVEL).fill(0);
+
+            while (level < endLevel) {
+                stones++;
+                attemptsByLevel[Math.min(level, STIGMA_MAX_LEVEL - 1)]++;
+
+                const data = STIGMA_DATA[Math.min(level, 14)];
+                const successPct = (isEventOn && level >= 12) ? 30 : data.success;
+                const roll = Math.random() * 100;
+
+                if (roll < successPct) {
+                    // Success - roll for crit
+                    const critRoll = Math.random() * 100;
+                    let gain = 1;
+                    if (data.crit3 > 0 && critRoll < data.crit3) {
+                        gain = 3;
+                    } else if (data.crit2 > 0 && critRoll < data.crit3 + data.crit2) {
+                        gain = 2;
+                    }
+                    level += gain;
+                } else {
+                    // Fail - check for keep level
+                    const keepRoll = Math.random() * 100;
+                    const SAFE_SPOTS = [6, 9, 12];
+                    if (SAFE_SPOTS.indexOf(level) !== -1) {
+                        // Safe spot: never drop below this level
+                    } else if (level > 0 && keepRoll >= data.keepLevel) {
+                        level--;
+                    }
+                    // else: keep level (or already at 0)
+                }
+            }
+
+            return { totalStones: stones, attemptsByLevel };
+        }
+
+        function clearStigmaOutput() {
+            document.getElementById('stigma-output').innerHTML = '<div class="output-line header">Output cleared. Run a simulation to see results.</div>';
         }
 
         // --- Oath Administration System ---
@@ -1829,6 +2078,12 @@
                         selectOathOption(savedOption, allOptions[savedOption]);
                     }
                 }
+            } else {
+                // Default: Armor / Ultimate L3
+                document.getElementById('oath-item-type').value = 'armor';
+                document.getElementById('oath-itemtype-btn-text').textContent = '🛡️ Armor';
+                updateOathOptions();
+                selectOathOption('Ultimate L3', OATH_ARMOR['Ultimate L3']);
             }
         });
 
