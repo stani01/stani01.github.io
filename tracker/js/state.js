@@ -224,6 +224,19 @@ function resetDucatRuns(charId) {
     saveTrackerState();
 }
 
+// Reset all ducat runs for ALL characters (maintenance reset)
+function resetAllCharacterRuns() {
+    if (!trackerState.ducat || !trackerState.ducat.characters) return;
+    for (var charId in trackerState.ducat.characters) {
+        if (trackerState.ducat.characters.hasOwnProperty(charId)) {
+            DUCAT_INSTANCES.forEach(function(inst) {
+                trackerState.ducat.characters[charId].runs[inst.id] = 0;
+            });
+        }
+    }
+    saveTrackerState();
+}
+
 // Set total ducats for specific character
 function setTotalDucats(value, charId) {
     if (!trackerState.ducat || !trackerState.ducat.characters) return;

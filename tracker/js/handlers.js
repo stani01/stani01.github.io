@@ -231,6 +231,13 @@ function showModal(title, placeholder, currentValue, action, charId, tabId, moda
 
         cancelBtn.style.display = '';
         confirmBtn.textContent = 'Confirm';
+    } else if (modalType === 'confirm') {
+        var msg = document.createElement('p');
+        msg.className = 'tracker-modal-confirm-text';
+        msg.textContent = currentValue;
+        bodyEl.appendChild(msg);
+        cancelBtn.style.display = '';
+        confirmBtn.textContent = 'Confirm';
     } else {
         // Input modal
         var input = document.createElement('input');
@@ -285,6 +292,11 @@ function processModalConfirm() {
 
     if (modalState.modalType === 'configure-dropdown') {
         processConfigureDropdownModal();
+        return;
+    }
+
+    if (modalState.modalType === 'confirm') {
+        processModalAction('');
         return;
     }
 
@@ -437,6 +449,21 @@ function processModalAction(value) {
             );
             TK.closeModal();
             break;
+
+        case 'confirm-import-data':
+            if (TK._pendingImport) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(TK._pendingImport));
+                TK._pendingImport = null;
+                if (loadTrackerState()) {
+                    renderAll();
+                    TK.closeModal();
+                } else {
+                    showModal('Import Failed', '', 'Configuration could not be loaded properly.', null, null, null, 'alert');
+                }
+            } else {
+                TK.closeModal();
+            }
+            break;
     }
 }
 
@@ -506,19 +533,6 @@ window.TK = {
             var newValue = Math.max(0, Math.min(parseInt(value) || 0, instance.maxRuns));
             updateInputValue(instanceId, newValue);
         }
-    },
-
-    // Reset all ducat runs for current character
-    resetDucatChar: function() {
-        showModal(
-            'Reset All Runs?',
-            '',
-            'This will reset all instance runs for this character to 0.',
-            'confirm-reset-ducat',
-            null,
-            null,
-            'confirm'
-        );
     },
 
     // Set total ducats for current character
@@ -885,6 +899,76 @@ window.TK = {
         }
         dragState.draggedElement = null;
         dragState.draggedOverElement = null;
+    },
+
+    // Reset all instance runs for ALL characters (maintenance reset)
+    resetAllRuns: function() {
+        resetAllCharacterRuns();
+        renderDucatTab(
+            document.getElementById('tracker-content'),
+            trackerState.ducat
+        );
+    },
+
+    // Reset total ducats for the active character
+    resetTotalDucats: function() {
+        setTotalDucats(0);
+        var totalInput = document.getElementById('tracker-total-ducats');
+        if (totalInput) totalInput.value = 0;
+        refreshDucatOverview();
+    },
+
+    // Export full tracker configuration to a JSON file
+    exportData: function() {
+        var data = {
+            tabs: tabs,
+            activeTab: activeTab,
+            tabData: trackerState,
+            nextTabId: nextTabId
+        };
+        var json = JSON.stringify(data, null, 2);
+        var blob = new Blob([json], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'aion-tracker-' + new Date().toISOString().slice(0, 10) + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    },
+
+    // Import tracker configuration from a JSON file
+    importData: function() {
+        var fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.json,application/json';
+        fileInput.onchange = function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    var data = JSON.parse(evt.target.result);
+                    if (!data || !Array.isArray(data.tabs) || data.tabs.indexOf('ducat') === -1) {
+                        showModal('Import Failed', '', 'Invalid configuration file.', null, null, null, 'alert');
+                        return;
+                    }
+                    TK._pendingImport = data;
+                    showModal(
+                        'Import Configuration?',
+                        '',
+                        'This will overwrite your current data. Continue?',
+                        'confirm-import-data',
+                        null, null, 'confirm'
+                    );
+                } catch (err) {
+                    showModal('Import Failed', '', 'Could not read the file. Make sure it is a valid JSON configuration.', null, null, null, 'alert');
+                }
+            };
+            reader.readAsText(file);
+        };
+        fileInput.click();
     }
 };
 

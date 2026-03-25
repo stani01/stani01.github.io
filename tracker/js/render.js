@@ -95,6 +95,26 @@ function renderTabs() {
         TK.openAddTabDialog();
     };
     tabBar.appendChild(addBtn);
+
+    // Export / Import data buttons
+    var dataActions = document.createElement('div');
+    dataActions.className = 'tracker-data-actions';
+
+    var exportBtn = document.createElement('button');
+    exportBtn.className = 'tracker-data-btn tracker-export-btn';
+    exportBtn.innerHTML = '&#x2B07; Export';
+    exportBtn.title = 'Export configuration to JSON file';
+    exportBtn.onclick = function() { TK.exportData(); };
+    dataActions.appendChild(exportBtn);
+
+    var importBtn = document.createElement('button');
+    importBtn.className = 'tracker-data-btn tracker-import-btn';
+    importBtn.innerHTML = '&#x2B06; Import';
+    importBtn.title = 'Import configuration from JSON file';
+    importBtn.onclick = function() { TK.importData(); };
+    dataActions.appendChild(importBtn);
+
+    tabBar.appendChild(dataActions);
 }
 
 function renderActiveTabContent() {
@@ -137,7 +157,7 @@ function renderDucatTab(container, tabData) {
     });
     html += '        </div>';
     html += '    </div>';
-    html += '    <button class="tracker-reset-all-btn" onclick="TK.resetDucatChar()" title="Reset all runs to 0">🔄 Reset All</button>';
+    html += '    <button class="tracker-reset-all-btn" onclick="TK.resetAllRuns()" title="Reset all instance runs to 0 for ALL characters (maintenance)">&#x1F504; Reset All</button>';
     html += '</div>';
 
     // Character selection tabs
@@ -210,7 +230,10 @@ function renderDucatTab(container, tabData) {
 
     // Total ducats section
     html += '<div class="tracker-total-ducats-section">';
-    html += '    <div class="tracker-total-ducats-label">Total Ducats<img src="../assets/icons/coin_05.png"></div> ';
+    html += '    <div class="tracker-total-ducats-row">';
+    html += '        <div class="tracker-total-ducats-label">Total Ducats<img src="../assets/icons/coin_05.png"></div>';
+    html += '        <button class="tracker-reset-ducats-btn" onclick="TK.resetTotalDucats()" title="Reset total ducats to 0">&#x21BA; Reset</button>';
+    html += '    </div>';
     var totalDucats = getTotalDucats();
     html += '    <div class="tracker-total-ducats-input-group">';
     html += '        <button class="tracker-btn-minus" onclick="TK.decrementTotalDucats()">−</button>';

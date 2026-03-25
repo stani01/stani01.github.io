@@ -132,6 +132,50 @@
     color: rgba(150, 200, 255, 1);
 }
 
+.tracker-data-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.tracker-data-btn {
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #a0a0b0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.tracker-data-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #c8c8d8;
+}
+
+.tracker-export-btn:hover {
+    border-color: rgba(100, 200, 120, 0.5);
+    color: #90e0a0;
+}
+
+.tracker-import-btn:hover {
+    border-color: rgba(100, 150, 255, 0.5);
+    color: #90b8ff;
+}
+
+@media (max-width: 720px) {
+    .tracker-data-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
 /* ============================================
    CONTENT AREA STYLES
    ============================================ */
@@ -583,6 +627,30 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+.tracker-total-ducats-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tracker-reset-ducats-btn {
+    padding: 5px 12px;
+    background: rgba(255, 107, 107, 0.12);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #ff8c8c;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8em;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.tracker-reset-ducats-btn:hover {
+    background: rgba(255, 107, 107, 0.22);
+    border-color: rgba(255, 107, 107, 0.5);
+    color: #ffb0b0;
 }
 
 .tracker-total-ducats-label {
@@ -1371,6 +1439,13 @@
 }
 
 /* Modal error message styling */
+.tracker-modal-confirm-text {
+    margin: 0;
+    color: #c8d8f0;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
 .tracker-modal-error {
     color: #ff6b6b;
     font-size: 12px;
