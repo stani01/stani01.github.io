@@ -110,8 +110,8 @@
 }
 
 .tracker-char-tab[draggable="true"]:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: scale(1.2);
+    background: rgba(115, 165, 235, 0.14);
+    border-color: rgba(125, 175, 245, 0.32);
 }
 
 .tracker-tab-add {
@@ -132,6 +132,50 @@
     color: rgba(150, 200, 255, 1);
 }
 
+.tracker-data-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.tracker-data-btn {
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #a0a0b0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.tracker-data-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #c8c8d8;
+}
+
+.tracker-export-btn:hover {
+    border-color: rgba(100, 200, 120, 0.5);
+    color: #90e0a0;
+}
+
+.tracker-import-btn:hover {
+    border-color: rgba(100, 150, 255, 0.5);
+    color: #90b8ff;
+}
+
+@media (max-width: 720px) {
+    .tracker-data-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
 /* ============================================
    CONTENT AREA STYLES
    ============================================ */
@@ -149,15 +193,115 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
     margin-bottom: 25px;
     padding-bottom: 15px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tracker-ducat-header-main {
+    min-width: 0;
+    flex: 1;
 }
 
 .tracker-ducat-header h2 {
     color: #fff;
     font-size: 1.8em;
     margin: 0;
+}
+
+.tracker-ducat-overview {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tracker-ducat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.04);
+    color: #bcd4f3;
+    border-radius: 999px;
+    padding: 5px 9px;
+    font-size: 0.8em;
+    line-height: 1;
+    cursor: default;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    min-width: 78px;
+}
+
+.tracker-ducat-pill::after {
+    content: attr(data-char-name);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 6px);
+    transform: translateX(-50%);
+    background: rgba(8, 12, 26, 0.96);
+    border: 1px solid rgba(150, 190, 255, 0.35);
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: #eaf3ff;
+    font-size: 0.78em;
+    font-weight: 600;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.08s ease, visibility 0.08s ease;
+    z-index: 8;
+}
+
+.tracker-ducat-pill:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tracker-ducat-pill:hover {
+    border-color: rgba(160, 205, 255, 0.35);
+    background: rgba(140, 190, 255, 0.08);
+}
+
+.tracker-ducat-pill-active {
+    border-color: rgba(140, 190, 255, 0.45);
+    background: rgba(140, 190, 255, 0.15);
+}
+
+.tracker-ducat-pill-low {
+    border-color: rgba(255, 190, 90, 0.45);
+}
+
+.tracker-ducat-pill-class-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.tracker-ducat-pill-class-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tracker-ducat-pill-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.tracker-ducat-pill-value {
+    color: #ffdd82;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
 }
 
 .tracker-reset-all-btn {
@@ -177,6 +321,21 @@
     border-color: rgba(255, 107, 107, 0.6);
     color: #ffb0b0;
     box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+}
+
+@media (max-width: 720px) {
+    .tracker-ducat-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tracker-reset-all-btn {
+        width: 100%;
+    }
+
+    .tracker-ducat-pill {
+        max-width: none;
+    }
 }
 
 /* ============================================
@@ -213,6 +372,81 @@
     max-width: 140px;
 }
 
+.tracker-char-class-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(170, 210, 255, 0.35);
+    background: rgba(15, 25, 50, 0.55);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.tracker-char-class-btn:hover {
+    border-color: rgba(170, 210, 255, 0.55);
+    background: rgba(25, 40, 72, 0.7);
+}
+
+.tracker-char-class-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 8px;
+    display: none;
+    grid-template-columns: repeat(6, 24px);
+    gap: 6px;
+    padding: 8px;
+    background: rgba(10, 16, 36, 0.97);
+    border: 1px solid rgba(140, 190, 255, 0.35);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    z-index: 40;
+}
+
+.tracker-char-class-menu-active {
+    display: grid;
+}
+
+.tracker-char-class-option {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(170, 210, 255, 0.25);
+    background: rgba(17, 30, 58, 0.75);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.tracker-char-class-option:hover {
+    border-color: rgba(170, 210, 255, 0.5);
+    background: rgba(28, 45, 80, 0.8);
+}
+
+.tracker-char-class-option-active {
+    border-color: rgba(255, 218, 120, 0.8);
+    box-shadow: 0 0 8px rgba(255, 218, 120, 0.28);
+}
+
+.tracker-char-class-option-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.tracker-char-class-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 .tracker-char-name {
     white-space: nowrap;
     overflow: hidden;
@@ -222,14 +456,13 @@
 }
 
 .tracker-char-name:hover {
-    opacity: 0.8;
-    text-decoration: underline;
+    opacity: 0.92;
 }
 
 .tracker-char-tab:hover {
-    background: rgba(100, 150, 255, 0.2);
-    border-color: rgba(100, 150, 255, 0.4);
-    color: #c8e5ff;
+    background: rgba(110, 160, 230, 0.14);
+    border-color: rgba(120, 170, 240, 0.34);
+    color: #b8ddff;
 }
 
 .tracker-char-tab-active {
@@ -394,6 +627,30 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+.tracker-total-ducats-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tracker-reset-ducats-btn {
+    padding: 5px 12px;
+    background: rgba(255, 107, 107, 0.12);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #ff8c8c;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8em;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.tracker-reset-ducats-btn:hover {
+    background: rgba(255, 107, 107, 0.22);
+    border-color: rgba(255, 107, 107, 0.5);
+    color: #ffb0b0;
 }
 
 .tracker-total-ducats-label {
@@ -737,10 +994,6 @@
     color: #ffb0b0;
 }
 
-.tracker-modal-body {
-    padding: 24px 20px;
-}
-
 .tracker-modal-input {
     width: 100%;
     padding: 12px 16px;
@@ -763,6 +1016,370 @@
 .tracker-modal-input::placeholder {
     color: #666;
 }
+
+.tracker-modal-class-row {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tracker-modal-class-label {
+    color: #a8b9d8;
+    font-size: 0.85em;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+.tracker-modal-class-picker {
+    display: grid;
+    grid-template-columns: repeat(6, 28px);
+    gap: 8px;
+    justify-content: start;
+}
+
+.tracker-modal-class-option {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(170, 210, 255, 0.3);
+    background: rgba(17, 30, 58, 0.75);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.tracker-modal-class-option:hover {
+    border-color: rgba(170, 210, 255, 0.5);
+    background: rgba(28, 45, 80, 0.8);
+}
+
+.tracker-modal-class-option-active {
+    border-color: rgba(255, 218, 120, 0.85);
+    box-shadow: 0 0 8px rgba(255, 218, 120, 0.3);
+}
+
+.tracker-modal-class-option-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.tracker-modal-class-hint {
+    color: #8196bb;
+    font-size: 0.78em;
+}
+
+/* ============================================
+   ADD FIELD MODAL STYLES
+   ============================================ */
+
+.tracker-modal-body {
+    padding: 24px 20px;
+    overflow-y: auto;
+    max-height: 55vh;
+}
+
+.tracker-modal-field-label {
+    display: block;
+    color: #a8b9d8;
+    font-size: 0.85em;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    margin-bottom: 6px;
+}
+
+.tracker-field-type-row {
+    margin-bottom: 14px;
+}
+
+.tracker-field-type-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tracker-field-type-btn {
+    padding: 6px 16px;
+    border: 1px solid rgba(100, 150, 255, 0.3);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.2);
+    color: #8899bb;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.tracker-field-type-btn:hover {
+    border-color: rgba(100, 150, 255, 0.5);
+    background: rgba(100, 150, 255, 0.1);
+    color: #bbccee;
+}
+
+.tracker-field-type-btn.active {
+    border-color: rgba(100, 180, 255, 0.7);
+    background: rgba(100, 150, 255, 0.2);
+    color: #c8e5ff;
+}
+
+.tracker-field-label-row,
+.tracker-field-extra-row {
+    margin-bottom: 14px;
+}
+
+.tracker-field-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.tracker-field-option-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.tracker-field-option-input {
+    flex: 1;
+    padding: 8px 12px !important;
+}
+
+.tracker-field-remove-option-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    padding: 0;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.2);
+    color: #ff8c8c;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.tracker-field-remove-option-btn:hover {
+    background: rgba(255, 107, 107, 0.2);
+    border-color: rgba(255, 107, 107, 0.4);
+    color: #ffb0b0;
+}
+
+.tracker-field-add-option-btn {
+    background: rgba(80, 160, 80, 0.1);
+    border: 1px solid rgba(80, 160, 80, 0.3);
+    color: #88cc88;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.tracker-field-add-option-btn:hover {
+    background: rgba(80, 160, 80, 0.2);
+    border-color: rgba(80, 160, 80, 0.5);
+    color: #aaddaa;
+}
+
+/* ============================================
+   SCROLLBARS — MODAL BODY & OPTION LISTS
+   ============================================ */
+
+.tracker-modal-body,
+.tracker-field-options-list {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 150, 255, 0.4) rgba(0, 0, 0, 0.15);
+}
+
+.tracker-modal-body::-webkit-scrollbar,
+.tracker-field-options-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.tracker-modal-body::-webkit-scrollbar-track,
+.tracker-field-options-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+}
+
+.tracker-modal-body::-webkit-scrollbar-thumb,
+.tracker-field-options-list::-webkit-scrollbar-thumb {
+    background: rgba(100, 150, 255, 0.4);
+    border-radius: 3px;
+}
+
+.tracker-modal-body::-webkit-scrollbar-thumb:hover,
+.tracker-field-options-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 150, 255, 0.65);
+}
+
+/* ============================================
+   CHECKBOX FIELD
+   ============================================ */
+
+.tracker-field-checkbox-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(100, 150, 255, 0.25);
+    border-radius: 8px;
+    color: #7a8faa;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.tracker-field-checkbox-btn:hover {
+    background: rgba(100, 150, 255, 0.08);
+    border-color: rgba(100, 150, 255, 0.4);
+    color: #aabbdd;
+}
+
+.tracker-field-checkbox-btn.checked {
+    background: rgba(80, 200, 120, 0.12);
+    border-color: rgba(80, 200, 120, 0.5);
+    color: #88ddaa;
+}
+
+.tracker-field-checkbox-btn.checked:hover {
+    background: rgba(80, 200, 120, 0.2);
+    border-color: rgba(80, 200, 120, 0.7);
+}
+
+.tracker-field-cb-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 1px solid rgba(100, 150, 255, 0.35);
+    background: rgba(0, 0, 0, 0.2);
+    font-size: 0.85em;
+    color: #88ddaa;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.tracker-field-checkbox-btn.checked .tracker-field-cb-icon {
+    background: rgba(80, 200, 120, 0.25);
+    border-color: rgba(80, 200, 120, 0.6);
+}
+
+/* ============================================
+   CHECKLIST FIELD
+   ============================================ */
+
+.tracker-field-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.tracker-field-checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(100, 150, 255, 0.15);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.1s ease, border-color 0.1s ease;
+    user-select: none;
+}
+
+.tracker-field-checklist-item:hover {
+    background: rgba(100, 150, 255, 0.07);
+    border-color: rgba(100, 150, 255, 0.3);
+}
+
+.tracker-field-checklist-item.checked {
+    background: rgba(80, 200, 120, 0.08);
+    border-color: rgba(80, 200, 120, 0.35);
+}
+
+.tracker-field-checklist-item.checked:hover {
+    background: rgba(80, 200, 120, 0.15);
+    border-color: rgba(80, 200, 120, 0.5);
+}
+
+.tracker-field-cli-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border-radius: 4px;
+    border: 1px solid rgba(100, 150, 255, 0.3);
+    background: rgba(0, 0, 0, 0.2);
+    font-size: 0.78em;
+    color: #88ddaa;
+    transition: background 0.1s ease, border-color 0.1s ease;
+}
+
+.tracker-field-checklist-item.checked .tracker-field-cli-check {
+    background: rgba(80, 200, 120, 0.25);
+    border-color: rgba(80, 200, 120, 0.6);
+}
+
+.tracker-field-cli-label {
+    color: #b8c8de;
+    font-size: 0.92em;
+}
+
+.tracker-field-checklist-item.checked .tracker-field-cli-label {
+    color: #88ddaa;
+}
+
+/* ============================================
+   NOTE FIELD (TEXTAREA)
+   ============================================ */
+
+.tracker-field-textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(100, 150, 255, 0.25);
+    border-radius: 8px;
+    color: #c8d8ee;
+    font-size: 0.92em;
+    font-family: inherit;
+    resize: vertical;
+    box-sizing: border-box;
+    transition: border-color 0.1s ease, box-shadow 0.1s ease;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 150, 255, 0.35) rgba(0, 0, 0, 0.15);
+}
+
+.tracker-field-textarea:focus {
+    outline: none;
+    border-color: rgba(100, 150, 255, 0.5);
+    box-shadow: 0 0 10px rgba(100, 150, 255, 0.15);
+}
+
+.tracker-field-textarea::placeholder {
+    color: #556;
+}
+
+.tracker-field-textarea::-webkit-scrollbar { width: 5px; }
+.tracker-field-textarea::-webkit-scrollbar-track { background: rgba(0,0,0,0.15); border-radius: 3px; }
+.tracker-field-textarea::-webkit-scrollbar-thumb { background: rgba(100,150,255,0.35); border-radius: 3px; }
+.tracker-field-textarea::-webkit-scrollbar-thumb:hover { background: rgba(100,150,255,0.6); }
 
 .tracker-modal-footer {
     display: flex;
@@ -822,6 +1439,13 @@
 }
 
 /* Modal error message styling */
+.tracker-modal-confirm-text {
+    margin: 0;
+    color: #c8d8f0;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
 .tracker-modal-error {
     color: #ff6b6b;
     font-size: 12px;

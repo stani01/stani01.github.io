@@ -1,5 +1,54 @@
 'use strict';
 
+function getTrackerClassData(classKey) {
+    if (typeof CLASS_DATA !== 'undefined' && CLASS_DATA && CLASS_DATA[classKey]) {
+        return CLASS_DATA[classKey];
+    }
+    return { name: 'Unknown', icon: '../assets/icons/icon_frame_2.png' };
+}
+
+function getCharacterClassInfo(charId) {
+    var classKey = getCharacterClass(charId);
+    var classData = getTrackerClassData(classKey);
+    return {
+        key: classKey,
+        name: classData.name,
+        icon: classData.icon
+    };
+}
+
+function refreshDucatOverview() {
+    var overview = document.querySelector('.tracker-ducat-overview');
+    if (!overview) return;
+
+    var characters = getAllCharacters();
+    if (characters.length === 0) return;
+
+    var lowestDucats = Math.min.apply(null, characters.map(function(char) { return getTotalDucats(char.id); }));
+    characters.forEach(function(char) {
+        var pill = overview.querySelector('[data-char-id="' + char.id + '"]');
+        if (!pill) return;
+
+        var charDucats = getTotalDucats(char.id);
+        var classInfo = getCharacterClassInfo(char.id);
+        var needsFarm = characters.length > 1 && charDucats === lowestDucats;
+        var isActive = trackerState.ducat.activeCharacterId === char.id;
+
+        var ducatValueEl = pill.querySelector('.tracker-ducat-pill-value');
+        if (ducatValueEl) ducatValueEl.textContent = charDucats;
+
+        var classIconEl = pill.querySelector('.tracker-ducat-pill-class-icon');
+        if (classIconEl) {
+            classIconEl.src = classInfo.icon;
+            classIconEl.alt = classInfo.name;
+        }
+
+        pill.classList.toggle('tracker-ducat-pill-low', needsFarm);
+        pill.classList.toggle('tracker-ducat-pill-active', isActive);
+        pill.setAttribute('data-char-name', char.name);
+    });
+}
+
 function renderAll() {
     renderTabs();
     renderActiveTabContent();
@@ -46,6 +95,26 @@ function renderTabs() {
         TK.openAddTabDialog();
     };
     tabBar.appendChild(addBtn);
+
+    // Export / Import data buttons
+    var dataActions = document.createElement('div');
+    dataActions.className = 'tracker-data-actions';
+
+    var exportBtn = document.createElement('button');
+    exportBtn.className = 'tracker-data-btn tracker-export-btn';
+    exportBtn.innerHTML = '&#x2B07; Export';
+    exportBtn.title = 'Export configuration to JSON file';
+    exportBtn.onclick = function() { TK.exportData(); };
+    dataActions.appendChild(exportBtn);
+
+    var importBtn = document.createElement('button');
+    importBtn.className = 'tracker-data-btn tracker-import-btn';
+    importBtn.innerHTML = '&#x2B06; Import';
+    importBtn.title = 'Import configuration from JSON file';
+    importBtn.onclick = function() { TK.importData(); };
+    dataActions.appendChild(importBtn);
+
+    tabBar.appendChild(dataActions);
 }
 
 function renderActiveTabContent() {
@@ -64,18 +133,40 @@ function renderActiveTabContent() {
 
 function renderDucatTab(container, tabData) {
     var html = '';
+    var characters = getAllCharacters();
+    var lowestDucats = characters.length > 0
+        ? Math.min.apply(null, characters.map(function(char) { return getTotalDucats(char.id); }))
+        : 0;
 
     html += '<div class="tracker-ducat-header">';
-    html += '    <h2>Ducat Tracking</h2>';
-    html += '    <button class="tracker-reset-all-btn" onclick="TK.resetDucatChar()" title="Reset all runs to 0">🔄 Reset All</button>';
+    html += '    <div class="tracker-ducat-header-main">';
+    html += '        <h2>Ducat Tracking</h2>';
+    html += '        <div class="tracker-ducat-overview">';
+    characters.forEach(function(char) {
+        var classInfo = getCharacterClassInfo(char.id);
+        var charDucats = getTotalDucats(char.id);
+        var isActive = trackerState.ducat.activeCharacterId === char.id;
+        var needsFarm = characters.length > 1 && charDucats === lowestDucats;
+        html += '            <div class="tracker-ducat-pill' + (isActive ? ' tracker-ducat-pill-active' : '') + (needsFarm ? ' tracker-ducat-pill-low' : '') + '" data-char-id="' + char.id + '" data-char-name="' + char.name + '">';
+        html += '                <span class="tracker-ducat-pill-class-btn">';
+        html += '                    <img src="' + classInfo.icon + '" class="tracker-ducat-pill-class-icon" alt="' + classInfo.name + '">';
+        html += '                </span>';
+        html += '                <img src="../assets/icons/coin_05.png" class="tracker-ducat-pill-icon" alt="">';
+        html += '                <span class="tracker-ducat-pill-value">' + charDucats + '</span>';
+        html += '            </div>';
+    });
+    html += '        </div>';
+    html += '    </div>';
+    html += '    <button class="tracker-reset-all-btn" onclick="TK.resetAllRuns()" title="Reset all instance runs to 0 for ALL characters (maintenance)">&#x1F504; Reset All</button>';
     html += '</div>';
 
     // Character selection tabs
     html += '<div class="tracker-char-tabs-wrapper">';
     html += '    <div class="tracker-char-tabs">';
 
-    var characters = getAllCharacters();
     characters.forEach(function(char, index) {
+        var charClassInfo = getCharacterClassInfo(char.id);
+        var classKeys = getCharacterClassKeys();
         var isActive = trackerState.ducat.activeCharacterId === char.id;
         html += '        <button class="tracker-char-tab' + (isActive ? ' tracker-char-tab-active' : '') + '" ';
         html += '                draggable="true" ';
@@ -87,6 +178,18 @@ function renderDucatTab(container, tabData) {
         html += '                ondragend="TK.dragEndChar(event)" ';
         html += '                onclick="TK.switchCharacter(\'' + char.id + '\')" ';
         html += '                title="' + char.name + '">';
+        html += '            <span class="tracker-char-class-btn" onclick="event.stopPropagation(); TK.toggleClassMenu(event, \'' + char.id + '\')" title="Class: ' + charClassInfo.name + '">';
+        html += '                <img src="' + charClassInfo.icon + '" class="tracker-char-class-icon" alt="' + charClassInfo.name + '">';
+        html += '            </span>';
+        html += '            <div class="tracker-char-class-menu" id="tracker-class-menu-' + char.id + '" onclick="event.stopPropagation()">';
+        classKeys.forEach(function(classKey) {
+            var classData = getTrackerClassData(classKey);
+            var isCurrentClass = classKey === charClassInfo.key;
+            html += '                <span class="tracker-char-class-option' + (isCurrentClass ? ' tracker-char-class-option-active' : '') + '" onclick="event.stopPropagation(); TK.selectCharacterClass(\'' + char.id + '\', \'' + classKey + '\')" title="' + classData.name + '">';
+            html += '                    <img src="' + classData.icon + '" class="tracker-char-class-option-icon" alt="' + classData.name + '">';
+            html += '                </span>';
+        });
+        html += '            </div>';
         html += '            <span class="tracker-char-name" ondblclick="event.stopPropagation(); TK.openRenameCharDialog(\'' + char.id + '\')" title="Double-click to rename">' + char.name + '</span>';
         if (characters.length > 1) {
             html += '            <span class="tracker-char-remove" onclick="event.stopPropagation(); TK.removeCharacter(\'' + char.id + '\')">✕</span>';
@@ -127,7 +230,10 @@ function renderDucatTab(container, tabData) {
 
     // Total ducats section
     html += '<div class="tracker-total-ducats-section">';
-    html += '    <div class="tracker-total-ducats-label">Total Ducats<img src="../assets/icons/coin_05.png"></div> ';
+    html += '    <div class="tracker-total-ducats-row">';
+    html += '        <div class="tracker-total-ducats-label">Total Ducats<img src="../assets/icons/coin_05.png"></div>';
+    html += '        <button class="tracker-reset-ducats-btn" onclick="TK.resetTotalDucats()" title="Reset total ducats to 0">&#x21BA; Reset</button>';
+    html += '    </div>';
     var totalDucats = getTotalDucats();
     html += '    <div class="tracker-total-ducats-input-group">';
     html += '        <button class="tracker-btn-minus" onclick="TK.decrementTotalDucats()">−</button>';
@@ -190,6 +296,38 @@ function renderCustomTab(container, tabData) {
                 }
                 html += '        </select>';
                 html += '        <button class="tracker-field-config" onclick="TK.openConfigureDropdown(\'' + tabData.id + '\', ' + index + ', \'' + field.label + '\')">⚙ Configure</button>';
+            } else if (field.type === 'checkbox') {
+                var isChecked = field.value === true;
+                html += '        <button class="tracker-field-checkbox-btn' + (isChecked ? ' checked' : '') + '"';
+                html += '                onclick="TK.toggleCheckbox(\'' + tabData.id + '\', ' + index + ')">';
+                html += '            <span class="tracker-field-cb-icon">' + (isChecked ? '✓' : '') + '</span>';
+                html += '            <span class="tracker-field-cb-label">' + (isChecked ? 'Done' : 'Not done') + '</span>';
+                html += '        </button>';
+            } else if (field.type === 'checklist') {
+                html += '        <div class="tracker-field-checklist">';
+                if (field.options && field.options.length > 0) {
+                    field.options.forEach(function(opt) {
+                        var checked = field.value && typeof field.value === 'object' && field.value[opt];
+                        html += '            <div class="tracker-field-checklist-item' + (checked ? ' checked' : '') + '"';
+                        html += '                data-tab-id="' + tabData.id + '"';
+                        html += '                data-field-index="' + index + '"';
+                        html += '                data-option-key="' + opt.replace(/"/g, '&quot;') + '"';
+                        html += '                onclick="TK.toggleChecklistItem(this)">';
+                        html += '                <span class="tracker-field-cli-check">' + (checked ? '✓' : '') + '</span>';
+                        html += '                <span class="tracker-field-cli-label">' + opt + '</span>';
+                        html += '            </div>';
+                    });
+                } else {
+                    html += '            <p class="tracker-field-info">No items yet. Click Configure to add.</p>';
+                }
+                html += '        </div>';
+                html += '        <button class="tracker-field-config" onclick="TK.openConfigureDropdown(\'' + tabData.id + '\', ' + index + ', \'' + field.label + '\')">⚙ Configure</button>';
+            } else if (field.type === 'note') {
+                var noteVal = (field.value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                html += '        <textarea class="tracker-field-textarea"';
+                html += '                data-tab-id="' + tabData.id + '"';
+                html += '                data-field-index="' + index + '"';
+                html += '                onchange="TK.updateField(this)">' + noteVal + '</textarea>';
             }
 
             html += '    </div>';

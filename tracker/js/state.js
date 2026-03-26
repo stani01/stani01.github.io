@@ -10,7 +10,7 @@ var nextTabId = 1;
 
 // Initialize default character data for ducat
 function createDefaultCharacterData(charId, charName) {
-    var data = { id: charId, name: charName, runs: {}, totalDucats: 0 };
+    var data = { id: charId, name: charName, classKey: 'gladiator', runs: {}, totalDucats: 0 };
     DUCAT_INSTANCES.forEach(function(inst) {
         data.runs[inst.id] = 0;
     });
@@ -111,6 +111,10 @@ function loadTrackerState() {
                     // Ensure totalDucats exists
                     if (typeof char.totalDucats !== 'number') {
                         char.totalDucats = 0;
+                    }
+                    // Ensure classKey exists and is valid
+                    if (typeof char.classKey !== 'string' || !isValidCharacterClass(char.classKey)) {
+                        char.classKey = 'gladiator';
                     }
                 }
             }
@@ -220,6 +224,19 @@ function resetDucatRuns(charId) {
     saveTrackerState();
 }
 
+// Reset all ducat runs for ALL characters (maintenance reset)
+function resetAllCharacterRuns() {
+    if (!trackerState.ducat || !trackerState.ducat.characters) return;
+    for (var charId in trackerState.ducat.characters) {
+        if (trackerState.ducat.characters.hasOwnProperty(charId)) {
+            DUCAT_INSTANCES.forEach(function(inst) {
+                trackerState.ducat.characters[charId].runs[inst.id] = 0;
+            });
+        }
+    }
+    saveTrackerState();
+}
+
 // Set total ducats for specific character
 function setTotalDucats(value, charId) {
     if (!trackerState.ducat || !trackerState.ducat.characters) return;
@@ -290,6 +307,37 @@ function renameCharacter(charId, newName) {
     return true;
 }
 
+function getCharacterClassKeys() {
+    if (typeof CLASS_ORDER !== 'undefined' && Array.isArray(CLASS_ORDER) && CLASS_ORDER.length > 0) {
+        return CLASS_ORDER.slice();
+    }
+    if (typeof CLASS_DATA !== 'undefined' && CLASS_DATA && typeof CLASS_DATA === 'object') {
+        return Object.keys(CLASS_DATA);
+    }
+    return ['gladiator'];
+}
+
+function isValidCharacterClass(classKey) {
+    return getCharacterClassKeys().indexOf(classKey) !== -1;
+}
+
+function getCharacterClass(charId) {
+    if (!trackerState.ducat || !trackerState.ducat.characters) return 'gladiator';
+    var char = trackerState.ducat.characters[charId] || trackerState.ducat.characters[trackerState.ducat.activeCharacterId];
+    if (!char || !isValidCharacterClass(char.classKey)) return 'gladiator';
+    return char.classKey;
+}
+
+function setCharacterClass(charId, classKey) {
+    if (!trackerState.ducat || !trackerState.ducat.characters) return false;
+    if (!trackerState.ducat.characters[charId]) return false;
+    if (!isValidCharacterClass(classKey)) return false;
+
+    trackerState.ducat.characters[charId].classKey = classKey;
+    saveTrackerState();
+    return true;
+}
+
 // Get active character
 function getActiveCharacter() {
     if (!trackerState.ducat || !trackerState.ducat.characters) return null;
@@ -330,17 +378,39 @@ function updateCustomField(tabId, fieldIndex, value) {
 function addFieldToTab(tabId, fieldType, fieldLabel, maxValue, options) {
     var tab = trackerState[tabId];
     if (!tab || tab.isDefault) return;
-    
+
+    var defaultValue = '';
+    if (fieldType === 'checkbox') defaultValue = false;
+    else if (fieldType === 'checklist') defaultValue = {};
+
     var field = {
         id: 'field-' + Date.now(),
-        type: fieldType, // 'text', 'number', 'dropdown'
+        type: fieldType, // 'text', 'number', 'dropdown', 'checkbox', 'checklist', 'note'
         label: fieldLabel,
-        value: '',
-        maxValue: maxValue || null, // For number fields
-        options: options || [] // For dropdown fields
+        value: defaultValue,
+        maxValue: maxValue || null,
+        options: options || []
     };
-    
+
     tab.fields.push(field);
+    saveTrackerState();
+}
+
+// Toggle a checkbox field
+function toggleCheckboxField(tabId, fieldIndex) {
+    var tab = trackerState[tabId];
+    if (!tab || tab.isDefault || fieldIndex < 0 || fieldIndex >= tab.fields.length) return;
+    tab.fields[fieldIndex].value = !tab.fields[fieldIndex].value;
+    saveTrackerState();
+}
+
+// Toggle one item in a checklist field
+function toggleChecklistItem(tabId, fieldIndex, optionKey) {
+    var tab = trackerState[tabId];
+    if (!tab || tab.isDefault || fieldIndex < 0 || fieldIndex >= tab.fields.length) return;
+    var field = tab.fields[fieldIndex];
+    if (!field.value || typeof field.value !== 'object') field.value = {};
+    field.value[optionKey] = !field.value[optionKey];
     saveTrackerState();
 }
 

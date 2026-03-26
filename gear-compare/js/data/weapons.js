@@ -142,34 +142,34 @@ var JORGOTH_T2_SOURCES = {
         v3: { name: "Jorgoth's Grimoire v3", acc: 287, crit: 254 }
     },
     greatsword: {
-        v1: { name: "Jorgoth's Greatsword v1",  attack: 192 },
-        v2: { name: "Jorgoth's Greatsword v2",  acc: 184, attack: 68 },
-        v3: { name: "Jorgoth's Greatsword v3",  acc: 287 }
+        v1: { name: "Jorgoth's Greatsword v1", attack: 192 },
+        v2: { name: "Jorgoth's Greatsword v2", acc: 184, attack: 68 },
+        v3: { name: "Jorgoth's Greatsword v3", acc: 287 }
     },
     polearm: {
-        v1: { name: "Jorgoth's Polearm v1",     crit: 254 },
-        v2: { name: "Jorgoth's Polearm v2",     attack: 192 },
-        v3: { name: "Jorgoth's Polearm v3",     attack: 124, crit: 91 }
+        v1: { name: "Jorgoth's Polearm v1", crit: 254 },
+        v2: { name: "Jorgoth's Polearm v2", attack: 192 },
+        v3: { name: "Jorgoth's Polearm v3", attack: 124, crit: 91 }
     },
     staff: {
-        v1: { name: "Jorgoth's Staff v1",       crit: 254 },
-        v2: { name: "Jorgoth's Staff v2",       hp: 1341 },
-        v3: { name: "Jorgoth's Staff v3",       crit: 163, hp: 479 }
+        v1: { name: "Jorgoth's Staff v1", crit: 254 },
+        v2: { name: "Jorgoth's Staff v2", hp: 1341 },
+        v3: { name: "Jorgoth's Staff v3", crit: 163, hp: 479 }
     },
     bow: {
-        v1: { name: "Jorgoth's Bow v1",         attack: 124, crit: 91 },
-        v2: { name: "Jorgoth's Bow v2",         attack: 192, crit: 254 },
-        v3: { name: "Jorgoth's Bow v3",         attack: 383 }
+        v1: { name: "Jorgoth's Bow v1", attack: 124, crit: 91 },
+        v2: { name: "Jorgoth's Bow v2", attack: 192, crit: 254 },
+        v3: { name: "Jorgoth's Bow v3", attack: 383 }
     },
     aetherKey: {
-        v1: { name: "Jorgoth's Aether Key v1",  attack: 124, crit: 91 },
-        v2: { name: "Jorgoth's Aether Key v2",  attack: 192, crit: 254 },
-        v3: { name: "Jorgoth's Aether Key v3",  attack: 383 }
+        v1: { name: "Jorgoth's Aether Key v1", attack: 124, crit: 91 },
+        v2: { name: "Jorgoth's Aether Key v2", attack: 192, crit: 254 },
+        v3: { name: "Jorgoth's Aether Key v3", attack: 383 }
     },
     cannon: {
-        v1: { name: "Jorgoth's Cannon v1",      attack: 124, crit: 91 },
-        v2: { name: "Jorgoth's Cannon v2",      attack: 192, crit: 254 },
-        v3: { name: "Jorgoth's Cannon v3",      attack: 383 }
+        v1: { name: "Jorgoth's Cannon v1", attack: 124, crit: 91 },
+        v2: { name: "Jorgoth's Cannon v2", attack: 192, crit: 254 },
+        v3: { name: "Jorgoth's Cannon v3", attack: 383 }
     },
     paintRings: {
         v1: { name: "Jorgoth's Paint Rings v1", attack: 124, crit: 91 },
@@ -177,9 +177,9 @@ var JORGOTH_T2_SOURCES = {
         v3: { name: "Jorgoth's Paint Rings v3", attack: 383 }
     },
     harp: {
-        v1: { name: "Jorgoth's Harp v1",        attack: 124, acc: 330 },
-        v2: { name: "Jorgoth's Harp v2",        attack: 192, acc: 330 },
-        v3: { name: "Jorgoth's Harp v3",        attack: 383 }
+        v1: { name: "Jorgoth's Harp v1", attack: 124, acc: 330 },
+        v2: { name: "Jorgoth's Harp v2", attack: 192, acc: 330 },
+        v3: { name: "Jorgoth's Harp v3", attack: 383 }
     }
 };
 
