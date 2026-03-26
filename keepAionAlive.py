@@ -46,35 +46,30 @@ def refresh_process_list():
         [f"{proc.info['name']} (PID: {proc.info['pid']})" for proc in psutil.process_iter(attrs=['pid', 'name']) if proc.info['name']],
         key=lambda x: x.split(" (PID: ")[0].lower()  # Sort by process name (case-insensitive)
     )
-    process_dropdown_1['values'] = process_list
-    process_dropdown_2['values'] = process_list
 
-    # Find all instances of "aion.bin"
-    aion_processes = [proc for proc in process_list if "aion.bin" in proc.lower()]
+    # Refresh listbox with available processes
+    process_listbox.delete(0, tk.END)
+    for proc_entry in process_list:
+        process_listbox.insert(tk.END, proc_entry)
 
-    # Automatically assign "aion.bin" processes
-    if len(aion_processes) > 0:
-        process_var_1.set(aion_processes[0])  # Assign the first "aion.bin" to Process 1
-        if len(aion_processes) > 1:
-            process_var_2.set(aion_processes[1])  # Assign the second "aion.bin" to Process 2
-        else:
-            process_var_2.set("")  # Clear Process 2 if no second "aion.bin" exists
+    # Auto select aion.bin processes in listbox when required
+    aion_indices = [i for i, proc in enumerate(process_list) if "aion.bin" in proc.lower()]
+    if auto_all_var.get():
+        process_listbox.config(state='disabled')
+        for idx in aion_indices:
+            process_listbox.selection_set(idx)
     else:
-        process_var_1.set("")  # Clear Process 1 if no "aion.bin" exists
-        process_var_2.set("")  # Clear Process 2 if no "aion.bin" exists
+        process_listbox.config(state='normal')
 
     # Update the message window
     message_window.configure(state="normal")
     message_window.delete(1.0, tk.END)
     message_window.insert(tk.END, "Process list refreshed and sorted by name.\n")
-    if len(aion_processes) > 0:
-        message_window.insert(tk.END, f"'aion.bin' process automatically assigned to Process 1.\n")
-        process_active_1.set(True)
-        if len(aion_processes) > 1:
-            message_window.insert(tk.END, f"Second 'aion.bin' process automatically assigned to Process 2.\n")
-            process_active_2.set(True)
+    if aion_indices:
+        message_window.insert(tk.END, f"{len(aion_indices)} 'aion.bin' process(es) found and ready.\n")
     else:
         message_window.insert(tk.END, "No 'aion.bin' process found.\n")
+
     message_window.configure(state="disabled")
 
 # Filter processes by name
@@ -90,8 +85,9 @@ def filter_process_list():
         [f"{proc.info['name']} (PID: {proc.info['pid']})" for proc in psutil.process_iter(attrs=['pid', 'name']) if filter_text in proc.info['name'].lower()],
         key=lambda x: x.split(" (PID: ")[0].lower()  # Sort by process name (case-insensitive)
     )
-    process_dropdown_1['values'] = process_list
-    process_dropdown_2['values'] = process_list
+    process_listbox.delete(0, tk.END)
+    for proc_entry in process_list:
+        process_listbox.insert(tk.END, proc_entry)
 
     message_window.configure(state="normal")
     message_window.delete(1.0, tk.END)
@@ -111,27 +107,31 @@ def update_message_window(message):
     root.after(0, update)
 
 # Updated run_script function with thread safety
+def get_target_pids():
+    """Return PIDs based on current selection mode."""
+    if auto_all_var.get():
+        return [
+            proc.info['pid']
+            for proc in psutil.process_iter(attrs=['pid', 'name'])
+            if proc.info['name'] and proc.info['name'].lower() == 'aion.bin'
+        ]
+
+    selected_items = [process_listbox.get(i) for i in process_listbox.curselection()]
+    pids = []
+    for item in selected_items:
+        try:
+            pids.append(int(item.split('PID: ')[1].strip(')')))
+        except Exception:
+            pass
+    return pids
+
+
 def run_script(num_iterations, delay_between_iterations, key):
-    # Get selected processes and check if they are active
-    selected_process_1 = process_var_1.get()
-    selected_process_2 = process_var_2.get()
-
-    # Extract PIDs from the selected processes
-    selected_pids = []
-    if selected_process_1:
-        pid_1 = int(selected_process_1.split("PID: ")[1].strip(")"))
-    if selected_process_2:
-        pid_2 = int(selected_process_2.split("PID: ")[1].strip(")"))
-
     def rebuild_hwnds():
-        """Rebuild the hwnds list based on active processes."""
+        """Rebuild the hwnds list based on all aion.bin processes."""
         nonlocal hwnds
         hwnds = []
-        processes = []
-        if process_active_1.get() and selected_process_1:
-            processes.append(pid_1)
-        if process_active_2.get() and selected_process_2:
-            processes.append(pid_2)
+        processes = get_target_pids()
 
         def win_enum_handler(hwnd, _):
             _, pid = win32process.GetWindowThreadProcessId(hwnd)
@@ -176,6 +176,9 @@ def run_script(num_iterations, delay_between_iterations, key):
         update_message_window("\nScript execution canceled.\n")
 
 def run_script_from_input():
+    global continue_script
+    continue_script = True
+
     num_iterations = iteration_entry.get()
     delay_between_iterations = delay_entry.get()
     key = key_entry.get().upper()
@@ -192,9 +195,9 @@ def run_script_from_input():
         messagebox.showerror("Error", "Key must be a single letter, TAB, or SPACE.")
         return
 
-    # Check if at least one process is active
-    if not (process_active_1.get() or process_active_2.get()):
-        messagebox.showerror("Error", "At least one process must be active.")
+    # Check if there is at least one aion.bin process
+    if not get_target_pids():
+        messagebox.showerror("Error", "No 'aion.bin' process is currently running.")
         return
 
     threading.Thread(target=run_script, args=(int(num_iterations), float(delay_between_iterations), key), daemon=True).start()
@@ -279,12 +282,6 @@ def drag_window(event):
 title_bar.bind("<Button-1>", start_drag)
 title_bar.bind("<B1-Motion>", drag_window)
 
-# Initialize Tkinter variables (AFTER root is created)
-process_var_1 = tk.StringVar()
-process_var_2 = tk.StringVar()
-process_active_1 = tk.BooleanVar(value=False)
-process_active_2 = tk.BooleanVar(value=False)
-
 # Set global styles
 main_window.configure(bg=dark_bg)
 style.configure("TLabel", background=dark_bg, foreground=dark_fg)
@@ -349,29 +346,6 @@ style.map(
     ]
 )
 
-# Ensure the two dropdowns have different selections
-def update_process_dropdowns(*args):
-    if not process_dropdown_1 or not process_dropdown_2:
-        return  # Ensure dropdowns are initialized
-
-    selected_1 = process_var_1.get()
-    selected_2 = process_var_2.get()
-
-    # Update the options for dropdown 2 to exclude the selection from dropdown 1
-    if selected_1:
-        process_dropdown_2['values'] = [proc for proc in process_list if proc != selected_1]
-    else:
-        process_dropdown_2['values'] = process_list
-
-    # Update the options for dropdown 1 to exclude the selection from dropdown 2
-    if selected_2:
-        process_dropdown_1['values'] = [proc for proc in process_list if proc != selected_2]
-    else:
-        process_dropdown_1['values'] = process_list
-
-# Attach trace callbacks to the dropdown variables
-process_var_1.trace_add("write", update_process_dropdowns)
-process_var_2.trace_add("write", update_process_dropdowns)
 
 # Key input
 key_frame = ttk.LabelFrame(main_window, text="Key Settings", padding=(10, 10))
@@ -393,45 +367,35 @@ delay_entry.insert(0, "2")
 delay_entry.grid(row=2, column=1, sticky="w", padx=5, pady=5)
 
 # Process selection
-process_frame = ttk.LabelFrame(main_window, text="Process Selection", padding=(10, 10))
+process_frame = ttk.LabelFrame(main_window, text="Aion Process Selector", padding=(10, 10))
 process_frame.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="ew")
 
-ttk.Label(process_frame, text="Select Process 1:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
-process_dropdown_1 = ttk.Combobox(process_frame, textvariable=process_var_1, values=process_list, width=27)
-process_dropdown_1.grid(row=0, column=1, sticky="w", padx=5, pady=5)
-ttk.Checkbutton(process_frame, text="Active", variable=process_active_1).grid(row=0, column=2, sticky="w", padx=5, pady=5)
+auto_all_var = tk.BooleanVar(value=True)
 
-ttk.Label(process_frame, text="Select Process 2:").grid(row=1, column=0, sticky="w", padx=5, pady=5)
-process_dropdown_2 = ttk.Combobox(process_frame, textvariable=process_var_2, values=process_list, width=27)
-process_dropdown_2.grid(row=1, column=1, sticky="w", padx=5, pady=5)
-ttk.Checkbutton(process_frame, text="Active", variable=process_active_2).grid(row=1, column=2, sticky="w", padx=5, pady=5)
+ttk.Checkbutton(process_frame, text="Auto-target all aion.bin processes", variable=auto_all_var, style="TCheckbutton").grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
-# Add dropdowns for labeling processes
-process_label_1 = ttk.Combobox(process_frame, values=["Main", "Alt"], width=10, state="readonly")
-process_label_1.set("Main")  # Default value
-process_label_1.grid(row=0, column=3, sticky="w", padx=5, pady=5)
+ttk.Label(process_frame, text="Available processes:").grid(row=1, column=0, sticky="w", padx=5, pady=5)
+process_listbox = tk.Listbox(process_frame, selectmode=tk.MULTIPLE, width=70, height=6, bg=dark_bg, fg=dark_fg, selectbackground="#5a5a5a", selectforeground=dark_fg, highlightthickness=1, borderwidth=1)
+process_listbox.grid(row=2, column=0, columnspan=3, sticky="ew", padx=5, pady=5)
 
-process_label_2 = ttk.Combobox(process_frame, values=["Main", "Alt"], width=10, state="readonly")
-process_label_2.set("Alt")  # Default value
-process_label_2.grid(row=1, column=3, sticky="w", padx=5, pady=5)
+def select_all_aion():
+    process_listbox.selection_clear(0, tk.END)
+    for i, item in enumerate(process_list):
+        if 'aion.bin' in item.lower():
+            process_listbox.selection_set(i)
 
-# Function to handle label changes
-def update_process_labels(event):
-    # Determine which dropdown triggered the event
-    if event.widget == process_label_1:
-        if process_label_1.get() == "Main":
-            process_label_2.set("Alt")
-        elif process_label_1.get() == "Alt":
-            process_label_2.set("Main")
-    elif event.widget == process_label_2:
-        if process_label_2.get() == "Main":
-            process_label_1.set("Alt")
-        elif process_label_2.get() == "Alt":
-            process_label_1.set("Main")
+ttk.Button(process_frame, text="Select all aion.bin", command=select_all_aion).grid(row=3, column=0, sticky="w", padx=5, pady=5)
 
-# Attach trace callbacks to the dropdown variables
-process_label_1.bind("<<ComboboxSelected>>", update_process_labels)
-process_label_2.bind("<<ComboboxSelected>>", update_process_labels)
+ttk.Button(process_frame, text="Clear selection", command=lambda: process_listbox.selection_clear(0, tk.END)).grid(row=3, column=1, sticky="w", padx=5, pady=5)
+
+def toggle_auto_all(*args):
+    if auto_all_var.get():
+        process_listbox.config(state='disabled')
+    else:
+        process_listbox.config(state='normal')
+
+# Enable this to allow listbox selection when not in auto mode
+auto_all_var.trace_add('write', toggle_auto_all)
 
 # Filter and refresh
 filter_frame = ttk.LabelFrame(main_window, text="Filter and Refresh", padding=(10, 10)) 
@@ -444,15 +408,6 @@ ttk.Button(filter_frame, text="Filter", command=filter_process_list).grid(row=0,
 
 ttk.Button(filter_frame, text="Refresh Processes", command=refresh_process_list).grid(row=1, column=0)
 
-# Add an "Always on Top" button
-def toggle_always_on_top():
-    if always_on_top_var.get():
-        main_window.wm_attributes("-topmost", 1)  # Enable always on top
-    else:
-        main_window.wm_attributes("-topmost", 0)  # Disable always on top
-
-always_on_top_var = tk.BooleanVar(value=True)  # Default to always on top
-ttk.Checkbutton(filter_frame, text="Always on Top", variable=always_on_top_var, command=toggle_always_on_top, style="TCheckbutton").grid(row=1, column=2, sticky="e", padx=5, pady=5)
 
 # Run and Stop buttons
 control_frame = ttk.Frame(main_window, padding=(10, 10))
@@ -489,5 +444,4 @@ def monitor_window_state():
 # Start monitoring window state and enter the main loop
 monitor_window_state()
 
-main_window.wm_attributes("-topmost", 1)
 main_window.mainloop()
