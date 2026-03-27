@@ -753,6 +753,10 @@ function renderCollections(pid) {
     html += '<button class="gc-reset-btn" onclick="GC.resetCollections(' + pid + ')" title="Reset collections">&#x21BA;</button>';
     html += '</div>';
 
+    // -- Owned Forms picker (inline) --
+    html += renderFormsPickerHTML(pid);
+    html += '<br>';
+
     // -- Item Collections --
     html += '<div class="gc-section-label gc-coll-section-label">\uD83C\uDF92 Item Collections</div>';
     html += '<div class="gc-coll-header">';
@@ -776,9 +780,6 @@ function renderCollections(pid) {
         html += '</div>';
     });
     html += '</div>';
-
-    // -- Owned Forms picker (inline) --
-    html += renderFormsPickerHTML(pid);
 
     // -- Transformation Collections (auto-activated from owned forms) --
     var completedCount = TF_COLLECTIONS.filter(function(coll) { return isCollectionComplete(coll, ownedForms); }).length;
