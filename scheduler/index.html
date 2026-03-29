@@ -24,7 +24,7 @@
                 <div class="time-date" id="gameDate">--</div>
             </div>
             <div class="time-box server-time">
-                <div class="time-label">Server Time (UTC+1)</div>
+                <div class="time-label">Server Time (CET/CEST)</div>
                 <div class="time-value" id="serverTime">--:--:--</div>
                 <div class="time-date" id="serverDate">--</div>
             </div>
@@ -97,11 +97,11 @@
             <div class="scheduler-grid" id="schedulerGrid">
                 <!-- Populated by JS -->
             </div>
-            <div class="schedule-notes" id="scheduleNotes">Schedule shows server (UTC+1) events converted to your local time. If this area is empty there are no scheduled events for your timezone.</div>
+            <div class="schedule-notes" id="scheduleNotes">Schedule shows server (CET/CEST) events converted to your local time. If this area is empty there are no scheduled events for your timezone.</div>
         </div>
 
         <div class="schedule-notes"><br>Notes:
-            <br><br>Event times are based on server time (UTC+1) and may be subject to change. Always double-check in-game for the most accurate schedule.
+            <br><br>Event times are based on server time (CET/CEST, automatically switches for daylight saving time) and may be subject to change. Always double-check in-game for the most accurate schedule.
             <br><br>Core and Prades rifts appear at :05 after the hour, while Bassen rift appear at :00.
             <br><br>Use the legend buttons to view event details.
         </div>
@@ -145,14 +145,36 @@
         // Tracks last hour we auto-scrolled to, so we only scroll on hour change
         let lastAutoScrollHour = null;
 
-        // Get current server time (UTC+1)
+        // Determine if European timezone is currently in DST (CEST) or standard (CET)
+        function getEuropeanServerOffset() {
+            const now = new Date();
+            const year = now.getUTCFullYear();
+            
+            // CEST (UTC+2): Last Sunday of March to last Sunday of October
+            // CET (UTC+1): Last Sunday of October to last Sunday of March
+            
+            // Find last Sunday of March (CEST start)
+            let lastSundayMarch = new Date(Date.UTC(year, 2, 31)); // March 31st
+            lastSundayMarch.setUTCDate(31 - lastSundayMarch.getUTCDay());
+            
+            // Find last Sunday of October (CET start)
+            let lastSundayOctober = new Date(Date.UTC(year, 9, 31)); // October 31st
+            lastSundayOctober.setUTCDate(31 - lastSundayOctober.getUTCDay());
+            
+            // Check if current date is within DST period
+            const isCEST = now >= lastSundayMarch && now < lastSundayOctober;
+            
+            // Return offset in milliseconds (negative for ahead of UTC)
+            return isCEST ? -120 * 60 * 1000 : -60 * 60 * 1000; // UTC+2 or UTC+1
+        }
+
+        // Get current server time (Europe - dynamically switches between CET and CEST)
         function getServerTime() {
             const now = new Date();
             // getTimezoneOffset() returns minutes BEHIND UTC (negative for ahead)
-            // For UTC+2: returns -120 (120 minutes ahead)
-            // Server is UTC+1, so we need to adjust by the difference
+            // Server uses European timezone (CET/CEST), so we adjust by the difference
             const localOffsetMs = now.getTimezoneOffset() * 60 * 1000;
-            const serverOffsetMs = -60 * 60 * 1000; // UTC+1
+            const serverOffsetMs = getEuropeanServerOffset();
             const adjustmentMs = localOffsetMs - serverOffsetMs;
             const serverTime = new Date(now.getTime() + adjustmentMs);
             return serverTime;
@@ -363,7 +385,8 @@
             // Get local timezone offset
             const now = new Date();
             const localOffsetHours = -now.getTimezoneOffset() / 60;
-            const timezoneDiffHours = localOffsetHours - 1; // Server is UTC+1
+            const serverOffsetHours = -(getEuropeanServerOffset() / (60 * 1000 * 60)); // Convert ms offset to hours
+            const timezoneDiffHours = localOffsetHours - serverOffsetHours; // Dynamic offset (CET/CEST)
             
             let localHour = serverHour + timezoneDiffHours;
             let dayOffset = 0;
