@@ -87,6 +87,14 @@
     text-shadow: 0 2px 8px rgba(181, 101, 245, 0.4);
 }
 
+.ducat-title {
+    font-size: 2em;
+    color: #659ff5;
+    margin-bottom: 20px;
+    text-align: center;
+    text-shadow: 0 2px 8px rgba(181, 101, 245, 0.4);
+}
+
 .faction-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
