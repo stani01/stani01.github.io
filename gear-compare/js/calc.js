@@ -27,6 +27,7 @@ function calculateDetailedStats(profileId) {
         sources.permanent.hp += 2311;
         sources.permanent.accuracy += 180;
         sources.permanent.parry += 80;
+        sources.permanent.crit += 2;
     }
     if (selectedClass === 'gladiator') {
         sources.permanent.block += 200;

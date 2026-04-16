@@ -87,7 +87,7 @@ var SHIELD_STATS = {
         maxBonuses: 3,
         base: {
             battle: { physicalDef: 829, magicalDef: 414, block: 2675 },
-            scale:  { physicalDef: 414, magicalDef: 829, block: 2675 }
+            scale:  { physicalDef: 829, magicalDef: 414, block: 2675 }
         },
         enchant: {
             flat: { attack: 175, physicalDef: 175, magicalDef: 175 }
@@ -121,7 +121,7 @@ var SHIELD_STATS = {
         maxBonuses: 3,
         base: {
             battle: { physicalDef: 870, magicalDef: 434, block: 2809 },
-            scale:  { physicalDef: 434, magicalDef: 870, block: 2809 }
+            scale:  { physicalDef: 870, magicalDef: 434, block: 2809 }
         },
         enchant: {
             flat: { attack: 175, physicalDef: 175, magicalDef: 175 }
