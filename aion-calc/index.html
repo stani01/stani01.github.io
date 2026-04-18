@@ -13,8 +13,8 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="../assets/css/common.css?v=2.0">
-    <link rel="stylesheet" href="../assets/css/aion-calc.css?v=2.0">
+    <link rel="stylesheet" href="../assets/css/common.css?v=3.0">
+    <link rel="stylesheet" href="../assets/css/aion-calc.css?v=3.0">
 </head>
 <body class="page-calculator">
 
@@ -544,30 +544,6 @@
             </table>
         </div>
 
-        <div class="result-box">
-            <div><strong>FIND ENEMY DEFENSE</strong></div>
-            <div class="result-details" style="margin-top: 6px;">
-                <label for="observedNonCritDamage" style="display: block; margin-bottom: 6px;">Non-Crit Damage (per hit)</label>
-                <input type="text" id="observedNonCritDamage" value="" placeholder="e.g. 120000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
-            </div>
-            <div class="result-val" id="enemyDefenseResult">--</div>
-            <div class="result-details" id="enemyDefenseDetails" style="color: #999; font-size: 0.85em;">Uses current build and buffs.</div>
-        </div>
-
-        <div class="result-box">
-            <div><strong>FIND ENEMY CRIT DAMAGE</strong></div>
-            <div class="result-details" style="margin-top: 6px;">
-                <label for="critStatNonCrit">Skill Damage (Non-Crit)</label>
-                <input type="text" id="critStatNonCrit" class="input-sm" value="" placeholder="e.g. 85000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()">
-            </div>
-            <div class="result-details" style="margin-top: 6px;">
-                <label for="critStatCrit">Skill Damage (Crit)</label>
-                <input type="text" id="critStatCrit" class="input-sm" value="" placeholder="e.g. 170000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()">
-            </div>
-            <div class="result-val" id="enemyCritStatResult">--</div>
-            <div class="result-details result-note" id="enemyCritStatDetails">Uses selected weapon multiplier.</div>
-        </div>
-
         <!-- Duration-Based Statistics -->
         <div class="duration-stats">
             <h3>⏱️ Duration-Based Performance Analysis</h3>
@@ -761,6 +737,34 @@
             <div class="bar-bg"><div class="bar-fill" style="width: 5%;"></div></div>
             <div class="bar-val">5.00%</div>
         </div>
+    </div>
+
+
+    <h2>Statistics finder - Enemy def and Crit dmg</h2>
+    <p>Based on selected class and weapon, with these 2 mini 'calculators' you can find the enemy's defense and crit damage.</p>
+
+    <div class="result-box">
+        <div><strong>FIND ENEMY DEFENSE</strong></div>
+        <div class="result-details" style="margin-top: 6px;">
+            <label for="observedNonCritDamage" style="display: block; margin-bottom: 6px;">Non-Crit Damage (per hit)</label>
+            <input type="text" id="observedNonCritDamage" value="" placeholder="e.g. 120000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()" style="width: 220px;">
+        </div>
+        <div class="result-val" id="enemyDefenseResult">--</div>
+        <div class="result-details" id="enemyDefenseDetails" style="color: #999; font-size: 0.85em;">Uses current build and buffs.</div>
+    </div>
+
+    <div class="result-box">
+        <div><strong>FIND ENEMY CRIT DAMAGE</strong></div>
+        <div class="result-details" style="margin-top: 6px;">
+            <label for="critStatNonCrit">Skill Damage (Non-Crit)</label>
+            <input type="text" id="critStatNonCrit" class="input-sm" value="" placeholder="e.g. 85000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()">
+        </div>
+        <div class="result-details" style="margin-top: 6px;">
+            <label for="critStatCrit">Skill Damage (Crit)</label>
+            <input type="text" id="critStatCrit" class="input-sm" value="" placeholder="e.g. 170000" oninput="calculate(); saveSession()" onblur="validateInput(this, 0, 10000000); calculate(); saveSession()">
+        </div>
+        <div class="result-val" id="enemyCritStatResult">--</div>
+        <div class="result-details result-note" id="enemyCritStatDetails">Uses selected weapon multiplier.</div>
     </div>
     
     <div id="site-footer"></div>
@@ -3762,7 +3766,7 @@
         const enemyCritStatDetails = document.getElementById('enemyCritStatDetails');
         if (!critStatNonCritInput || !critStatCritInput || critStatNonCritInput <= 0 || critStatCritInput <= 0) {
             enemyCritStatResult.textContent = '--';
-            enemyCritStatDetails.textContent = 'Enter non-crit and crit damage to solve crit dmg stat. Besides the damage values, the weapon and class are used to find the crit dmg stat value.';
+            enemyCritStatDetails.textContent = 'Enter non-crit and crit skill damage to solve crit dmg stat. Besides the damage values, the weapon and class are used to find the crit dmg stat value.';
         } else {
             const critStat = Math.round((((critStatCritInput - (critStatNonCritInput * weaponMult)) / (critStatNonCritInput * weaponMult)) * 100) * 10);
             enemyCritStatResult.textContent = `${critStat.toLocaleString()} Crit Dmg`;
