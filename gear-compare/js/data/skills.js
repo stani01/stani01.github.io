@@ -249,6 +249,57 @@ var GC_SKILL_DATABASE = {
                       Increases Add. PvE Atk. by 600.<br>
                       Group members receive 50% of the effect.`
     },
+    'blessingOfStone': {
+        name: '[Improved] Blessing of Stone',
+        icon: '../assets/icons/live_ch_a_blessprotect_g1.png',
+        id: '6156',
+        class: 'Chanter',
+        category: 'Magical Buff',
+        usageCost: '181 MP',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: `Increases The target's HP by 25% for 30m.<br>
+                      Increases Physical Defence by 350.<br>
+                      Increases Magic Defence by 350.`
+    },
+    'prayerOfProtection': {
+        name: 'Prayer of Protection',
+        icon: '../assets/icons/cbt_cl_blessofhealth_g1.png',
+        id: '1689',
+        class: 'Chanter',
+        category: 'Magical Buff',
+        usageCost: '102 MP',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: `Increases The target's HP by 15% for 60m.<br>
+                      Increases Physical Defence by 200.<br>
+                      Increases Magic Defence by 200.`
+    },
+    'blessingOfRock': {
+        name: 'Blessing of Rock',
+        icon: '../assets/icons/cbt_cl_blessofrock_g1.png',
+        id: '1684',
+        class: 'Cleric',
+        category: 'Magical Buff',
+        usageCost: '34 MP',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: `Increases The target's HP by 10% for 60m.<br>
+                      Increases Physical Defence by 150.<br>
+                      Increases Magic Defence by 150.`
+    },
+    'melodyOfLife': {
+        name: 'Melody of Life',
+        icon: '../assets/icons/live_ba_songofstamina_g1.png',
+        id: '4449',
+        class: 'Bard',
+        category: 'Magical Buff',
+        usageCost: '289 MP',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: `Increases The target's HP by 15% for 60m.<br>
+                      Increases Physical Defence by 500.`
+    },
 
     // -- Universal buffs for physical classes --
     'magicIncitement': {
@@ -819,6 +870,10 @@ var GC_SKILL_BUFFS = {
         { key: 'blessedLight', value: '+500 Attack', stats: { attack: 500 }, defaultActive: false },
         { key: 'joltingStrike', value: '+600 PvP Attack, +600 PvE Attack', stats: { pvpAttack: 600, pveAttack: 600 }, defaultActive: false },
         { key: 'soulWave', value: '+600 PvP Attack, +600 PvE Attack', stats: { pvpAttack: 600, pveAttack: 600 }, defaultActive: false },
+        { key: 'blessingOfStone', value: '+350 Defs, +25% HP', stats: { physicalDef: 350, magicalDef: 350, hpIncreasePercent: 25 }, defaultActive: false,  excludes: ['prayerOfProtection', 'blessingOfRock', 'melodyOfLife'] },
+        { key: 'prayerOfProtection', value: '+200 Defs, +15% HP', stats: { physicalDef: 200, magicalDef: 200, hpIncreasePercent: 15 }, defaultActive: false,  excludes: ['blessingOfRock', 'melodyOfLife', 'blessingOfStone'] },
+        { key: 'blessingOfRock', value: '+150 Defs, +10% HP', stats: { physicalDef: 150, magicalDef: 150, hpIncreasePercent: 10 }, defaultActive: false,  excludes: ['prayerOfProtection', 'melodyOfLife', 'blessingOfStone'] },
+        { key: 'melodyOfLife', value: '+500 physDef, +15% HP', stats: { physicalDef: 500, hpIncreasePercent: 15 }, defaultActive: false,  excludes: ['prayerOfProtection', 'blessingOfRock', 'blessingOfStone'] },
     ],
 
     // Universal buffs shown only to PHYSICAL classes (gladiator, templar, assassin, ranger, chanter, painter)

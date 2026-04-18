@@ -23,14 +23,15 @@ function calculateDetailedStats(profileId) {
     // -- Class passives (permanent, always-on bonuses) --
     if (['gladiator', 'templar'].includes(selectedClass)) {
         sources.permanent.attack += 45;
-        //sources.permanent.hpPercent = 5;
         sources.permanent.hp += 2311;
+        sources.permanent.hp += 6644; // 25% passive
         sources.permanent.accuracy += 180;
         sources.permanent.parry += 80;
         sources.permanent.crit += 2;
     }
     if (selectedClass === 'gladiator') {
         sources.permanent.block += 200;
+        sources.permanent.hp += 3832; // 15% passive
     }
     if (selectedClass === 'templar') {
         sources.permanent.magicalDef += 60;
@@ -410,6 +411,48 @@ function calculateDetailedStats(profileId) {
             sources.skillBuffs.pvpAttack -= 150;
             sources.skillBuffs.pveAttack -= 150;
         }
+
+        // Not accurate - base hp is not helping us since items add base hp to the white value.
+        // if (buff.stats.hpIncreasePercent) {
+        //     switch (selectedClass) {
+        //         case 'gladiator':
+        //             sources.skillBuffs.hp += Math.floor(25547 * buff.stats.hpIncreasePercent/100);
+        //             break;
+        //         case 'templar':
+        //             sources.skillBuffs.hp += Math.floor(26577 * buff.stats.hpIncreasePercent/100);
+        //             break;
+        //         case 'assassin':
+        //             sources.skillBuffs.hp += Math.floor(20800 * buff.stats.hpIncreasePercent/100);
+        //             break;
+        //         case 'ranger':
+        //             sources.skillBuffs.hp += Math.floor(16177 * buff.stats.hpIncreasePercent/100);
+        //             break;
+        //         case 'sorcerer':
+        //             sources.skillBuffs.hp += Math.floor(14972 * buff.stats.hpIncreasePercent/100);
+        //             break;
+        //         case 'spiritmaster':
+        //             sources.skillBuffs.hp += Math.floor(16124 * buff.stats.hpIncreasePercent/100);
+        //             break;
+        //         case 'cleric':
+        //             sources.skillBuffs.hp += Math.floor(18549 * buff.stats.hpIncreasePercent/100);
+        //             break;
+        //         case 'chanter':
+        //             sources.skillBuffs.hp += Math.floor(20834 * buff.stats.hpIncreasePercent/100);
+        //             break;
+        //         case 'aethertech':
+        //             sources.skillBuffs.hp += Math.floor(24266 * buff.stats.hpIncreasePercent/100);
+        //             break;
+        //         case 'gunner':
+        //             sources.skillBuffs.hp += Math.floor(20834 * buff.stats.hpIncreasePercent/100);
+        //             break;
+        //         case 'bard':
+        //             sources.skillBuffs.hp += Math.floor(18488 * buff.stats.hpIncreasePercent/100);
+        //             break;
+        //         case 'painter':
+        //             sources.skillBuffs.hp += Math.floor(19644 * buff.stats.hpIncreasePercent/100);
+        //             break;
+        //     }
+        // }
     });
 
     // Compute totals from sources
@@ -426,12 +469,6 @@ function calculateDetailedStats(profileId) {
             totals.physicalDef -= Math.floor(totals.physicalDef * buff.stats.physicalDefPercentRed / 100);
         }
     });
-
-    // -- Post-processing: HP% passive (gladiator/templar) --
-    // TODO: verify in-game whether this applies to total HP or only base/gear HP
-    // if (sources.permanent.hpPercent) {
-    //     totals.hp += Math.floor(totals.hp * sources.permanent.hpPercent / 100);
-    // }
 
     return { totals: totals, sources: sources };
 }
