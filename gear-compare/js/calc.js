@@ -443,7 +443,6 @@ function calculateDetailedStats(profileId) {
     var allBuffs = getSkillBuffsForClass(selectedClass);
     var doubleMinionBuff = sb['joltingStrike'] && sb['soulWave'];
     var buffEligibleHp = getBuffEligibleHp();
-    console.log('Buff-eligible HP:', buffEligibleHp);
     if(selectedClass === 'templar') {
         var passive25perc = Math.floor(sources.permanent.hp*25/100);
         addHpToSource('permanent', passive25perc, 'bonus');
