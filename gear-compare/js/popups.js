@@ -8,6 +8,8 @@ function calculateCritPercentage(critStat) {
 }
 
 var SOURCE_LABELS = [
+      { key: 'passive',     icon: '../assets/icons/icon_ui_equipment.png', name: 'Passive' },
+      { key: 'passiveBonus',icon: '../assets/icons/icon_ui_equipment.png', name: 'Passive Bonus' },
       { key: 'weapons',     icon: '../assets/icons/icon_ui_equipment.png', name: 'Weapons' },
       { key: 'armor',       icon: '../assets/icons/icon_ui_equipment.png', name: 'Armor' },
       { key: 'accessories', icon: '../assets/icons/icon_ui_equipment.png', name: 'Accessories' },
@@ -19,10 +21,32 @@ var SOURCE_LABELS = [
       { key: 'collLevels',  icon: '../assets/icons/icon_ui_collections.png', name: 'Item Col Levels' },
       { key: 'relic',       icon: '../assets/icons/icon_item_sacredstone_levelup.png', name: 'Relic' },
       { key: 'minion',      icon: '../assets/icons/icon_ui_minion.png', name: 'Minion' },
-      { key: 'permanent',   icon: '../assets/icons/icon_ui_cube.png', name: 'Cube / Passive' },
+      { key: 'cubes',       icon: '../assets/icons/icon_ui_cube.png', name: 'Cube' },
       { key: 'trait',       icon: '../assets/icons/icon_ui_trait.png', name: 'Trait' },
       { key: 'skillBuffs', icon: '../assets/icons/icon_ui_skills.png', name: 'Skill Buffs' },
 ];
+
+function getHpTooltipText(breakdown) {
+    if (!breakdown) return '';
+    return 'White/Base HP: ' + formatNum(breakdown.base || 0) + '\nGreen/Bonus HP: ' + formatNum(breakdown.bonus || 0);
+}
+
+function getHpCellBreakdown(details) {
+    if (!details || !details.hpBreakdown) return null;
+    return {
+        base: details.hpBreakdown.buffEligible || 0,
+        bonus: details.hpBreakdown.bonus || 0
+    };
+}
+
+function getHpSourceBreakdown(details, sourceKey) {
+    if (!details || !details.hpBuckets || !details.hpBuckets[sourceKey]) return null;
+    var buckets = details.hpBuckets[sourceKey];
+    return {
+        base: buckets.base || 0,
+        bonus: buckets.bonus || 0
+    };
+}
 
 function updateComparison() {
     var idA = comparisonPair.a;
@@ -32,6 +56,8 @@ function updateComparison() {
     var d2 = calculateDetailedStats(idB);
     var stats1 = d1.totals, stats2 = d2.totals;
     var src1 = d1.sources, src2 = d2.sources;
+    var hpTotal1 = getHpCellBreakdown(d1);
+    var hpTotal2 = getHpCellBreakdown(d2);
     var panel = document.getElementById('comparison-panel');
     var nameA = getSetName(idA);
     var nameB = getSetName(idB);
@@ -135,6 +161,9 @@ function updateComparison() {
                 displayVal2 = formatNum(v2) + ' (' + calculateCritPercentage(v2) + '%)';
                 tooltipVal1 = 'Crit: ' + v1 + ' (' + calculateCritPercentage(v1) + '%)';
                 tooltipVal2 = 'Crit: ' + v2 + ' (' + calculateCritPercentage(v2) + '%)';
+            } else if (stat.key === 'hp') {
+                tooltipVal1 = getHpTooltipText(hpTotal1);
+                tooltipVal2 = getHpTooltipText(hpTotal2);
             }
             html += '<td class="gc-comp-val' + winCls1 + '"><div class="gc-comp-bar-wrap"><div class="gc-comp-bar gc-comp-bar-1" style="width:' + pct1 + '%"></div><span class="gc-comp-val-text" title="' + tooltipVal1 + '">' + displayVal1 + '</span></div></td>';
             html += '<td class="gc-comp-diff ' + diffClass + '">' + diffText + '</td>';
@@ -150,6 +179,14 @@ function updateComparison() {
                     var sd = sv1 - sv2;
                     var sdClass = sd > 0 ? 'gc-diff-positive' : sd < 0 ? 'gc-diff-negative' : 'gc-diff-zero';
                     var sdText = sd > 0 ? '+' + formatNum(sd) : sd < 0 ? formatNum(sd) : '-';
+                    var sourceTooltip1 = formatNum(sv1);
+                    var sourceTooltip2 = formatNum(sv2);
+                    if (stat.key === 'hp') {
+                        var hpSource1 = getHpSourceBreakdown(d1, sl.key);
+                        var hpSource2 = getHpSourceBreakdown(d2, sl.key);
+                        if (hpSource1) sourceTooltip1 = getHpTooltipText(hpSource1);
+                        if (hpSource2) sourceTooltip2 = getHpTooltipText(hpSource2);
+                    }
                     html += '<tr class="gc-comp-source-row" data-parent="' + stat.key + '">';
                     html += '<td class="gc-comp-source-label">';
                     if (typeof sl.icon === 'string' && (sl.icon.endsWith('.png') || sl.icon.endsWith('.jpg') || sl.icon.endsWith('.jpeg') || sl.icon.endsWith('.svg'))) {
@@ -158,9 +195,9 @@ function updateComparison() {
                         html += sl.icon + ' ';
                     }
                     html += sl.name + '</td>';
-                    html += '<td class="gc-comp-source-val">' + formatNum(sv1) + '</td>';
+                    html += '<td class="gc-comp-source-val" title="' + sourceTooltip1 + '">' + formatNum(sv1) + '</td>';
                     html += '<td class="gc-comp-source-diff ' + sdClass + '">' + sdText + '</td>';
-                    html += '<td class="gc-comp-source-val">' + formatNum(sv2) + '</td>';
+                    html += '<td class="gc-comp-source-val" title="' + sourceTooltip2 + '">' + formatNum(sv2) + '</td>';
                     html += '</tr>';
                 });
             }

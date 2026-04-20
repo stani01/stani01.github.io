@@ -3,7 +3,9 @@
 function calculateDetailedStats(profileId) {
     var profile = state[profileId];
     var sources = {
-        permanent: emptyStats(),
+        passive: emptyStats(),
+        passiveBonus: emptyStats(),
+        cubes: emptyStats(),
         weapons: emptyStats(),
         armor: emptyStats(),
         oaths: emptyStats(),
@@ -15,7 +17,6 @@ function calculateDetailedStats(profileId) {
         relic: emptyStats(),
         glyph: emptyStats(),
         minion: emptyStats(),
-        pasive: emptyStats(),
         trait: emptyStats(),
         skillBuffs: emptyStats()
     };
@@ -36,83 +37,82 @@ function calculateDetailedStats(profileId) {
     }
 
     function getBuffEligibleHp() {
-        return sources.permanent.hp
+        return hpBuckets.passive.base
             + hpBuckets.armor.base
-            + hpBuckets.weapons.base
             + hpBuckets.accessories.base;
     }
     
     // -- Class passives (permanent, always-on bonuses) --
     if (['gladiator', 'templar'].includes(selectedClass)) {
-        sources.permanent.attack += 45;
-        sources.permanent.accuracy += 180;
-        sources.permanent.parry += 80;
-        sources.permanent.crit += 2;
+        sources.passive.attack += 45;
+        sources.passive.accuracy += 180;
+        sources.passive.parry += 80;
+        sources.passive.crit += 2;
     }
     if (selectedClass === 'gladiator') {
-        addHpToSource('permanent', 25547, 'base');
-        sources.permanent.block += 200;
+        addHpToSource('passive', 25547, 'base');
+        sources.passive.block += 200;
     }
     if (selectedClass === 'templar') {
-        addHpToSource('permanent', 26577, 'base');
-        sources.permanent.magicalDef += 60;
-        sources.permanent.block += 300;
+        addHpToSource('passive', 26577, 'base');
+        sources.passive.magicalDef += 60;
+        sources.passive.block += 300;
     }
     if (selectedClass === 'assassin') {
-        addHpToSource('permanent', 20800, 'base');
-        sources.permanent.crit += 50;
-        sources.permanent.magicResist += 60;
-        sources.permanent.accuracy += 180;
+        addHpToSource('passive', 20800, 'base');
+        sources.passive.crit += 50;
+        sources.passive.magicResist += 60;
+        sources.passive.accuracy += 180;
     }
     if (selectedClass === 'ranger') {
-        addHpToSource('permanent', 16177, 'base');
-        sources.permanent.accuracy += 300;
-        sources.permanent.parry += 80;
+        addHpToSource('passive', 16177, 'base');
+        sources.passive.accuracy += 300;
+        sources.passive.parry += 80;
     }
     if (selectedClass === 'sorcerer') {
-        addHpToSource('permanent', 14972, 'base');
-        sources.permanent.attack += 543;
-        sources.permanent.magicalDef += 300;
-        sources.permanent.concentration += 25;
+        addHpToSource('passive', 14972, 'base');
+        sources.passive.attack += 543;
+        sources.passive.magicalDef += 300;
+        sources.passive.concentration += 25;
     }
     if (selectedClass === 'spiritmaster') {
-        addHpToSource('permanent', 16124, 'base');
-        sources.permanent.attack += 555;
-        sources.permanent.accuracy += 555;
-        sources.permanent.magicalDef += 500;
-        sources.permanent.concentration += 25;
+        addHpToSource('passive', 16124, 'base');
+        sources.passive.attack += 555;
+        sources.passive.accuracy += 555;
+        sources.passive.magicalDef += 500;
+        sources.passive.concentration += 25;
     }
     if (selectedClass === 'cleric') {
-        addHpToSource('permanent', 18549, 'base');
+        addHpToSource('passive', 18549, 'base');
     }
     if (selectedClass === 'chanter') {
-        addHpToSource('permanent', 24266, 'base');
-        sources.permanent.attack += 18;
-        sources.permanent.magicalDef += 60;
+        addHpToSource('passive', 24266, 'base');
+        sources.passive.attack += 18;
+        sources.passive.magicalDef += 60;
     }
     if (selectedClass === 'aethertech') {
-        addHpToSource('permanent', 24266, 'base');
-        sources.permanent.evasion += 20;
+        addHpToSource('passive', 24266, 'base');
+        sources.passive.evasion += 20;
     }
     if (selectedClass === 'gunner') {
-        addHpToSource('permanent', 20834, 'base');
+        addHpToSource('passive', 20834, 'base');
     }
     if (selectedClass === 'bard') {
-        addHpToSource('permanent', 18488, 'base');
-        sources.permanent.attack += 300;
-        sources.permanent.magicalDef += 300;
+        addHpToSource('passive', 18488, 'base');
+        sources.passive.attack += 300;
+        sources.passive.magicalDef += 300;
     }
     if (selectedClass === 'painter') {
-        addHpToSource('permanent', 19644, 'base');
-        sources.permanent.magicalDef += 300;
+        addHpToSource('passive', 19644, 'base');
+        sources.passive.magicalDef += 300;
     }
     
     // -- base stats --
-    sources.permanent.accuracy += 1275;
-    sources.permanent.magicResist += 1275;
-    sources.permanent.evasion += 1275;
-    sources.permanent.parry += 1275;
-    sources.permanent.block += 1275;
+    sources.passive.accuracy += 1275;
+    sources.passive.magicResist += 1275;
+    sources.passive.evasion += 1275;
+    sources.passive.parry += 1275;
+    sources.passive.block += 1275;
 
     // -- glyph base
     sources.glyph.attack += 50;
@@ -120,19 +120,19 @@ function calculateDetailedStats(profileId) {
     sources.glyph.magicalDef += 50;
 
     // -- cubes
-    addHpToSource('permanent', 5500, 'bonus');
-    sources.permanent.healingBoost += 133;
-    sources.permanent.attack += 417;
-    sources.permanent.physicalDef += 417;
-    sources.permanent.magicalDef += 417;
-    sources.permanent.accuracy += 606;
-    sources.permanent.evasion += 1210;
-    sources.permanent.parry += 1210;
-    sources.permanent.block += 1210;
-    sources.permanent.magicResist += 1210;
+    addHpToSource('cubes', 5500, 'bonus');
+    sources.cubes.healingBoost += 133;
+    sources.cubes.attack += 417;
+    sources.cubes.physicalDef += 417;
+    sources.cubes.magicalDef += 417;
+    sources.cubes.accuracy += 606;
+    sources.cubes.evasion += 1210;
+    sources.cubes.parry += 1210;
+    sources.cubes.block += 1210;
+    sources.cubes.magicResist += 1210;
 
     // -- base DP
-    sources.permanent.dp += 4000;
+    sources.passive.dp += 4000;
 
     // Sum armor stats across all 6 slots
     ARMOR_SLOTS.forEach(function(slot) {
@@ -444,11 +444,11 @@ function calculateDetailedStats(profileId) {
     var doubleMinionBuff = sb['joltingStrike'] && sb['soulWave'];
     var buffEligibleHp = getBuffEligibleHp();
     if(selectedClass === 'templar') {
-        var passive25perc = Math.floor(sources.permanent.hp*25/100);
-        addHpToSource('permanent', passive25perc, 'bonus');
+        var passive25perc = Math.floor(buffEligibleHp*25/100);
+        addHpToSource('passiveBonus', passive25perc, 'bonus');
     } else if (selectedClass === 'gladiator') {
-        var passive15perc = Math.floor(sources.permanent.hp*15/100);
-        addHpToSource('permanent', passive15perc, 'bonus');
+        var passive15perc = Math.floor(buffEligibleHp*15/100);
+        addHpToSource('passiveBonus', passive15perc, 'bonus');
     }
     allBuffs.forEach(function(buff) {
         if (!sb[buff.key]) return;
@@ -492,6 +492,7 @@ function calculateDetailedStats(profileId) {
     return {
         totals: totals,
         sources: sources,
+        hpBuckets: hpBuckets,
         hpBreakdown: {
             buffEligible: buffEligibleHp,
             bonus: totals.hp - buffEligibleHp
