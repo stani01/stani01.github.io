@@ -19,62 +19,95 @@ function calculateDetailedStats(profileId) {
         trait: emptyStats(),
         skillBuffs: emptyStats()
     };
+    var hpBuckets = {};
+    Object.keys(sources).forEach(function(key) {
+        hpBuckets[key] = { base: 0, bonus: 0 };
+    });
+
+    function addHpToSource(sourceKey, amount, bucketType) {
+        if (!amount) return;
+        sources[sourceKey].hp += amount;
+        if (bucketType) hpBuckets[sourceKey][bucketType] += amount;
+    }
+
+    function addStatsToSource(sourceKey, stats, hpBucketType) {
+        STAT_KEYS.forEach(function(k) { sources[sourceKey][k] += (stats[k] || 0); });
+        if (hpBucketType && stats.hp) hpBuckets[sourceKey][hpBucketType] += stats.hp;
+    }
+
+    function getBuffEligibleHp() {
+        return sources.permanent.hp
+            + hpBuckets.armor.base
+            + hpBuckets.weapons.base
+            + hpBuckets.accessories.base;
+    }
     
     // -- Class passives (permanent, always-on bonuses) --
     if (['gladiator', 'templar'].includes(selectedClass)) {
         sources.permanent.attack += 45;
-        sources.permanent.hp += 2311;
-        sources.permanent.hp += 6644; // 25% passive
         sources.permanent.accuracy += 180;
         sources.permanent.parry += 80;
         sources.permanent.crit += 2;
     }
     if (selectedClass === 'gladiator') {
+        addHpToSource('permanent', 25547, 'base');
         sources.permanent.block += 200;
-        sources.permanent.hp += 3832; // 15% passive
     }
     if (selectedClass === 'templar') {
+        addHpToSource('permanent', 26577, 'base');
         sources.permanent.magicalDef += 60;
         sources.permanent.block += 300;
     }
     if (selectedClass === 'assassin') {
+        addHpToSource('permanent', 20800, 'base');
         sources.permanent.crit += 50;
         sources.permanent.magicResist += 60;
         sources.permanent.accuracy += 180;
     }
     if (selectedClass === 'ranger') {
+        addHpToSource('permanent', 16177, 'base');
         sources.permanent.accuracy += 300;
         sources.permanent.parry += 80;
     }
-    if (selectedClass === 'chanter') {
-        sources.permanent.attack += 18;
-        sources.permanent.magicalDef += 60;
-    }
     if (selectedClass === 'sorcerer') {
+        addHpToSource('permanent', 14972, 'base');
         sources.permanent.attack += 543;
         sources.permanent.magicalDef += 300;
         sources.permanent.concentration += 25;
     }
     if (selectedClass === 'spiritmaster') {
+        addHpToSource('permanent', 16124, 'base');
         sources.permanent.attack += 555;
         sources.permanent.accuracy += 555;
         sources.permanent.magicalDef += 500;
         sources.permanent.concentration += 25;
     }
+    if (selectedClass === 'cleric') {
+        addHpToSource('permanent', 18549, 'base');
+    }
+    if (selectedClass === 'chanter') {
+        addHpToSource('permanent', 24266, 'base');
+        sources.permanent.attack += 18;
+        sources.permanent.magicalDef += 60;
+    }
+    if (selectedClass === 'aethertech') {
+        addHpToSource('permanent', 24266, 'base');
+        sources.permanent.evasion += 20;
+    }
+    if (selectedClass === 'gunner') {
+        addHpToSource('permanent', 20834, 'base');
+    }
     if (selectedClass === 'bard') {
+        addHpToSource('permanent', 18488, 'base');
         sources.permanent.attack += 300;
         sources.permanent.magicalDef += 300;
     }
     if (selectedClass === 'painter') {
+        addHpToSource('permanent', 19644, 'base');
         sources.permanent.magicalDef += 300;
-    }
-    if (selectedClass === 'aethertech') {
-        sources.permanent.evasion += 20;
     }
     
     // -- base stats --
-    //TODO: check for every class, applies to AT only atm.
-    sources.permanent.hp += 24266; // 25547 - 1281
     sources.permanent.accuracy += 1275;
     sources.permanent.magicResist += 1275;
     sources.permanent.evasion += 1275;
@@ -87,7 +120,7 @@ function calculateDetailedStats(profileId) {
     sources.glyph.magicalDef += 50;
 
     // -- cubes
-    sources.permanent.hp += 5500;
+    addHpToSource('permanent', 5500, 'bonus');
     sources.permanent.healingBoost += 133;
     sources.permanent.attack += 417;
     sources.permanent.physicalDef += 417;
@@ -106,6 +139,8 @@ function calculateDetailedStats(profileId) {
         var piece = profile.armor[slot.key];
         var armorStats = getArmorSlotStats(profile.armorType, piece.set, slot.key, piece.enchant, piece.bonuses, piece.bonusValues);
         STAT_KEYS.forEach(function(k) { sources.armor[k] += (armorStats[k] || 0); });
+        hpBuckets.armor.base += armorStats.hpBase || 0;
+        hpBuckets.armor.bonus += armorStats.hpBonus || 0;
     });
 
     // -- Apsu Illusion stats (flat deltas only; bonus overrides are handled
@@ -118,7 +153,11 @@ function calculateDetailedStats(profileId) {
             if (apsuSlotPiece && apsuSlotPiece.set === 'fighting-spirit') {
                 for (var ak in apsuInfo.stats) {
                     if (apsuInfo.stats.hasOwnProperty(ak) && typeof sources.armor[ak] === 'number') {
-                        sources.armor[ak] += apsuInfo.stats[ak];
+                        if (ak === 'hp') {
+                            addHpToSource('armor', apsuInfo.stats[ak], 'base');
+                        } else {
+                            sources.armor[ak] += apsuInfo.stats[ak];
+                        }
                     }
                 }
             }
@@ -132,39 +171,46 @@ function calculateDetailedStats(profileId) {
     var ohType = getEffectiveOffHandType(profile);
     var ohSet = profile.offHand.set;
 
+    function addWeaponComponent(component, hpBucketType) {
+        addStatsToSource('weapons', component, hpBucketType);
+    }
+
     if (ohType === 'none') {
-        STAT_KEYS.forEach(function(k) {
-            sources.weapons[k] += mainParts.base[k] + mainParts.bonus[k] + mainParts.enchant[k];
-        });
+        addWeaponComponent(mainParts.base, 'base');
+        addWeaponComponent(mainParts.bonus, 'bonus');
+        addWeaponComponent(mainParts.enchant, 'bonus');
 
     } else if (ohType === 'shield') {
-        STAT_KEYS.forEach(function(k) {
-            sources.weapons[k] += mainParts.base[k] + mainParts.bonus[k] + mainParts.enchant[k];
-        });
+        addWeaponComponent(mainParts.base, 'base');
+        addWeaponComponent(mainParts.bonus, 'bonus');
+        addWeaponComponent(mainParts.enchant, 'bonus');
         var sh = profile.shield;
         var sStats = getShieldStats(sh.set, sh.type, sh.bonuses, isPhysicalClass(selectedClass), sh.bonusValues);
         STAT_KEYS.forEach(function(k) { sources.weapons[k] += (sStats[k] || 0); });
+        hpBuckets.weapons.base += sStats.hpBase || 0;
+        hpBuckets.weapons.bonus += sStats.hpBonus || 0;
 
     } else if (ohType === 'fuse') {
         var fuseParts = getWeaponParts(ohSet, mwType, profile.offHand.enchant, profile.offHand.bonuses, profile.offHand.bonusValues);
-        STAT_KEYS.forEach(function(k) {
-            sources.weapons[k] += mainParts.base[k] + mainParts.bonus[k] + mainParts.enchant[k] + fuseParts.bonus[k];
-        });
+        addWeaponComponent(mainParts.base, 'base');
+        addWeaponComponent(mainParts.bonus, 'bonus');
+        addWeaponComponent(mainParts.enchant, 'bonus');
+        addWeaponComponent(fuseParts.bonus, 'bonus');
         sources.weapons.attack += Math.floor(fuseParts.baseAtk / 10);
 
     } else if (ohType === 'weapon') {
         var ohParts = getWeaponParts(ohSet, weaponConfig.offHandWeaponType, profile.offHand.enchant, profile.offHand.bonuses, profile.offHand.bonusValues);
         if (selectedClass === 'gunner') {
-            STAT_KEYS.forEach(function(k) { sources.weapons[k] += mainParts.base[k]; });
+            addWeaponComponent(mainParts.base, 'base');
         } else {
             STAT_KEYS.forEach(function(k) {
                 sources.weapons[k] += Math.max(mainParts.base[k], ohParts.base[k]);
             });
         }
-        STAT_KEYS.forEach(function(k) {
-            sources.weapons[k] += mainParts.bonus[k] + mainParts.enchant[k]
-                      +  ohParts.bonus[k]   + ohParts.enchant[k];
-        });
+        addWeaponComponent(mainParts.bonus, 'bonus');
+        addWeaponComponent(mainParts.enchant, 'bonus');
+        addWeaponComponent(ohParts.bonus, 'bonus');
+        addWeaponComponent(ohParts.enchant, 'bonus');
     }
 
     // Oath pair bonuses
@@ -227,8 +273,10 @@ function calculateDetailedStats(profileId) {
         var slotData = setData[statsType];
         if (!slotData) return;
         for (var k in slotData.base) { sources.accessories[k] += slotData.base[k]; }
+        if (slotData.base.hp) hpBuckets.accessories.base += slotData.base.hp;
         if (slotData.fixed) {
             for (var k in slotData.fixed) { sources.accessories[k] += slotData.fixed[k]; }
+            if (slotData.fixed.hp) hpBuckets.accessories.bonus += slotData.fixed.hp;
         }
         if (slotData.physDef) {
             if (isPhys) { sources.accessories.physicalDef += slotData.physDef; }
@@ -240,6 +288,7 @@ function calculateDetailedStats(profileId) {
                 if (b) {
                     var bv = (acc.bonusValues && typeof acc.bonusValues[bk] === 'number') ? acc.bonusValues[bk] : b.value;
                     sources.accessories[b.stat] += bv;
+                    if (b.stat === 'hp') hpBuckets.accessories.bonus += bv;
                 }
             });
         }
@@ -393,6 +442,15 @@ function calculateDetailedStats(profileId) {
     var sbe = profile.skillBuffEnchants || {};
     var allBuffs = getSkillBuffsForClass(selectedClass);
     var doubleMinionBuff = sb['joltingStrike'] && sb['soulWave'];
+    var buffEligibleHp = getBuffEligibleHp();
+    console.log('Buff-eligible HP:', buffEligibleHp);
+    if(selectedClass === 'templar') {
+        var passive25perc = Math.floor(sources.permanent.hp*25/100);
+        addHpToSource('permanent', passive25perc, 'bonus');
+    } else if (selectedClass === 'gladiator') {
+        var passive15perc = Math.floor(sources.permanent.hp*15/100);
+        addHpToSource('permanent', passive15perc, 'bonus');
+    }
     allBuffs.forEach(function(buff) {
         if (!sb[buff.key]) return;
         if (!buff.stats) return;
@@ -412,47 +470,9 @@ function calculateDetailedStats(profileId) {
             sources.skillBuffs.pveAttack -= 150;
         }
 
-        // Not accurate - base hp is not helping us since items add base hp to the white value.
-        // if (buff.stats.hpIncreasePercent) {
-        //     switch (selectedClass) {
-        //         case 'gladiator':
-        //             sources.skillBuffs.hp += Math.floor(25547 * buff.stats.hpIncreasePercent/100);
-        //             break;
-        //         case 'templar':
-        //             sources.skillBuffs.hp += Math.floor(26577 * buff.stats.hpIncreasePercent/100);
-        //             break;
-        //         case 'assassin':
-        //             sources.skillBuffs.hp += Math.floor(20800 * buff.stats.hpIncreasePercent/100);
-        //             break;
-        //         case 'ranger':
-        //             sources.skillBuffs.hp += Math.floor(16177 * buff.stats.hpIncreasePercent/100);
-        //             break;
-        //         case 'sorcerer':
-        //             sources.skillBuffs.hp += Math.floor(14972 * buff.stats.hpIncreasePercent/100);
-        //             break;
-        //         case 'spiritmaster':
-        //             sources.skillBuffs.hp += Math.floor(16124 * buff.stats.hpIncreasePercent/100);
-        //             break;
-        //         case 'cleric':
-        //             sources.skillBuffs.hp += Math.floor(18549 * buff.stats.hpIncreasePercent/100);
-        //             break;
-        //         case 'chanter':
-        //             sources.skillBuffs.hp += Math.floor(20834 * buff.stats.hpIncreasePercent/100);
-        //             break;
-        //         case 'aethertech':
-        //             sources.skillBuffs.hp += Math.floor(24266 * buff.stats.hpIncreasePercent/100);
-        //             break;
-        //         case 'gunner':
-        //             sources.skillBuffs.hp += Math.floor(20834 * buff.stats.hpIncreasePercent/100);
-        //             break;
-        //         case 'bard':
-        //             sources.skillBuffs.hp += Math.floor(18488 * buff.stats.hpIncreasePercent/100);
-        //             break;
-        //         case 'painter':
-        //             sources.skillBuffs.hp += Math.floor(19644 * buff.stats.hpIncreasePercent/100);
-        //             break;
-        //     }
-        // }
+        if (buff.stats.hpIncreasePercent) {
+            sources.skillBuffs.hp += Math.floor(buffEligibleHp * buff.stats.hpIncreasePercent / 100);
+        }
     });
 
     // Compute totals from sources
@@ -470,5 +490,12 @@ function calculateDetailedStats(profileId) {
         }
     });
 
-    return { totals: totals, sources: sources };
+    return {
+        totals: totals,
+        sources: sources,
+        hpBreakdown: {
+            buffEligible: buffEligibleHp,
+            bonus: totals.hp - buffEligibleHp
+        }
+    };
 }

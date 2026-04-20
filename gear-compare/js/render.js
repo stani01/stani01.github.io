@@ -345,7 +345,7 @@ function renderSkillBuffs(pid) {
     html += '</div>';
 
     html += '<div class="info-box">✅ Database Updated.<br>Skills and buffs for all primary classes are now live. Found a discrepancy? Let us know!</div>';
-    html += '<div class="warning-box">HP buffs are not adding HP because this tool does not track HP as white vs green like in game so the bonus won\'t be accurate.</div>';
+    html += '<div class="info-box">HP buffs now use white HP only. Green bonus HP from gear bonuses is excluded from the percentage calculation.</div>';
     // Universal buffs
     var universalBuffs = GC_SKILL_BUFFS.universal;
     if (universalBuffs.length > 0) {

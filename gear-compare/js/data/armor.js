@@ -130,6 +130,8 @@ var OBST_ENCHANT = {
 // Calculate actual stats for one armor slot
 function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBonuses, bonusValues) {
     var s = emptyStats();
+    s.hpBase = 0;
+    s.hpBonus = 0;
 
     // No armor equipped - return zero stats
     if (setKey === 'none') return s;
@@ -140,7 +142,8 @@ function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBon
         if (!def) return s;
         var d = def[tier];
         var c = FS_COMMON[tier];
-        s.hp = c.hp;
+        s.hpBase = c.hp;
+        s.hp = s.hpBase;
         s.attack = c.attack + c.enchAtk;
         s.physicalDef = d[0] + c.enchDef;
         s.magicalDef = d[1] + c.enchDef;
@@ -154,9 +157,11 @@ function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBon
                 if (found && found.stat) {
                     var bv = (bonusValues && typeof bonusValues[bKey] === 'number') ? bonusValues[bKey] : found.value;
                     s[found.stat] += bv;
+                    if (found.stat === 'hp') s.hpBonus += bv;
                 }
             });
         }
+        s.hp += s.hpBonus;
     } else if (setKey === 'acrimony' || setKey === 'presumption' || setKey === 'obstinacy') {
         var tier = EX_TIER[slotKey];
         var baseDef = EX_BASE_DEF[armorType];
@@ -165,15 +170,16 @@ function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBon
         var ec = EX_COMMON[tier];
         s.physicalDef = bd[0];
         s.magicalDef = bd[1];
-        s.hp = ec.hp;
+        s.hpBase = ec.hp;
+        s.hp = s.hpBase;
         s.attack = ec.attack;
         // Base bonus
         if (setKey === 'acrimony') {
-            s.attack += 20; s.physicalDef += 10; s.magicalDef += 10; s.hp += 20; s.crit += 20;
+            s.attack += 20; s.physicalDef += 10; s.magicalDef += 10; s.hpBonus += 20; s.crit += 20;
         } else if (setKey === 'presumption') {
-            s.attack += 20; s.physicalDef += 20; s.magicalDef += 20; s.hp += 20;
+            s.attack += 20; s.physicalDef += 20; s.magicalDef += 20; s.hpBonus += 20;
         } else if (setKey === 'obstinacy') {
-            s.magicResist += 30; s.physicalDef += 15; s.magicalDef += 15; s.hp += 20;
+            s.magicResist += 30; s.physicalDef += 15; s.magicalDef += 15; s.hpBonus += 20;
         }
         // Enchant bonuses (+8 to +15)
         var bonusTable = (setKey === 'acrimony') ? ACRI_ENCHANT : (setKey === 'presumption') ? PRES_ENCHANT : OBST_ENCHANT;
@@ -186,11 +192,12 @@ function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBon
             }
             s.physicalDef += b.def[tier];
             s.magicalDef += b.def[tier];
-            s.hp += b.hp[tier];
+            s.hpBonus += b.hp[tier];
             if (setKey === 'acrimony' && b.crit) {
                 s.crit += b.crit[tier];
             }
         }
+        s.hp += s.hpBonus;
     }
     return s;
 }
