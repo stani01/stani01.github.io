@@ -10,8 +10,8 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="../assets/css/common.css?v=1.0">
-    <link rel="stylesheet" href="../assets/css/scheduler.css?v=1.0">
+    <link rel="stylesheet" href="../assets/css/common.css?v=2.0">
+    <link rel="stylesheet" href="../assets/css/scheduler.css?v=2.0">
 </head>
 <body class="page-scheduler">
     <div class="container">
@@ -59,7 +59,17 @@
             </div>
         </div>
 
-        <div class="event-section" id="currentEventSection" style="display:none;">
+        <!-- Event details panel (shown when clicking an event) -->
+        <div id="eventDetailsPanel" class="event-details-panel is-hidden">
+            <div class="ed-header">
+                <div class="ed-title">Event</div>
+                <button class="ed-close" id="edCloseBtn">✕</button>
+            </div>
+            <div class="ed-meta"></div>
+            <div class="ed-body"></div>
+        </div>
+
+        <div class="event-section is-hidden" id="currentEventSection">
             <div class="event-title">▶ Current event:</div>
             <div class="event-info" id="currentEventInfo">None</div>
         </div>
@@ -71,16 +81,6 @@
 
         <div class="scheduler-controls">
             <button id="toggleEmptyHoursBtn" class="plain-button">Hide empty hours</button>
-        </div>
-
-        <!-- Event details panel (shown when clicking an event) -->
-        <div id="eventDetailsPanel" class="event-details-panel" style="display:none;">
-            <div class="ed-header">
-                <div class="ed-title">Event</div>
-                <button class="ed-close" id="edCloseBtn">✕</button>
-            </div>
-            <div class="ed-meta"></div>
-            <div class="ed-body"></div>
         </div>
 
         <div class="scheduler-grid-wrapper">
@@ -338,16 +338,17 @@
             const nextSection = document.getElementById('nextEventSection');
 
             if (current && current.length > 0) {
-                currentSection.style.display = 'block';
+                currentSection.classList.remove('is-hidden');
                 // Show first current event prominently, list others below
                 const first = current[0];
                 const remainingSec = Math.max(0, Math.floor((first.end - now) / 1000));
                 const remMin = Math.floor(remainingSec / 60);
                 const remSec = remainingSec % 60;
                 currentInfo.textContent = `${first.event.name} - ${remMin}m ${remSec}s remaining`;
-                currentInfo.style.color = getEventColor(first.event.type);
+                setEventInfoType(currentInfo, first.event.type);
             } else {
-                currentSection.style.display = 'none';
+                currentSection.classList.add('is-hidden');
+                setEventInfoType(currentInfo, '');
             }
 
             const nextEvent = getNextEvent();
@@ -364,22 +365,20 @@
                 }
 
                 nextInfo.textContent = `${nextEvent.name} - ${timeStr}`;
-                nextInfo.style.color = getEventColor(nextEvent.type);
-                if (nextSection) nextSection.style.display = 'block';
+                setEventInfoType(nextInfo, nextEvent.type);
+                if (nextSection) nextSection.classList.remove('is-hidden');
             } else {
-                if (nextSection) nextSection.style.display = 'none';
+                setEventInfoType(nextInfo, '');
+                if (nextSection) nextSection.classList.add('is-hidden');
             }
         }
 
-        function getEventColor(type) {
-            const colors = {
-                'altar': '#c49c3a',
-                'agent': '#42a5f5',
-                'npc': '#5442f5',
-                'fortress': '#ef5350',
-                'arena': '#ab47bc'
-            };
-            return colors[type] || '#fff';
+        function setEventInfoType(element, type) {
+            if (!element) return;
+            element.classList.remove('event-type-altar', 'event-type-agent', 'event-type-npc', 'event-type-fortress', 'event-type-arena');
+            if (type) {
+                element.classList.add(`event-type-${type}`);
+            }
         }
 
         function convertServerTimeToLocal(serverHour, serverMinute) {
@@ -411,9 +410,24 @@
                 'Inggison + Gelkmaros + Core': 'Siege',
                 'Bassen': 'Siege',
                 'Prades': 'Siege',
-                'Arena of Chaos': 'Chaos'
+                'Arena of Chaos': 'AoC'
             };
             return shortNames[eventName] || eventName;
+        }
+
+        function buildSchedulerEvent(data, labelOverride = '') {
+            const eventDiv = document.createElement('div');
+            eventDiv.className = `scheduler-event event-${data.event.type}`;
+            if (!data.isStart) eventDiv.classList.add('event-continuation');
+            eventDiv.dataset.eventIndex = events.indexOf(data.event);
+            eventDiv.dataset.serverTime = data.serverTime;
+
+            const isMobile = window.innerWidth <= 768;
+            const displayName = labelOverride || (isMobile ? shortenEventName(data.event.name) : data.event.name);
+            eventDiv.innerHTML = `<span class="event-label">${displayName}</span>`;
+            eventDiv.title = data.event.name;
+
+            return eventDiv;
         }
 
         // Shorten day header names for mobile view (keep first letter)
@@ -538,6 +552,52 @@
                         // Sort by minute
                         slotEvents.sort((a, b) => a.minute - b.minute);
 
+                        const starterEvents = slotEvents.filter(data => data.isStart);
+                        const continuationEvents = slotEvents.filter(data => !data.isStart);
+                        const specialArenaSplit = continuationEvents.length === 1
+                            && continuationEvents[0].event.type === 'arena'
+                            && starterEvents.length >= 2;
+
+                        if (specialArenaSplit) {
+                            const splitLayout = document.createElement('div');
+                            splitLayout.className = 'scheduler-cell-split';
+
+                            const primaryColumn = document.createElement('div');
+                            primaryColumn.className = 'scheduler-split-primary';
+
+                            const secondaryColumn = document.createElement('div');
+                            secondaryColumn.className = 'scheduler-split-secondary';
+
+                            const starterGroups = {};
+                            starterEvents.forEach(data => {
+                                if (!starterGroups[data.minute]) starterGroups[data.minute] = [];
+                                starterGroups[data.minute].push(data);
+                            });
+
+                            Object.keys(starterGroups)
+                                .map(Number)
+                                .sort((a, b) => a - b)
+                                .forEach(minute => {
+                                    const group = starterGroups[minute];
+                                    const container = group.length > 1 ? document.createElement('div') : primaryColumn;
+                                    if (group.length > 1) {
+                                        container.className = 'event-row-group';
+                                        primaryColumn.appendChild(container);
+                                    }
+                                    group.forEach(data => {
+                                        (container || primaryColumn).appendChild(buildSchedulerEvent(data));
+                                    });
+                                });
+
+                            secondaryColumn.appendChild(buildSchedulerEvent(continuationEvents[0], 'AoC'));
+
+                            splitLayout.appendChild(primaryColumn);
+                            splitLayout.appendChild(secondaryColumn);
+                            cell.appendChild(splitLayout);
+                            grid.appendChild(cell);
+                            continue;
+                        }
+
                         // Group events by minute
                         const minuteGroups = {};
                         slotEvents.forEach(data => {
@@ -560,18 +620,7 @@
                             }
 
                             group.forEach(data => {
-                                const eventDiv = document.createElement('div');
-                                eventDiv.className = `scheduler-event event-${data.event.type}`;
-                                if (!data.isStart) eventDiv.classList.add('event-continuation');
-                                eventDiv.dataset.eventIndex = events.indexOf(data.event);
-                                eventDiv.dataset.serverTime = data.serverTime;
-
-                                const isMobile = window.innerWidth <= 768;
-                                const displayName = isMobile ? shortenEventName(data.event.name) : data.event.name;
-                                eventDiv.innerHTML = `<span class="event-label">${displayName}</span>`;
-                                eventDiv.title = data.event.name + (data.isStart ? '' : ' (ongoing)');
-
-                                (container || cell).appendChild(eventDiv);
+                                (container || cell).appendChild(buildSchedulerEvent(data));
                             });
                         });
                     }
@@ -587,19 +636,35 @@
             const scheduleNotes = document.getElementById('scheduleNotes');
             if (scheduleNotes) {
                 const hasAnyEvent = grid.querySelector('.scheduler-event') !== null;
-                scheduleNotes.style.display = hasAnyEvent ? 'none' : 'block';
+                scheduleNotes.classList.toggle('is-hidden', hasAnyEvent);
             }
         }
 
         function setupLegendFilters() {
             document.querySelectorAll('.legend-item').forEach(item => {
+                item.setAttribute('aria-expanded', 'false');
                 item.addEventListener('click', function() {
-                    // toggle visual active state
-                    this.classList.toggle('active');
                     const eventType = this.dataset.eventType;
-                    // Show aggregated details for this event type
+                    const panel = document.getElementById('eventDetailsPanel');
+                    const isOpenForType = panel
+                        && !panel.classList.contains('is-hidden')
+                        && panel.dataset.detailType === eventType;
+
+                    if (isOpenForType) {
+                        hideEventDetails();
+                        return;
+                    }
+
                     showEventDetailsForType(eventType);
                 });
+            });
+        }
+
+        function setLegendDetailState(eventType = '') {
+            document.querySelectorAll('.legend-item').forEach(item => {
+                const isOpen = eventType !== '' && item.dataset.eventType === eventType;
+                item.classList.toggle('detail-open', isOpen);
+                item.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             });
         }
 
@@ -623,11 +688,31 @@
             matching.forEach(ev => {
                 const daysStr = ev.days.map(d => daysMap[d]).join(', ');
                 const timesStr = ev.times.join(', ');
-                html += `<div style="margin-bottom:10px;"><strong>${ev.name}</strong><div>Server times: ${timesStr}</div><div>Days: ${daysStr}</div><div>Duration: ${ev.duration || 60}m</div><div style="margin-top:6px;">${ev.details || 'No details available.'}</div></div>`;
+                html += `
+                    <div class="event-detail-card">
+                        <div class="event-detail-name">${ev.name}</div>
+                        <div class="event-detail-grid">
+                            <div class="event-detail-item">
+                                <span class="event-detail-label">Server Times</span>
+                                <span>${timesStr}</span>
+                            </div>
+                            <div class="event-detail-item">
+                                <span class="event-detail-label">Days</span>
+                                <span>${daysStr}</span>
+                            </div>
+                            <div class="event-detail-item">
+                                <span class="event-detail-label">Duration</span>
+                                <span>${ev.duration || 60}m</span>
+                            </div>
+                        </div>
+                        <div class="event-detail-copy">${ev.details || 'No details available.'}</div>
+                    </div>`;
             });
 
             body.innerHTML = html;
-            panel.style.display = 'block';
+            panel.dataset.detailType = eventType;
+            setLegendDetailState(eventType);
+            panel.classList.remove('is-hidden');
         }
 
         function updateNowHighlight() {
@@ -644,8 +729,6 @@
             const todayHeader = document.querySelector(`.day-header[data-day="${currentDayOfWeek}"]`);
             if (todayHeader) {
                 todayHeader.classList.add('today');
-                // Add position relative so ::after positioning works
-                todayHeader.style.position = 'relative';
             }
             
             // Remove previous hour label highlights and update to current hour
@@ -694,10 +777,10 @@
         // Apply or remove hiding of empty hours rows
         function applyHideEmptyHours(shouldHide) {
             document.querySelectorAll('.hour-label-empty').forEach(el => {
-                el.style.display = shouldHide ? 'none' : '';
+                el.classList.toggle('is-hidden', shouldHide);
             });
             document.querySelectorAll('.scheduler-cell-empty').forEach(el => {
-                el.style.display = shouldHide ? 'none' : '';
+                el.classList.toggle('is-hidden', shouldHide);
             });
 
             const btn = document.getElementById('toggleEmptyHoursBtn');
@@ -756,14 +839,27 @@
             const daysMap = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
             const daysStr = eventObj.days.map(d => daysMap[d]).join(', ');
 
-            body.innerHTML = `${timesHtml}<div><strong>Days:</strong> ${daysStr}</div><div style="margin-top:8px;">${eventObj.details || 'No details available.'}</div>`;
+            body.innerHTML = `
+                <div class="event-detail-card">
+                    <div class="event-detail-grid">
+                        ${timesHtml ? `<div class="event-detail-item"><span class="event-detail-label">Server Times</span><span>${eventObj.times.join(', ')}</span></div>` : ''}
+                        <div class="event-detail-item"><span class="event-detail-label">Days</span><span>${daysStr}</span></div>
+                        <div class="event-detail-item"><span class="event-detail-label">Duration</span><span>${eventObj.duration || 60}m</span></div>
+                        ${serverTime ? `<div class="event-detail-item"><span class="event-detail-label">Selected Start</span><span>${serverTime}</span></div>` : ''}
+                    </div>
+                    <div class="event-detail-copy">${eventObj.details || 'No details available.'}</div>
+                </div>`;
 
-            detailsPanel.style.display = 'block';
+            detailsPanel.classList.remove('is-hidden');
         }
 
         function hideEventDetails() {
             const detailsPanel = document.getElementById('eventDetailsPanel');
-            if (detailsPanel) detailsPanel.style.display = 'none';
+            if (detailsPanel) {
+                detailsPanel.classList.add('is-hidden');
+                detailsPanel.dataset.detailType = '';
+            }
+            setLegendDetailState('');
         }
 
         function getAionGameTime(serverTime) {
@@ -834,8 +930,8 @@
                 const clickInsidePanel = panel.contains(e.target);
                 const clickedEvent = e.target.classList.contains('scheduler-event') || e.target.closest('.scheduler-event');
                 const clickedLegend = e.target.classList.contains('legend-item') || e.target.closest('.legend-item') || e.target.closest('.legend');
-                if (panel.style.display === 'block' && !clickInsidePanel && !clickedEvent && !clickedLegend) {
-                    panel.style.display = 'none';
+                if (!panel.classList.contains('is-hidden') && !clickInsidePanel && !clickedEvent && !clickedLegend) {
+                    hideEventDetails();
                 }
             });
             // No separate progressive fill interval; highlight updates on the 1s interval above
