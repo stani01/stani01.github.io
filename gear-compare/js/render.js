@@ -1396,7 +1396,7 @@ function renderProfile(id) {
                 ohIcon = ohWt.icon;
                 ohLabel = ohWt.name;
             }
-            var ohSets = WEAPON_SETS.filter(function(ws) { return OFFHAND_EXCLUDED_SETS.indexOf(ws.key) === -1; });
+            var ohSets = getAllowedOffHandWeaponSets(profile.mainWeapon.set, weaponConfig.mainType, weaponConfig.offHandType);
             html += '<div class="gc-armor-row">';
             var ohSetObj = ohSets.find(function(s){return s.key===profile.offHand.set;}) || ohSets[0];
             html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + id + ',\'off-weapon\',this)">';

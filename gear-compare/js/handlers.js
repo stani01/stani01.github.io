@@ -131,8 +131,9 @@ window.GC = {
     setOffHandType: function(type) {
         weaponConfig.offHandType = type;
         setOrder.forEach(function(id) {
-            if (type !== 'none' && OFFHAND_EXCLUDED_SETS.indexOf(state[id].offHand.set) !== -1) {
-                state[id].offHand.set = 'fighting-spirit';
+            // Validate off-hand set against new type and main weapon level
+            if (type !== 'none' && !isOffHandSetAllowed(state[id].mainWeapon.set, state[id].offHand.set, weaponConfig.mainType, type)) {
+                state[id].offHand.set = getDefaultOffHandSet(state[id].mainWeapon.set, weaponConfig.mainType, type);
             }
         });
         renderWeaponConfig();
@@ -153,7 +154,18 @@ window.GC = {
     setWeaponSet: function(pid, slot, setKey) {
         if (slot === 'main') {
             state[pid].mainWeapon.set = setKey;
+            // When main weapon changes, validate off-hand set against new main weapon level
+            if (weaponConfig.offHandType !== 'none' && !isOffHandSetAllowed(setKey, state[pid].offHand.set, weaponConfig.mainType, weaponConfig.offHandType)) {
+                state[pid].offHand.set = getDefaultOffHandSet(setKey, weaponConfig.mainType, weaponConfig.offHandType);
+            }
         } else {
+            // For off-hand, validate against current eligibility rules
+            if (weaponConfig.offHandType !== 'none') {
+                if (!isOffHandSetAllowed(state[pid].mainWeapon.set, setKey, weaponConfig.mainType, weaponConfig.offHandType)) {
+                    // Fallback to default allowed set
+                    setKey = getDefaultOffHandSet(state[pid].mainWeapon.set, weaponConfig.mainType, weaponConfig.offHandType);
+                }
+            }
             state[pid].offHand.set = setKey;
         }
         renderProfile(pid);
@@ -704,7 +716,7 @@ window.GC = {
             sets = WEAPON_SETS.filter(function(ws) { return MAINHAND_EXCLUDED_SETS.indexOf(ws.key) === -1; });
             currentSet = state[pid].mainWeapon.set;
         } else if (slotType === 'off-weapon') {
-            sets = WEAPON_SETS.filter(function(ws) { return OFFHAND_EXCLUDED_SETS.indexOf(ws.key) === -1; });
+            sets = getAllowedOffHandWeaponSets(state[pid].mainWeapon.set, weaponConfig.mainType, weaponConfig.offHandType);
             currentSet = state[pid].offHand.set;
         } else if (slotType === 'shield') {
             sets = SHIELD_SETS;
