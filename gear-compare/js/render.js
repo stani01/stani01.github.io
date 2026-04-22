@@ -1444,16 +1444,6 @@ function renderProfile(id) {
         var singleOpt = ARMOR_TYPE_OPTIONS.find(function(o) { return o.key === classInfo.armorTypes[0]; });
         html += '<span class="gc-armor-type-badge">' + singleOpt.name + '</span>';
     }
-    // Apsu Illusion toggle
-    var apsuInfo = APSU_DATA[selectedClass];
-    if (apsuInfo) {
-        var apsuSlotName = apsuInfo.slot.charAt(0).toUpperCase() + apsuInfo.slot.slice(1);
-        var apsuActive = profile.apsuEnabled ? ' gc-apsu-active' : '';
-        html += '<span class="gc-apsu-toggle' + apsuActive + '" onclick="GC.toggleApsu(' + id + ')" title="Apsu Illusion (' + apsuSlotName + ')">';
-        html += '<span class="gc-apsu-check">' + (profile.apsuEnabled ? '✓' : '') + '</span>';
-        html += 'Apsu';
-        html += '</span>';
-    }
     html += '</div>';
 
     var LEFT_SLOTS  = ['helmet', 'chest', 'pants'];
@@ -1619,6 +1609,8 @@ function renderArmorSlot(pid, slot, armor, profile, material) {
     var iconUrl = getArmorIcon(material, slot.iconKey);
     var slotOath = profile.oath[slot.key];
     var oathIconUrl = getOathIcon(slot.key, slotOath);
+    var apsuInfo = APSU_DATA[selectedClass];
+    var isApsuSlot = !!(apsuInfo && apsuInfo.slot === slot.key);
     var html = '<div class="gc-armor-row">';
 
     // Armor set picker (icon + name)
@@ -1630,7 +1622,11 @@ function renderArmorSlot(pid, slot, armor, profile, material) {
         html += '<div class="gc-slot-icon"><img src="' + iconUrl + '" alt="' + slot.key + '" title="' + armorSetObj.name + '"></div>';
     }
     html += '<div class="gc-set-text">';
-    html += '<span class="gc-set-name">' + armorSetObj.name + '</span>';
+    var armorSetName = armorSetObj.name;
+    if (isApsuSlot && profile.apsuEnabled && armor.set === 'fighting-spirit') {
+        armorSetName = 'Apsu';
+    }
+    html += '<span class="gc-set-name">' + armorSetName + '</span>';
     if (armor.set !== 'none') {
         html += msIndicator(pid, slot.key, armor.set, profile);
     }

@@ -13,6 +13,7 @@ window.GC = {
             if (cls.armorTypes.indexOf(p.armorType) === -1) {
                 p.armorType = cls.armorTypes[0];
             }
+
             // Clamp bonus values that were elevated by a previous class's Apsu bonusOverride
             var prevApsu = APSU_DATA[prevClass];
             if (prevApsu && prevApsu.bonusOverride && p.apsuEnabled) {
@@ -47,6 +48,11 @@ window.GC = {
                     }
                 }
             }
+
+            var classApsu = APSU_DATA[className];
+            if (!classApsu || !p.armor[classApsu.slot] || p.armor[classApsu.slot].set !== 'fighting-spirit') {
+                p.apsuEnabled = false;
+            }
         });
         renderAll();
         saveState();
@@ -59,12 +65,23 @@ window.GC = {
         saveState();
     },
 
-    toggleApsu: function(pid) {
+    toggleApsu: function(pid, slotKey) {
         var p = state[pid];
-        p.apsuEnabled = !p.apsuEnabled;
         var apsuInfo = APSU_DATA[selectedClass];
+        if (!apsuInfo) return;
+        if (slotKey && slotKey !== apsuInfo.slot) return;
+
+        var piece = p.armor[apsuInfo.slot];
+        if (!piece || piece.set !== 'fighting-spirit') {
+            p.apsuEnabled = false;
+            renderProfile(pid);
+            updateComparison();
+            saveState();
+            return;
+        }
+
+        p.apsuEnabled = !p.apsuEnabled;
         if (apsuInfo && apsuInfo.bonusOverride) {
-            var piece = p.armor[apsuInfo.slot];
             if (piece) {
                 if (!piece.bonusValues) piece.bonusValues = {};
                 var isHigh = (apsuInfo.slot === 'helmet' || apsuInfo.slot === 'chest' || apsuInfo.slot === 'pants');
@@ -727,6 +744,18 @@ window.GC = {
                 return !s.slots || s.slots.indexOf(armorSlotKey) !== -1;
             });
             currentSet = state[pid].armor[armorSlotKey].set;
+
+            var apsuInfo = APSU_DATA[selectedClass];
+            if (apsuInfo && apsuInfo.slot === armorSlotKey) {
+                var fsSet = sets.find(function(s) { return s.key === 'fighting-spirit'; });
+                if (fsSet) {
+                    sets = sets.slice();
+                    sets.push({ key: 'fighting-spirit-apsu', name: 'Apsu' });
+                    if (currentSet === 'fighting-spirit' && state[pid].apsuEnabled) {
+                        currentSet = 'fighting-spirit-apsu';
+                    }
+                }
+            }
         } else if (slotType.indexOf('acc:') === 0) {
             sets = ACCESSORY_SETS;
             currentSet = state[pid].accessories[slotType.substring(4)].set;
@@ -819,8 +848,17 @@ window.GC = {
             bc.shield = false;
         } else if (slotType.indexOf('armor:') === 0) {
             var slotKey = slotType.substring(6);
+            var pickedApsuVariant = (setKey === 'fighting-spirit-apsu');
+            if (pickedApsuVariant) setKey = 'fighting-spirit';
+
             state[pid].armor[slotKey].set = setKey;
             state[pid].armor[slotKey].bonusValues = {};
+
+            var apsuInfo = APSU_DATA[selectedClass];
+            if (apsuInfo && apsuInfo.slot === slotKey) {
+                state[pid].apsuEnabled = pickedApsuVariant;
+            }
+
             if (setKey === 'none') {
                 state[pid].armor[slotKey].bonuses = [];
                 delete state[pid].armor[slotKey].enchant;
