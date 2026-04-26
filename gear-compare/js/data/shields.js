@@ -159,6 +159,8 @@ var SHIELD_STATS = {
 //   scale shield  -> attack/crit/accuracy are magical; if class is physical -> zero them
 function getShieldStats(shieldSet, shieldType, selectedBonuses, classPhysical, bonusValues) {
     var stats = emptyStats();
+    stats.hpBase = 0;
+    stats.hpBonus = 0;
     if (shieldSet === 'none') return stats;
     var data = SHIELD_STATS[shieldSet];
     if (!data) return stats;
@@ -171,6 +173,7 @@ function getShieldStats(shieldSet, shieldType, selectedBonuses, classPhysical, b
     var base = data.base[typeKey];
     if (base) {
         STAT_KEYS.forEach(function(k) { stats[k] += (base[k] || 0); });
+        if (base.hp) stats.hpBase += base.hp;
     }
 
     // PvP/PvE base (spiked or ciclonica)
@@ -203,6 +206,7 @@ function getShieldStats(shieldSet, shieldType, selectedBonuses, classPhysical, b
             if ((bonus.key === 'attack' || bonus.key === 'crit' || bonus.key === 'accuracy') && !shieldMatchesClass) return;
             var bv = (bonusValues && typeof bonusValues[bKey] === 'number') ? bonusValues[bKey] : bonus.value;
             stats[bonus.key] += bv;
+            if (bonus.key === 'hp') stats.hpBonus += bv;
         }
     });
 
