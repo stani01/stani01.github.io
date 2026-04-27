@@ -108,7 +108,7 @@
 
                 <div class="input-group" id="fortitudeGroup" style="visibility: hidden;">
                     <label data-tooltip="Crit defence. The higher the number, the less powerful the enemy's crit spells and strikes.">Fortitude</label>
-                    <input type="number" id="fortitude" value="350" oninput="calculate()" onblur="validateInput(this, 0, 500); calculate()" min="0" max="500" placeholder="0-500" style="width: 220px;">
+                    <input type="number" id="fortitude" value="350" oninput="calculate()" onblur="validateInput(this, 0, 610); calculate()" min="0" max="500" placeholder="0-500" style="width: 220px;">
                 </div>
 
                 <div class="input-group" id="pvpDefenceGroup" style="visibility: hidden;">
@@ -1153,6 +1153,17 @@
             castTime: 'Cast Instantly',
             cooldown: '2m',
             description: 'Increases Physical Attack by 1800 for 1m.<br>Increases Speed by 10%.<br>Increases Attack Speed by 10%.<br>Increases Accuracy by 1200.<br>Increases Crit Strike by 1200.'
+        },
+        'vowOfTheCarge': {
+            name: '(Improved) Vow of the Charge',
+            icon: '../assets/icons/fi_berserkstance_custom_a_up.png',
+            id: '5722',
+            class: 'Gladiator',
+            category: 'Active',
+            usageCost: '0 MP',
+            castTime: 'Cast Instantly',
+            cooldown: '1m',
+            description: 'Increases Physical Attack by 3600 for 12s.<br>Increases Speed by 10%.<br>Increases Attack Speed by 10%.'
         },
         'defencePrep': {
             name: 'Defence Preparation',
@@ -2454,6 +2465,15 @@
                     <input type="checkbox" class="buff-checkbox" id="check-atkPos" onchange="event.stopPropagation(); calculate()">
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'attackPosition')" title="Skill Information">i</button>
                 </div>
+                <div class="buff-item" id="buff-atkPos">
+                    <img src="${skillDatabase.vowOfTheCarge.icon}" class="buff-icon">
+                    <div class="buff-info">
+                        <div class="buff-name">(Improved) Attack Position</div>
+                        <div class="buff-value">+3600 Atk</div>
+                    </div>
+                    <input type="checkbox" class="buff-checkbox" id="check-vowOfCharge" onchange="event.stopPropagation(); calculate()">
+                    <button class="skill-info-btn" onclick="showSkillInfo(event, 'vowOfTheCarge')" title="Skill Information">i</button>
+                </div>
                 <div class="buff-item" id="buff-defPrep">
                     <img src="${skillDatabase.defencePrep.icon}" class="buff-icon">
                     <div class="buff-info">
@@ -3208,6 +3228,9 @@
                 attackBonus += 1800;
                 critBonus += 1200;
             }
+            if (document.getElementById('check-vowOfCharge')?.checked) {
+                attackBonus += 3600;
+            }
             if (document.getElementById('check-defPrep')?.checked) {
                 pvpAttackBonus -= 600;
             }
@@ -3899,6 +3922,7 @@
                 mist: document.getElementById('check-mist')?.checked,
                 eye: document.getElementById('check-eye')?.checked,
                 atkPos: document.getElementById('check-atkPos')?.checked,
+                vowOfCharge: document.getElementById('check-vowOfCharge')?.checked,
                 defPrep: document.getElementById('check-defPrep')?.checked,
                 combPrep: document.getElementById('check-combPrep')?.checked,
                 divFury: document.getElementById('check-divFury')?.checked,
