@@ -18,12 +18,12 @@
         <h1>AION Retail EU - Schedule</h1>
         
         <div class="time-display-section">
+            <!-- Game time formulas broken 
             <div class="time-box game-time">
                 <div class="time-label">Game Time (Atreia)</div>
                 <div class="time-value" id="gameTime">--:--:--</div>
-                <!-- <div class="time-date" id="gameDate">--</div> -->
-                <span>Date formula broken</span>
-            </div>
+                <div class="time-date" id="gameDate">--</div>
+            </div> -->
             <div class="time-box server-time">
                 <div class="time-label">Server Time (CET/CEST)</div>
                 <div class="time-value" id="serverTime">--:--:--</div>
@@ -219,7 +219,7 @@
             document.getElementById('serverTime').textContent = `${serverHours}:${serverMinutes}:${serverSeconds}`;
             document.getElementById('serverDate').textContent = `${serverDay}.${serverMonth}.${serverYear}`;
             
-            document.getElementById('gameTime').textContent = gameTime.time;
+            //document.getElementById('gameTime').textContent = gameTime.time;
             //document.getElementById('gameDate').textContent = gameTime.date;
 
             // Local time
