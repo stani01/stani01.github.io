@@ -438,6 +438,17 @@ var GC_SKILL_DATABASE = {
         cooldown: '5s',
         description: 'The Enmity caused by your attack is increased.<br>Increases Additional PvE Defence by 2500.<br>Increases Additional PvE Attack by 1500.<br>Reduces Physical Attack by 1000.<br>Active Skill.'
     },
+    'ankleBlow': {
+        name: '(Improved) Ankle Blow',
+        icon: '../assets/icons/kn_breakpower_custom_c_up.png',
+        id: '5735',
+        class: 'Templar',
+        category: 'Active',
+        usageCost: '173 MP',
+        castTime: 'Cast Instantly',
+        cooldown: '32s',
+        description: 'Deals 2659 physical damage.<br>Reduces the target\'s Physical Attack by 500.<br>Increases your Physical Attack by 500.<br>Deals extra damage if the target stumbles.'
+    },
 
     // -- Assassin --
     'deadlyFocus': {
@@ -911,6 +922,7 @@ var GC_SKILL_BUFFS = {
         { key: 'divineFury', value: '+550 Attack', stats: { attack: 550 }, defaultActive: false },
         { key: 'empyreanFury', value: '+900 Attack / +1000 Acc / +1000 Crit', stats: { attack: 900, accuracy: 1000, crit: 1000 }, defaultActive: false },
         { key: 'menacingPosture', value: '+1500 PvE Attack / +2500 PvE Def / -1000 Attack', stats: { pveAttack: 1500, pveDefence: 2500, attack: -1000 }, defaultActive: false },
+        { key: 'ankleBlow', value: '+500 Attack', stats: { attack: 500 }, defaultActive: true },
     ],
     assassin: [
         { key: 'deadlyFocus', value: '+2000 Attack / +200 Acc', stats: { attack: 2000, accuracy: 200 }, defaultActive: false },
