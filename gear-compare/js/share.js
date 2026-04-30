@@ -323,7 +323,7 @@ function encodeSetsPayload() {
     w.u8(idx(SH_CLASSES, selectedClass));
 
     // -- Multi-set header --
-    w.u8(setOrder.length);                                          // set count (2-5)
+    w.u8(setOrder.length);                                          // set count (2-10)
     w.u8(Math.max(0, setOrder.indexOf(comparisonPair.a)));          // comp pair A index
     w.u8(Math.max(0, setOrder.indexOf(comparisonPair.b)));          // comp pair B index
 

@@ -92,7 +92,7 @@ function createDefaultProfile(className) {
 }
 
 var STORAGE_KEY = 'gc-state-v4';
-var MAX_SETS = 5;
+var MAX_SETS = 10;
 var setOrder = [1, 2];
 var setNames = { 1: 'Set 1', 2: 'Set 2' };
 var comparisonPair = { a: 1, b: 2 };
