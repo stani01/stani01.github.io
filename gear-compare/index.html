@@ -10,9 +10,9 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="../assets/css/common.css?v=2.0">
-    <link rel="stylesheet" href="../assets/css/gear-compare.css?v=2.0">
-    <link rel="stylesheet" href="../assets/css/aion-calc.css?v=2.0">
+    <link rel="stylesheet" href="../assets/css/common.css?v=3.0">
+    <link rel="stylesheet" href="../assets/css/gear-compare.css?v=3.0">
+    <link rel="stylesheet" href="../assets/css/aion-calc.css?v=3.0">
 </head>
 <body class="page-gear-compare">
 
@@ -25,11 +25,27 @@
             <div class="gc-main-left">
 
         <div class="gc-share-bar">
-            <button class="gc-share-btn" id="gc-share-btn" title="Copy shareable link to clipboard">🔗 Share Setup</button>
-            <button class="gc-copy-profile-btn" id="gc-copy-btn" onclick="GC.openCopyPopup()" title="Copy one set into another">📋 Copy X -> Y</button>
-            <button class="gc-reset-all-btn" onclick="GC.resetAll()" title="Reset everything to defaults">🔄 Reset All</button>
-            <span class="gc-share-toast" id="gc-share-toast"></span>
+            <div class="gc-share-group">
+                <div class="gc-share-group-label">Set Transfer</div>
+                <div class="gc-share-group-actions">
+                    <button class="gc-share-btn" id="gc-export-btn" title="Copy encoded sets payload to clipboard">📤 Export Sets</button>
+                    <button class="gc-share-btn" id="gc-import-btn" title="Import encoded sets payload">📥 Import Sets</button>
+                    <span class="gc-transfer-separator" aria-hidden="true"></span>
+                    <button class="gc-share-btn" id="gc-upload-btn" title="Upload a .gcs file and apply sets">📂 Upload Sets</button>
+                    <button class="gc-share-btn gc-download-btn" id="gc-download-btn" title="Download encoded sets payload as a .gcs file">💾 Download Sets</button>
+                </div>
+            </div>
+            <div class="gc-share-group">
+                <div class="gc-share-group-label">Set Actions</div>
+                <div class="gc-share-group-actions">
+                    <button class="gc-copy-profile-btn" id="gc-copy-btn" onclick="GC.openCopyPopup()" title="Copy one set into another">📋 Copy X -> Y</button>
+                    <button class="gc-reset-all-btn" onclick="GC.resetAll()" title="Reset everything to defaults">🔄 Reset All</button>
+                </div>
+            </div>
         </div>
+        <div class="gc-share-toast-row"><span class="gc-share-toast" id="gc-share-toast"></span></div>
+
+        <div id="gc-import-modal" class="gc-import-modal" style="display:none;"></div>
 
         <!-- Shared Class Selector -->
         <div class="gc-class-selector" id="class-selector"></div>
@@ -46,8 +62,8 @@
 
                 <!-- Equipment Tab -->
                 <div class="gc-tab-panel gc-tab-panel-active" id="tab-equipment">
-                    <div class="gc-weapon-config" id="weapon-config"></div>
                     <div class="gc-set-tabs" data-panel="equipment"></div>
+                    <div class="gc-weapon-config" id="weapon-config"></div>
                     <div class="gc-set-content" data-panel="equipment"></div>
                 </div>
 

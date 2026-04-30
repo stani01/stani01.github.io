@@ -58,8 +58,44 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     gap: 12px;
-    margin-bottom: 24px;
+    margin-bottom: 8px;
+}
+
+.gc-share-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    width: min(820px, 100%);
+    border: 1px solid rgba(120, 150, 220, 0.2);
+    border-radius: 10px;
+    background: rgba(20, 24, 34, 0.45);
+}
+
+.gc-share-group-label {
+    font-size: 0.78em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(165, 180, 210, 0.85);
+    font-weight: 700;
+    text-align: center;
+}
+
+.gc-share-group-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.gc-transfer-separator {
+    width: 1px;
+    height: 26px;
+    margin: 0 4px;
+    background: linear-gradient(to bottom, transparent, rgba(135, 165, 225, 0.55), transparent);
 }
 
 .gc-share-btn {
@@ -79,6 +115,18 @@
     background: rgba(100, 180, 255, 0.15);
     border-color: rgba(100, 180, 255, 0.35);
     color: rgba(160, 215, 255, 1);
+}
+
+.gc-download-btn {
+    background: rgba(110, 220, 170, 0.1);
+    color: rgba(145, 235, 190, 0.9);
+    border-color: rgba(110, 220, 170, 0.3);
+}
+
+.gc-download-btn:hover {
+    background: rgba(110, 220, 170, 0.2);
+    border-color: rgba(110, 220, 170, 0.45);
+    color: rgba(170, 245, 210, 1);
 }
 
 .gc-copy-profile-btn {
@@ -135,12 +183,103 @@
     pointer-events: none;
 }
 
+.gc-share-toast-row {
+    display: flex;
+    justify-content: center;
+    min-height: 18px;
+    margin-bottom: 12px;
+}
+
 .gc-share-toast-show {
     opacity: 1;
 }
 
 .gc-share-toast-error {
     color: rgba(255, 120, 100, 0.9);
+}
+
+.gc-import-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+}
+
+.gc-import-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.gc-import-modal-dialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(760px, calc(100vw - 24px));
+    background: rgba(18, 20, 26, 0.98);
+    border: 1px solid rgba(100, 180, 255, 0.25);
+    border-radius: 12px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+    padding: 14px;
+}
+
+.gc-import-modal-title {
+    color: rgba(170, 220, 255, 0.95);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.gc-import-modal-help {
+    color: rgba(180, 190, 210, 0.9);
+    font-size: 0.88em;
+    margin-bottom: 8px;
+}
+
+.gc-import-modal-text {
+    width: 100%;
+    min-height: 120px;
+    resize: vertical;
+    border-radius: 8px;
+    border: 1px solid rgba(120, 150, 220, 0.3);
+    background: rgba(10, 12, 18, 0.95);
+    color: rgba(210, 220, 245, 0.95);
+    font-size: 0.9em;
+    line-height: 1.35;
+    padding: 10px;
+    outline: none;
+}
+
+.gc-import-modal-text:focus {
+    border-color: rgba(120, 180, 255, 0.55);
+}
+
+.gc-import-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.gc-import-btn-cancel,
+.gc-import-btn-apply {
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.87em;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.gc-import-btn-cancel {
+    background: rgba(180, 190, 220, 0.12);
+    color: rgba(210, 220, 245, 0.9);
+    border-color: rgba(180, 190, 220, 0.25);
+}
+
+.gc-import-btn-apply {
+    background: rgba(100, 180, 255, 0.12);
+    color: rgba(170, 220, 255, 0.95);
+    border-color: rgba(100, 180, 255, 0.35);
 }
 
 /* -- Two-Column Main Layout -- */
@@ -1072,6 +1211,7 @@
     margin: 0;
 }
 .gc-glyph-extra-label input[type="number"] {
+    appearance: textfield;
     -moz-appearance: textfield;
 }
 
@@ -2595,6 +2735,7 @@
     font-variant-numeric: tabular-nums;
     text-align: right;
     outline: none;
+    appearance: textfield;
     -moz-appearance: textfield;
 }
 .gc-bonus-val-input::-webkit-inner-spin-button,

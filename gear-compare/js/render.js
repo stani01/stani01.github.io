@@ -30,19 +30,20 @@ function getGearLabel(gearKey) {
 
 function getGearIcon(pid, gearKey) {
     var profile = state[pid];
+    var wc = getProfileWeaponConfig(profile);
     var material = getArmorMaterial(profile.armorType);
     if (gearKey === 'mainWeapon') {
         if (profile.mainWeapon && profile.mainWeapon.set === 'none') return getEmptySlotIcon('mainWeapon');
-        return WEAPON_TYPES[weaponConfig.mainType].icon;
+        return WEAPON_TYPES[wc.mainType].icon;
     }
     if (gearKey === 'offHand') {
         if (profile.offHand && profile.offHand.set === 'none') return getEmptySlotIcon('offHand');
-        if (weaponConfig.offHandType === 'shield') {
+        if (wc.offHandType === 'shield') {
             if (profile.shield && profile.shield.set === 'none') return getEmptySlotIcon('shield');
             return '../assets/icons/icon_item_equip_shield_f01.png';
         }
-        if (weaponConfig.offHandType === 'fuse') return WEAPON_TYPES[weaponConfig.mainType].icon;
-        if (weaponConfig.offHandType === 'weapon') return WEAPON_TYPES[weaponConfig.offHandWeaponType].icon;
+        if (wc.offHandType === 'fuse') return WEAPON_TYPES[wc.mainType].icon;
+        if (wc.offHandType === 'weapon') return WEAPON_TYPES[wc.offHandWeaponType].icon;
         return '';
     }
     var slot = ARMOR_SLOTS.find(function(s) { return s.key === gearKey; });
@@ -309,13 +310,14 @@ function activateSetView(setId) {
             else v.classList.remove('gc-set-view-active');
         });
     });
+    renderWeaponConfig(setId);
     saveState();
 }
 
 function renderAll() {
     renderSetTabs();
     renderClassSelector();
-    renderWeaponConfig();
+    renderWeaponConfig(activeSetId);
     setOrder.forEach(function(id) {
         renderProfile(id);
         renderTransform(id);
@@ -1222,15 +1224,20 @@ document.addEventListener('focusout', function(e) {
     }
 });
 
-function renderWeaponConfig() {
+function renderWeaponConfig(pid) {
     var el = document.getElementById('weapon-config');
+    if (!pid || !state[pid]) pid = activeSetId;
+    if (!state[pid]) pid = setOrder[0];
+    if (!state[pid]) return;
+    var profile = state[pid];
+    var wc = getProfileWeaponConfig(profile);
     var classInfo = CLASS_DATA[selectedClass];
-    var mainType = weaponConfig.mainType;
+    var mainType = wc.mainType;
     var mainIs2H = WEAPON_TYPES[mainType].twoHanded;
     var wt = WEAPON_TYPES[mainType];
-    var ohType = weaponConfig.offHandType;
+    var ohType = wc.offHandType;
 
-    var html = '<div class="gc-profile-header"><span class="gc-wc-title">⚔️ Weapon Setup</span><button class="gc-reset-btn" onclick="GC.resetWeapons()" title="Reset to defaults">↺</button></div>';
+    var html = '<div class="gc-profile-header"><span class="gc-wc-title">⚔️ Weapon Setup</span><button class="gc-reset-btn" onclick="GC.resetWeapons(' + pid + ')" title="Reset to defaults">↺</button></div>';
     html += '<div class="gc-wc-slots">';
 
     // Main weapon - icon picker
@@ -1243,7 +1250,7 @@ function renderWeaponConfig() {
     classInfo.weapons.forEach(function(wKey) {
         var w = WEAPON_TYPES[wKey];
         var sel = mainType === wKey ? ' gc-picker-selected' : '';
-        html += '<div class="gc-picker-option' + sel + '" onclick="GC.pickMainWeapon(\'' + wKey + '\')" title="' + w.name + '">';
+        html += '<div class="gc-picker-option' + sel + '" onclick="GC.pickMainWeapon(' + pid + ',\'' + wKey + '\')" title="' + w.name + '">';
         html += '<img src="' + w.icon + '" alt="' + w.name + '">';
         html += '</div>';
     });
@@ -1252,7 +1259,7 @@ function renderWeaponConfig() {
 
     // Off-hand - icon picker (unified: none/shield/fuse/weapons)
     var ohChoices = getOffHandChoices(mainType, selectedClass);
-    var ohKey = getCurrentOffHandKey();
+    var ohKey = getCurrentOffHandKey(profile);
     var ohChoice = ohChoices.find(function(c) { return c.key === ohKey; }) || ohChoices[0];
     html += '<div class="gc-wc-item">';
     html += '<div class="gc-wc-item-label">Off-Hand</div>';
@@ -1264,7 +1271,7 @@ function renderWeaponConfig() {
     html += '<div class="gc-icon-picker-menu" id="off-picker">';
     ohChoices.forEach(function(c) {
         var sel = c.key === ohKey ? ' gc-picker-selected' : '';
-        html += '<div class="gc-picker-option' + sel + (c.key === 'none' ? ' gc-picker-none' : '') + '" onclick="GC.pickOffHand(\'' + c.key + '\')" title="' + c.label + '">';
+        html += '<div class="gc-picker-option' + sel + (c.key === 'none' ? ' gc-picker-none' : '') + '" onclick="GC.pickOffHand(' + pid + ',\'' + c.key + '\')" title="' + c.label + '">';
         if (c.key === 'none') {
             html += '<span class="gc-picker-x">✕</span>';
         } else {
@@ -1292,6 +1299,7 @@ function renderWeaponConfig() {
 function renderProfile(id) {
     var container = document.getElementById('profile-' + id);
     var profile = state[id];
+    var wc = getProfileWeaponConfig(profile);
     var classInfo = CLASS_DATA[selectedClass];
     var material = getArmorMaterial(profile.armorType);
     var html = '';
@@ -1312,7 +1320,7 @@ function renderProfile(id) {
     html += '<div class="gc-armor-columns">';
     // -- Left: Main Weapon --
     html += '<div class="gc-armor-col">';
-    var mwt = WEAPON_TYPES[weaponConfig.mainType];
+    var mwt = WEAPON_TYPES[wc.mainType];
     html += '<div class="gc-armor-row">';
     var mwSetObj = WEAPON_SETS.find(function(s){return s.key===profile.mainWeapon.set;});
     html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + id + ',\'main-weapon\',this)">';
@@ -1333,7 +1341,7 @@ function renderProfile(id) {
         if (hasMwEnchant) {
             html += '<span class="gc-enchant-trigger" onclick="GC.openEnchantPicker(' + id + ',\'main-weapon\',this)">+' + profile.mainWeapon.enchant + '</span>';
         }
-        var mwTag = getJorgothTag(weaponConfig.mainType, profile.mainWeapon.set);
+        var mwTag = getJorgothTag(wc.mainType, profile.mainWeapon.set);
         if (mwTag) {
             var tagClass = mwTag === 'masterpiece' ? 'gc-weapon-tag-masterpiece' : 'gc-weapon-tag-extended';
             var tagLabel = mwTag === 'masterpiece' ? '✦ Masterpiece' : '⟐ Extended';
@@ -1392,11 +1400,11 @@ function renderProfile(id) {
                 ohIcon = mwt.icon;
                 ohLabel = 'Fuse';
             } else {
-                var ohWt = WEAPON_TYPES[weaponConfig.offHandWeaponType];
+                var ohWt = WEAPON_TYPES[wc.offHandWeaponType];
                 ohIcon = ohWt.icon;
                 ohLabel = ohWt.name;
             }
-            var ohSets = getAllowedOffHandWeaponSets(profile.mainWeapon.set, weaponConfig.mainType, weaponConfig.offHandType);
+            var ohSets = getAllowedOffHandWeaponSets(profile.mainWeapon.set, wc.mainType, wc.offHandType);
             html += '<div class="gc-armor-row">';
             var ohSetObj = ohSets.find(function(s){return s.key===profile.offHand.set;}) || ohSets[0];
             html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + id + ',\'off-weapon\',this)">';

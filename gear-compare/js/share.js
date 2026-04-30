@@ -1,14 +1,15 @@
 'use strict';
 
 // ===============================================================================
-// SHARE v6  -  Binary-packed share encoding (multi-set)
+// SHARE v7  -  Binary-packed share encoding (multi-set)
 //
-// Format:  #s=6.<base64-encoded-binary>
+// Format:  #s=7.<base64-encoded-binary>
 //
 // Layout:
-//   [Global Header]  - class, weapon config         (4 bytes)
+//   [Global Header]  - class                          (1 byte)
 //   [Multi-set Header] - count, comp pair, names     (variable)
-//   [Profile 1..N]   - full per-profile data         (variable each)
+//   [Profile 1..N]   - full per-profile data          (variable each)
+//                     (includes per-profile weapon config)
 //
 // No backward compatibility - old v4/v5 links are not supported.
 // ===============================================================================
@@ -125,6 +126,12 @@ ByteReader.prototype.bools = function(count) {
 
 function encodeProfile(w, id) {
     var p = state[id];
+    var wc = getProfileWeaponConfig(p);
+
+    // -- Per-profile weapon config (3 bytes) --
+    w.u8(idx(SH_WTYPES, wc.mainType));
+    w.u8(idx(SH_OHTYPES, wc.offHandType));
+    w.u8(idx(SH_WTYPES, wc.offHandWeaponType));
 
     // -- Armor type (1 byte) + Apsu flag (bit 3) --
     w.u8(idx(SH_ATYPES, p.armorType) | (p.apsuEnabled ? 8 : 0));
@@ -309,14 +316,11 @@ function encodeProfile(w, id) {
 }
 
 // --- Main encode function --------------------------------------------------
-function encodeShareString() {
+function encodeSetsPayload() {
     var w = new ByteWriter();
 
-    // -- Global header (4 bytes) --
+    // -- Global header (1 byte) --
     w.u8(idx(SH_CLASSES, selectedClass));
-    w.u8(idx(SH_WTYPES, weaponConfig.mainType));
-    w.u8(idx(SH_OHTYPES, weaponConfig.offHandType));
-    w.u8(idx(SH_WTYPES, weaponConfig.offHandWeaponType));
 
     // -- Multi-set header --
     w.u8(setOrder.length);                                          // set count (2-5)
@@ -340,7 +344,7 @@ function encodeShareString() {
         encodeProfile(w, id);
     });
 
-    return '6.' + w.toBase64();
+    return '7.' + w.toBase64();
 }
 
 
@@ -348,8 +352,27 @@ function encodeShareString() {
 // DECODE
 // ===============================================================================
 
-function decodeProfileFromReader(r, cls, id) {
+function decodeProfileFromReader(r, cls, id, includePerProfileWeaponConfig, fallbackWeaponConfig) {
     var p = createDefaultProfile(cls);
+
+    if (includePerProfileWeaponConfig) {
+        var wc = createDefaultWeaponConfig(cls);
+        var mt = val(SH_WTYPES, r.u8());
+        if (CLASS_DATA[cls].weapons.indexOf(mt) !== -1) wc.mainType = mt;
+        wc.offHandType = val(SH_OHTYPES, r.u8());
+        wc.offHandWeaponType = val(SH_WTYPES, r.u8());
+        var allowed = getAllowedOffHand(wc.mainType, cls);
+        if (allowed.indexOf(wc.offHandType) === -1) {
+            wc.offHandType = getDefaultOffHand(wc.mainType, cls);
+        }
+        p.weaponConfig = wc;
+    } else if (fallbackWeaponConfig) {
+        p.weaponConfig = {
+            mainType: fallbackWeaponConfig.mainType,
+            offHandType: fallbackWeaponConfig.offHandType,
+            offHandWeaponType: fallbackWeaponConfig.offHandWeaponType
+        };
+    }
 
     // -- Armor type + Apsu flag --
     var armorRaw = r.u8();
@@ -586,12 +609,70 @@ function decodeShareString(s) {
     if (!s || s.length < 4) return false;
     var ver = s.charAt(0);
     if (s.charAt(1) !== '.') return false;
-    if (ver !== '6') return false;
+    if (ver !== '6' && ver !== '7') return false;
     try {
+        if (ver === '7') return decodeShareV7(s.substring(2));
         return decodeShareV6(s.substring(2));
     } catch (e) {
         return false;
     }
+}
+
+function decodeSetsPayload(payload) {
+    return decodeShareString(payload);
+}
+
+function decodeShareV7(b64) {
+    var r = new ByteReader(b64);
+
+    // -- Global header (1 byte) --
+    var cls = val(SH_CLASSES, r.u8());
+    if (!CLASS_DATA[cls]) return false;
+    selectedClass = cls;
+
+    // -- Multi-set header --
+    var numSets = clamp(r.u8(), 2, MAX_SETS);
+    var compIdxA = r.u8();
+    var compIdxB = r.u8();
+
+    // Read set names
+    var names = [];
+    for (var ni = 0; ni < numSets; ni++) {
+        var nameLen = r.u8();
+        var chars = [];
+        for (var ci = 0; ci < nameLen; ci++) chars.push(String.fromCharCode(r.u8()));
+        names.push(chars.join('') || ('Set ' + (ni + 1)));
+    }
+
+    // Build setOrder and setNames
+    setOrder = [];
+    setNames = {};
+    state = {};
+    for (var si = 0; si < numSets; si++) {
+        var setId = si + 1;
+        setOrder.push(setId);
+        setNames[setId] = names[si];
+    }
+    nextSetId = numSets + 1;
+    activeSetId = setOrder[0];
+
+    // Comparison pair
+    comparisonPair = {
+        a: setOrder[clamp(compIdxA, 0, numSets - 1)],
+        b: setOrder[clamp(compIdxB, 0, numSets - 1)]
+    };
+
+    // Reset formsActiveGrade for the new sets
+    if (typeof formsActiveGrade !== 'undefined') {
+        setOrder.forEach(function(id) { formsActiveGrade[id] = 'ultimate'; });
+    }
+
+    // -- Decode each profile --
+    setOrder.forEach(function(id) {
+        state[id] = decodeProfileFromReader(r, cls, id, true, null);
+    });
+
+    return true;
 }
 
 function decodeShareV6(b64) {
@@ -602,15 +683,15 @@ function decodeShareV6(b64) {
     if (!CLASS_DATA[cls]) return false;
     selectedClass = cls;
 
-    weaponConfig = createDefaultWeaponConfig(cls);
+    var legacyWeaponConfig = createDefaultWeaponConfig(cls);
     var mt = val(SH_WTYPES, r.u8());
-    if (CLASS_DATA[cls].weapons.indexOf(mt) !== -1) weaponConfig.mainType = mt;
-    weaponConfig.offHandType = val(SH_OHTYPES, r.u8());
-    weaponConfig.offHandWeaponType = val(SH_WTYPES, r.u8());
+    if (CLASS_DATA[cls].weapons.indexOf(mt) !== -1) legacyWeaponConfig.mainType = mt;
+    legacyWeaponConfig.offHandType = val(SH_OHTYPES, r.u8());
+    legacyWeaponConfig.offHandWeaponType = val(SH_WTYPES, r.u8());
 
-    var allowed = getAllowedOffHand(weaponConfig.mainType, cls);
-    if (allowed.indexOf(weaponConfig.offHandType) === -1) {
-        weaponConfig.offHandType = getDefaultOffHand(weaponConfig.mainType, cls);
+    var allowed = getAllowedOffHand(legacyWeaponConfig.mainType, cls);
+    if (allowed.indexOf(legacyWeaponConfig.offHandType) === -1) {
+        legacyWeaponConfig.offHandType = getDefaultOffHand(legacyWeaponConfig.mainType, cls);
     }
 
     // -- Multi-set header --
@@ -652,7 +733,7 @@ function decodeShareV6(b64) {
 
     // -- Decode each profile --
     setOrder.forEach(function(id) {
-        state[id] = decodeProfileFromReader(r, cls, id);
+        state[id] = decodeProfileFromReader(r, cls, id, false, legacyWeaponConfig);
     });
 
     return true;
@@ -664,7 +745,7 @@ function decodeShareV6(b64) {
 // ===============================================================================
 
 function generateShareLink() {
-    return window.location.origin + window.location.pathname + '#s=' + encodeShareString();
+    return window.location.origin + window.location.pathname + '#s=' + encodeSetsPayload();
 }
 
 function loadShareFromURL() {
@@ -690,15 +771,176 @@ function showShareToast(message, isError) {
     }, 2500);
 }
 
-document.getElementById('gc-share-btn').addEventListener('click', function() {
-    var link = generateShareLink();
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(link).then(function() {
-            showShareToast('✓ Link copied to clipboard!');
-        }, function() {
-            prompt('Copy this share link:', link);
-        });
-    } else {
-        prompt('Copy this share link:', link);
+function exportSetsPayload() {
+    return encodeSetsPayload();
+}
+
+async function downloadSetsPayload() {
+    var payload = exportSetsPayload();
+    var now = new Date();
+    var yyyy = now.getFullYear();
+    var mm = String(now.getMonth() + 1).padStart(2, '0');
+    var dd = String(now.getDate()).padStart(2, '0');
+    var hh = String(now.getHours()).padStart(2, '0');
+    var min = String(now.getMinutes()).padStart(2, '0');
+    var fileName = 'gear-compare-sets-' + yyyy + mm + dd + '-' + hh + min + '.gcs';
+
+    try {
+        // Prefer explicit save picker so users can choose location/filename.
+        if (typeof window.showSaveFilePicker === 'function') {
+            var handle = await window.showSaveFilePicker({
+                suggestedName: fileName,
+                types: [{
+                    description: 'Gear Compare Sets',
+                    accept: { 'text/plain': ['.gcs'] }
+                }]
+            });
+            var writable = await handle.createWritable();
+            await writable.write(payload);
+            await writable.close();
+            showShareToast('✓ Sets file saved');
+            return;
+        }
+
+        var blob = new Blob([payload], { type: 'text/plain;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function() { URL.revokeObjectURL(url); }, 2000);
+        showShareToast('✓ Download started (browser decides save location)');
+    } catch (e) {
+        // User-cancel on save picker should not be an error toast.
+        if (e && (e.name === 'AbortError' || e.name === 'NotAllowedError')) return;
+        prompt('Download failed. Copy payload manually:', payload);
     }
-});
+}
+
+function uploadSetsFromFilePicker() {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.gcs,.txt,text/plain';
+    input.addEventListener('change', function(evt) {
+        var target = evt.target;
+        if (!target || !target.files || !target.files.length) return;
+        var file = target.files[0];
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var text = (e && e.target && typeof e.target.result === 'string') ? e.target.result : '';
+            var ok = applyImportedSetsPayload((text || '').trim());
+            if (!ok) {
+                showShareToast('Invalid sets file', true);
+                return;
+            }
+            showShareToast('✓ Sets uploaded');
+        };
+        reader.onerror = function() {
+            showShareToast('Could not read selected file', true);
+        };
+        reader.readAsText(file);
+    });
+    input.click();
+}
+
+function applyImportedSetsPayload(payload) {
+    if (!payload || typeof payload !== 'string') return false;
+    var clean = payload.trim();
+    if (!clean) return false;
+    if (clean.indexOf('#s=') === 0) clean = clean.substring(3);
+    if (clean.indexOf('http://') === 0 || clean.indexOf('https://') === 0) {
+        var hashIdx = clean.indexOf('#s=');
+        if (hashIdx !== -1) clean = clean.substring(hashIdx + 3);
+    }
+    var ok = decodeSetsPayload(clean);
+    if (!ok) return false;
+    renderAll();
+    if (activeTab !== 'equipment') activateTab(activeTab);
+    saveState();
+    saveTraitSelections();
+    return true;
+}
+
+function closeImportModal() {
+    var modal = document.getElementById('gc-import-modal');
+    if (!modal) return;
+    modal.style.display = 'none';
+    modal.innerHTML = '';
+    document.body.style.overflow = '';
+}
+
+function openImportModal() {
+    var modal = document.getElementById('gc-import-modal');
+    if (!modal) return;
+    var html = '';
+    html += '<div class="gc-import-modal-overlay" onclick="closeImportModal()"></div>';
+    html += '<div class="gc-import-modal-dialog">';
+    html += '<div class="gc-import-modal-title">Import Sets</div>';
+    html += '<div class="gc-import-modal-help">Paste exported payload or full share URL/hash.</div>';
+    html += '<textarea id="gc-import-text" class="gc-import-modal-text" placeholder="Example: 7.ABCD... or #s=7.ABCD..."></textarea>';
+    html += '<div class="gc-import-modal-actions">';
+    html += '<button class="gc-import-btn-cancel" onclick="closeImportModal()">Cancel</button>';
+    html += '<button class="gc-import-btn-apply" onclick="submitImportPayload()">Import</button>';
+    html += '</div>';
+    html += '</div>';
+    modal.innerHTML = html;
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    var ta = document.getElementById('gc-import-text');
+    if (ta) ta.focus();
+}
+
+function submitImportPayload() {
+    var ta = document.getElementById('gc-import-text');
+    var value = ta ? ta.value : '';
+    if (!value || !value.trim()) {
+        showShareToast('Paste a payload first', true);
+        return;
+    }
+    var ok = applyImportedSetsPayload(value);
+    if (!ok) {
+        showShareToast('Invalid import payload', true);
+        return;
+    }
+    closeImportModal();
+    showShareToast('✓ Sets imported');
+}
+
+(function bindImportExportButtons() {
+    var exportBtn = document.getElementById('gc-export-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+            var payload = exportSetsPayload();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(payload).then(function() {
+                    showShareToast('✓ Sets payload copied');
+                }, function() {
+                    prompt('Copy this sets payload:', payload);
+                });
+            } else {
+                prompt('Copy this sets payload:', payload);
+            }
+        });
+    }
+
+    var importBtn = document.getElementById('gc-import-btn');
+    if (importBtn) {
+        importBtn.addEventListener('click', function() {
+            openImportModal();
+        });
+    }
+
+    var downloadBtn = document.getElementById('gc-download-btn');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', function() { downloadSetsPayload(); });
+    }
+
+    var uploadBtn = document.getElementById('gc-upload-btn');
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', function() {
+            uploadSetsFromFilePicker();
+        });
+    }
+})();

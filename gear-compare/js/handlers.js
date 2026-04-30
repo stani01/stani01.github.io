@@ -6,10 +6,9 @@ window.GC = {
         var prevClass = selectedClass;
         selectedClass = className;
         var cls = CLASS_DATA[className];
-        // Always reset weapon config to class defaults
-        weaponConfig = createDefaultWeaponConfig(className);
         setOrder.forEach(function(id) {
             var p = state[id];
+            p.weaponConfig = createDefaultWeaponConfig(className);
             if (cls.armorTypes.indexOf(p.armorType) === -1) {
                 p.armorType = cls.armorTypes[0];
             }
@@ -129,58 +128,69 @@ window.GC = {
         saveState();
     },
 
-    // Shared weapon config handlers
+    // Active-set weapon config handlers
     setMainWeaponType: function(type) {
-        weaponConfig.mainType = type;
+        var pid = activeSetId;
+        var p = state[pid];
+        var wc = getProfileWeaponConfig(p);
+        wc.mainType = type;
         var allowed = getAllowedOffHand(type, selectedClass);
         // If current off-hand type is no longer allowed, reset to default
-        if (allowed.indexOf(weaponConfig.offHandType) === -1) {
-            weaponConfig.offHandType = getDefaultOffHand(type, selectedClass);
+        if (allowed.indexOf(wc.offHandType) === -1) {
+            wc.offHandType = getDefaultOffHand(type, selectedClass);
         }
         // Update off-hand weapon type default
-        weaponConfig.offHandWeaponType = getDefaultOffHandWeapon(type, selectedClass);
-        renderWeaponConfig();
-        setOrder.forEach(function(id) { renderProfile(id); });
+        wc.offHandWeaponType = getDefaultOffHandWeapon(type, selectedClass);
+        if (wc.offHandType !== 'none' && !isOffHandSetAllowed(p.mainWeapon.set, p.offHand.set, wc.mainType, wc.offHandType)) {
+            p.offHand.set = getDefaultOffHandSet(p.mainWeapon.set, wc.mainType, wc.offHandType);
+        }
+        renderWeaponConfig(pid);
+        renderProfile(pid);
         updateComparison();
         saveState();
     },
 
     setOffHandType: function(type) {
-        weaponConfig.offHandType = type;
-        setOrder.forEach(function(id) {
-            // Validate off-hand set against new type and main weapon level
-            if (type !== 'none' && !isOffHandSetAllowed(state[id].mainWeapon.set, state[id].offHand.set, weaponConfig.mainType, type)) {
-                state[id].offHand.set = getDefaultOffHandSet(state[id].mainWeapon.set, weaponConfig.mainType, type);
-            }
-        });
-        renderWeaponConfig();
-        setOrder.forEach(function(id) { renderProfile(id); });
+        var pid = activeSetId;
+        var p = state[pid];
+        var wc = getProfileWeaponConfig(p);
+        wc.offHandType = type;
+        // Validate off-hand set against new type and main weapon level
+        if (type !== 'none' && !isOffHandSetAllowed(p.mainWeapon.set, p.offHand.set, wc.mainType, type)) {
+            p.offHand.set = getDefaultOffHandSet(p.mainWeapon.set, wc.mainType, type);
+        }
+        renderWeaponConfig(pid);
+        renderProfile(pid);
         updateComparison();
         saveState();
     },
 
     setOffHandWeaponType: function(type) {
-        weaponConfig.offHandWeaponType = type;
-        renderWeaponConfig();
-        setOrder.forEach(function(id) { renderProfile(id); });
+        var pid = activeSetId;
+        var p = state[pid];
+        var wc = getProfileWeaponConfig(p);
+        wc.offHandWeaponType = type;
+        renderWeaponConfig(pid);
+        renderProfile(pid);
         updateComparison();
         saveState();
     },
 
     // Per-profile weapon set/enchant
     setWeaponSet: function(pid, slot, setKey) {
+        var wc = getProfileWeaponConfig(state[pid]);
         if (slot === 'main') {
             state[pid].mainWeapon.set = setKey;
             // When main weapon changes, validate off-hand set against new main weapon level
-            if (weaponConfig.offHandType !== 'none' && !isOffHandSetAllowed(setKey, state[pid].offHand.set, weaponConfig.mainType, weaponConfig.offHandType)) {
-                state[pid].offHand.set = getDefaultOffHandSet(setKey, weaponConfig.mainType, weaponConfig.offHandType);
+            if (wc.offHandType !== 'none' && !isOffHandSetAllowed(setKey, state[pid].offHand.set, wc.mainType, wc.offHandType)) {
+                state[pid].offHand.set = getDefaultOffHandSet(setKey, wc.mainType, wc.offHandType);
             }
         } else {
             // For off-hand, validate against current eligibility rules
-            if (weaponConfig.offHandType !== 'none') {
-                if (!isOffHandSetAllowed(state[pid].mainWeapon.set, setKey, weaponConfig.mainType, weaponConfig.offHandType)) {
+            if (wc.offHandType !== 'none') {
+                if (!isOffHandSetAllowed(state[pid].mainWeapon.set, setKey, wc.mainType, wc.offHandType)) {
                     // Fallback to default allowed set
-                    setKey = getDefaultOffHandSet(state[pid].mainWeapon.set, weaponConfig.mainType, weaponConfig.offHandType);
+                    setKey = getDefaultOffHandSet(state[pid].mainWeapon.set, wc.mainType, wc.offHandType);
                 }
             }
             state[pid].offHand.set = setKey;
@@ -296,8 +306,7 @@ window.GC = {
         comparisonPair = { a: 1, b: 2 };
         nextSetId = 3;
         activeSetId = 1;
-        // Reset weapon config and profiles
-        weaponConfig = createDefaultWeaponConfig(selectedClass);
+        // Reset profiles
         state = {};
         setOrder.forEach(function(id) {
             state[id] = createDefaultProfile(selectedClass);
@@ -319,10 +328,17 @@ window.GC = {
         }
     },
 
-    resetWeapons: function() {
-        weaponConfig = createDefaultWeaponConfig(selectedClass);
-        renderWeaponConfig();
-        setOrder.forEach(function(id) { renderProfile(id); });
+    resetWeapons: function(pid) {
+        if (!pid) pid = activeSetId;
+        var p = state[pid];
+        if (!p) return;
+        p.weaponConfig = createDefaultWeaponConfig(selectedClass);
+        var wc = p.weaponConfig;
+        if (wc.offHandType !== 'none' && !isOffHandSetAllowed(p.mainWeapon.set, p.offHand.set, wc.mainType, wc.offHandType)) {
+            p.offHand.set = getDefaultOffHandSet(p.mainWeapon.set, wc.mainType, wc.offHandType);
+        }
+        renderWeaponConfig(pid);
+        renderProfile(pid);
         updateComparison();
         saveState();
     },
@@ -669,42 +685,52 @@ window.GC = {
         if (!wasOpen) menu.classList.add('gc-picker-open');
     },
 
-    pickMainWeapon: function(wKey) {
+    pickMainWeapon: function(pid, wKey) {
         document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
         closeOathPopup();
         closeSetPopup();
         closeEnchantPopup();
-        weaponConfig.mainType = wKey;
+        var p = state[pid];
+        if (!p) return;
+        var wc = getProfileWeaponConfig(p);
+        wc.mainType = wKey;
         var allowed = getAllowedOffHand(wKey, selectedClass);
-        if (allowed.indexOf(weaponConfig.offHandType) === -1) {
-            weaponConfig.offHandType = getDefaultOffHand(wKey, selectedClass);
+        if (allowed.indexOf(wc.offHandType) === -1) {
+            wc.offHandType = getDefaultOffHand(wKey, selectedClass);
         }
-        weaponConfig.offHandWeaponType = getDefaultOffHandWeapon(wKey, selectedClass);
-        renderWeaponConfig();
-        setOrder.forEach(function(id) { renderProfile(id); });
+        wc.offHandWeaponType = getDefaultOffHandWeapon(wKey, selectedClass);
+        if (wc.offHandType !== 'none' && !isOffHandSetAllowed(p.mainWeapon.set, p.offHand.set, wc.mainType, wc.offHandType)) {
+            p.offHand.set = getDefaultOffHandSet(p.mainWeapon.set, wc.mainType, wc.offHandType);
+        }
+        renderWeaponConfig(pid);
+        renderProfile(pid);
         updateComparison();
         saveState();
     },
 
-    pickOffHand: function(choiceKey) {
+    pickOffHand: function(pid, choiceKey) {
         document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
         closeOathPopup();
         closeSetPopup();
         closeEnchantPopup();
+        var p = state[pid];
+        if (!p) return;
+        var wc = getProfileWeaponConfig(p);
         if (choiceKey.indexOf('weapon:') === 0) {
             var wType = choiceKey.substring(7);
-            weaponConfig.offHandType = 'weapon';
-            weaponConfig.offHandWeaponType = wType;
+            wc.offHandType = 'weapon';
+            wc.offHandWeaponType = wType;
         } else {
-            weaponConfig.offHandType = choiceKey;
+            wc.offHandType = choiceKey;
         }
-        setOrder.forEach(function(id) {
-            if (weaponConfig.offHandType !== 'none' && OFFHAND_EXCLUDED_SETS.indexOf(state[id].offHand.set) !== -1) {
-                state[id].offHand.set = 'fighting-spirit';
-            }
-        });
-        renderWeaponConfig();
-        setOrder.forEach(function(id) { renderProfile(id); });
+        if (wc.offHandType !== 'none' && OFFHAND_EXCLUDED_SETS.indexOf(p.offHand.set) !== -1) {
+            p.offHand.set = 'fighting-spirit';
+        }
+        if (wc.offHandType !== 'none' && !isOffHandSetAllowed(p.mainWeapon.set, p.offHand.set, wc.mainType, wc.offHandType)) {
+            p.offHand.set = getDefaultOffHandSet(p.mainWeapon.set, wc.mainType, wc.offHandType);
+        }
+        renderWeaponConfig(pid);
+        renderProfile(pid);
         updateComparison();
         saveState();
     },
@@ -728,12 +754,15 @@ window.GC = {
         closeAccBonusPopup();
         if (isOpen && popup.dataset.pid == pid && popup.dataset.slot === slotType) return;
 
+        var p = state[pid];
+        if (!p) return;
+        var wc = getProfileWeaponConfig(p);
         var sets, currentSet;
         if (slotType === 'main-weapon') {
             sets = WEAPON_SETS.filter(function(ws) { return MAINHAND_EXCLUDED_SETS.indexOf(ws.key) === -1; });
             currentSet = state[pid].mainWeapon.set;
         } else if (slotType === 'off-weapon') {
-            sets = getAllowedOffHandWeaponSets(state[pid].mainWeapon.set, weaponConfig.mainType, weaponConfig.offHandType);
+            sets = getAllowedOffHandWeaponSets(state[pid].mainWeapon.set, wc.mainType, wc.offHandType);
             currentSet = state[pid].offHand.set;
         } else if (slotType === 'shield') {
             sets = SHIELD_SETS;
@@ -769,21 +798,21 @@ window.GC = {
             var sel = currentSet === set.key ? ' gc-set-option-selected' : '';
             html += '<div class="gc-set-option' + sel + '" onclick="GC.pickSet(' + pid + ',\'' + slotType + '\',\'' + set.key + '\')">';
             html += '<span class="gc-set-option-label">' + set.name + '</span>';
-            if (isWeaponSlot && weaponConfig && weaponConfig.mainType) {
-                var jTag = getJorgothTag(weaponConfig.mainType, set.key);
+            if (isWeaponSlot && wc && wc.mainType) {
+                var jTag = getJorgothTag(wc.mainType, set.key);
                 if (jTag === 'masterpiece') {
                     html += ' <span class="gc-set-tag gc-set-tag-mp">✦ Masterpiece</span>';
                 } else if (jTag === 'extended') {
                     html += ' <span class="gc-set-tag gc-set-tag-ext">⟐ Ext</span>';
                 }
                 // Best fuse label for 2H weapons (highest bonusAtk variant among T4)
-                if (WEAPON_TYPES[weaponConfig.mainType] && WEAPON_TYPES[weaponConfig.mainType].twoHanded && JORGOTH_WEAPONS[weaponConfig.mainType]) {
+                if (WEAPON_TYPES[wc.mainType] && WEAPON_TYPES[wc.mainType].twoHanded && JORGOTH_WEAPONS[wc.mainType]) {
                     var vKey = null;
                     if (set.key.indexOf('-v1') !== -1) vKey = 'v1';
                     else if (set.key.indexOf('-v2') !== -1) vKey = 'v2';
                     else if (set.key.indexOf('-v3') !== -1) vKey = 'v3';
                     if (vKey) {
-                        var jw = JORGOTH_WEAPONS[weaponConfig.mainType];
+                        var jw = JORGOTH_WEAPONS[wc.mainType];
                         var thisAtk = jw[vKey] ? jw[vKey].bonusAtk : 0;
                         var maxAtk = Math.max(jw.v1.bonusAtk, jw.v2.bonusAtk, jw.v3.bonusAtk);
                         if (thisAtk > 0 && thisAtk === maxAtk && jw.v1.bonusAtk !== jw.v2.bonusAtk) {
@@ -813,6 +842,9 @@ window.GC = {
 
     pickSet: function(pid, slotType, setKey) {
         closeSetPopup();
+        var p = state[pid];
+        if (!p) return;
+        var wc = getProfileWeaponConfig(p);
         var bc = state[pid].bonusCollapsed || {};
         if (slotType === 'main-weapon') {
             state[pid].mainWeapon.set = setKey;
@@ -821,7 +853,7 @@ window.GC = {
             if (setKey === 'none') {
                 delete state[pid].mainWeapon.enchant;
                 // Force off-hand weapon/fuse to none (shield is still allowed)
-                if (weaponConfig.offHandType !== 'shield') {
+                if (wc.offHandType !== 'shield') {
                     state[pid].offHand.set = 'none';
                     state[pid].offHand.bonuses = [];
                     state[pid].offHand.bonusValues = {};
@@ -1397,7 +1429,7 @@ window.GC = {
     applyManaPreset: function(pid, manaKey) {
         var profile = state[pid];
         var allGearKeys = ['mainWeapon'];
-        if (weaponConfig.offHandType !== 'none') allGearKeys.push('offHand');
+        if (getEffectiveOffHandType(profile) !== 'none') allGearKeys.push('offHand');
         ARMOR_SLOTS.forEach(function(s) { allGearKeys.push(s.key); });
         ALL_ACCESSORY_KEYS.forEach(function(k) { allGearKeys.push(k); });
         allGearKeys.forEach(function(gk) {

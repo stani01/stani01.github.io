@@ -165,8 +165,9 @@ function calculateDetailedStats(profileId) {
     }
 
     // -- Weapon stats (base/bonus/enchant split) --
+    var weaponCfg = getProfileWeaponConfig(profile);
     var mwSet = profile.mainWeapon.set;
-    var mwType = weaponConfig.mainType;
+    var mwType = weaponCfg.mainType;
     var mainParts = getWeaponParts(mwSet, mwType, profile.mainWeapon.enchant, profile.mainWeapon.bonuses, profile.mainWeapon.bonusValues);
     var ohType = getEffectiveOffHandType(profile);
     var ohSet = profile.offHand.set;
@@ -199,7 +200,7 @@ function calculateDetailedStats(profileId) {
         sources.weapons.attack += Math.floor(fuseParts.baseAtk / 10);
 
     } else if (ohType === 'weapon') {
-        var ohParts = getWeaponParts(ohSet, weaponConfig.offHandWeaponType, profile.offHand.enchant, profile.offHand.bonuses, profile.offHand.bonusValues);
+        var ohParts = getWeaponParts(ohSet, weaponCfg.offHandWeaponType, profile.offHand.enchant, profile.offHand.bonuses, profile.offHand.bonusValues);
         if (selectedClass === 'gunner') {
             addWeaponComponent(mainParts.base, 'base');
         } else {

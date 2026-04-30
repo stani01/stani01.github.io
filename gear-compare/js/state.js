@@ -12,6 +12,7 @@ function createDefaultWeaponConfig(className) {
 
 function createDefaultProfile(className) {
     var profile = {
+        weaponConfig: createDefaultWeaponConfig(className),
         minions: { main: 'crit-sita', secondary: 'crit-sita' },
         armorType: CLASS_DATA[className].armorTypes[0],
         armor: {},
@@ -90,7 +91,7 @@ function createDefaultProfile(className) {
     return profile;
 }
 
-var STORAGE_KEY = 'gc-state-v3';
+var STORAGE_KEY = 'gc-state-v4';
 var MAX_SETS = 5;
 var setOrder = [1, 2];
 var setNames = { 1: 'Set 1', 2: 'Set 2' };
@@ -143,7 +144,6 @@ function saveState() {
         setOrder.forEach(function(id) { profiles[id] = state[id]; });
         var data = {
             selectedClass: selectedClass,
-            weaponConfig: weaponConfig,
             profiles: profiles,
             activeTab: activeTab,
             setOrder: setOrder,
@@ -178,17 +178,18 @@ function loadState() {
         if (!CLASS_DATA[data.selectedClass]) return false;
         selectedClass = data.selectedClass;
         var cls = CLASS_DATA[selectedClass];
-        // Restore weapon config
+        // Legacy global weapon config fallback (v3 data)
+        var legacyWeaponConfig = null;
         if (data.weaponConfig) {
             var wc = data.weaponConfig;
-            weaponConfig = createDefaultWeaponConfig(selectedClass);
-            if (wc.mainType && cls.weapons.indexOf(wc.mainType) !== -1) weaponConfig.mainType = wc.mainType;
-            if (['none','fuse','weapon','shield'].indexOf(wc.offHandType) !== -1) weaponConfig.offHandType = wc.offHandType;
-            if (wc.offHandWeaponType && WEAPON_TYPE_KEYS.indexOf(wc.offHandWeaponType) !== -1) weaponConfig.offHandWeaponType = wc.offHandWeaponType;
+            legacyWeaponConfig = createDefaultWeaponConfig(selectedClass);
+            if (wc.mainType && cls.weapons.indexOf(wc.mainType) !== -1) legacyWeaponConfig.mainType = wc.mainType;
+            if (['none','fuse','weapon','shield'].indexOf(wc.offHandType) !== -1) legacyWeaponConfig.offHandType = wc.offHandType;
+            if (wc.offHandWeaponType && WEAPON_TYPE_KEYS.indexOf(wc.offHandWeaponType) !== -1) legacyWeaponConfig.offHandWeaponType = wc.offHandWeaponType;
             // Validate off-hand type against current rules
-            var allowed = getAllowedOffHand(weaponConfig.mainType, selectedClass);
-            if (allowed.indexOf(weaponConfig.offHandType) === -1) {
-                weaponConfig.offHandType = getDefaultOffHand(weaponConfig.mainType, selectedClass);
+            var allowed = getAllowedOffHand(legacyWeaponConfig.mainType, selectedClass);
+            if (allowed.indexOf(legacyWeaponConfig.offHandType) === -1) {
+                legacyWeaponConfig.offHandType = getDefaultOffHand(legacyWeaponConfig.mainType, selectedClass);
             }
         }
         // Restore multi-set state (backward compat with pre-multiset saves)
@@ -233,6 +234,13 @@ function loadState() {
             var saved = data.profiles[id];
             if (!saved) return;
             restoreProfile(id, saved, cls);
+            if (legacyWeaponConfig && !saved.weaponConfig) {
+                state[id].weaponConfig = {
+                    mainType: legacyWeaponConfig.mainType,
+                    offHandType: legacyWeaponConfig.offHandType,
+                    offHandWeaponType: legacyWeaponConfig.offHandWeaponType
+                };
+            }
         });
         if (data.activeTab === 'equipment' || data.activeTab === 'transforms' ||
             data.activeTab === 'collections' || data.activeTab === 'relic' || data.activeTab === 'trait' || data.activeTab === 'skill-buffs') {
@@ -263,6 +271,23 @@ function restoreProfile(id, saved, cls) {
             }
             if (saved.armorType && cls.armorTypes.indexOf(saved.armorType) !== -1) {
                 p.armorType = saved.armorType;
+            }
+            if (saved.weaponConfig && typeof saved.weaponConfig === 'object') {
+                var wc = createDefaultWeaponConfig(selectedClass);
+                if (saved.weaponConfig.mainType && cls.weapons.indexOf(saved.weaponConfig.mainType) !== -1) {
+                    wc.mainType = saved.weaponConfig.mainType;
+                }
+                if (saved.weaponConfig.offHandType && ['none', 'fuse', 'weapon', 'shield'].indexOf(saved.weaponConfig.offHandType) !== -1) {
+                    wc.offHandType = saved.weaponConfig.offHandType;
+                }
+                if (saved.weaponConfig.offHandWeaponType && WEAPON_TYPE_KEYS.indexOf(saved.weaponConfig.offHandWeaponType) !== -1) {
+                    wc.offHandWeaponType = saved.weaponConfig.offHandWeaponType;
+                }
+                var allowedWc = getAllowedOffHand(wc.mainType, selectedClass);
+                if (allowedWc.indexOf(wc.offHandType) === -1) {
+                    wc.offHandType = getDefaultOffHand(wc.mainType, selectedClass);
+                }
+                p.weaponConfig = wc;
             }
             if (typeof saved.apsuEnabled === 'boolean') {
                 p.apsuEnabled = saved.apsuEnabled;
@@ -491,7 +516,6 @@ function restoreProfile(id, saved, cls) {
 
 var selectedClass = 'gladiator';
 var activeTab = 'equipment';
-var weaponConfig = createDefaultWeaponConfig('gladiator');
 var state = {
     1: createDefaultProfile('gladiator'),
     2: createDefaultProfile('gladiator')

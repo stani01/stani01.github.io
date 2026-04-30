@@ -23,10 +23,18 @@ var WEAPON_TYPES = {
 // Shield-compatible main-hand weapons
 var SHIELD_WEAPONS = ['dagger', 'sword', 'mace'];
 
+function getProfileWeaponConfig(profile) {
+    if (!profile.weaponConfig) {
+        profile.weaponConfig = createDefaultWeaponConfig(selectedClass);
+    }
+    return profile.weaponConfig;
+}
+
 // Get effective off-hand type for a profile (off-hand weapon/fuse disabled when main hand is none)
 function getEffectiveOffHandType(profile) {
-    if (profile.mainWeapon.set === 'none' && weaponConfig.offHandType !== 'shield') return 'none';
-    return weaponConfig.offHandType;
+    var wc = getProfileWeaponConfig(profile);
+    if (profile.mainWeapon.set === 'none' && wc.offHandType !== 'shield') return 'none';
+    return wc.offHandType;
 }
 
 
@@ -84,9 +92,10 @@ function getOffHandChoices(mainType, className) {
 }
 
 // Get current off-hand choice key from weaponConfig
-function getCurrentOffHandKey() {
-    if (weaponConfig.offHandType === 'weapon') return 'weapon:' + weaponConfig.offHandWeaponType;
-    return weaponConfig.offHandType;
+function getCurrentOffHandKey(profile) {
+    var wc = getProfileWeaponConfig(profile);
+    if (wc.offHandType === 'weapon') return 'weapon:' + wc.offHandWeaponType;
+    return wc.offHandType;
 }
 
 // Armor slots (matches Excel order)
