@@ -771,6 +771,17 @@ var GC_SKILL_DATABASE = {
         cooldown: '10s',
         description: 'The Enmity caused by your attack is increased..<br>Increases Add. PvE Def. by 2500.<br>Reduces Magic Attack by 200<br>Active Skill.'
     },
+    'callMech': {
+        name: 'Call Mech',
+        icon: '../assets/icons/ri_summonarmor_g1.png',
+        id: '2778',
+        class: 'Aethertech',
+        category: 'Active',
+        usageCost: '588 MP',
+        castTime: 'Cast Instantly',
+        cooldown: '8s',
+        description: 'Increases your attack range by 4m.<br>Increases All Altered State Resist by 200.<br>Increases Parry by 403.<br>Increases Physical Defence by 139.<br>Increases Magical Accuracy by 272.<br>Active Skill.'
+    },
 
     // -- Gunner --
     'focusedMagic': {
@@ -966,6 +977,7 @@ var GC_SKILL_BUFFS = {
         { key: 'powerIncrease', value: '+900 Attack / +300 PvP Attack', stats: { attack: 900, pvpAttack: 300 }, defaultActive: false },
         { key: 'extremeEffort', value: '+900 Attack / +1200 Accuracy', stats: { attack: 900, accuracy: 1200 }, defaultActive: false, excludes: ['limitlessPower'] },
         { key: 'alertDialog', value: '+2500 PvE Defence / -200 Attack', stats: { pveDefence: 2500, attack: -200 }, defaultActive: false },
+        { key: 'callMech', value: 'Resists +200 / Physical def +139 / Parry +403 / Macc +272', stats: { physicalDef: 139, parry: 403, accuracy: 272 }, defaultActive: true, enchant: { stat: 'physicalDef', perLevel: 10, maxLevel: 26, defaultLevel: 20 } },
     ],
     gunner: [
         { key: 'focusedMagic', value: '+1200 Attack', stats: { attack: 1200 }, defaultActive: false },
