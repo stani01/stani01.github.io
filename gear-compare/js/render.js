@@ -1197,9 +1197,9 @@ function buildCollDropdown(pid, key, label) {
 function getCollectionStatDescription(type, level) {
     // These match your sources.collections logic exactly
     var statsMap = {
-        'normal':   { name: 'Accuracy', values: [0, 10, 15, 20, 30, 45, 60] },
-        'large':    { name: 'Defences', values: [0, 6, 10, 12, 14, 18, 22] },
-        'powerful': { name: 'Attack',   values: [0, 8, 12, 16, 20, 24, 28] }
+        'normal':   { name: 'Accuracy', values: [0, 10, 15, 20, 30, 45, 60, 75, 90, 105] },
+        'large':    { name: 'Defences', values: [0, 6, 10, 12, 14, 18, 22, 26, 30, 34] },
+        'powerful': { name: 'Attack',   values: [0, 8, 12, 16, 20, 24, 28, 32, 36, 40] }
     };
     
     var data = statsMap[type];
