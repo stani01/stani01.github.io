@@ -756,7 +756,7 @@ function renderCollections(pid) {
     var ownedForms = profile.ownedForms || {};
 
     if (!profile.collLevels) {
-        profile.collLevels = { normal: 7, large: 7, powerful: 7 };
+        profile.collLevels = { normal: 10, large: 10, powerful: 10 };
     }
 
     var html = '<div class="gc-profile-header">';
@@ -1174,7 +1174,7 @@ function buildJorgothLegend(weaponType) {
 }
 
 function buildCollDropdown(pid, key, label) {
-    var lvl = (state[pid].collLevels && state[pid].collLevels[key]) || 7;
+    var lvl = (state[pid].collLevels && state[pid].collLevels[key]) || 10;
     
     var html = '<div class="gc-coll-level-box" style="display:flex; flex-direction:column; align-items:center; gap:4px;">';
     html += '<span class="gc-coll-level-label">' + label + '</span>';
@@ -1182,7 +1182,7 @@ function buildCollDropdown(pid, key, label) {
     // Added gc-coll-select class and data-type
     html += '<select class="gc-coll-select gc-coll-level-select" data-type="' + key + '" onchange="GC.setCollectionLevel(' + pid + ',\'' + key + '\',this.value)">';
     
-    for (var i = 1; i <= 7; i++) {
+    for (var i = 1; i <= 10; i++) {
         var sel = (i == lvl) ? ' selected' : '';
         // Initially show ONLY the level number for the closed state
         html += '<option value="' + i + '"' + sel + '>' + i + '</option>';

@@ -377,7 +377,7 @@ function calculateDetailedStats(profileId) {
         }
     });
 
-    var lv = profile.collLevels || {normal:7,large:7,powerful:7};
+    var lv = profile.collLevels || {normal:10,large:10,powerful:10};
 
     function sum(arr,l){
         var s=0;
@@ -386,15 +386,15 @@ function calculateDetailedStats(profileId) {
     }
 
     /* NORMAL (accuracy) */
-    sources.collLevels.accuracy += sum([0,10,15,20,30,45,60],lv.normal);
+    sources.collLevels.accuracy += sum([0,10,15,20,30,45,60,75,90,105],lv.normal);
 
     /* LARGE (defences) */
-    var defSum = sum([0,6,10,12,14,18,22],lv.large);
+    var defSum = sum([0,6,10,12,14,18,22,26,30,34],lv.large);
     sources.collLevels.physicalDef += defSum;
     sources.collLevels.magicalDef  += defSum;
 
     /* POWERFUL (attack) */
-    sources.collLevels.attack += sum([0,8,12,16,20,24,28],lv.powerful);
+    sources.collLevels.attack += sum([0,8,12,16,20,24,28,32,36,40],lv.powerful);
 
     // -- Relic stats --
     if (profile.relic && profile.relic.level > 0) {
