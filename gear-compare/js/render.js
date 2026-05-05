@@ -415,10 +415,20 @@ function renderBuffItem(pid, buff, sb) {
     // Show dynamic value if enchantable, otherwise static value
     if (buff.enchant) {
         var enchLvl = typeof sbe[buff.key] === 'number' ? sbe[buff.key] : buff.enchant.defaultLevel;
-        var baseVal = buff.stats[buff.enchant.stat] || 0;
-        var totalVal = baseVal + (enchLvl * buff.enchant.perLevel);
-        // Build dynamic display: replace base value with enchanted value
-        var dynValue = buff.value.replace('+' + baseVal, '+' + totalVal);
+        var dynValue = buff.value;
+        if (buff.enchant.stats) {
+            // New format: multiple stats
+            for (var stat in buff.enchant.stats) {
+                var baseVal = buff.stats[stat] || 0;
+                var totalVal = baseVal + (enchLvl * buff.enchant.stats[stat]);
+                dynValue = dynValue.replace('+' + baseVal, '+' + totalVal);
+            }
+        } else if (buff.enchant.stat) {
+            // Old format: single stat
+            var baseVal = buff.stats[buff.enchant.stat] || 0;
+            var totalVal = baseVal + (enchLvl * buff.enchant.perLevel);
+            dynValue = dynValue.replace('+' + baseVal, '+' + totalVal);
+        }
         html += '<div class="gc-buff-value">' + dynValue + '</div>';
     } else {
         html += '<div class="gc-buff-value">' + buff.value + '</div>';
