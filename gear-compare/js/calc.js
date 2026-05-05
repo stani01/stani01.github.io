@@ -460,9 +460,20 @@ function calculateDetailedStats(profileId) {
         // Apply enchant bonus on top of base stats
         if (buff.enchant) {
             var enchLevel = typeof sbe[buff.key] === 'number' ? sbe[buff.key] : buff.enchant.defaultLevel;
-            var enchBonus = enchLevel * buff.enchant.perLevel;
-            if (STAT_KEYS.indexOf(buff.enchant.stat) !== -1) {
-                sources.skillBuffs[buff.enchant.stat] += enchBonus;
+            if (buff.enchant.stats) {
+                // New format: multiple stats
+                for (var stat in buff.enchant.stats) {
+                    if (STAT_KEYS.indexOf(stat) !== -1) {
+                        var enchBonus = enchLevel * buff.enchant.stats[stat];
+                        sources.skillBuffs[stat] += enchBonus;
+                    }
+                }
+            } else if (buff.enchant.stat) {
+                // Old format: single stat
+                var enchBonus = enchLevel * buff.enchant.perLevel;
+                if (STAT_KEYS.indexOf(buff.enchant.stat) !== -1) {
+                    sources.skillBuffs[buff.enchant.stat] += enchBonus;
+                }
             }
         }
         if (doubleMinionBuff) {
