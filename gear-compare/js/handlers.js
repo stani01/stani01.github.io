@@ -656,7 +656,35 @@ window.GC = {
         document.getElementById('gcSkillInfoModal').classList.remove('active');
     },
 
-    openJorgothModal: function() {
+    openJorgothModal: function(weaponType) {
+        var selectedType = weaponType;
+        if (!selectedType && state[activeSetId]) {
+            var wc = getProfileWeaponConfig(state[activeSetId]);
+            selectedType = wc.mainType;
+        }
+        if (selectedType && JORGOTH_WEAPONS[selectedType]) {
+            var modalBody = document.getElementById('gc-jorgoth-modal-body');
+            if (modalBody) modalBody.innerHTML = buildJorgothLegend(selectedType);
+
+            var titleEl = document.getElementById('gc-jorgoth-modal-title');
+            if (titleEl) titleEl.textContent = 'Jorgoth ' + WEAPON_TYPES[selectedType].name + ' Variants';
+
+            var iconEl = document.getElementById('gc-jorgoth-modal-weapon-icon');
+            if (iconEl) {
+                iconEl.src = WEAPON_TYPES[selectedType].icon;
+                iconEl.alt = WEAPON_TYPES[selectedType].name;
+                iconEl.style.display = 'inline-block';
+            }
+        } else {
+            var fallbackTitle = document.getElementById('gc-jorgoth-modal-title');
+            if (fallbackTitle) fallbackTitle.textContent = 'Jorgoth Weapon Variants';
+            var fallbackIcon = document.getElementById('gc-jorgoth-modal-weapon-icon');
+            if (fallbackIcon) {
+                fallbackIcon.removeAttribute('src');
+                fallbackIcon.alt = '';
+                fallbackIcon.style.display = 'none';
+            }
+        }
         var modal = document.getElementById('gc-jorgoth-modal');
         if (modal) modal.style.display = 'flex';
     },
@@ -1521,7 +1549,7 @@ window.GC = {
         popup.dataset.slotIdx = slotIdx;
 
         var rect = triggerEl.getBoundingClientRect();
-        popup.style.display = 'flex';
+        popup.style.display = 'grid';
         var popH = popup.offsetHeight;
         var popW = popup.offsetWidth;
         var top = rect.bottom + 4;

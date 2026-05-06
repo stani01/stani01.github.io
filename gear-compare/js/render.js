@@ -1292,16 +1292,30 @@ function renderWeaponConfig(pid) {
     html += '</div>';
     html += '</div>';
 
-    // -- Jorgoth button (inline with weapon pickers) --
+    // -- Jorgoth variants (show main and off-hand when types differ) --
+    var jorgButtons = [];
     if (JORGOTH_WEAPONS[mainType]) {
-        html += '<button class="gc-jorgoth-btn" onclick="GC.openJorgothModal()" title="View Jorgoth weapon variants">📊 Jorgoth Variants</button>';
+        jorgButtons.push({ type: mainType, title: 'Open ' + WEAPON_TYPES[mainType].name + ' Jorgoth variants' });
     }
+    if (wc.offHandType === 'weapon' && wc.offHandWeaponType && wc.offHandWeaponType !== mainType && JORGOTH_WEAPONS[wc.offHandWeaponType]) {
+        jorgButtons.push({ type: wc.offHandWeaponType, title: 'Open ' + WEAPON_TYPES[wc.offHandWeaponType].name + ' Jorgoth variants' });
+    }
+
+    jorgButtons.forEach(function(jb) {
+        html += '<div class="gc-wc-item gc-wc-item-info">';
+        html += '<div class="gc-wc-item-label">' + WEAPON_TYPES[jb.type].name + '</div>';
+        html += '<button class="gc-wc-info-btn" onclick="GC.openJorgothModal(\'' + jb.type + '\')" title="' + jb.title + '">';
+        html += '<span class="gc-wc-info-icon">i</span>';
+        html += '<span class="gc-wc-info-text">Jorg Variants</span>';
+        html += '</button>';
+        html += '</div>';
+    });
 
     html += '</div>';
 
     el.innerHTML = html;
 
-    // Update the Jorgoth modal content for the current weapon type
+    // Keep modal body in sync with currently selected main-hand by default
     var modalBody = document.getElementById('gc-jorgoth-modal-body');
     if (modalBody) modalBody.innerHTML = buildJorgothLegend(mainType);
 }
@@ -1312,20 +1326,32 @@ function renderProfile(id) {
     var wc = getProfileWeaponConfig(profile);
     var classInfo = CLASS_DATA[selectedClass];
     var material = getArmorMaterial(profile.armorType);
+    var selectedMainMinion = (MINIONS || []).find(function(m) {
+        return profile.minions && m.key === profile.minions.main;
+    });
+    var minionQuickIcon = selectedMainMinion && selectedMainMinion.icon
+        ? selectedMainMinion.icon
+        : '../assets/icons/icon_ui_minion.png';
     var html = '';
 
     // -- Header --
-    html += '<div class="gc-profile-header">';
+    html += '<div class="gc-profile-header gc-profile-header-with-actions">';
     html += '<span class="gc-set-title" data-set="' + id + '">' + getSetName(id) + '</span>';
+    html += '<div class="gc-profile-header-actions">';
+    html += '<button class="gc-icon-picker gc-wc-action-btn gc-profile-quick-btn" onclick="GC.openMinionModal(' + id + ')" title="Minion setup">';
+    html += '<img src="' + minionQuickIcon + '" alt="Minion">';
+    html += '</button>';
+    html += '<button class="gc-icon-picker gc-wc-action-btn gc-profile-quick-btn" onclick="GC.openManaModal(' + id + ')" title="Manastone setup">';
+    html += '<img src="' + MANASTONE_ICON + '" alt="Manastones">';
+    html += '</button>';
     html += '<button class="gc-reset-btn" onclick="GC.resetProfile(' + id + ')" title="Reset ' + getSetName(id) + ' to defaults">↺</button>';
+    html += '</div>';
     html += '</div>';
 
     // -- Weapons Section --
     html += '<div class="gc-section">';
     html += '<div class="gc-section-label-row">';
     html += '<span class="gc-section-label">🗡️ Weapons</span>';
-    html += '<button class="gc-ms-btn" onclick="GC.openMinionModal(' + id + ')">Minions</button>';
-    html += '<span class="gc-ms-btn" onclick="GC.openManaModal(' + id + ')" title="Manastones"><img src="' + MANASTONE_ICON + '" alt="Manastones"> Manastones</span>';
     html += '</div>';
     html += '<div class="gc-armor-columns">';
     // -- Left: Main Weapon --

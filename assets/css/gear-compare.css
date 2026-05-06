@@ -512,6 +512,52 @@
     position: relative;
 }
 
+.gc-profile-header-with-actions {
+    padding-right: 0;
+    min-height: 44px;
+}
+
+.gc-profile-header-actions {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gc-profile-header-actions .gc-icon-picker {
+    width: 32px;
+    height: 32px;
+}
+
+.gc-profile-header-actions .gc-icon-picker img {
+    width: 22px;
+    height: 22px;
+}
+
+.gc-profile-header-actions .gc-reset-btn {
+    position: static;
+    top: auto;
+    right: auto;
+    transform: none;
+    width: 30px;
+    height: 30px;
+}
+
+.gc-profile-quick-btn {
+    border-width: 1px;
+    border-color: rgba(120, 180, 255, 0.28);
+    background: rgba(100, 180, 255, 0.07);
+}
+
+.gc-profile-quick-btn:hover {
+    border-color: rgba(120, 180, 255, 0.55);
+    background: rgba(100, 180, 255, 0.16);
+    box-shadow: 0 0 8px rgba(120, 180, 255, 0.22);
+}
+
 .gc-reset-btn {
     position: absolute;
     right: 0;
@@ -1524,6 +1570,25 @@
 
 .gc-mana-slot-popup {
     z-index: 10001 !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    min-width: 465px;
+    max-width: min(520px, calc(100vw - 10px));
+    width: min(520px, calc(100vw - 10px));
+    white-space: normal;
+}
+
+.gc-mana-slot-popup .gc-set-option {
+    min-width: 0;
+    padding: 6px 8px;
+}
+
+.gc-mana-slot-popup .gc-set-option-label {
+    min-width: 0;
+    font-size: 0.75em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .gc-mana-slot-icon-empty {
@@ -1657,6 +1722,20 @@
     font-weight: 700;
     font-size: 0.95em;
     color: rgba(200, 160, 60, 0.9);
+}
+
+.gc-jorgoth-modal-title-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.gc-jorgoth-modal-weapon-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 3px rgba(200, 160, 60, 0.35));
 }
 .gc-jorgoth-modal-close {
     background: none;
@@ -2004,6 +2083,68 @@
     width: 40px;
     height: 40px;
     object-fit: contain;
+}
+
+.gc-wc-action-btn {
+    padding: 0;
+    font: inherit;
+    line-height: 1;
+}
+
+.gc-wc-item-info {
+    min-width: 120px;
+}
+
+.gc-wc-item-info .gc-wc-item-label {
+    max-width: 120px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gc-wc-info-btn {
+    min-width: 120px;
+    height: 52px;
+    border-radius: 10px;
+    border: 1px solid rgba(120, 180, 255, 0.35);
+    background: rgba(100, 180, 255, 0.08);
+    color: rgba(170, 215, 255, 0.95);
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.gc-wc-info-btn:hover {
+    background: rgba(100, 180, 255, 0.18);
+    border-color: rgba(120, 180, 255, 0.6);
+    box-shadow: 0 0 10px rgba(120, 180, 255, 0.2);
+}
+
+.gc-wc-info-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid rgba(170, 215, 255, 0.65);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.gc-wc-info-text {
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .gc-icon-picker-empty {

@@ -10,9 +10,9 @@
     <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
-    <link rel="stylesheet" href="../assets/css/common.css?v=10.0">
-    <link rel="stylesheet" href="../assets/css/gear-compare.css?v=10.0">
-    <link rel="stylesheet" href="../assets/css/aion-calc.css?v=10.0">
+    <link rel="stylesheet" href="../assets/css/common.css?v=11.0">
+    <link rel="stylesheet" href="../assets/css/gear-compare.css?v=11.0">
+    <link rel="stylesheet" href="../assets/css/aion-calc.css?v=11.0">
 </head>
 <body class="page-gear-compare">
 
@@ -117,7 +117,10 @@
         <div class="gc-jorgoth-modal-overlay" id="gc-jorgoth-modal" style="display:none;" onclick="if(event.target===this)GC.closeJorgothModal()">
             <div class="gc-jorgoth-modal">
                 <div class="gc-jorgoth-modal-header">
-                    <span>Jorgoth Weapon Variants</span>
+                    <span class="gc-jorgoth-modal-title-wrap">
+                        <img id="gc-jorgoth-modal-weapon-icon" class="gc-jorgoth-modal-weapon-icon" src="" alt="" style="display:none;">
+                        <span id="gc-jorgoth-modal-title">Jorgoth Weapon Variants</span>
+                    </span>
                     <button class="gc-jorgoth-modal-close" onclick="GC.closeJorgothModal()">✕</button>
                 </div>
                 <div class="gc-jorgoth-modal-body" id="gc-jorgoth-modal-body"></div>
