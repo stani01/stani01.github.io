@@ -647,13 +647,16 @@
         • <strong>Effective Attack:</strong> <code>MIN(20000, Attack - Defense)</code><br>
         • <strong>Crit Multiplier:</strong> <code>WeaponBase + (CritDmgStat - Fortitude) / 1000</code><br>
         • <strong>Expected Damage:</strong> <code>(1 - CritChance) * NormalHit + CritChance * CritHit</code><br>
+        
+        <br><strong style="color: var(--accent);">Physical "buff":</strong><br>
+        • Glad -8% and Chanter -3% reduces enemy defense by 8% and 3% respectively<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;- applies before any other buff and just adjusts the <strong>Defence</strong> variable from effective attack calculation<br>
         <br>
         <strong style="color: var(--warning);">Buff Application (Applied in order):</strong><br>
         <strong>1. Shards (+25%):</strong> <code>BaseDmg = BaseDmg * 1.25</code> (applied first, always active by default)<br>
         <strong>2. Normal Buffs:</strong> <code>Dmg = BaseDmg * (1 + NormalBuffs%)</code><br>
         &nbsp;&nbsp;&nbsp;&nbsp;• Moving Forward (+10%), Into the Black (+30%), Cubes (+0 to 50%)<br>
         &nbsp;&nbsp;&nbsp;&nbsp;• <em>Magical:</em> Wind Harmony (+15%)<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;• <em>Physical:</em> Glad -8% reduces enemy defense by 8%<br>
         &nbsp;&nbsp;&nbsp;&nbsp;• <em>Ranger:</em> Focused Shots (+30%)<br>
         &nbsp;&nbsp;&nbsp;&nbsp;• <em>Assassin:</em> Mist (+100%) or Eye (+60%) - mutual exclusive<br>
         <strong>3. Extra Buffs:</strong> <code>FinalDmg = Dmg * (1 + ExtraBuffs%)</code><br>
