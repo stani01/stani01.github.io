@@ -2868,7 +2868,7 @@
                     <img src="${skillDatabase.focusedShots.icon}" class="buff-icon">
                     <div class="buff-info">
                         <div class="buff-name">(Improved) Focused Shots</div>
-                        <div class="buff-value">+30%</div>
+                        <div class="buff-value">+33%</div>
                     </div>
                     <input type="checkbox" class="buff-checkbox" id="check-focusedShots" onchange="event.stopPropagation(); calculate()">
                     <button class="skill-info-btn" onclick="showSkillInfo(event, 'focusedShots')" title="Skill Information">i</button>
@@ -3101,7 +3101,7 @@
             extraBuffs += giftMagic;
         }
         if (selectedClass === 'ranger') {
-            const focusedShots = document.getElementById('check-focusedShots')?.checked ? 30 : 0;
+            const focusedShots = document.getElementById('check-focusedShots')?.checked ? 33 : 0;
             normalBuffs += focusedShots;
         }
         if (selectedClass === 'assassin') {
