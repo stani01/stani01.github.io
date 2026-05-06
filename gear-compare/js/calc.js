@@ -476,15 +476,16 @@ function calculateDetailedStats(profileId) {
                 }
             }
         }
-        if (doubleMinionBuff) {
-            sources.skillBuffs.pvpAttack -= 150;
-            sources.skillBuffs.pveAttack -= 150;
-        }
 
         if (buff.stats.hpIncreasePercent) {
             sources.skillBuffs.hp += Math.floor(buffEligibleHp * buff.stats.hpIncreasePercent / 100);
         }
     });
+
+    if (doubleMinionBuff) {
+        sources.skillBuffs.pvpAttack -= 300;
+        sources.skillBuffs.pveAttack -= 300;
+    }
 
     // Compute totals from sources
     var totals = emptyStats();
