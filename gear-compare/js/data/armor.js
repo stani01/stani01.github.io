@@ -156,8 +156,11 @@ function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBon
                 var found = bonusList.find(function(b) { return b.key === bKey; });
                 if (found && found.stat) {
                     var bv = (bonusValues && typeof bonusValues[bKey] === 'number') ? bonusValues[bKey] : found.value;
-                    s[found.stat] += bv;
-                    if (found.stat === 'hp') s.hpBonus += bv;
+                    if (found.stat === 'hp') {
+                        s.hpBonus += bv;
+                    } else {
+                        s[found.stat] += bv;
+                    }
                 }
             });
         }
