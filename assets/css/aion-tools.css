@@ -1872,10 +1872,10 @@ label[data-tooltip]:hover::before {
     z-index: 1001;
 }
 
-input[type="number"] { -moz-appearance: textfield; }
+input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
 
 input::-webkit-outer-spin-button, 
-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input::-webkit-inner-spin-button { appearance: none; -webkit-appearance: none; margin: 0; }
 
 .stats-container { 
     grid-column: span 3; 
@@ -3255,7 +3255,7 @@ flex: 1;
     display: grid;
     grid-template-columns: 80px repeat(7, 1fr);
     gap: 8px;
-    auto-rows: minmax(35px, auto);
+    grid-auto-rows: minmax(35px, auto);
     box-sizing: border-box;
     padding: 0 20px 20px 20px;
 }
@@ -4623,10 +4623,12 @@ flex: 1;
 /* Remove up/down arrows for a cleaner input look */
 .gc-glyph-extra-label input[type="number"]::-webkit-inner-spin-button,
 .gc-glyph-extra-label input[type="number"]::-webkit-outer-spin-button {
+    appearance: none;
     -webkit-appearance: none;
     margin: 0;
 }
 .gc-glyph-extra-label input[type="number"] {
+    appearance: textfield;
     -moz-appearance: textfield;
 }
 
