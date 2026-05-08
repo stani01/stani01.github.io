@@ -783,7 +783,7 @@ async function downloadSetsPayload() {
     var dd = String(now.getDate()).padStart(2, '0');
     var hh = String(now.getHours()).padStart(2, '0');
     var min = String(now.getMinutes()).padStart(2, '0');
-    var fileName = 'gear-compare-sets-' + yyyy + mm + dd + '-' + hh + min + '.gcs';
+    var fileName = 'gear-sets-' + yyyy + mm + dd + '-' + hh + min + '.gcs';
 
     try {
         // Prefer explicit save picker so users can choose location/filename.

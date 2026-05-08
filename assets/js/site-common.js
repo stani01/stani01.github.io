@@ -78,12 +78,12 @@
 
     /* -- 1. Top navigation bar -- */
     var NAV_ITEMS = [
-        { label: 'Homepage',              href: '/aion/' },
-        { label: 'Magical Boost Calendar', href: '/magicalBoostTime/' },
+        { label: 'Homepage',              href: '/' },
+        { label: 'Magical Boost Calendar', href: '/calendar/' },
         { label: 'Retail EU Scheduler',    href: '/scheduler/' },
-        { label: 'Damage Calculator',      href: '/aion-calc/' },
-        { label: 'Enchanting Simulator',   href: '/enchanting/' },
-        { label: 'Gear Compare',           href: '/gear-compare/' },
+        { label: 'Damage Calculator',      href: '/calculator/' },
+        { label: 'Enchanting Simulator',   href: '/enchant/' },
+        { label: 'Gear Compare',           href: '/gear/' },
         { label: 'Statistics Finder',      href: '/stats/' },
         { label: 'Progress Tracker',       href: '/tracker/' }
     ];
@@ -119,7 +119,7 @@
         html += '<div class="footer-actions">';
         html += '<a href="https://discordapp.com/users/158658357606088704" target="_blank" class="discord-button">';
         html += DISCORD_SVG + ' Support &amp; Feedback</a>';
-        if (currentPage !== '/gear-compare/') {
+        if (currentPage !== '/gear/') {
             html += '<button onclick="copyToClipboard()" class="share-btn" id="shareBtn">\uD83D\uDD17 Copy Share Link</button>';
         }
         html += '</div>';
