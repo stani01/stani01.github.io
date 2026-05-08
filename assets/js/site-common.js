@@ -1,5 +1,5 @@
 /**
- * AION Tools Hub - Shared Site Components
+ * Atreia Hub - Shared Site Components
  * Injects consistent header (home button) and footer across all pages.
  */
 (function () {
@@ -124,7 +124,7 @@
         }
         html += '</div>';
         html += '<div class="copyright">';
-        html += '\u00A9 <span id="copyright-year"></span> <a href="/myAionProfiles/"><strong>15TAN</strong></a> - AION Tools Hub<br>';
+        html += '\u00A9 <span id="copyright-year"></span> <a href="/stan/"><strong>15TAN</strong></a> - Atreia Hub<br>';
         html += 'Tools and calculators for AION Retail 8.x';
         html += '</div>';
         html += '<div class="disclaimer">';
