@@ -411,7 +411,7 @@ class KeepAliveWindow(QMainWindow):
         # Write a tiny checkmark SVG so Qt's image: url() can reference it
         check_svg_path = Path(__file__).resolve().parent / "_check_indicator.svg"
         check_svg_path.write_text(
-            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">'
+            '<svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 16 16">'
             '<polyline points="3,8.5 6.5,12 13,4" stroke="white" stroke-width="2.2" '
             'fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
         )

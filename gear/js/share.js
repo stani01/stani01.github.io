@@ -850,7 +850,7 @@ function applyImportedSetsPayload(payload) {
     var clean = payload.trim();
     if (!clean) return false;
     if (clean.indexOf('#s=') === 0) clean = clean.substring(3);
-    if (clean.indexOf('http://') === 0 || clean.indexOf('https://') === 0) {
+    if (clean.indexOf('https://') === 0 || clean.indexOf('https://') === 0) {
         var hashIdx = clean.indexOf('#s=');
         if (hashIdx !== -1) clean = clean.substring(hashIdx + 3);
     }
