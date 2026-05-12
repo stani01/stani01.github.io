@@ -358,6 +358,17 @@ var GC_SKILL_DATABASE = {
         cooldown: '42s',
         description: 'Increases Crit Strike of group members by 800 for 5m.<br>Increases Accuracy by 800.<br>Increases Physical Attack by 600.'
     },
+    'elementalScreen': {
+        name: '(Improved) Elemental Screen',
+        icon: '../assets/icons/live_ch_a_improvedbody_g1.png',
+        id: '6154',
+        class: 'Chanter',
+        category: 'Powerful Stigma',
+        usageCost: '561 MP',
+        castTime: 'Cast Instantly',
+        cooldown: '1m15s',
+        description: 'Increases Physical Defence of group members by 1500 for 30s.<br>Increases Magic Defence by 1500.'
+    },
 
     // -- Gladiator --
     'attackPosition': {
@@ -918,6 +929,7 @@ var GC_SKILL_BUFFS = {
         { key: 'shieldMantra',  value: '+250 PDef / +500 Block, Parry / +450 Evasion', stats: { physicalDef: 250, block: 500, parry: 500, evasion: 450 }, defaultActive: false, },
         { key: 'wallProtection',  value: '+360 Attack', stats: { attack: 360 }, defaultActive: false, },
         { key: 'windHarmony',  value: '+121 Attack', stats: { attack: 121 }, defaultActive: false, },
+        { key: 'elementalScreen',  value: '+1500 PDef / +1500 MDef', stats: { physicalDef: 1500, magicalDef: 1500 }, defaultActive: false, },
     ],
 
     // Universal buffs shown only to MAGICAL classes (sorcerer, spiritmaster, cleric, aethertech, gunner, bard)
