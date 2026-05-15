@@ -28,6 +28,14 @@
         });
     }
 
+    function bustScriptSrcs() {
+        document.querySelectorAll('script[src]').forEach(function (script) {
+            var src = script.getAttribute('src');
+            if (!src) return;
+            script.setAttribute('src', appendVersionParam(src));
+        });
+    }
+
     function showAssetUpdateToast() {
         var toast = document.createElement('div');
         toast.textContent = 'Updating site assets...';
@@ -48,28 +56,39 @@
         (document.body || document.documentElement).appendChild(toast);
     }
 
-    // One-time auto refresh for average users when asset version changes.
-    // This removes the need for manual Ctrl+F5 when pushing style/script updates.
-    try {
-        var previousVersion = localStorage.getItem(ASSET_VERSION_STORAGE_KEY);
-        if (previousVersion !== ASSET_CACHE_VERSION) {
-            localStorage.setItem(ASSET_VERSION_STORAGE_KEY, ASSET_CACHE_VERSION);
-
-            // Apply fresh stylesheet URLs immediately.
-            bustStylesheetLinks();
-
-            // Force a single versioned reload so the document and scripts refresh too.
-            if (!sessionStorage.getItem(ASSET_VERSION_RELOAD_KEY)) {
-                sessionStorage.setItem(ASSET_VERSION_RELOAD_KEY, '1');
+    // Service worker-based update flow: network-first for JS/CSS and automatic
+    // page reload when a new service worker takes control.
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(function (reg) {
+            if (reg.waiting) {
                 showAssetUpdateToast();
-                setTimeout(function () {
-                    window.location.replace(appendVersionParam(window.location.href));
-                }, 120);
-                return;
+                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             }
-        }
-    } catch (e) {
-        // If storage APIs are blocked, continue without forced cache logic.
+
+            reg.addEventListener('updatefound', function () {
+                var newWorker = reg.installing;
+                if (!newWorker) return;
+                newWorker.addEventListener('statechange', function () {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        showAssetUpdateToast();
+                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                });
+            });
+        }).catch(function () {
+            // Service worker registration failed; continue without it.
+        });
+
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+            try { window.location.reload(); } catch (e) { /* ignore */ }
+        });
+
+        navigator.serviceWorker.addEventListener('message', function (e) {
+            if (e.data && e.data.type === 'RELOAD_PAGE') {
+                showAssetUpdateToast();
+                setTimeout(function () { window.location.reload(); }, 120);
+            }
+        });
     }
 
     var DISCORD_SVG = '<svg class="discord-icon" viewBox="0 0 24 24" xmlns="https://www.w3.org/2000/svg">'
