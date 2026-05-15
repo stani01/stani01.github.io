@@ -360,7 +360,7 @@ function getAccessoryBaseStats(slotData, isPhys) {
     return stats;
 }
 
-function buildWeaponTooltip(pid, title, gearKey, setKey, weaponType, enchantLevel, bonuses, bonusValues, isFuse2H) {
+function buildWeaponTooltip(pid, title, gearKey, setKey, weaponType, enchantLevel, bonuses, bonusValues, isFuse2H, fuseAttackBonus) {
     if (setKey === 'none') {
         return renderGearTooltipCard({ name: 'None', subtitle: title + ' slot is empty' });
     }
@@ -368,12 +368,28 @@ function buildWeaponTooltip(pid, title, gearKey, setKey, weaponType, enchantLeve
     var isExtreme = isExtremeSet(setKey, 'weapon');
     var effectiveEnchant = isExtreme ? enchantLevel : 15;
     
-    // Off-hand fuse for 2-handed weapons: no enchant, show only optional stats (bonuses)
+    // Off-hand fuse for 2-handed weapons: show base stats + fuse bonus stats + selectable bonuses
     if (isFuse2H) {
+        var baseParts = getWeaponParts(setKey, weaponType, 0, [], {});
+        var basicRows = [];
+        TOOLTIP_STAT_ORDER.forEach(function(statKey) {
+            var baseValue = baseParts.base[statKey] || 0;
+            if (baseValue === 0) return;
+            basicRows.push({ name: getStatLabelByKey(statKey), value: baseValue });
+        });
+        
+        var optionalRows = [];
+        TOOLTIP_STAT_ORDER.forEach(function(statKey) {
+            var bonusValue = baseParts.bonus[statKey] || 0;
+            if (bonusValue === 0) return;
+            optionalRows.push({ name: getStatLabelByKey(statKey), value: bonusValue });
+        });
+        
         var fixed = WEAPON_STATS_FIXED[setKey];
-        var optionalRows = (fixed && fixed.bonuses)
-            ? collectBonusRows(bonuses || [], fixed.bonuses, bonusValues)
-            : [];
+        if (fixed && fixed.bonuses) {
+            var selectedBonuses = collectBonusRows(bonuses || [], fixed.bonuses, bonusValues);
+            optionalRows = optionalRows.concat(selectedBonuses);
+        }
         
         return renderGearTooltipCard({
             name: title,
@@ -382,7 +398,7 @@ function buildWeaponTooltip(pid, title, gearKey, setKey, weaponType, enchantLeve
             itemType: WEAPON_TYPES[weaponType] ? WEAPON_TYPES[weaponType].name : 'Weapon',
             modeTag: getSetModeTag(setKey, 'weapon'),
             levelText: 'Available for Level ' + getSetLevelTag(setKey, 'weapon') + ' or higher',
-            basicRows: [],
+            basicRows: basicRows,
             optionalRows: optionalRows,
             manastoneRows: collectManastoneRows(state[pid], gearKey, setKey)
         });
@@ -391,12 +407,16 @@ function buildWeaponTooltip(pid, title, gearKey, setKey, weaponType, enchantLeve
     // Get weapon parts with effective enchant level
     var baseParts = getWeaponParts(setKey, weaponType, effectiveEnchant, [], {});
     
-    // Basic stats: base values ONLY (no bonus, no enchant)
+    // Basic stats: base values ONLY (no bonus, no enchant), plus fuse attack bonus if applicable
     var basicRows = [];
     TOOLTIP_STAT_ORDER.forEach(function(statKey) {
         var baseValue = baseParts.base[statKey] || 0;
         if (baseValue === 0) return;
-        basicRows.push({ name: getStatLabelByKey(statKey), value: baseValue });
+        var bonus = 0;
+        if (statKey === 'attack' && fuseAttackBonus && fuseAttackBonus > 0) {
+            bonus = fuseAttackBonus;
+        }
+        basicRows.push({ name: getStatLabelByKey(statKey), value: baseValue, bonus: bonus || undefined });
     });
     
     // Optional stats: fuse bonus + selectable bonuses, with enchant merged into matching rows
@@ -1988,9 +2008,14 @@ function renderProfile(id) {
             'gc-slot-icon-none'
         );
     } else {
+        var fuseAtk = 0;
+        if (wc.offHandType === 'fuse' && WEAPON_TYPES[wc.mainType] && WEAPON_TYPES[wc.mainType].twoHanded) {
+            var fuseParts = getWeaponParts(profile.offHand.set, wc.mainType, profile.offHand.enchant, profile.offHand.bonuses, profile.offHand.bonusValues);
+            fuseAtk = Math.floor(fuseParts.baseAtk / 10);
+        }
         html += renderIconWithTooltip(
             '<img src="' + mwt.icon + '" alt="' + mwt.name + '" title="' + mwt.name + '">',
-            buildWeaponTooltip(id, mwSetObj.name, 'mainWeapon', profile.mainWeapon.set, wc.mainType, profile.mainWeapon.enchant, profile.mainWeapon.bonuses, profile.mainWeapon.bonusValues, false),
+            buildWeaponTooltip(id, mwSetObj.name, 'mainWeapon', profile.mainWeapon.set, wc.mainType, profile.mainWeapon.enchant, profile.mainWeapon.bonuses, profile.mainWeapon.bonusValues, false, fuseAtk),
             mwt.name + ' details'
         );
     }
@@ -2092,7 +2117,7 @@ function renderProfile(id) {
             } else {
                 html += renderIconWithTooltip(
                     '<img src="' + ohIcon + '" alt="' + ohLabel + '" title="' + ohLabel + '">',
-                    buildWeaponTooltip(id, ohSetObj.name, 'offHand', profile.offHand.set, ohType === 'fuse' ? wc.mainType : wc.offHandWeaponType, profile.offHand.enchant, profile.offHand.bonuses, profile.offHand.bonusValues, ohType === 'fuse' && WEAPON_TYPES[wc.mainType] && WEAPON_TYPES[wc.mainType].twoHanded),
+                    buildWeaponTooltip(id, ohSetObj.name, 'offHand', profile.offHand.set, ohType === 'fuse' ? wc.mainType : wc.offHandWeaponType, profile.offHand.enchant, profile.offHand.bonuses, profile.offHand.bonusValues, ohType === 'fuse' && WEAPON_TYPES[wc.mainType] && WEAPON_TYPES[wc.mainType].twoHanded, 0),
                     ohLabel + ' details'
                 );
             }
