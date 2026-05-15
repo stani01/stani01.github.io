@@ -127,6 +127,14 @@ var OBST_ENCHANT = {
     15: { magicResist: { low: 2540, mid: 2788, high: 3301 }, def: { low: 1053, mid: 1336, high: 1443 }, hp: { low: 5868, mid: 6753, high: 7629 } }
 };
 
+// Extreme armor bonus stats (item-level bonuses, always shown)
+// These are separate from enchant bonuses and shown in optional stats
+var EXTREME_ARMOR_BONUS = {
+    acrimony: { bonusAtk: 20, bonusPDef: 10, bonusMDef: 10, bonusHp: 20, bonusCrit: 20 },
+    presumption: { bonusAtk: 20, bonusPDef: 20, bonusMDef: 20, bonusHp: 20 },
+    obstinacy: { bonusMagicResist: 30, bonusPDef: 15, bonusMDef: 15, bonusHp: 20 }
+};
+
 // Calculate actual stats for one armor slot
 function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBonuses, bonusValues) {
     var s = emptyStats();

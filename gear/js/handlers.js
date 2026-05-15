@@ -1801,6 +1801,51 @@ accBonusPopup.addEventListener('click', function(e) {
     e.stopPropagation();
 });
 
+// Global item tooltip mounted on body to avoid clipping behind panel layers.
+var globalItemTooltip = document.createElement('div');
+globalItemTooltip.id = 'gc-global-item-tooltip';
+globalItemTooltip.className = 'gc-global-item-tooltip';
+document.body.appendChild(globalItemTooltip);
+var activeItemTooltipTrigger = null;
+
+function positionGlobalItemTooltip(trigger) {
+    if (!trigger || !globalItemTooltip || globalItemTooltip.style.display !== 'block') return;
+    var margin = 8;
+    var rect = trigger.getBoundingClientRect();
+    var tipW = globalItemTooltip.offsetWidth;
+    var tipH = globalItemTooltip.offsetHeight;
+
+    var top = rect.top - tipH - margin;
+    if (top < margin) top = rect.bottom + margin;
+
+    var left = rect.left + (rect.width / 2) - (tipW / 2);
+    var minLeft = margin;
+    var maxLeft = window.innerWidth - tipW - margin;
+    if (left < minLeft) left = minLeft;
+    if (left > maxLeft) left = Math.max(minLeft, maxLeft);
+
+    globalItemTooltip.style.top = top + 'px';
+    globalItemTooltip.style.left = left + 'px';
+}
+
+function showGlobalItemTooltip(trigger) {
+    if (!trigger) return;
+    var tooltipHtml = trigger.getAttribute('data-tooltip-html');
+    if (!tooltipHtml) return;
+    activeItemTooltipTrigger = trigger;
+    globalItemTooltip.innerHTML = tooltipHtml;
+    globalItemTooltip.style.display = 'block';
+    globalItemTooltip.classList.add('gc-global-item-tooltip-visible');
+    positionGlobalItemTooltip(trigger);
+}
+
+function hideGlobalItemTooltip() {
+    activeItemTooltipTrigger = null;
+    globalItemTooltip.classList.remove('gc-global-item-tooltip-visible');
+    globalItemTooltip.style.display = 'none';
+    globalItemTooltip.innerHTML = '';
+}
+
 // Event delegation: comparison row expand/collapse
 document.getElementById('comparison-panel').addEventListener('click', function(e) {
     var row = e.target.closest('.gc-comp-expandable');
@@ -1847,6 +1892,38 @@ manaSlotPopup.addEventListener('click', function(e) {
     }
 });
 
+// Global tooltip show/hide for item icons (mouse + keyboard focus).
+document.addEventListener('mouseover', function(e) {
+    var trigger = e.target.closest('.gc-item-tooltip-trigger[data-tooltip-html]');
+    if (!trigger) return;
+    if (activeItemTooltipTrigger === trigger) {
+        positionGlobalItemTooltip(trigger);
+        return;
+    }
+    showGlobalItemTooltip(trigger);
+});
+
+document.addEventListener('mouseout', function(e) {
+    if (!activeItemTooltipTrigger) return;
+    var leftTrigger = e.target.closest('.gc-item-tooltip-trigger[data-tooltip-html]');
+    if (!leftTrigger || leftTrigger !== activeItemTooltipTrigger) return;
+    if (e.relatedTarget && activeItemTooltipTrigger.contains(e.relatedTarget)) return;
+    hideGlobalItemTooltip();
+});
+
+document.addEventListener('focusin', function(e) {
+    var trigger = e.target.closest('.gc-item-tooltip-trigger[data-tooltip-html]');
+    if (!trigger) return;
+    showGlobalItemTooltip(trigger);
+});
+
+document.addEventListener('focusout', function(e) {
+    var trigger = e.target.closest('.gc-item-tooltip-trigger[data-tooltip-html]');
+    if (!trigger) return;
+    if (e.relatedTarget && trigger.contains(e.relatedTarget)) return;
+    hideGlobalItemTooltip();
+});
+
 // Close pickers on outside click
 document.addEventListener('click', function(e) {
     if (!e.target.closest('.gc-wc-item')) {
@@ -1869,10 +1946,23 @@ document.addEventListener('click', function(e) {
     if (!e.target.closest('.gc-acc-bonus-popup') && !e.target.closest('.gc-acc-bonus-trigger')) {
         closeAccBonusPopup();
     }
+    if (!e.target.closest('.gc-item-tooltip-trigger')) {
+        hideGlobalItemTooltip();
+    }
 });
 
 // Close oath popup on scroll
-window.addEventListener('scroll', function() { closeOathPopup(); closeSetPopup(); closeEnchantPopup(); closeAccBonusPopup(); }, true);
+window.addEventListener('scroll', function() {
+    closeOathPopup();
+    closeSetPopup();
+    closeEnchantPopup();
+    closeAccBonusPopup();
+    hideGlobalItemTooltip();
+}, true);
+
+window.addEventListener('resize', function() {
+    if (activeItemTooltipTrigger) positionGlobalItemTooltip(activeItemTooltipTrigger);
+});
 
 // Close skill info modal on click outside
 document.addEventListener('click', function(e) {

@@ -16,6 +16,627 @@ function msIndicator(pid, gearKey, setKey, profile) {
     return '<span class="gc-ms-indicator' + cls + '" title="Manastones: ' + filled + '/' + slots + '">' + icons + '</span>';
 }
 
+var TOOLTIP_STAT_ORDER = [
+    'hp', 'attack', 'physicalAttack', 'magicAttack', 'weaponAttack',
+    'accuracy', 'crit', 'healingBoost',
+    'physicalDef', 'magicalDef', 'magicResist', 'evasion', 'block', 'parry',
+    'pvpAttack', 'pveAttack', 'pvpDefence', 'pveDefence',
+    'increasedRegen', 'dp'
+];
+
+function escapeTooltipText(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function getStatLabelByKey(statKey) {
+    var def = COMPARISON_STATS.find(function(s) { return s.key === statKey; });
+    return def ? def.name : statKey;
+}
+
+function formatTooltipStatValue(value) {
+    if (typeof value !== 'number' || isNaN(value)) return '0';
+    return value.toLocaleString();
+}
+
+function collectTooltipStatRows(stats, bonusStats) {
+    var rows = [];
+    TOOLTIP_STAT_ORDER.forEach(function(statKey) {
+        if (!stats || typeof stats[statKey] !== 'number' || stats[statKey] === 0) return;
+        var bonus = bonusStats && typeof bonusStats[statKey] === 'number' ? bonusStats[statKey] : 0;
+        rows.push({ name: getStatLabelByKey(statKey), value: stats[statKey], bonus: bonus || undefined });
+    });
+    return rows;
+}
+
+function collectBonusRows(selectedKeys, bonusDefs, bonusValues) {
+    var rows = [];
+    if (!selectedKeys || !bonusDefs) return rows;
+    selectedKeys.forEach(function(key) {
+        var def = bonusDefs.find(function(b) { return b.key === key; });
+        if (!def) return;
+        var value = (bonusValues && typeof bonusValues[key] === 'number') ? bonusValues[key] : def.value;
+        rows.push({ name: def.name, value: value });
+    });
+    return rows;
+}
+
+function collectManastoneRows(profile, gearKey, setKey) {
+    var rows = [];
+    var slotCount = getManastoneSlotCount(setKey);
+    if (!slotCount) return rows;
+    var selected = profile.manastones[gearKey] || [];
+    for (var i = 0; i < slotCount; i++) {
+        var key = selected[i];
+        if (!key || key === 'none') continue;
+        var def = MANASTONES.find(function(m) { return m.key === key; });
+        if (!def) continue;
+        rows.push({ text: def.name + ' +' + def.value, icon: MANASTONE_ICON });
+    }
+    return rows;
+}
+
+function collectExtremeArmorBonusRows(setKey, enchantLevel, tier) {
+    var rows = [];
+    if (!setKey || setKey === 'none') return rows;
+    
+    // Get item-level bonuses from data structure
+    var bonusData = EXTREME_ARMOR_BONUS[setKey];
+    if (!bonusData) return rows;
+    
+    // Get enchant bonuses if applicable
+    var enchantTable = null;
+    var enchantValues = {};
+    if (enchantLevel >= 8) {
+        enchantTable = (setKey === 'acrimony') ? ACRI_ENCHANT : (setKey === 'presumption') ? PRES_ENCHANT : (setKey === 'obstinacy') ? OBST_ENCHANT : null;
+        if (enchantTable && enchantTable[enchantLevel]) {
+            enchantValues = enchantTable[enchantLevel];
+        }
+    }
+    
+    var tierValue = tier; // 'low', 'mid', or 'high'
+    
+    // Attack bonus with enchant
+    if (bonusData.bonusAtk !== undefined) {
+        var enchAtk = (enchantValues.attack && enchantValues.attack[tierValue]) || 0;
+        rows.push({
+            name: 'Attack Bonus',
+            value: bonusData.bonusAtk,
+            bonus: enchAtk || undefined
+        });
+    }
+    
+    // Physical Defence bonus with enchant
+    if (bonusData.bonusPDef !== undefined) {
+        var enchDef = (enchantValues.def && enchantValues.def[tierValue]) || 0;
+        rows.push({
+            name: 'Physical Defence Bonus',
+            value: bonusData.bonusPDef,
+            bonus: enchDef || undefined
+        });
+    }
+    
+    // Magical Defence bonus with enchant
+    if (bonusData.bonusMDef !== undefined) {
+        var enchDef = (enchantValues.def && enchantValues.def[tierValue]) || 0;
+        rows.push({
+            name: 'Magical Defence Bonus',
+            value: bonusData.bonusMDef,
+            bonus: enchDef || undefined
+        });
+    }
+    
+    // Magic Resist bonus with enchant (Obstinacy only)
+    if (bonusData.bonusMagicResist !== undefined) {
+        var enchMr = (enchantValues.magicResist && enchantValues.magicResist[tierValue]) || 0;
+        rows.push({
+            name: 'Magic Resist Bonus',
+            value: bonusData.bonusMagicResist,
+            bonus: enchMr || undefined
+        });
+    }
+    
+    // HP bonus with enchant
+    if (bonusData.bonusHp !== undefined) {
+        var enchHp = (enchantValues.hp && enchantValues.hp[tierValue]) || 0;
+        rows.push({
+            name: 'HP Bonus',
+            value: bonusData.bonusHp,
+            bonus: enchHp || undefined
+        });
+    }
+    
+    // Crit bonus with enchant (Acrimony only)
+    if (bonusData.bonusCrit !== undefined) {
+        var enchCrit = (enchantValues.crit && enchantValues.crit[tierValue]) || 0;
+        rows.push({
+            name: 'Crit Bonus',
+            value: bonusData.bonusCrit,
+            bonus: enchCrit || undefined
+        });
+    }
+    
+    return rows;
+}
+
+function collectArmorEnchantBonusRows(setKey, enchantLevel, tier) {
+    var rows = [];
+    if (!setKey || setKey === 'none' || enchantLevel < 8) return rows;
+    
+    var enchantTable = (setKey === 'acrimony') ? ACRI_ENCHANT : (setKey === 'presumption') ? PRES_ENCHANT : (setKey === 'obstinacy') ? OBST_ENCHANT : null;
+    if (!enchantTable || !enchantTable[enchantLevel]) return rows;
+    
+    var bonusData = enchantTable[enchantLevel];
+    var tierValue = tier; // 'low', 'mid', or 'high'
+    
+    if (bonusData.attack && bonusData.attack[tierValue]) {
+        rows.push({ name: 'Attack', value: bonusData.attack[tierValue] });
+    }
+    if (bonusData.def && bonusData.def[tierValue]) {
+        rows.push({ name: 'Physical Defence', value: bonusData.def[tierValue] });
+    }
+    if (bonusData.magicResist && bonusData.magicResist[tierValue]) {
+        rows.push({ name: 'Magic Resist', value: bonusData.magicResist[tierValue] });
+    }
+    if (bonusData.hp && bonusData.hp[tierValue]) {
+        rows.push({ name: 'HP', value: bonusData.hp[tierValue] });
+    }
+    if (bonusData.crit && bonusData.crit[tierValue]) {
+        rows.push({ name: 'Crit', value: bonusData.crit[tierValue] });
+    }
+    
+    return rows;
+}
+
+function collectFightingSpiritEnchantBonuses(selectedKeys, enchDef, enchAtk) {
+    var enchantMap = {};
+    if (selectedKeys && selectedKeys.length > 0) {
+        selectedKeys.forEach(function(key) {
+            if (key === 'physicalDef' || key === 'magicalDef') {
+                enchantMap[key] = enchDef;
+            } else if (key === 'attack') {
+                enchantMap[key] = enchAtk;
+            }
+        });
+    }
+    return enchantMap;
+}
+
+function getSetModeTag(setKey, itemKind) {
+    if (!setKey || setKey === 'none') return '';
+    if (itemKind === 'weapon') {
+        var fixed = WEAPON_STATS_FIXED[setKey];
+        if (fixed && fixed.pveStat) return 'pve';
+        if (fixed && fixed.pvpStat) return 'pvp';
+        if (setKey === 'ciclonica-helper' || setKey === 'vision') return 'pve';
+        return 'pvp';
+    }
+    if (itemKind === 'shield') {
+        if (setKey === 'ciclonica') return 'pve';
+        return 'pvp';
+    }
+    return 'pvp';
+}
+
+function getSetLevelTag(setKey, itemKind) {
+    if (!setKey || setKey === 'none') return '';
+    if (itemKind === 'weapon') return getWeaponSetLevel(setKey) || 80;
+    if (setKey === 'salvation') return 83;
+    if (setKey === 'fighting-spirit') return 81;
+    return 80;
+}
+
+function getModeIcon(modeTag) {
+    if (modeTag === 'pve') return '../assets/icons/icon_pve.png';
+    if (modeTag === 'pvp') return '../assets/icons/icon_pvp.png';
+    return '';
+}
+
+function isExtremeSet(setKey, itemKind) {
+    if (!setKey || setKey === 'none') return false;
+    if (itemKind === 'weapon') {
+        return setKey === 'acrimony' || setKey === 'presumption';
+    }
+    if (itemKind === 'armor') {
+        return setKey === 'acrimony' || setKey === 'presumption' || setKey === 'obstinacy';
+    }
+    return false;
+}
+
+function renderTooltipSection(title, rows, isStatGrid) {
+    if (!rows || !rows.length) return '';
+    var html = '<div class="gc-item-tooltip-section-title">' + escapeTooltipText(title) + '</div>';
+    if (isStatGrid) html += '<div class="gc-item-tooltip-stats-grid">';
+    rows.forEach(function(row) {
+        if (typeof row === 'string') {
+            html += '<div class="gc-item-tooltip-wide">' + escapeTooltipText(row) + '</div>';
+            return;
+        }
+        if (row && row.text) {
+            // Manastone rows - render as inline items (work in both grid and non-grid contexts)
+            html += '<div class="gc-item-tooltip-inline">';
+            if (row.icon) {
+                html += '<img src="' + row.icon + '" class="gc-item-tooltip-inline-icon" alt="">';
+            }
+            html += '<span class="gc-item-tooltip-inline-text">' + escapeTooltipText(row.text) + '</span>';
+            html += '</div>';
+            return;
+        }
+        html += '<div class="gc-item-tooltip-stat">';
+        html += '<span class="gc-item-tooltip-stat-name">' + escapeTooltipText(row.name) + '</span>';
+        var valueText = formatTooltipStatValue(row.value);
+        if (typeof row.bonus === 'number' && row.bonus !== 0) {
+            var bonusSign = row.bonus > 0 ? '+' : '';
+            valueText += ' <span style="color: rgba(232, 213, 167, 0.7);">(' + bonusSign + formatTooltipStatValue(row.bonus) + ')</span>';
+        }
+        html += '<span class="gc-item-tooltip-stat-value">' + valueText + '</span>';
+        html += '</div>';
+    });
+    if (isStatGrid) html += '</div>';
+    return html;
+}
+
+function renderGearTooltipCard(opts) {
+    var html = '<div class="gc-item-tooltip-card">';
+    html += '<div class="gc-item-tooltip-title-row">';
+    if (typeof opts.enchant === 'number' && opts.enchant > 0) {
+        html += '<span class="gc-item-tooltip-enchant">+' + opts.enchant + '</span>';
+    }
+    html += '<span class="gc-item-tooltip-title">' + escapeTooltipText(opts.name || 'Item') + '</span>';
+    html += '</div>';
+
+    if (opts.itemIcon || opts.itemType || opts.levelText) {
+        html += '<div class="gc-item-tooltip-media-row">';
+        if (opts.itemIcon) {
+            html += '<div class="gc-item-tooltip-item-icons">';
+            html += '<img src="../assets/icons/icon_frame_2.png" class="gc-item-tooltip-item-icon-back" alt="">';
+            html += '<img src="' + opts.itemIcon + '" class="gc-item-tooltip-item-icon" alt="">';
+            html += '</div>';
+        }
+        html += '<div class="gc-item-tooltip-meta">';
+        if (opts.itemType) {
+            html += '<div class="gc-item-tooltip-meta-line">' + escapeTooltipText(opts.itemType) + '</div>';
+        }
+        if (opts.levelText) {
+            html += '<div class="gc-item-tooltip-meta-line">' + escapeTooltipText(opts.levelText) + '</div>';
+        }
+        html += '</div>';
+        html += '</div>';
+    } else if (opts.subtitle) {
+        html += '<div class="gc-item-tooltip-subtitle">' + escapeTooltipText(opts.subtitle) + '</div>';
+    }
+
+    var sections = [];
+    sections.push(renderTooltipSection('Basic Stats', opts.basicRows || [], true));
+    sections.push(renderTooltipSection('Optional Stats', opts.optionalRows || [], true));
+    sections.push(renderTooltipSection('Manastone Socketing', opts.manastoneRows || [], true));
+    if (opts.oathLabel) {
+        sections.push(renderTooltipSection('Oath', [{ text: opts.oathLabel, icon: opts.oathIcon || '' }], false));
+    }
+
+    var visibleSections = sections.filter(function(s) { return !!s; });
+    if (visibleSections.length) {
+        html += '<hr class="gc-item-tooltip-separator">';
+        html += visibleSections.join('<hr class="gc-item-tooltip-separator">');
+    }
+
+    html += '</div>';
+    return html;
+}
+
+function renderIconWithTooltip(innerHtml, tooltipHtml, ariaLabel, extraClasses) {
+    var classes = 'gc-slot-icon gc-item-tooltip-trigger';
+    if (extraClasses) classes += ' ' + extraClasses;
+    var html = '<div class="gc-item-tooltip-anchor">';
+    html += '<div class="' + classes + '" tabindex="0" role="button" aria-label="' + escapeTooltipText(ariaLabel || 'Item details') + '" data-tooltip-html="' + escapeTooltipText(tooltipHtml || '') + '">';
+    html += innerHtml;
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
+function getAccessoryBaseStats(slotData, isPhys) {
+    var stats = emptyStats();
+    if (!slotData) return stats;
+    var k;
+    if (slotData.base) {
+        for (k in slotData.base) {
+            if (typeof stats[k] === 'number') stats[k] += slotData.base[k];
+        }
+    }
+    if (slotData.fixed) {
+        for (k in slotData.fixed) {
+            if (typeof stats[k] === 'number') stats[k] += slotData.fixed[k];
+        }
+    }
+    if (slotData.physDef) {
+        if (isPhys) stats.physicalDef += slotData.physDef;
+        else stats.magicalDef += slotData.physDef;
+    }
+    return stats;
+}
+
+function buildWeaponTooltip(pid, title, gearKey, setKey, weaponType, enchantLevel, bonuses, bonusValues, isFuse2H) {
+    if (setKey === 'none') {
+        return renderGearTooltipCard({ name: 'None', subtitle: title + ' slot is empty' });
+    }
+    
+    var isExtreme = isExtremeSet(setKey, 'weapon');
+    var effectiveEnchant = isExtreme ? enchantLevel : 15;
+    
+    // Off-hand fuse for 2-handed weapons: no enchant, show only optional stats (bonuses)
+    if (isFuse2H) {
+        var fixed = WEAPON_STATS_FIXED[setKey];
+        var optionalRows = (fixed && fixed.bonuses)
+            ? collectBonusRows(bonuses || [], fixed.bonuses, bonusValues)
+            : [];
+        
+        return renderGearTooltipCard({
+            name: title,
+            enchant: 0,
+            itemIcon: WEAPON_TYPES[weaponType] ? WEAPON_TYPES[weaponType].icon : '',
+            itemType: WEAPON_TYPES[weaponType] ? WEAPON_TYPES[weaponType].name : 'Weapon',
+            modeTag: getSetModeTag(setKey, 'weapon'),
+            levelText: 'Available for Level ' + getSetLevelTag(setKey, 'weapon') + ' or higher',
+            basicRows: [],
+            optionalRows: optionalRows,
+            manastoneRows: collectManastoneRows(state[pid], gearKey, setKey)
+        });
+    }
+    
+    // Get weapon parts with effective enchant level
+    var baseParts = getWeaponParts(setKey, weaponType, effectiveEnchant, [], {});
+    
+    // Basic stats: base values ONLY (no bonus, no enchant)
+    var basicRows = [];
+    TOOLTIP_STAT_ORDER.forEach(function(statKey) {
+        var baseValue = baseParts.base[statKey] || 0;
+        if (baseValue === 0) return;
+        basicRows.push({ name: getStatLabelByKey(statKey), value: baseValue });
+    });
+    
+    // Optional stats: fuse bonus + selectable bonuses, with enchant merged into matching rows
+    var optionalRows = [];
+    
+    // Add fuse bonuses (bonus values from getWeaponParts)
+    TOOLTIP_STAT_ORDER.forEach(function(statKey) {
+        var bonusValue = baseParts.bonus[statKey] || 0;
+        if (bonusValue === 0) return;
+        optionalRows.push({ name: getStatLabelByKey(statKey), value: bonusValue });
+    });
+    
+    // Add selectable bonuses
+    var fixed = WEAPON_STATS_FIXED[setKey];
+    if (fixed && fixed.bonuses) {
+        var selectedBonuses = collectBonusRows(bonuses || [], fixed.bonuses, bonusValues);
+        optionalRows = optionalRows.concat(selectedBonuses);
+    }
+    
+    // Merge enchant bonuses into optional rows when possible; otherwise add as standalone optional rows
+    var optionalRowByName = {};
+    optionalRows.forEach(function(row) { optionalRowByName[row.name] = row; });
+    TOOLTIP_STAT_ORDER.forEach(function(statKey) {
+        var enchantValue = (baseParts.enchant && baseParts.enchant[statKey]) || 0;
+        if (!enchantValue) return;
+        var label = getStatLabelByKey(statKey);
+        if (optionalRowByName[label]) {
+            optionalRowByName[label].bonus = enchantValue;
+        } else {
+            optionalRows.push({ name: label, value: 0, bonus: enchantValue });
+        }
+    });
+    
+    return renderGearTooltipCard({
+        name: title,
+        enchant: isExtreme ? effectiveEnchant : 15,
+        itemIcon: WEAPON_TYPES[weaponType] ? WEAPON_TYPES[weaponType].icon : '',
+        itemType: WEAPON_TYPES[weaponType] ? WEAPON_TYPES[weaponType].name : 'Weapon',
+        modeTag: getSetModeTag(setKey, 'weapon'),
+        levelText: 'Available for Level ' + getSetLevelTag(setKey, 'weapon') + ' or higher',
+        basicRows: basicRows,
+        optionalRows: optionalRows,
+        manastoneRows: collectManastoneRows(state[pid], gearKey, setKey)
+    });
+}
+
+function buildShieldTooltip(pid, shieldState) {
+    if (!shieldState || shieldState.set === 'none') {
+        return renderGearTooltipCard({ name: 'None', subtitle: 'Shield slot is empty' });
+    }
+    var classPhysical = isPhysicalClass(selectedClass);
+    var baseStats = getShieldStats(shieldState.set, shieldState.type, [], classPhysical, {});
+    var data = SHIELD_STATS[shieldState.set];
+    var typeKey = shieldState.type === 'scale' ? 'scale' : 'battle';
+    var optionalRows = [];
+    if (data && data.bonuses && data.bonuses[typeKey]) {
+        optionalRows = collectBonusRows(shieldState.bonuses || [], data.bonuses[typeKey], shieldState.bonusValues);
+    }
+    var setObj = SHIELD_SETS.find(function(s) { return s.key === shieldState.set; });
+    var shieldName = (setObj ? setObj.name : 'Shield') + ' Shield';
+    return renderGearTooltipCard({
+        name: shieldName,
+        itemIcon: '../assets/icons/icon_item_equip_shield_f01.png',
+        itemType: shieldState.type === 'scale' ? 'Scale Shield' : 'Battle Shield',
+        modeTag: getSetModeTag(shieldState.set, 'shield'),
+        levelText: 'Available for Level ' + getSetLevelTag(shieldState.set, 'shield') + ' or higher',
+        basicRows: collectTooltipStatRows(baseStats, {}),
+        optionalRows: optionalRows,
+        manastoneRows: collectManastoneRows(state[pid], 'offHand', shieldState.set)
+    });
+}
+
+function buildArmorTooltip(pid, slotKey, armorState, setName) {
+    if (!armorState || armorState.set === 'none') {
+        return renderGearTooltipCard({ name: 'None', subtitle: getGearLabel(slotKey) + ' slot is empty' });
+    }
+    var profile = state[pid];
+    var isExtreme = isExtremeSet(armorState.set, 'armor');
+    
+    // ===== FIGHTING SPIRIT ARMOR =====
+    if (armorState.set === 'fighting-spirit') {
+        var fsCommon = FS_COMMON[FS_TIER[slotKey]];
+        var fsDef = FS_DEF[profile.armorType][FS_TIER[slotKey]];
+        var fsEnchDef = fsCommon.enchDef || 0;
+        var fsEnchAtk = fsCommon.enchAtk || 0;
+        var apsuInfo = APSU_DATA[selectedClass];
+
+        function addOrUpdateBasicRow(rows, rowName, delta) {
+            if (typeof delta !== 'number' || delta === 0) return;
+            var found = rows.find(function(r) { return r.name === rowName; });
+            if (found) {
+                found.value += delta;
+            } else {
+                rows.push({ name: rowName, value: delta });
+            }
+        }
+        
+        // Basic stats: HP, Attack, and FS_DEF (base values only, no enchant)
+        var basicRows = [];
+        if (fsCommon.hp > 0) {
+            basicRows.push({ name: 'HP', value: fsCommon.hp });
+        }
+        basicRows.push({ name: 'Attack', value: fsCommon.attack });
+        basicRows.push({ name: 'Physical Defence', value: fsDef[0] });
+        basicRows.push({ name: 'Magical Defence', value: fsDef[1] });
+
+        // APSU_DATA stats are base-stat deltas and should be shown in basic stats.
+        if (profile.apsuEnabled && apsuInfo && apsuInfo.slot === slotKey && apsuInfo.stats) {
+            addOrUpdateBasicRow(basicRows, 'HP', apsuInfo.stats.hp || 0);
+            addOrUpdateBasicRow(basicRows, 'Attack', apsuInfo.stats.attack || 0);
+            addOrUpdateBasicRow(basicRows, 'Physical Defence', apsuInfo.stats.physicalDef || 0);
+            addOrUpdateBasicRow(basicRows, 'Magical Defence', apsuInfo.stats.magicalDef || 0);
+        }
+        
+        // Optional stats: selected FS bonuses with enchant applied only to those bonus stats
+        var optionalRows = [];
+
+        // Add selected bonuses
+        var isHigh = (slotKey === 'helmet' || slotKey === 'chest' || slotKey === 'pants');
+        var bonusDefs = isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+        
+        if (armorState.bonuses && armorState.bonuses.length > 0) {
+            armorState.bonuses.forEach(function(bonusKey) {
+                var bonusDef = bonusDefs.find(function(b) { return b.key === bonusKey; });
+                if (bonusDef) {
+                    var bonusValue = (armorState.bonusValues && typeof armorState.bonusValues[bonusKey] === 'number') 
+                        ? armorState.bonusValues[bonusKey] 
+                        : bonusDef.value;
+                    
+                    // Determine enchant bonus based on stat type
+                    var enchBonus = 0;
+                    if (bonusKey === 'physicalDef' || bonusKey === 'magicalDef') {
+                        enchBonus = fsEnchDef;
+                    } else if (bonusKey === 'attack') {
+                        enchBonus = fsEnchAtk;
+                    }
+                    
+                    optionalRows.push({
+                        name: bonusDef.name,
+                        value: bonusValue,
+                        bonus: enchBonus || undefined
+                    });
+                }
+            });
+        }
+
+        // FS attack enchant should always be visible in optional stats.
+        var attackRow = optionalRows.find(function(row) { return row.name === 'Attack'; });
+        if (attackRow) {
+            attackRow.bonus = fsEnchAtk || undefined;
+        } else {
+            optionalRows.push({
+                name: 'Attack',
+                value: 0,
+                bonus: fsEnchAtk || undefined
+            });
+        }
+        
+        return renderGearTooltipCard({
+            name: setName + ' ' + getGearLabel(slotKey),
+            enchant: 15,
+            itemIcon: getArmorIcon(getArmorMaterial(profile.armorType), slotToIconKey(slotKey)),
+            itemType: getGearLabel(slotKey) + ' Armor',
+            modeTag: getSetModeTag(armorState.set, 'armor'),
+            levelText: 'Available for Level ' + getSetLevelTag(armorState.set, 'armor') + ' or higher',
+            basicRows: basicRows,
+            optionalRows: optionalRows,
+            manastoneRows: collectManastoneRows(profile, slotKey, armorState.set),
+            oathLabel: (profile.oath && profile.oath[slotKey] && profile.oath[slotKey] !== 'none')
+                ? ((OATH_OPTIONS.find(function(o) { return o.key === profile.oath[slotKey]; }) || {}).name || profile.oath[slotKey])
+                : '',
+            oathIcon: (profile.oath && profile.oath[slotKey] && profile.oath[slotKey] !== 'none') ? getOathIcon(slotKey, profile.oath[slotKey]) : ''
+        });
+    }
+    
+    // ===== EXTREME ARMOR (Acrimony/Presumption/Obstinacy) =====
+    var tier = EX_TIER[slotKey] || 'mid';
+    var exCommon = EX_COMMON[tier];
+    var exBaseDef = EX_BASE_DEF[profile.armorType][tier];
+    
+    // Basic stats: HP, Attack, Defence (base values only - NO bonus or enchant)
+    var basicRows = [];
+    basicRows.push({ name: 'HP', value: exCommon.hp });
+    basicRows.push({ name: 'Attack', value: exCommon.attack });
+    basicRows.push({ name: 'Physical Defence', value: exBaseDef[0] });
+    basicRows.push({ name: 'Magical Defence', value: exBaseDef[1] });
+    
+    // Optional stats: Item bonuses with their enchant bonuses
+    var optionalRows = collectExtremeArmorBonusRows(armorState.set, armorState.enchant, tier);
+    
+    return renderGearTooltipCard({
+        name: setName + ' ' + getGearLabel(slotKey),
+        enchant: armorState.enchant,
+        itemIcon: getArmorIcon(getArmorMaterial(profile.armorType), slotToIconKey(slotKey)),
+        itemType: getGearLabel(slotKey) + ' Armor',
+        modeTag: getSetModeTag(armorState.set, 'armor'),
+        levelText: 'Available for Level ' + getSetLevelTag(armorState.set, 'armor') + ' or higher',
+        basicRows: basicRows,
+        optionalRows: optionalRows,
+        manastoneRows: collectManastoneRows(profile, slotKey, armorState.set),
+        oathLabel: (profile.oath && profile.oath[slotKey] && profile.oath[slotKey] !== 'none')
+            ? ((OATH_OPTIONS.find(function(o) { return o.key === profile.oath[slotKey]; }) || {}).name || profile.oath[slotKey])
+            : '',
+        oathIcon: (profile.oath && profile.oath[slotKey] && profile.oath[slotKey] !== 'none') ? getOathIcon(slotKey, profile.oath[slotKey]) : ''
+    });
+}
+
+function buildAccessoryTooltip(pid, slotDef, accState) {
+    if (!accState || accState.set === 'none') {
+        return renderGearTooltipCard({ name: 'None', subtitle: slotDef.name + ' slot is empty' });
+    }
+    var isPhys = isPhysicalClass(selectedClass);
+    var statsType = ACC_STATS_TYPE[slotDef.key];
+    var setData = ACCESSORY_STATS[accState.set];
+    var slotData = setData ? setData[statsType] : null;
+    var baseStats = getAccessoryBaseStats(slotData, isPhys);
+    var optionalRows = [];
+    if (slotData && slotData.bonuses) {
+        optionalRows = collectBonusRows(accState.bonuses || [], slotData.bonuses, accState.bonusValues);
+    }
+
+    var setObj = ACCESSORY_SETS.find(function(s) { return s.key === accState.set; });
+    var setName = setObj ? setObj.name : 'Accessory';
+    return renderGearTooltipCard({
+        name: slotDef.name + ' of ' + setName,
+        itemIcon: slotDef.icon,
+        itemType: slotDef.name,
+        modeTag: getSetModeTag(accState.set, 'accessory'),
+        levelText: 'Available for Level ' + getSetLevelTag(accState.set, 'accessory') + ' or higher',
+        basicRows: collectTooltipStatRows(baseStats, {}),
+        optionalRows: optionalRows,
+        manastoneRows: collectManastoneRows(state[pid], slotDef.key, accState.set)
+    });
+}
+
+function slotToIconKey(slotKey) {
+    var slot = ARMOR_SLOTS.find(function(s) { return s.key === slotKey; });
+    return slot ? slot.iconKey : 'head';
+}
+
 // -- Manastone Modal --
 function getGearLabel(gearKey) {
     if (gearKey === 'mainWeapon') return 'Main Weapon';
@@ -1359,12 +1980,21 @@ function renderProfile(id) {
     var mwt = WEAPON_TYPES[wc.mainType];
     html += '<div class="gc-armor-row">';
     var mwSetObj = WEAPON_SETS.find(function(s){return s.key===profile.mainWeapon.set;});
-    html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + id + ',\'main-weapon\',this)">';
     if (profile.mainWeapon.set === 'none') {
-        html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + getEmptySlotIcon('mainWeapon') + '" alt="None" title="None"></div>';
+        html += renderIconWithTooltip(
+            '<img src="' + getEmptySlotIcon('mainWeapon') + '" alt="None" title="None">',
+            renderGearTooltipCard({ name: 'None', subtitle: 'Main Weapon slot is empty' }),
+            'Main Weapon details',
+            'gc-slot-icon-none'
+        );
     } else {
-        html += '<div class="gc-slot-icon"><img src="' + mwt.icon + '" alt="' + mwt.name + '" title="' + mwt.name + '"></div>';
+        html += renderIconWithTooltip(
+            '<img src="' + mwt.icon + '" alt="' + mwt.name + '" title="' + mwt.name + '">',
+            buildWeaponTooltip(id, mwSetObj.name, 'mainWeapon', profile.mainWeapon.set, wc.mainType, profile.mainWeapon.enchant, profile.mainWeapon.bonuses, profile.mainWeapon.bonusValues, false),
+            mwt.name + ' details'
+        );
     }
+    html += '<div class="gc-set-trigger gc-set-name-trigger" onclick="GC.openSetPicker(' + id + ',\'main-weapon\',this)">';
     html += '<div class="gc-set-text">';
     html += '<span class="gc-set-name">' + mwSetObj.name + '</span>';
     if (profile.mainWeapon.set !== 'none') {
@@ -1407,12 +2037,21 @@ function renderProfile(id) {
             var shSetObj = SHIELD_SETS.find(function(s) { return s.key === sh.set; }) || SHIELD_SETS[0];
 
             html += '<div class="gc-armor-row">';
-            html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + id + ',\'shield\',this)">';
             if (sh.set === 'none') {
-                html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + getEmptySlotIcon('shield') + '" alt="None" title="None"></div>';
+                html += renderIconWithTooltip(
+                    '<img src="' + getEmptySlotIcon('shield') + '" alt="None" title="None">',
+                    renderGearTooltipCard({ name: 'None', subtitle: 'Shield slot is empty' }),
+                    'Shield details',
+                    'gc-slot-icon-none'
+                );
             } else {
-                html += '<div class="gc-slot-icon"><img src="../assets/icons/icon_item_equip_shield_f01.png" alt="Shield" title="Shield"></div>';
+                html += renderIconWithTooltip(
+                    '<img src="../assets/icons/icon_item_equip_shield_f01.png" alt="Shield" title="Shield">',
+                    buildShieldTooltip(id, sh),
+                    'Shield details'
+                );
             }
+            html += '<div class="gc-set-trigger gc-set-name-trigger" onclick="GC.openSetPicker(' + id + ',\'shield\',this)">';
             html += '<span class="gc-set-name">' + shSetObj.name + '</span>';
             html += '</div>';
             if (sh.set !== 'none') {
@@ -1443,12 +2082,21 @@ function renderProfile(id) {
             var ohSets = getAllowedOffHandWeaponSets(profile.mainWeapon.set, wc.mainType, wc.offHandType);
             html += '<div class="gc-armor-row">';
             var ohSetObj = ohSets.find(function(s){return s.key===profile.offHand.set;}) || ohSets[0];
-            html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + id + ',\'off-weapon\',this)">';
             if (profile.offHand.set === 'none') {
-                html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + getEmptySlotIcon('offHand') + '" alt="None" title="None"></div>';
+                html += renderIconWithTooltip(
+                    '<img src="' + getEmptySlotIcon('offHand') + '" alt="None" title="None">',
+                    renderGearTooltipCard({ name: 'None', subtitle: 'Off-Hand slot is empty' }),
+                    'Off-Hand details',
+                    'gc-slot-icon-none'
+                );
             } else {
-                html += '<div class="gc-slot-icon"><img src="' + ohIcon + '" alt="' + ohLabel + '" title="' + ohLabel + '"></div>';
+                html += renderIconWithTooltip(
+                    '<img src="' + ohIcon + '" alt="' + ohLabel + '" title="' + ohLabel + '">',
+                    buildWeaponTooltip(id, ohSetObj.name, 'offHand', profile.offHand.set, ohType === 'fuse' ? wc.mainType : wc.offHandWeaponType, profile.offHand.enchant, profile.offHand.bonuses, profile.offHand.bonusValues, ohType === 'fuse' && WEAPON_TYPES[wc.mainType] && WEAPON_TYPES[wc.mainType].twoHanded),
+                    ohLabel + ' details'
+                );
             }
+            html += '<div class="gc-set-trigger gc-set-name-trigger" onclick="GC.openSetPicker(' + id + ',\'off-weapon\',this)">';
             html += '<div class="gc-set-text">';
             html += '<span class="gc-set-name">' + ohSetObj.name + '</span>';
             if (profile.offHand.set !== 'none') {
@@ -1553,17 +2201,28 @@ function renderAccessorySlot(pid, slotDef, accState, profile) {
     var isFramed = accState.set === 'starshine';
     var isNone = accState.set === 'none';
     var html = '<div class="gc-armor-row">';
-    html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + pid + ',\'acc:' + slotDef.key + '\',this)">';
     if (isNone) {
-        html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + getEmptySlotIcon(slotDef.key) + '" alt="None" title="None"></div>';
+        html += renderIconWithTooltip(
+            '<img src="' + getEmptySlotIcon(slotDef.key) + '" alt="None" title="None">',
+            renderGearTooltipCard({ name: 'None', subtitle: slotDef.name + ' slot is empty' }),
+            slotDef.name + ' details',
+            'gc-slot-icon-none'
+        );
     } else if (isFramed) {
-        html += '<div class="gc-slot-icon gc-slot-icon-framed">';
-        html += '<img src="' + slotDef.icon + '" alt="' + slotDef.name + '" title="' + slotDef.name + '">';
-        html += '<img src="../assets/icons/icon_frame_2.png" class="gc-slot-icon-frame">';
-        html += '</div>';
+        html += renderIconWithTooltip(
+            '<img src="' + slotDef.icon + '" alt="' + slotDef.name + '" title="' + slotDef.name + '"><img src="../assets/icons/icon_frame_2.png" class="gc-slot-icon-frame">',
+            buildAccessoryTooltip(pid, slotDef, accState),
+            slotDef.name + ' details',
+            'gc-slot-icon-framed'
+        );
     } else {
-        html += '<div class="gc-slot-icon"><img src="' + slotDef.icon + '" alt="' + slotDef.name + '" title="' + slotDef.name + '"></div>';
+        html += renderIconWithTooltip(
+            '<img src="' + slotDef.icon + '" alt="' + slotDef.name + '" title="' + slotDef.name + '">',
+            buildAccessoryTooltip(pid, slotDef, accState),
+            slotDef.name + ' details'
+        );
     }
+    html += '<div class="gc-set-trigger gc-set-name-trigger" onclick="GC.openSetPicker(' + pid + ',\'acc:' + slotDef.key + '\',this)">';
     html += '<div class="gc-set-text">';
     html += '<span class="gc-set-name">' + setObj.name + '</span>';
     if (!isNone) {
@@ -1659,12 +2318,25 @@ function renderArmorSlot(pid, slot, armor, profile, material) {
 
     // Armor set picker (icon + name)
     var armorSetObj = ARMOR_SETS.find(function(s){return s.key===armor.set;});
-    html += '<div class="gc-set-trigger" onclick="GC.openSetPicker(' + pid + ',\'armor:' + slot.key + '\',this)">';
     if (armor.set === 'none') {
-        html += '<div class="gc-slot-icon gc-slot-icon-none"><img src="' + getEmptySlotIcon(slot.key) + '" alt="None" title="None"></div>';
+        html += renderIconWithTooltip(
+            '<img src="' + getEmptySlotIcon(slot.key) + '" alt="None" title="None">',
+            renderGearTooltipCard({ name: 'None', subtitle: getGearLabel(slot.key) + ' slot is empty' }),
+            getGearLabel(slot.key) + ' details',
+            'gc-slot-icon-none'
+        );
     } else {
-        html += '<div class="gc-slot-icon"><img src="' + iconUrl + '" alt="' + slot.key + '" title="' + armorSetObj.name + '"></div>';
+        var displayArmorName = armorSetObj.name;
+        if (isApsuSlot && profile.apsuEnabled && armor.set === 'fighting-spirit') {
+            displayArmorName = 'Apsu';
+        }
+        html += renderIconWithTooltip(
+            '<img src="' + iconUrl + '" alt="' + slot.key + '" title="' + armorSetObj.name + '">',
+            buildArmorTooltip(pid, slot.key, armor, displayArmorName),
+            getGearLabel(slot.key) + ' details'
+        );
     }
+    html += '<div class="gc-set-trigger gc-set-name-trigger" onclick="GC.openSetPicker(' + pid + ',\'armor:' + slot.key + '\',this)">';
     html += '<div class="gc-set-text">';
     var armorSetName = armorSetObj.name;
     if (isApsuSlot && profile.apsuEnabled && armor.set === 'fighting-spirit') {
