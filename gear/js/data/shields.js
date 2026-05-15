@@ -35,8 +35,8 @@ var SHIELD_STATS = {
                 { key: 'crit', name: 'Crit', value: 254 },
                 { key: 'attack', name: 'Attack', value: 210 },
                 { key: 'healingBoost', name: 'Healing Boost', value: 183 },
-                { key: 'physicalDef', name: 'Physical Def', value: 210 },
-                { key: 'magicalDef', name: 'Magical Def', value: 210 }
+                { key: 'physicalDef', name: 'Physical Defence', value: 210 },
+                { key: 'magicalDef', name: 'MagicalDefence', value: 210 }
             ],
             scale: [
                 { key: 'hp', name: 'HP', value: 1344 },
@@ -45,8 +45,8 @@ var SHIELD_STATS = {
                 { key: 'crit', name: 'Crit', value: 254 },
                 { key: 'attack', name: 'Attack', value: 210 },
                 { key: 'healingBoost', name: 'Healing Boost', value: 183 },
-                { key: 'physicalDef', name: 'Physical Def', value: 210 },
-                { key: 'magicalDef', name: 'Magical Def', value: 210 }
+                { key: 'physicalDef', name: 'Physical Defence', value: 210 },
+                { key: 'magicalDef', name: 'MagicalDefence', value: 210 }
             ]
         }
     },
@@ -68,8 +68,8 @@ var SHIELD_STATS = {
                 { key: 'crit', name: 'Crit', value: 254 },
                 { key: 'attack', name: 'Attack', value: 210 },
                 { key: 'healingBoost', name: 'Healing Boost', value: 183 },
-                { key: 'physicalDef', name: 'Physical Def', value: 210 },
-                { key: 'magicalDef', name: 'Magical Def', value: 210 }
+                { key: 'physicalDef', name: 'Physical Defence', value: 210 },
+                { key: 'magicalDef', name: 'MagicalDefence', value: 210 }
             ],
             scale: [
                 { key: 'hp', name: 'HP', value: 1344 },
@@ -78,8 +78,8 @@ var SHIELD_STATS = {
                 { key: 'crit', name: 'Crit', value: 254 },
                 { key: 'attack', name: 'Attack', value: 210 },
                 { key: 'healingBoost', name: 'Healing Boost', value: 183 },
-                { key: 'physicalDef', name: 'Physical Def', value: 210 },
-                { key: 'magicalDef', name: 'Magical Def', value: 210 }
+                { key: 'physicalDef', name: 'Physical Defence', value: 210 },
+                { key: 'magicalDef', name: 'MagicalDefence', value: 210 }
             ]
         }
     },
@@ -100,8 +100,8 @@ var SHIELD_STATS = {
                 { key: 'crit', name: 'Crit', value: 254 },
                 { key: 'attack', name: 'Attack', value: 210 },
                 { key: 'healingBoost', name: 'Healing Boost', value: 183 },
-                { key: 'physicalDef', name: 'Physical Def', value: 210 },
-                { key: 'magicalDef', name: 'Magical Def', value: 210 },
+                { key: 'physicalDef', name: 'Physical Defence', value: 210 },
+                { key: 'magicalDef', name: 'MagicalDefence', value: 210 },
                 { key: 'increasedRegen', name: 'Increased Regen', value: 10 }
             ],
             scale: [
@@ -111,8 +111,8 @@ var SHIELD_STATS = {
                 { key: 'crit', name: 'Crit', value: 254 },
                 { key: 'attack', name: 'Attack', value: 210 },
                 { key: 'healingBoost', name: 'Healing Boost', value: 183 },
-                { key: 'physicalDef', name: 'Physical Def', value: 210 },
-                { key: 'magicalDef', name: 'Magical Def', value: 210 },
+                { key: 'physicalDef', name: 'Physical Defence', value: 210 },
+                { key: 'magicalDef', name: 'MagicalDefence', value: 210 },
                 { key: 'increasedRegen', name: 'Increased Regen', value: 10 }
             ]
         }
@@ -134,8 +134,8 @@ var SHIELD_STATS = {
                 { key: 'crit', name: 'Crit', value: 292 },
                 { key: 'attack', name: 'Attack', value: 214 },
                 { key: 'healingBoost', name: 'Healing Boost', value: 187 },
-                { key: 'physicalDef', name: 'Physical Def', value: 214 },
-                { key: 'magicalDef', name: 'Magical Def', value: 214 },
+                { key: 'physicalDef', name: 'Physical Defence', value: 214 },
+                { key: 'magicalDef', name: 'MagicalDefence', value: 214 },
                 { key: 'increasedRegen', name: 'Increased Regen', value: 11 }
             ],
             scale: [
@@ -145,8 +145,8 @@ var SHIELD_STATS = {
                 { key: 'crit', name: 'Crit', value: 292 },
                 { key: 'attack', name: 'Attack', value: 214 },
                 { key: 'healingBoost', name: 'Healing Boost', value: 187 },
-                { key: 'physicalDef', name: 'Physical Def', value: 214 },
-                { key: 'magicalDef', name: 'Magical Def', value: 214 },
+                { key: 'physicalDef', name: 'Physical Defence', value: 214 },
+                { key: 'magicalDef', name: 'MagicalDefence', value: 214 },
                 { key: 'increasedRegen', name: 'Increased Regen', value: 11 }
             ]
         }

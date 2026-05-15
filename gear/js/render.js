@@ -114,7 +114,7 @@ function collectExtremeArmorBonusRows(setKey, enchantLevel, tier) {
     if (bonusData.bonusPDef !== undefined) {
         var enchDef = (enchantValues.def && enchantValues.def[tierValue]) || 0;
         rows.push({
-            name: 'Physical Defence Bonus',
+            name: 'Physical Defence',
             value: bonusData.bonusPDef,
             bonus: enchDef || undefined
         });
@@ -124,7 +124,7 @@ function collectExtremeArmorBonusRows(setKey, enchantLevel, tier) {
     if (bonusData.bonusMDef !== undefined) {
         var enchDef = (enchantValues.def && enchantValues.def[tierValue]) || 0;
         rows.push({
-            name: 'Magical Defence Bonus',
+            name: 'Magical Defence',
             value: bonusData.bonusMDef,
             bonus: enchDef || undefined
         });
@@ -134,7 +134,7 @@ function collectExtremeArmorBonusRows(setKey, enchantLevel, tier) {
     if (bonusData.bonusMagicResist !== undefined) {
         var enchMr = (enchantValues.magicResist && enchantValues.magicResist[tierValue]) || 0;
         rows.push({
-            name: 'Magic Resist Bonus',
+            name: 'Magic Resist',
             value: bonusData.bonusMagicResist,
             bonus: enchMr || undefined
         });
@@ -144,7 +144,7 @@ function collectExtremeArmorBonusRows(setKey, enchantLevel, tier) {
     if (bonusData.bonusHp !== undefined) {
         var enchHp = (enchantValues.hp && enchantValues.hp[tierValue]) || 0;
         rows.push({
-            name: 'HP Bonus',
+            name: 'HP',
             value: bonusData.bonusHp,
             bonus: enchHp || undefined
         });
@@ -154,7 +154,7 @@ function collectExtremeArmorBonusRows(setKey, enchantLevel, tier) {
     if (bonusData.bonusCrit !== undefined) {
         var enchCrit = (enchantValues.crit && enchantValues.crit[tierValue]) || 0;
         rows.push({
-            name: 'Crit Bonus',
+            name: 'Crit',
             value: bonusData.bonusCrit,
             bonus: enchCrit || undefined
         });

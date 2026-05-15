@@ -49,8 +49,8 @@ var FS_BONUSES_HIGH = [
     { key: 'hp', name: 'HP', stat: 'hp', value: 1344 },
     { key: 'accuracy', name: 'Accuracy', stat: 'accuracy', value: 288 },
     { key: 'crit',     name: 'Crit', stat: 'crit', value: 254 },
-    { key: 'physicalDef',   name: 'Physical Def', stat: 'physicalDef', value: 210 },
-    { key: 'magicalDef',   name: 'Magical Def', stat: 'magicalDef', value: 210 },
+    { key: 'physicalDef',   name: 'Physical Defence', stat: 'physicalDef', value: 210 },
+    { key: 'magicalDef',   name: 'Magical Defence', stat: 'magicalDef', value: 210 },
     { key: 'evasion',   name: 'Evasion', stat: 'evasion', value: 356 },
     { key: 'magicResist',   name: 'Magic Resist', stat: 'magicResist', value: 356 },
     { key: 'increasedRegen', name: 'Increased Regen', stat: 'increasedRegen', value: 30 }
@@ -59,8 +59,8 @@ var FS_BONUSES_HIGH = [
 var FS_BONUSES_LOW = [
     { key: 'accuracy', name: 'Accuracy', stat: 'accuracy', value: 144 },
     { key: 'crit',     name: 'Crit', stat: 'crit', value: 127 },
-    { key: 'physicalDef',   name: 'Physical Def', stat: 'physicalDef', value: 210 },
-    { key: 'magicalDef',   name: 'Magical Def', stat: 'magicalDef', value: 210 },
+    { key: 'physicalDef',   name: 'Physical Defence', stat: 'physicalDef', value: 210 },
+    { key: 'magicalDef',   name: 'Magical Defence', stat: 'magicalDef', value: 210 },
     { key: 'evasion',   name: 'Evasion', stat: 'evasion', value: 178 },
     { key: 'magicResist',   name: 'Magic Resist', stat: 'magicResist', value: 178 },
     { key: 'increasedRegen', name: 'Increased Regen', stat: 'increasedRegen', value: 10 }

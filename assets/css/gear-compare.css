@@ -943,8 +943,8 @@
 .gc-global-item-tooltip {
     position: fixed;
     z-index: 12050;
-    width: 336px;
-    max-width: min(92vw, 380px);
+    width: 400px;
+    max-width: min(92vw, 440px);
     pointer-events: none;
     display: none;
     opacity: 0;

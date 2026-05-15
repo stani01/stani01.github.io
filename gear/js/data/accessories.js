@@ -48,8 +48,8 @@ var ACC_BONUSES_FEATHER = [
     { key: 'hp',           name: 'HP',            stat: 'hp',           value: 1522 },
     { key: 'accuracy',     name: 'Accuracy',      stat: 'accuracy',     value: 326 },
     { key: 'crit',         name: 'Crit',          stat: 'crit',         value: 288 },
-    { key: 'physicalDef',  name: 'Physical Def',   stat: 'physicalDef',  value: 240 },
-    { key: 'magicalDef',   name: 'Magical Def',    stat: 'magicalDef',   value: 240 },
+    { key: 'physicalDef',  name: 'Physical Defence',   stat: 'physicalDef',  value: 240 },
+    { key: 'magicalDef',   name: 'Magical Defence',    stat: 'magicalDef',   value: 240 },
     { key: 'evasion',      name: 'Evasion',       stat: 'evasion',      value: 415 },
     { key: 'magicResist',  name: 'Magic Resist',   stat: 'magicResist',  value: 415 },
     { key: 'healingBoost', name: 'Healing Boost',  stat: 'healingBoost', value: 146 }
@@ -77,14 +77,14 @@ var ACC_BONUSES_RING = [
     { key: 'block',        name: 'Block',         stat: 'block',        value: 356 }
 ];
 var ACC_BONUSES_GLYPH = [
-    { key: 'physicalDef',  name: 'Physical Def', stat: 'physicalDef', value: 210 },
-    { key: 'magicalDef',   name: 'Magical Def',  stat: 'magicalDef',  value: 210 },
-    { key: 'accuracy',     name: 'Accuracy',     stat: 'accuracy',    value: 411 },
-    { key: 'attack',       name: 'Attack',       stat: 'attack',      value: 210 },
-    { key: 'evasion',      name: 'Evasion',      stat: 'evasion',     value: 415 },
-    { key: 'magicResist',  name: 'Magic Resist', stat: 'magicResist', value: 415 },
-    { key: 'parry',        name: 'Parry',        stat: 'parry',       value: 670 },
-    { key: 'block',        name: 'Block',        stat: 'block',       value: 670 }
+    { key: 'physicalDef',  name: 'Physical Defence', stat: 'physicalDef', value: 210 },
+    { key: 'magicalDef',   name: 'Magical Defence',  stat: 'magicalDef',  value: 210 },
+    { key: 'accuracy',     name: 'Accuracy',         stat: 'accuracy',    value: 411 },
+    { key: 'attack',       name: 'Attack',           stat: 'attack',      value: 210 },
+    { key: 'evasion',      name: 'Evasion',          stat: 'evasion',     value: 415 },
+    { key: 'magicResist',  name: 'Magic Resist',     stat: 'magicResist', value: 415 },
+    { key: 'parry',        name: 'Parry',            stat: 'parry',       value: 670 },
+    { key: 'block',        name: 'Block',            stat: 'block',       value: 670 }
 ];
 
 var ACCESSORY_STATS = {

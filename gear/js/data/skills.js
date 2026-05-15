@@ -829,17 +829,6 @@ var GC_SKILL_DATABASE = {
         cooldown: '21s',
         description: 'Deals additional damage with each attack for 1689 for 10s.<br>Increases Additional PvP Attack by 500.<br>Increases Additional PvE Attack by 500.'
     },
-    'giftMagic': {
-        name: 'Gift of Magic Power',
-        icon: '../assets/icons/live_gu_a_empowermagic_g1.png',
-        id: '6207',
-        class: 'Gunner',
-        category: 'Greater Stigma',
-        usageCost: '128 MP',
-        castTime: 'Cast Instantly',
-        cooldown: '37.8s',
-        description: 'Boosts the effect of Magical Attack Skill by 20% 6 times for 30s.'
-    },
 
     // -- Bard --
     'cheeryMelody': {
@@ -990,13 +979,12 @@ var GC_SKILL_BUFFS = {
         { key: 'powerIncrease', value: '+900 Attack / +300 PvP Attack', stats: { attack: 900, pvpAttack: 300 }, defaultActive: false },
         { key: 'extremeEffort', value: '+900 Attack / +1200 Accuracy', stats: { attack: 900, accuracy: 1200 }, defaultActive: false, excludes: ['limitlessPower'] },
         { key: 'alertDialog', value: '+2500 PvE Defence / -200 Attack', stats: { pveDefence: 2500, attack: -200 }, defaultActive: false },
-        { key: 'callMech', value: 'Resists +200 / Physical def +139 / Parry +403 / Macc +272', stats: { physicalDef: 139, parry: 403, accuracy: 272 }, defaultActive: true, enchant: { stats: { physicalDef: 3, parry: 8 }, maxLevel: 26, defaultLevel: 20 } },
+        { key: 'callMech', value: 'Resists +200 / Physical Defence +139 / Parry +403 / Macc +272', stats: { physicalDef: 139, parry: 403, accuracy: 272 }, defaultActive: true, enchant: { stats: { physicalDef: 3, parry: 8 }, maxLevel: 26, defaultLevel: 20 } },
     ],
     gunner: [
         { key: 'focusedMagic', value: '+1200 Attack', stats: { attack: 1200 }, defaultActive: false },
         { key: 'magicBlessing', value: '+700 Attack / +800 Accuracy', stats: { attack: 700, accuracy: 800 }, defaultActive: false },
         { key: 'enhanceMagicProjectile ', value: '+500 PvP Attack / +500 PvE Attack', stats: { pvpAttack: 500, pveAttack: 500 }, defaultActive: false },
-        { key: 'giftMagic', value: '+1000 Crit', stats: {  }, defaultActive: false },
     ],
     bard: [
         { key: 'cheeryMelody', value: '+1000 PvE Attack', stats: { pveAttack: 1000 }, defaultActive: false, enchant: { stat: 'pveAttack', perLevel: 20, maxLevel: 26, defaultLevel: 20 } },
