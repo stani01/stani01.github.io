@@ -1011,6 +1011,263 @@ function renderManaModal(pid, scrollToGear) {
     return html;
 }
 
+function getBonusModalItemMeta(pid, itemType, slotKey) {
+    var profile = state[pid];
+    var meta = {
+        available: false,
+        options: [],
+        picked: [],
+        bonusValues: {},
+        maxBonuses: 0,
+        setKey: 'none',
+        gearType: '',
+        reason: ''
+    };
+
+    if (itemType === 'weapon') {
+        var weapon = profile[slotKey];
+        if (!weapon) {
+            meta.reason = 'Unavailable';
+            return meta;
+        }
+        meta.setKey = weapon.set || 'none';
+        if (meta.setKey === 'none') {
+            meta.reason = 'No weapon';
+            return meta;
+        }
+        var fixed = WEAPON_STATS_FIXED[meta.setKey];
+        if (!fixed || !fixed.bonuses || !fixed.maxBonuses) {
+            meta.reason = 'No selectable bonuses';
+            return meta;
+        }
+        meta.available = true;
+        meta.options = fixed.bonuses;
+        meta.picked = weapon.bonuses || [];
+        meta.bonusValues = weapon.bonusValues || {};
+        meta.maxBonuses = fixed.maxBonuses;
+        meta.gearType = 'weapon';
+        return meta;
+    }
+
+    if (itemType === 'shield') {
+        var sh = profile.shield;
+        meta.setKey = sh && sh.set ? sh.set : 'none';
+        if (meta.setKey === 'none') {
+            meta.reason = 'No shield';
+            return meta;
+        }
+        var shData = SHIELD_STATS[meta.setKey];
+        if (!shData) {
+            meta.reason = 'No selectable bonuses';
+            return meta;
+        }
+        var typeKey = sh.type === 'scale' ? 'scale' : 'battle';
+        var shOptions = shData.bonuses && shData.bonuses[typeKey] ? shData.bonuses[typeKey] : [];
+        if (!shOptions.length || !shData.maxBonuses) {
+            meta.reason = 'No selectable bonuses';
+            return meta;
+        }
+        meta.available = true;
+        meta.options = shOptions;
+        meta.picked = sh.bonuses || [];
+        meta.bonusValues = sh.bonusValues || {};
+        meta.maxBonuses = shData.maxBonuses;
+        meta.gearType = 'shield';
+        return meta;
+    }
+
+    if (itemType === 'armor') {
+        var armor = profile.armor && profile.armor[slotKey] ? profile.armor[slotKey] : null;
+        meta.setKey = armor && armor.set ? armor.set : 'none';
+        if (meta.setKey === 'none') {
+            meta.reason = 'No armor';
+            return meta;
+        }
+        if (meta.setKey !== 'fighting-spirit') {
+            meta.reason = 'No selectable bonuses';
+            return meta;
+        }
+        var isHigh = (slotKey === 'helmet' || slotKey === 'chest' || slotKey === 'pants');
+        var fsOptions = isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+        meta.available = true;
+        meta.options = fsOptions;
+        meta.picked = armor.bonuses || [];
+        meta.bonusValues = armor.bonusValues || {};
+        meta.maxBonuses = 4;
+        meta.gearType = 'armor';
+        return meta;
+    }
+
+    if (itemType === 'accessory') {
+        var acc = profile.accessories && profile.accessories[slotKey] ? profile.accessories[slotKey] : null;
+        meta.setKey = acc && acc.set ? acc.set : 'none';
+        if (meta.setKey === 'none') {
+            meta.reason = 'No accessory';
+            return meta;
+        }
+        var statsType = ACC_STATS_TYPE[slotKey];
+        var setData = ACCESSORY_STATS[meta.setKey];
+        var slotData = setData && statsType ? setData[statsType] : null;
+        if (!slotData || !slotData.bonuses || !slotData.maxBonuses) {
+            meta.reason = 'No selectable bonuses';
+            return meta;
+        }
+        meta.available = true;
+        meta.options = slotData.bonuses;
+        meta.picked = acc.bonuses || [];
+        meta.bonusValues = acc.bonusValues || {};
+        meta.maxBonuses = slotData.maxBonuses;
+        meta.gearType = 'acc';
+        return meta;
+    }
+
+    meta.reason = 'Unavailable';
+    return meta;
+}
+
+function renderBonusModalRow(pid, itemType, slotKey, label, icon) {
+    var meta = getBonusModalItemMeta(pid, itemType, slotKey);
+    var rowClass = 'gc-mana-gear-row';
+    if (meta.setKey === 'none') rowClass += ' gc-mana-gear-row-none';
+
+    var html = '<div class="' + rowClass + '" id="gc-bonus-row-' + slotKey + '">';
+    html += '<div class="gc-mana-gear-info">';
+    if (icon) html += '<img src="' + icon + '" class="gc-mana-gear-icon" alt="">';
+    html += '<span class="gc-mana-gear-name">' + escapeTooltipText(label) + '</span>';
+    if (!meta.available) {
+        html += '<span class="gc-mana-slot-count gc-mana-slot-none">(' + escapeTooltipText(meta.reason || 'Unavailable') + ')</span>';
+    } else {
+        html += '<span class="gc-mana-slot-count">(' + meta.picked.length + '/' + meta.maxBonuses + ')</span>';
+    }
+    html += '</div>';
+
+    if (meta.available) {
+        html += '<div class="gc-shield-bonus-grid gc-bonus-modal-grid">';
+        meta.options.forEach(function(b) {
+            var isOn = meta.picked.indexOf(b.key) !== -1;
+            var maxVal = b.value;
+            if (itemType === 'armor') {
+                var prof = state[pid];
+                if (prof.apsuEnabled) {
+                    var apsuInfo = APSU_DATA[selectedClass];
+                    if (apsuInfo && apsuInfo.slot === slotKey && apsuInfo.bonusOverride && apsuInfo.bonusOverride[b.key]) {
+                        maxVal = apsuInfo.bonusOverride[b.key];
+                    }
+                }
+            }
+            var cls = 'gc-shield-bonus-btn' + (isOn ? ' gc-shield-bonus-on' : '');
+            html += '<div class="' + cls + '"';
+            if (itemType === 'weapon') {
+                html += ' onclick="GC.toggleWeaponBonus(' + pid + ',\'' + slotKey + '\',\'' + b.key + '\')"';
+            } else if (itemType === 'shield') {
+                html += ' onclick="GC.toggleShieldBonus(' + pid + ',\'' + b.key + '\')"';
+            } else if (itemType === 'armor') {
+                html += ' onclick="GC.toggleArmorBonus(' + pid + ',\'' + slotKey + '\',\'' + b.key + '\')"';
+            } else if (itemType === 'accessory') {
+                html += ' onclick="GC.toggleAccBonus(' + pid + ',\'' + slotKey + '\',\'' + b.key + '\')"';
+            }
+            html += '>';
+            html += '<span class="gc-shield-bonus-name">' + escapeTooltipText(b.name) + '</span>';
+            if (isOn) {
+                var cv = (meta.bonusValues && typeof meta.bonusValues[b.key] === 'number') ? meta.bonusValues[b.key] : maxVal;
+                html += '<input type="number" class="gc-bonus-val-input" min="0" max="' + maxVal + '" value="' + cv + '" onclick="event.stopPropagation();this.select()" onfocus="this.select()" onkeydown="GC.onBonusValueInputKeyDown(event,this,' + pid + ',\'' + meta.gearType + '\',\'' + (itemType === 'shield' ? '' : slotKey) + '\',\'' + b.key + '\',' + maxVal + ')" onchange="GC.setBonusValue(' + pid + ',\'' + meta.gearType + '\',\'' + (itemType === 'shield' ? '' : slotKey) + '\',\'' + b.key + '\',this.value,' + maxVal + ')">';
+            } else {
+                html += '<span class="gc-shield-bonus-val">+' + maxVal.toLocaleString() + '</span>';
+            }
+            html += '</div>';
+        });
+        html += '</div>';
+    }
+
+    html += '</div>';
+    return html;
+}
+
+function renderBonusModal(pid, scrollToGear) {
+    var profile = state[pid];
+    var html = '<div class="gc-mana-overlay" onclick="GC.closeBonusModal()"></div>';
+    html += '<div class="gc-mana-dialog gc-bonus-dialog">';
+
+    html += '<div class="gc-mana-titlebar">';
+    html += '<img src="../assets/icons/icon_ui_equipment.png" class="gc-mana-title-icon" alt="">';
+    html += '<span class="gc-mana-title">Bonuses - ' + escapeTooltipText(getSetName(pid)) + '</span>';
+    html += '<span class="gc-mana-close" onclick="GC.closeBonusModal()">✕</span>';
+    html += '</div>';
+
+    html += '<div class="gc-mana-presets gc-bonus-presets">';
+    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'weapon-main-to-off\')">Weapon Main → Off-hand</button>';
+    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'weapon-off-to-main\')">Weapon Off-hand → Main</button>';
+    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'armor-high\')">Sync Armor High</button>';
+    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'armor-low\')">Sync Armor Low</button>';
+    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'acc-lower\')">Sync Lower Accessories</button>';
+    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'acc-lower-wings\')">Sync Lower + Wings</button>';
+    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'acc-upper-pair\')">Sync Feather + Bracelet</button>';
+    html += '<button class="gc-mana-preset-btn gc-mana-clear-btn" onclick="GC.applyBonusPreset(' + pid + ',\'clear\')">Clear All Bonuses</button>';
+    html += '</div>';
+
+    html += '<div class="gc-mana-body">';
+
+    html += '<div class="gc-mana-section-label">🗡️ Weapons</div>';
+    html += '<div class="gc-mana-gear-list gc-bonus-modal-columns">';
+    html += '<div class="gc-bonus-modal-column">';
+    html += renderBonusModalRow(pid, 'weapon', 'mainWeapon', 'Main Weapon', getGearIcon(pid, 'mainWeapon'));
+    html += '</div>';
+    html += '<div class="gc-bonus-modal-column">';
+    var effectiveOH = getEffectiveOffHandType(profile);
+    if (effectiveOH === 'shield') {
+        html += renderBonusModalRow(pid, 'shield', 'shield', 'Shield', '../assets/icons/icon_item_equip_shield_f01.png');
+    } else if (effectiveOH !== 'none') {
+        html += renderBonusModalRow(pid, 'weapon', 'offHand', 'Off-Hand', getGearIcon(pid, 'offHand'));
+    } else {
+        html += renderBonusModalRow(pid, 'weapon', 'offHand', 'Off-Hand', getEmptySlotIcon('offHand'));
+    }
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div class="gc-mana-section-label">🛡️ Armor</div>';
+    html += '<div class="gc-mana-gear-list gc-bonus-modal-columns">';
+    html += '<div class="gc-bonus-modal-column">';
+    ['helmet', 'chest', 'pants'].forEach(function(slotKey) {
+        html += renderBonusModalRow(pid, 'armor', slotKey, getGearLabel(slotKey), getGearIcon(pid, slotKey));
+    });
+    html += '</div>';
+    html += '<div class="gc-bonus-modal-column">';
+    ['shoulders', 'gloves', 'boots'].forEach(function(slotKey) {
+        html += renderBonusModalRow(pid, 'armor', slotKey, getGearLabel(slotKey), getGearIcon(pid, slotKey));
+    });
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div class="gc-mana-section-label">💎 Accessories - Upper</div>';
+    html += '<div class="gc-mana-gear-list gc-bonus-modal-columns-3 gc-bonus-upper-list">';
+    ACCESSORY_SLOTS_UPPER.forEach(function(slotDef) {
+        html += renderBonusModalRow(pid, 'accessory', slotDef.key, slotDef.name, slotDef.icon);
+    });
+    html += '</div>';
+
+    html += '<div class="gc-mana-section-label">💎 Accessories - Lower</div>';
+    html += '<div class="gc-mana-gear-list gc-bonus-modal-columns">';
+    html += '<div class="gc-bonus-modal-column">';
+    ['earring1', 'necklace', 'ring1'].forEach(function(slotKey) {
+        var slotDef = ACCESSORY_SLOTS_UPPER.concat(ACCESSORY_SLOTS_LOWER_L, ACCESSORY_SLOTS_LOWER_R)
+            .find(function(s) { return s.key === slotKey; });
+        if (slotDef) html += renderBonusModalRow(pid, 'accessory', slotDef.key, slotDef.name, slotDef.icon);
+    });
+    html += '</div>';
+    html += '<div class="gc-bonus-modal-column">';
+    ['earring2', 'belt', 'ring2'].forEach(function(slotKey) {
+        var slotDef = ACCESSORY_SLOTS_UPPER.concat(ACCESSORY_SLOTS_LOWER_L, ACCESSORY_SLOTS_LOWER_R)
+            .find(function(s) { return s.key === slotKey; });
+        if (slotDef) html += renderBonusModalRow(pid, 'accessory', slotDef.key, slotDef.name, slotDef.icon);
+    });
+    html += '</div>';
+    html += '</div>';
+
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
 // -- Panel-to-prefix mapping for set view containers --
 var SET_PANEL_MAP = {
     equipment:   'profile',
@@ -2125,6 +2382,9 @@ function renderProfile(id) {
     html += '<button class="gc-icon-picker gc-wc-action-btn gc-profile-quick-btn" onclick="GC.openManaModal(' + id + ')" title="Manastone setup">';
     html += '<img src="' + MANASTONE_ICON + '" alt="Manastones">';
     html += '</button>';
+    html += '<button class="gc-icon-picker gc-wc-action-btn gc-profile-quick-btn" onclick="GC.openBonusModal(' + id + ')" title="Bonuses setup">';
+    html += '<img src="../assets/icons/icon_ui_equipment.png" alt="Bonuses">';
+    html += '</button>';
     html += '<button class="gc-reset-btn" onclick="GC.resetProfile(' + id + ')" title="Reset ' + getSetName(id) + ' to defaults">↺</button>';
     html += '</div>';
     html += '</div>';
@@ -2178,15 +2438,6 @@ function renderProfile(id) {
             var tagLabel = mwTag === 'masterpiece' ? '✦ Masterpiece' : '⟐ Extended';
             html += '<span class="gc-weapon-tag ' + tagClass + '">' + tagLabel + '</span>';
         }
-        // Main weapon bonus trigger
-        var mwFixed = WEAPON_STATS_FIXED[profile.mainWeapon.set];
-        if (mwFixed && mwFixed.bonuses) {
-            var mwMaxB = mwFixed.maxBonuses;
-            var mwPicked = profile.mainWeapon.bonuses || [];
-            html += '<span class="gc-acc-bonus-trigger" onclick="GC.openWeaponBonusPopup(' + id + ',\'mainWeapon\',this)" title="Click to edit bonuses">';
-            html += 'Bonuses (' + mwPicked.length + '/' + mwMaxB + ')';
-            html += '</span>';
-        }
     }
     html += '</div>';
     html += '</div>';
@@ -2222,15 +2473,6 @@ function renderProfile(id) {
             if (sh.set !== 'none') {
                 var shTypeLabel = sh.type === 'scale' ? 'Scale (Magical)' : 'Battle (Physical)';
                 html += '<span class="gc-enchant-trigger gc-shield-trigger" onclick="GC.openShieldTypePicker(' + id + ',this)">' + shTypeLabel + '</span>';
-                // Shield bonus trigger
-                if (shData) {
-                    var maxB = shData.maxBonuses;
-                    var typeKey = sh.type === 'scale' ? 'scale' : 'battle';
-                    var picked = sh.bonuses || [];
-                    html += '<span class="gc-acc-bonus-trigger" onclick="GC.openShieldBonusPopup(' + id + ',this)" title="Click to edit bonuses">';
-                    html += 'Bonuses (' + picked.length + '/' + maxB + ')';
-                    html += '</span>';
-                }
             }
             html += '</div>';
         } else {
@@ -2273,15 +2515,6 @@ function renderProfile(id) {
                 var hasOhEnchant = (profile.offHand.set === 'acrimony' || profile.offHand.set === 'presumption');
                 if (hasOhEnchant && ohType !== 'fuse') {
                     html += '<span class="gc-enchant-trigger" onclick="GC.openEnchantPicker(' + id + ',\'off-weapon\',this)">+' + profile.offHand.enchant + '</span>';
-                }
-                // Off-hand weapon bonus trigger
-                var ohFixed = WEAPON_STATS_FIXED[profile.offHand.set];
-                if (ohFixed && ohFixed.bonuses) {
-                    var ohMaxB = ohFixed.maxBonuses;
-                    var ohPicked = profile.offHand.bonuses || [];
-                    html += '<span class="gc-acc-bonus-trigger" onclick="GC.openWeaponBonusPopup(' + id + ',\'offHand\',this)" title="Click to edit bonuses">';
-                    html += 'Bonuses (' + ohPicked.length + '/' + ohMaxB + ')';
-                    html += '</span>';
                 }
             }
             html += '</div>';
@@ -2410,21 +2643,6 @@ function renderAccessorySlot(pid, slotDef, accState, profile) {
     }
     html += '</div>';
     html += '</div>'; // close gc-set-trigger
-    if (!isNone) {
-        // Bonus popup trigger (selectable sets)
-        var statsType = ACC_STATS_TYPE[slotDef.key];
-        var setData = ACCESSORY_STATS[accState.set];
-        if (setData) {
-            var slotData = setData[statsType];
-            if (slotData && slotData.bonuses) {
-                var maxB = slotData.maxBonuses;
-                var picked = accState.bonuses || [];
-                html += '<span class="gc-acc-bonus-trigger" onclick="GC.openAccBonusPopup(' + pid + ',\'' + slotDef.key + '\',this)" title="Click to edit bonuses">';
-                html += 'Bonuses (' + picked.length + '/' + maxB + ')';
-                html += '</span>';
-            }
-        }
-    }
     html += '</div>'; // close gc-armor-row
     return html;
 }
@@ -2539,12 +2757,6 @@ function renderArmorSlot(pid, slot, armor, profile, material) {
     var hasArmorEnchant = (armor.set === 'acrimony' || armor.set === 'presumption' || armor.set === 'obstinacy');
     if (hasArmorEnchant) {
         html += '<span class="gc-enchant-trigger" onclick="GC.openEnchantPicker(' + pid + ',\'armor:' + slot.key + '\',this)">+' + armor.enchant + '</span>';
-    }
-    // Bonus popup trigger (for fighting spirit only; helper bonuses are fixed)
-    if (armor.set === 'fighting-spirit') {
-        var picked = armor.bonuses || [];
-        var label = 'Bonuses (' + picked.length + '/4)';
-        html += '<span class="gc-acc-bonus-trigger" onclick="GC.openArmorBonusPopup(' + pid + ',\'' + slot.key + '\',this)" title="Click to edit bonuses">' + label + '</span>';
     }
     // Oath icon trigger
     html += '<div class="gc-oath-picker-wrap">';

@@ -1170,6 +1170,7 @@ window.GC = {
             renderShieldBonusPopupContent(popup, pid);
         }
         renderProfile(pid);
+        this.refreshBonusModal(pid, 'shield');
         updateComparison();
         saveState();
     },
@@ -1294,6 +1295,7 @@ window.GC = {
             renderWeaponBonusPopupContent(popup, pid, slot);
         }
         renderProfile(pid);
+        this.refreshBonusModal(pid, slot);
         updateComparison();
         saveState();
     },
@@ -1321,6 +1323,7 @@ window.GC = {
             renderAccBonusPopupContent(popup, pid, slotKey);
         }
         renderProfile(pid);
+        this.refreshBonusModal(pid, slotKey);
         updateComparison();
         saveState();
     },
@@ -1416,9 +1419,14 @@ window.GC = {
             armor.bonuses.push(bonusKey);
         }
 
-        // Refresh UI
-        this.openArmorBonusPopup(pid, slotKey, document.querySelector(`[onclick*="openArmorBonusPopup(${pid},'${slotKey}'"]`));
+        // Refresh legacy popup content only if that popup is currently open.
+        var popup = document.getElementById('gc-acc-bonus-popup');
+        if (popup && popup.style.display === 'block' && popup.dataset.bonusType === 'armor' && popup.dataset.pid == pid && popup.dataset.slotKey === slotKey) {
+            var trigger = document.querySelector(`[onclick*="openArmorBonusPopup(${pid},'${slotKey}'"]`);
+            if (trigger) this.openArmorBonusPopup(pid, slotKey, trigger);
+        }
         renderProfile(pid);
+        this.refreshBonusModal(pid, slotKey);
         updateComparison();
         saveState();
     },
@@ -1440,6 +1448,181 @@ window.GC = {
         gear.bonusValues[bonusKey] = val;
 
         renderProfile(pid);
+        this.refreshBonusModal(pid, slotKey);
+        updateComparison();
+        saveState();
+    },
+
+    onBonusValueInputKeyDown: function(event, inputEl, pid, gearType, slotKey, bonusKey, maxVal) {
+        if (!event || event.key !== 'Tab') return;
+        var modal = document.getElementById('gc-bonus-modal');
+        if (!modal || modal.style.display !== 'block') return;
+
+        var currentInputs = Array.prototype.slice.call(modal.querySelectorAll('.gc-mana-body .gc-bonus-val-input'));
+        var currentIndex = currentInputs.indexOf(inputEl);
+        if (currentIndex === -1) return;
+
+        event.preventDefault();
+        var nextIndex = event.shiftKey ? currentIndex - 1 : currentIndex + 1;
+        if (nextIndex < 0) nextIndex = 0;
+
+        this.setBonusValue(pid, gearType, slotKey, bonusKey, inputEl.value, maxVal);
+
+        var refreshedModal = document.getElementById('gc-bonus-modal');
+        if (!refreshedModal || refreshedModal.style.display !== 'block') return;
+        var refreshedInputs = refreshedModal.querySelectorAll('.gc-mana-body .gc-bonus-val-input');
+        if (!refreshedInputs || !refreshedInputs.length) return;
+        if (nextIndex >= refreshedInputs.length) nextIndex = refreshedInputs.length - 1;
+
+        var target = refreshedInputs[nextIndex];
+        if (target) {
+            target.focus();
+            target.select();
+        }
+    },
+
+    openBonusModal: function(pid, scrollToGear) {
+        closeOathPopup();
+        closeSetPopup();
+        closeEnchantPopup();
+        closeAccBonusPopup();
+        this.closeManaModal();
+        var modal = document.getElementById('gc-bonus-modal');
+        modal.innerHTML = renderBonusModal(pid, scrollToGear);
+        modal.style.display = 'block';
+        modal.dataset.pid = pid;
+        document.body.style.overflow = 'hidden';
+        if (scrollToGear) {
+            setTimeout(function() {
+                var row = document.getElementById('gc-bonus-row-' + scrollToGear);
+                if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 50);
+        }
+    },
+
+    refreshBonusModal: function(pid, scrollToGear) {
+        var modal = document.getElementById('gc-bonus-modal');
+        if (!modal || modal.style.display !== 'block' || modal.dataset.pid != pid) return;
+        var body = modal.querySelector('.gc-mana-body');
+        var prevScrollTop = body ? body.scrollTop : 0;
+        modal.innerHTML = renderBonusModal(pid, scrollToGear);
+        modal.dataset.pid = pid;
+        var newBody = modal.querySelector('.gc-mana-body');
+        if (newBody) newBody.scrollTop = prevScrollTop;
+    },
+
+    closeBonusModal: function() {
+        var modal = document.getElementById('gc-bonus-modal');
+        if (!modal) return;
+        modal.style.display = 'none';
+        modal.innerHTML = '';
+        document.body.style.overflow = '';
+    },
+
+    applyBonusPreset: function(pid, presetKey) {
+        var profile = state[pid];
+        if (!profile) return;
+
+        function getArmorDefs(slotKey) {
+            var isHigh = (slotKey === 'helmet' || slotKey === 'chest' || slotKey === 'pants');
+            return isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+        }
+
+        function getAccessoryDefs(accKey) {
+            var acc = profile.accessories[accKey];
+            if (!acc || acc.set === 'none') return null;
+            var statsType = ACC_STATS_TYPE[accKey];
+            var setData = ACCESSORY_STATS[acc.set];
+            var slotData = setData && statsType ? setData[statsType] : null;
+            if (!slotData || !slotData.bonuses || !slotData.maxBonuses) return null;
+            return { bonuses: slotData.bonuses, maxBonuses: slotData.maxBonuses };
+        }
+
+        function getWeaponDefs(slotKey) {
+            var w = profile[slotKey];
+            if (!w || w.set === 'none') return null;
+            var fixed = WEAPON_STATS_FIXED[w.set];
+            if (!fixed || !fixed.bonuses || !fixed.maxBonuses) return null;
+            return { bonuses: fixed.bonuses, maxBonuses: fixed.maxBonuses };
+        }
+
+        function copySelectableBonuses(srcGear, srcDefs, dstGear, dstDefs) {
+            if (!srcGear || !srcDefs || !dstGear || !dstDefs) return;
+            var allowed = {};
+            dstDefs.bonuses.forEach(function(b) { allowed[b.key] = b.value; });
+            var srcSelected = srcGear.bonuses || [];
+            var nextBonuses = [];
+            srcSelected.forEach(function(key) {
+                if (!allowed[key]) return;
+                if (nextBonuses.indexOf(key) !== -1) return;
+                if (nextBonuses.length >= dstDefs.maxBonuses) return;
+                nextBonuses.push(key);
+            });
+            dstGear.bonuses = nextBonuses;
+        }
+
+        if (presetKey === 'weapon-main-to-off') {
+            var wMainDefs = getWeaponDefs('mainWeapon');
+            var wOffDefs = getWeaponDefs('offHand');
+            copySelectableBonuses(profile.mainWeapon, wMainDefs, profile.offHand, wOffDefs);
+        } else if (presetKey === 'weapon-off-to-main') {
+            var woDefs = getWeaponDefs('offHand');
+            var wmDefs = getWeaponDefs('mainWeapon');
+            copySelectableBonuses(profile.offHand, woDefs, profile.mainWeapon, wmDefs);
+        } else if (presetKey === 'armor-high' || presetKey === 'armor-low') {
+            var source = presetKey === 'armor-high' ? 'helmet' : 'shoulders';
+            var targets = presetKey === 'armor-high' ? ['helmet', 'chest', 'pants'] : ['shoulders', 'gloves', 'boots'];
+            var srcArmor = profile.armor[source];
+            if (srcArmor && srcArmor.set === 'fighting-spirit') {
+                var srcArmorDefs = { bonuses: getArmorDefs(source), maxBonuses: 4 };
+                targets.forEach(function(slotKey) {
+                    var dstArmor = profile.armor[slotKey];
+                    if (!dstArmor || dstArmor.set !== 'fighting-spirit') return;
+                    copySelectableBonuses(srcArmor, srcArmorDefs, dstArmor, { bonuses: getArmorDefs(slotKey), maxBonuses: 4 });
+                });
+            }
+        } else if (presetKey === 'acc-lower' || presetKey === 'acc-lower-wings' || presetKey === 'acc-upper-pair') {
+            var srcAccKey = (presetKey === 'acc-upper-pair') ? 'feather' : (presetKey === 'acc-lower-wings' ? 'wings' : 'necklace');
+            var targetAccKeys = [];
+            if (presetKey === 'acc-upper-pair') {
+                targetAccKeys = ['feather', 'bracelet'];
+            } else {
+                targetAccKeys = ['necklace', 'earring1', 'earring2', 'ring1', 'ring2', 'belt'];
+            }
+            var srcAcc = profile.accessories[srcAccKey];
+            var srcAccDefs = getAccessoryDefs(srcAccKey);
+            if (srcAcc && srcAccDefs) {
+                targetAccKeys.forEach(function(key) {
+                    var dstAcc = profile.accessories[key];
+                    var dstDefs = getAccessoryDefs(key);
+                    copySelectableBonuses(srcAcc, srcAccDefs, dstAcc, dstDefs);
+                });
+            }
+        } else if (presetKey === 'clear') {
+            ['mainWeapon', 'offHand'].forEach(function(k) {
+                var w = profile[k];
+                if (!w) return;
+                w.bonuses = [];
+                w.bonusValues = {};
+            });
+            if (profile.shield) {
+                profile.shield.bonuses = [];
+                profile.shield.bonusValues = {};
+            }
+            ARMOR_SLOTS.forEach(function(slot) {
+                if (!profile.armor[slot.key]) return;
+                profile.armor[slot.key].bonuses = [];
+                profile.armor[slot.key].bonusValues = {};
+            });
+            ALL_ACCESSORY_KEYS.forEach(function(k) {
+                if (!profile.accessories[k]) return;
+                profile.accessories[k].bonuses = [];
+                profile.accessories[k].bonusValues = {};
+            });
+        }
+
+        renderProfile(pid);
+        this.refreshBonusModal(pid);
         updateComparison();
         saveState();
     },
@@ -1542,6 +1725,7 @@ window.GC = {
 
     // -- Manastone Modal Handlers --
     openManaModal: function(pid, scrollToGear) {
+        this.closeBonusModal();
         closeOathPopup();
         closeSetPopup();
         closeEnchantPopup();
@@ -1907,6 +2091,12 @@ var manaModal = document.createElement('div');
 manaModal.id = 'gc-mana-modal';
 manaModal.className = 'gc-mana-modal';
 document.body.appendChild(manaModal);
+
+// Bonuses modal container
+var bonusModal = document.createElement('div');
+bonusModal.id = 'gc-bonus-modal';
+bonusModal.className = 'gc-mana-modal';
+document.body.appendChild(bonusModal);
 
 // Manastone slot picker popup
 var manaSlotPopup = document.createElement('div');
