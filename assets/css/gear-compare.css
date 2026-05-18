@@ -1683,6 +1683,14 @@
     flex: 1;
 }
 
+.gc-mana-subtitle {
+    font-size: 0.85em;
+    font-weight: 700;
+    color: rgba(100, 200, 255, 0.9);
+    letter-spacing: 0.03em;
+    padding: 5px 18px;
+}
+
 .gc-mana-close {
     width: 28px;
     height: 28px;

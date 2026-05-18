@@ -1240,14 +1240,14 @@ function renderBonusModal(pid, scrollToGear) {
     html += '<span class="gc-mana-close" onclick="GC.closeBonusModal()">✕</span>';
     html += '</div>';
 
+    html += '<div class="gc-mana-subtitle"><span>🔄 Sync options:</span></div>';
     html += '<div class="gc-mana-presets gc-bonus-presets">';
     html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'weapon-main-to-off\')">Weapon Main → Off-hand</button>';
     html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'weapon-off-to-main\')">Weapon Off-hand → Main</button>';
-    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'armor-high\')">Sync Armor High</button>';
-    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'armor-low\')">Sync Armor Low</button>';
-    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'acc-lower\')">Sync Lower Accessories</button>';
-    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'acc-lower-wings\')">Sync Lower + Wings</button>';
-    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'acc-upper-pair\')">Sync Feather + Bracelet</button>';
+    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'armor-high\')">Helmet → Chest + Pants</button>';
+    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'armor-low\')">Shoulders → Gloves + Boots</button>';
+    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'acc-lower-wings\')">Wings → Lower Accs</button>';
+    html += '<button class="gc-mana-preset-btn" onclick="GC.applyBonusPreset(' + pid + ',\'acc-upper-pair\')">Feather → Bracelet</button>';
     html += '<button class="gc-mana-preset-btn gc-mana-clear-btn" onclick="GC.applyBonusPreset(' + pid + ',\'clear\')">Clear All Bonuses</button>';
     html += '</div>';
 

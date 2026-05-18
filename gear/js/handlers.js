@@ -1581,7 +1581,7 @@ window.GC = {
                     copySelectableBonuses(srcArmor, srcArmorDefs, dstArmor, { bonuses: getArmorDefs(slotKey), maxBonuses: 4 });
                 });
             }
-        } else if (presetKey === 'acc-lower' || presetKey === 'acc-lower-wings' || presetKey === 'acc-upper-pair') {
+        } else if (presetKey === 'acc-lower-wings' || presetKey === 'acc-upper-pair') {
             var srcAccKey = (presetKey === 'acc-upper-pair') ? 'feather' : (presetKey === 'acc-lower-wings' ? 'wings' : 'necklace');
             var targetAccKeys = [];
             if (presetKey === 'acc-upper-pair') {
