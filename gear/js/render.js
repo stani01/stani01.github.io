@@ -1125,6 +1125,51 @@ function getBonusModalItemMeta(pid, itemType, slotKey) {
     return meta;
 }
 
+function getBonusModalOrderedOptions(itemType, slotKey, options) {
+    if (!options || !options.length) return [];
+
+    var priorityKeys = [];
+
+    if (itemType === 'armor') {
+        var isUpperArmor = (slotKey === 'helmet' || slotKey === 'chest' || slotKey === 'pants');
+        priorityKeys = isUpperArmor
+            ? ['hp', 'crit', 'physicalDef', 'magicalDef']
+            : ['increasedRegen', 'crit', 'physicalDef', 'magicalDef'];
+    } else if (itemType === 'accessory') {
+        if (slotKey === 'feather' || slotKey === 'bracelet') {
+            priorityKeys = ['hp', 'crit', 'physicalDef', 'magicalDef', 'accuracy'];
+        } else {
+            // Wings and lower accessories share this priority.
+            priorityKeys = ['hp', 'attack', 'crit', 'accuracy'];
+        }
+    } else if (itemType === 'weapon') {
+        priorityKeys = ['hp', 'attack', 'crit', 'accuracy'];
+    }
+
+    if (!priorityKeys.length) return options.slice();
+
+    var ordered = [];
+    var used = {};
+
+    priorityKeys.forEach(function(key) {
+        for (var i = 0; i < options.length; i++) {
+            var opt = options[i];
+            if (opt && opt.key === key && !used[i]) {
+                ordered.push(opt);
+                used[i] = true;
+                break;
+            }
+        }
+    });
+
+    for (var j = 0; j < options.length; j++) {
+        if (used[j]) continue;
+        ordered.push(options[j]);
+    }
+
+    return ordered;
+}
+
 function renderBonusModalRow(pid, itemType, slotKey, label, icon) {
     var meta = getBonusModalItemMeta(pid, itemType, slotKey);
     var rowClass = 'gc-mana-gear-row';
@@ -1142,8 +1187,9 @@ function renderBonusModalRow(pid, itemType, slotKey, label, icon) {
     html += '</div>';
 
     if (meta.available) {
+        var orderedOptions = getBonusModalOrderedOptions(itemType, slotKey, meta.options);
         html += '<div class="gc-shield-bonus-grid gc-bonus-modal-grid">';
-        meta.options.forEach(function(b) {
+        orderedOptions.forEach(function(b) {
             var isOn = meta.picked.indexOf(b.key) !== -1;
             var maxVal = b.value;
             if (itemType === 'armor') {
