@@ -301,6 +301,28 @@ var GC_SKILL_DATABASE = {
         description: `Increases The target's HP by 15% for 60m.<br>
                       Increases Physical Defence by 500.`
     },
+    'jorgoth500': {
+        name: 'Jorgoth\'s Masterpiece',
+        icon: '../assets/icons/weapon_provoker_buff_g1.png',
+        id: '20881',
+        class: '',
+        category: 'Buff',
+        usageCost: '',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: `When attacking, there\'s a certain probability that your PvE attack and PvP attack increase by 500.`
+    },
+    'jorgoth1000': {
+        name: 'Jorgoth\'s Masterpiece',
+        icon: '../assets/icons/weapon_provoker_buff_g2.png',
+        id: '20882',
+        class: '',
+        category: 'Buff',
+        usageCost: '',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: `When attacking, there\'s a certain probability that your PvE attack and PvP attack increase by 1000.`
+    },
 
     // -- Universal buffs for physical classes --
     'magicIncitement': {
@@ -908,6 +930,8 @@ var GC_SKILL_BUFFS = {
         { key: 'prayerOfProtection', value: '+200 Defs, +15% HP', stats: { physicalDef: 200, magicalDef: 200, hpIncreasePercent: 15 }, defaultActive: false,  excludes: ['blessingOfRock', 'melodyOfLife', 'blessingOfStone'] },
         { key: 'blessingOfRock', value: '+150 Defs, +10% HP', stats: { physicalDef: 150, magicalDef: 150, hpIncreasePercent: 10 }, defaultActive: false,  excludes: ['prayerOfProtection', 'melodyOfLife', 'blessingOfStone'] },
         { key: 'melodyOfLife', value: '+500 physDef, +15% HP', stats: { physicalDef: 500, hpIncreasePercent: 15 }, defaultActive: false,  excludes: ['prayerOfProtection', 'blessingOfRock', 'blessingOfStone'] },
+        { key: 'jorgoth500', value: '+500 PvE Attack / +500 PvP Attack', stats: { pveAttack: 500, pvpAttack: 500 }, defaultActive: false, excludes: ['jorgoth1000'] },
+        { key: 'jorgoth1000', value: '+1000 PvE Attack / +1000 PvP Attack', stats: { pveAttack: 1000, pvpAttack: 1000 }, defaultActive: false , excludes: ['jorgoth500'] },
     ],
 
     // Universal buffs shown only to PHYSICAL classes (gladiator, templar, assassin, ranger, chanter, painter)
