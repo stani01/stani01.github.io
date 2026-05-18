@@ -212,7 +212,7 @@ function getSetModeTag(setKey, itemKind) {
         var fixed = WEAPON_STATS_FIXED[setKey];
         if (fixed && fixed.pveStat) return 'pve';
         if (fixed && fixed.pvpStat) return 'pvp';
-        if (setKey === 'ciclonica-helper' || setKey === 'vision') return 'pve';
+        if (setKey === 'helper' || setKey === 'vision') return 'pve';
         return 'pvp';
     }
     if (itemKind === 'shield') {

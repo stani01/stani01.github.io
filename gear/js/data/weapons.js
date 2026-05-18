@@ -1,19 +1,35 @@
 'use strict';
 
+var SPIKED_CICLONICA_BONUSES = [
+    { key: 'hp',           name: 'HP',            stat: 'hp',           value: 1917 },
+    { key: 'accuracy',     name: 'Accuracy',      stat: 'accuracy',     value: 411 },
+    { key: 'crit',         name: 'Crit',          stat: 'crit',         value: 363 },
+    { key: 'attack',       name: 'Attack',        stat: 'attack',       value: 275 },
+    { key: 'healingBoost', name: 'Healing Boost', stat: 'healingBoost', value: 183 },
+    { key: 'parry',        name: 'Parry',         stat: 'parry',        value: 716 }
+];
+
 
 // Fixed-stat weapons (stats baked in, only vary by 2h/1h)
 // pvpStat/pveStat: which pvp/pve stat keys the bonus/enchant values map to
 var WEAPON_STATS_FIXED = {
-    'spiked':          { baseAtk: 4796, bonusAtk: 275, pvpStat: true, pvpPveAtk2h: 176, pvpPveDef2h: 176, pvpPveAtk1h: 88, pvpPveDef1h: 88, enchPvpPveAtk2h: 371, enchPvpPveDef2h: 101, enchPvpPveAtk1h: 223, enchPvpPveDef1h: 61, enchHp: 1917, enchCrit: 363, baseDef: 177, baseAcc: 2675, baseParry: 2675, bonusAcc: 0 },
-    'ciclonica-helper':{ baseAtk: 4796, bonusAtk: 275, pveStat: true, pvpPveAtk2h: 176, pvpPveDef2h: 176, pvpPveAtk1h: 88, pvpPveDef1h: 88, enchPvpPveAtk2h: 371, enchPvpPveDef2h: 101, enchPvpPveAtk1h: 223, enchPvpPveDef1h: 61, enchHp: 1917, enchCrit: 363, baseDef: 177, baseAcc: 2675, baseParry: 2675, bonusAcc: 0 },
+    'spiked': { baseAtk: 4796, pvpStat: true, pvpPveAtk2h: 176, pvpPveDef2h: 176, pvpPveAtk1h: 88, pvpPveDef1h: 88, enchPvpPveAtk2h: 371, enchPvpPveDef2h: 101, enchPvpPveAtk1h: 223, enchPvpPveDef1h: 61, baseDef: 177, baseAcc: 2675, baseParry: 2675,
+        maxBonuses: 4,
+        bonuses: SPIKED_CICLONICA_BONUSES
+    },
+    'ciclonica': { baseAtk: 4796, pveStat: true, pvpPveAtk2h: 176, pvpPveDef2h: 176, pvpPveAtk1h: 88, pvpPveDef1h: 88, enchPvpPveAtk2h: 371, enchPvpPveDef2h: 101, enchPvpPveAtk1h: 223, enchPvpPveDef1h: 61, baseDef: 177, baseAcc: 2675, baseParry: 2675,
+        maxBonuses: 4,
+        bonuses: SPIKED_CICLONICA_BONUSES
+    },
+    'helper': { baseAtk: 4796, bonusAtk: 275, pveStat: true, pvpPveAtk2h: 176, pvpPveDef2h: 176, pvpPveAtk1h: 88, pvpPveDef1h: 88, enchPvpPveAtk2h: 371, enchPvpPveDef2h: 101, enchPvpPveAtk1h: 223, enchPvpPveDef1h: 61, enchHp: 1917, enchCrit: 363, baseDef: 177, baseAcc: 2675, baseParry: 2675, bonusAcc: 0 },
     'fighting-spirit': { baseAtk: 5515, enchAtk2h: 350, enchDef2h: 175, enchAtk1h: 230, enchDef1h: 120, enchHp: 0, baseDef: 0, baseAcc: 2675, baseParry: 2675,
         maxBonuses: 3,
         bonuses: [
             { key: 'accuracy',     name: 'Accuracy',      stat: 'accuracy',     value: 411 },
-            { key: 'crit',         name: 'Crit',          stat: 'crit',          value: 363 },
-            { key: 'attack',       name: 'Attack',        stat: 'attack',        value: 275 },
-            { key: 'healingBoost', name: 'Healing Boost',  stat: 'healingBoost',  value: 183 },
-            { key: 'parry',        name: 'Parry',         stat: 'parry',         value: 716 }
+            { key: 'crit',         name: 'Crit',          stat: 'crit',         value: 363 },
+            { key: 'attack',       name: 'Attack',        stat: 'attack',       value: 275 },
+            { key: 'healingBoost', name: 'Healing Boost', stat: 'healingBoost', value: 183 },
+            { key: 'parry',        name: 'Parry',         stat: 'parry',        value: 716 }
         ]
     },
     'vision':          { baseAtk: 4605, bonusAtk: 275, pveStat: true, pvpPveAtk2h: 176, pvpPveDef2h: 176, pvpPveAtk1h: 88, pvpPveDef1h: 88, enchPvpPveAtk2h: 378, enchPvpPveDef2h: 103, enchPvpPveAtk1h: 227, enchPvpPveDef1h: 62, enchHp: 1917, enchCrit: 0, baseDef: 170, baseAcc: 2568, baseParry: 2568, bonusAcc: 411 },
@@ -21,10 +37,10 @@ var WEAPON_STATS_FIXED = {
         maxBonuses: 3,
         bonuses: [
             { key: 'accuracy',     name: 'Accuracy',      stat: 'accuracy',     value: 473 },
-            { key: 'crit',         name: 'Crit',          stat: 'crit',          value: 417 },
-            { key: 'attack',       name: 'Attack',        stat: 'attack',        value: 316 },
-            { key: 'healingBoost', name: 'Healing Boost',  stat: 'healingBoost',  value: 187 },
-            { key: 'parry',        name: 'Parry',         stat: 'parry',         value: 730 }
+            { key: 'crit',         name: 'Crit',          stat: 'crit',         value: 417 },
+            { key: 'attack',       name: 'Attack',        stat: 'attack',       value: 316 },
+            { key: 'healingBoost', name: 'Healing Boost', stat: 'healingBoost', value: 187 },
+            { key: 'parry',        name: 'Parry',         stat: 'parry',        value: 730 }
         ]
     }
 };

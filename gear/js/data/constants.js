@@ -178,7 +178,8 @@ var WEAPON_SETS = [
     { key: 'salvation',       name: 'Salvation (Upgraded FS)' },
     { key: 'fighting-spirit', name: 'Fighting Spirit' },
     { key: 'spiked',          name: 'Spiked (PvP)' },
-    { key: 'ciclonica-helper',name: 'Ciclonica/Helper (PvE)' },
+    { key: 'ciclonica',       name: 'Ciclonica (PvE)' },
+    { key: 'helper',          name: 'Helper (PvE)' },
     { key: 'jorgoth-t4-v1',   name: 'Jorgoth T4 v1' },
     { key: 'jorgoth-t4-v2',   name: 'Jorgoth T4 v2' },
     { key: 'jorgoth-t4-v3',   name: 'Jorgoth T4 v3' },
@@ -202,7 +203,8 @@ var WEAPON_SET_LEVELS = {
     'fighting-spirit': 81,
     'salvation': 83,
     'spiked': 80,
-    'ciclonica-helper': 80,
+    'ciclonica': 80,
+    'helper': 76,
     'vision': 80,
     'none': 0
 };

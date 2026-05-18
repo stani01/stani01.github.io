@@ -395,7 +395,7 @@ function getWeaponParts(setKey, weaponType, enchantLevel, selectedBonuses, bonus
     if (setKey === 'none') return { baseAtk: 0, base: base, bonus: bonus, enchant: enchant };
     var is2H = WEAPON_TYPES[weaponType].twoHanded;
 
-    // Fixed-stat sets (spiked, ciclonica-helper, fighting-spirit, vision, salvation)
+    // Fixed-stat sets (spiked, ciclonica, helper, fighting-spirit, vision, salvation)
     var fixed = WEAPON_STATS_FIXED[setKey];
     if (fixed) {
         base.attack      = fixed.baseAtk;
@@ -424,10 +424,10 @@ function getWeaponParts(setKey, weaponType, enchantLevel, selectedBonuses, bonus
             // Spiked (PvP), Ciclonica/Helper (PvE), Vision (PvE)
             var atkKey = fixed.pvpStat ? 'pvpAttack' : 'pveAttack';
             var defKey = fixed.pvpStat ? 'pvpDefence' : 'pveDefence';
-            bonus[atkKey]   = is2H ? fixed.pvpPveAtk2h : fixed.pvpPveAtk1h;
-            bonus[defKey]   = is2H ? fixed.pvpPveDef2h : fixed.pvpPveDef1h;
-            enchant[atkKey] = is2H ? fixed.enchPvpPveAtk2h : fixed.enchPvpPveAtk1h;
-            enchant[defKey] = is2H ? fixed.enchPvpPveDef2h : fixed.enchPvpPveDef1h;
+            bonus[atkKey]  += is2H ? fixed.pvpPveAtk2h : fixed.pvpPveAtk1h;
+            bonus[defKey]  += is2H ? fixed.pvpPveDef2h : fixed.pvpPveDef1h;
+            enchant[atkKey] += is2H ? fixed.enchPvpPveAtk2h : fixed.enchPvpPveAtk1h;
+            enchant[defKey] += is2H ? fixed.enchPvpPveDef2h : fixed.enchPvpPveDef1h;
         } else {
             // Fighting Spirit, Salvation: regular attack/def enchant
             enchant.attack      = is2H ? fixed.enchAtk2h : fixed.enchAtk1h;

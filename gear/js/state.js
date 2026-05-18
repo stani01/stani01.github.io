@@ -349,7 +349,7 @@ function restoreProfile(id, saved, cls) {
             if (saved.mainWeapon) {
                 var mwSet = saved.mainWeapon.set;
                 // Map legacy spiked-helper to separate sets
-                if (mwSet === 'spiked-helper') mwSet = (saved.mainWeapon.variant === 'pve') ? 'ciclonica-helper' : 'spiked';
+                if (mwSet === 'spiked-helper') mwSet = (saved.mainWeapon.variant === 'pve') ? 'helper' : 'spiked';
                 if (mwSet && WEAPON_SET_KEYS.indexOf(mwSet) !== -1 && MAINHAND_EXCLUDED_SETS.indexOf(mwSet) === -1) p.mainWeapon.set = mwSet;
                 if (typeof saved.mainWeapon.enchant === 'number' && saved.mainWeapon.enchant >= 8 && saved.mainWeapon.enchant <= 15) p.mainWeapon.enchant = saved.mainWeapon.enchant;
                 if (Array.isArray(saved.mainWeapon.bonuses)) {
@@ -367,7 +367,7 @@ function restoreProfile(id, saved, cls) {
             if (saved.offHand) {
                 var ohSet = saved.offHand.set;
                 // Map legacy spiked-helper to separate sets
-                if (ohSet === 'spiked-helper') ohSet = (saved.offHand.variant === 'pve') ? 'ciclonica-helper' : 'spiked';
+                if (ohSet === 'spiked-helper') ohSet = (saved.offHand.variant === 'pve') ? 'helper' : 'spiked';
                 if (ohSet && WEAPON_SET_KEYS.indexOf(ohSet) !== -1 && OFFHAND_EXCLUDED_SETS.indexOf(ohSet) === -1) {
                     p.offHand.set = ohSet;
                 }

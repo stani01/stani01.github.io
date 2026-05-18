@@ -226,6 +226,9 @@ function getDefaultWeaponBonuses(setKey) {
     if (setKey === 'none') return [];
     var fixed = WEAPON_STATS_FIXED[setKey];
     if (!fixed || !fixed.bonuses) return [];
+    if (setKey === 'spiked' || setKey === 'ciclonica') {
+        return ['hp', 'crit', 'accuracy', 'attack'];
+    }
     return fixed.bonuses.slice(0, fixed.maxBonuses).map(function(b) { return b.key; });
 }
 
