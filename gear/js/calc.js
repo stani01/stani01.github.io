@@ -114,11 +114,6 @@ function calculateDetailedStats(profileId) {
     sources.passive.parry += 1275;
     sources.passive.block += 1275;
 
-    // -- glyph base
-    sources.glyph.attack += 50;
-    sources.glyph.physicalDef += 50;
-    sources.glyph.magicalDef += 50;
-
     // -- cubes
     addHpToSource('cubes', 5500, 'bonus');
     sources.cubes.healingBoost += 133;
@@ -312,6 +307,10 @@ function calculateDetailedStats(profileId) {
     // Glyph special handling
     var glyph = profile.glyph;
     if (glyph && glyph.enabled !== false) {
+        // Glyph passive/base stats only apply while glyph is enabled.
+        sources.glyph.attack += 50;
+        sources.glyph.physicalDef += 50;
+        sources.glyph.magicalDef += 50;
         // Apply selected bonus
         if (glyph.bonuses && glyph.bonuses.length) {
             var b = ACC_BONUSES_GLYPH.find(function(x) { return x.key === glyph.bonuses[0]; });

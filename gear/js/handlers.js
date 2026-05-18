@@ -925,6 +925,13 @@ window.GC = {
             } else if (setKey === 'fighting-spirit') {
                 state[pid].armor[slotKey].bonuses = getDefaultArmorBonuses(slotKey);
                 delete state[pid].armor[slotKey].enchant;
+            } else if (setKey === 'helper') {
+                var helperDefaults = getHelperBonusDefs(slotKey);
+                state[pid].armor[slotKey].bonuses = helperDefaults.map(function(b) { return b.key; });
+                delete state[pid].armor[slotKey].enchant;
+                if (state[pid].oath && state[pid].oath[slotKey] !== 'none' && state[pid].oath[slotKey] !== 'silent-skill') {
+                    state[pid].oath[slotKey] = 'none';
+                }
             } else {
                 state[pid].armor[slotKey].bonuses = [];
                 if (typeof state[pid].armor[slotKey].enchant !== 'number') {
@@ -1244,17 +1251,25 @@ window.GC = {
         popup.dataset.slotKey = slotKey;
         popup.dataset.bonusType = 'armor';
         
-        // 1. Identify tier: Chest/Pants = High, others = Low
+        // 1. Identify tier and bonus list based on set
         var isHigh = (slotKey === 'helmet' || slotKey === 'chest' || slotKey === 'pants');
-        var bonusOptions = isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
-        
+        var isMid = (slotKey === 'pants');
         var armor = state[pid].armor[slotKey];
+        var isHelper = (armor.set === 'helper');
+        var bonusOptions;
+        if (isHelper) {
+            bonusOptions = getHelperBonusDefs(slotKey);
+        } else {
+            bonusOptions = isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+        }
+        var maxBonuses = isHelper ? bonusOptions.length : 4;
+        
         if (!armor.bonuses || !armor.bonuses.length) {
-            armor.bonuses = getDefaultArmorBonuses(slotKey);
+            armor.bonuses = isHelper ? bonusOptions.map(function(b) { return b.key; }) : getDefaultArmorBonuses(slotKey);
         }
         var picked = armor.bonuses;
         
-        var html = '<div class="gc-acc-bonus-popup-title">Armor Bonus (Max 4)</div>';
+        var html = '<div class="gc-acc-bonus-popup-title">Armor Bonus (Max ' + maxBonuses + ')</div>';
         html += '<div class="gc-shield-bonus-grid">';
         
         // Check for Apsu bonus overrides on this slot
@@ -1305,10 +1320,16 @@ window.GC = {
         var armor = state[pid].armor[slotKey];
         if (!armor.bonuses) armor.bonuses = [];
 
+        var isHelper = (armor.set === 'helper');
+        var isHigh = (slotKey === 'helmet' || slotKey === 'chest' || slotKey === 'pants');
+        var maxBonuses = isHelper
+            ? getHelperBonusDefs(slotKey).length
+            : 4;
+
         var idx = armor.bonuses.indexOf(bonusKey);
         if (idx !== -1) {
             armor.bonuses.splice(idx, 1);
-        } else if (armor.bonuses.length < 4) {
+        } else if (armor.bonuses.length < maxBonuses) {
             armor.bonuses.push(bonusKey);
         }
 
@@ -1393,11 +1414,20 @@ window.GC = {
         closeSetPopup();
         if (isOpen && popup.dataset.pid == pid && popup.dataset.slot === slotKey) return;
 
+        var armor = state[pid].armor[slotKey];
+        var isHelperArmor = armor && armor.set === 'helper';
+        var oathOptions = isHelperArmor
+            ? OATH_OPTIONS.filter(function(opt) { return opt.key === 'none' || opt.key === 'silent-skill'; })
+            : OATH_OPTIONS;
         var currentOath = state[pid].oath[slotKey] || 'none';
+        if (isHelperArmor && currentOath !== 'none' && currentOath !== 'silent-skill') {
+            currentOath = 'none';
+            state[pid].oath[slotKey] = 'none';
+        }
         // Find slot key to get correct icons
         var slotObj = ARMOR_SLOTS.find(function(s) { return s.key === slotKey; });
         var html = '';
-        OATH_OPTIONS.forEach(function(opt) {
+        oathOptions.forEach(function(opt) {
             var sel = currentOath === opt.key ? ' gc-oath-option-selected' : '';
             var optIcon = getOathIcon(slotKey, opt.key);
             html += '<div class="gc-oath-option' + sel + (opt.key === 'none' ? ' gc-oath-option-none' : '') + '" onclick="GC.pickOath(' + pid + ',\'' + slotKey + '\',\'' + opt.key + '\')">';

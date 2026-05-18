@@ -331,9 +331,11 @@ function renderGearTooltipCard(opts) {
 function renderIconWithTooltip(innerHtml, tooltipHtml, ariaLabel, extraClasses) {
     var classes = 'gc-slot-icon gc-item-tooltip-trigger';
     if (extraClasses) classes += ' ' + extraClasses;
+    // Avoid native browser tooltips (from title="...") fighting with custom tooltip.
+    var sanitizedInnerHtml = (innerHtml || '').replace(/\stitle="[^"]*"/gi, '');
     var html = '<div class="gc-item-tooltip-anchor">';
     html += '<div class="' + classes + '" tabindex="0" role="button" aria-label="' + escapeTooltipText(ariaLabel || 'Item details') + '" data-tooltip-html="' + escapeTooltipText(tooltipHtml || '') + '">';
-    html += innerHtml;
+    html += sanitizedInnerHtml;
     html += '</div>';
     html += '</div>';
     return html;
@@ -592,6 +594,67 @@ function buildArmorTooltip(pid, slotKey, armorState, setName) {
         });
     }
     
+    // ===== HELPER ARMOR =====
+    if (armorState.set === 'helper') {
+        var tier = EX_TIER[slotKey] || 'mid';
+        var helperDef = HELPER_BASE_DEF[profile.armorType];
+        var helperCommon = HELPER_COMMON[tier];
+        if (!helperDef || !helperCommon) {
+            return renderGearTooltipCard({ name: 'Helper ' + getGearLabel(slotKey), subtitle: 'Invalid armor config' });
+        }
+        var hd = helperDef[tier];
+        
+        // Basic stats: HP, Attack, pDef, mDef
+        var basicRows = [];
+        basicRows.push({ name: 'HP', value: helperCommon.hp });
+        basicRows.push({ name: 'Attack', value: helperCommon.attack });
+        basicRows.push({ name: 'Physical Defence', value: hd[0] });
+        basicRows.push({ name: 'Magical Defence', value: hd[1] });
+        
+        // Optional stats: selected bonuses with enchant bonus for pveAttack/pveDefence
+        var optionalRows = [];
+        var bonusList = getHelperBonusDefs(slotKey);
+        
+        if (armorState.bonuses && armorState.bonuses.length > 0) {
+            armorState.bonuses.forEach(function(bonusKey) {
+                var bonusDef = bonusList.find(function(b) { return b.key === bonusKey; });
+                if (bonusDef) {
+                    var bonusValue = (armorState.bonusValues && typeof armorState.bonusValues[bonusKey] === 'number') 
+                        ? armorState.bonusValues[bonusKey] 
+                        : bonusDef.value;
+                    
+                    // Enchant bonus: only pveAttack/pveDefence get +15 enchant bonus
+                    var enchBonus = 0;
+                    if ((bonusKey === 'pveAttack' || bonusKey === 'pveDefence') && HELPER_ENCHANT[15]) {
+                        enchBonus = HELPER_ENCHANT[15][bonusKey] ? HELPER_ENCHANT[15][bonusKey][tier] : 0;
+                    }
+                    
+                    optionalRows.push({
+                        name: bonusDef.name,
+                        value: bonusValue,
+                        bonus: enchBonus > 0 ? enchBonus : undefined
+                    });
+                }
+            });
+        }
+        
+        return renderGearTooltipCard({
+            name: setName + ' ' + getGearLabel(slotKey),
+            enchant: 15,
+            itemIcon: getArmorIcon(getArmorMaterial(profile.armorType), slotToIconKey(slotKey)),
+            itemType: getGearLabel(slotKey) + ' Armor',
+            modeTag: getSetModeTag(armorState.set, 'armor'),
+            levelText: 'Available for Level ' + getSetLevelTag(armorState.set, 'armor') + ' or higher',
+            basicRows: basicRows,
+            optionalRows: optionalRows,
+            manastoneRows: collectManastoneRows(profile, slotKey, armorState.set),
+            oathLabel: (profile.oath && profile.oath[slotKey] && profile.oath[slotKey] !== 'none')
+                ? ((OATH_OPTIONS.find(function(o) { return o.key === profile.oath[slotKey]; }) || {}).name || profile.oath[slotKey])
+                : '',
+            oathIcon: (profile.oath && profile.oath[slotKey] && profile.oath[slotKey] !== 'none') ? getOathIcon(slotKey, profile.oath[slotKey]) : ''
+        });
+    }
+
     // ===== EXTREME ARMOR (Acrimony/Presumption/Obstinacy) =====
     var tier = EX_TIER[slotKey] || 'mid';
     var exCommon = EX_COMMON[tier];
@@ -2385,8 +2448,8 @@ function renderArmorSlot(pid, slot, armor, profile, material) {
     if (hasArmorEnchant) {
         html += '<span class="gc-enchant-trigger" onclick="GC.openEnchantPicker(' + pid + ',\'armor:' + slot.key + '\',this)">+' + armor.enchant + '</span>';
     }
-    // Bonus popup trigger (only for fighting spirit, which has selectable bonuses)
-    if (armor.set === 'fighting-spirit') {
+    // Bonus popup trigger (for fighting spirit and helper, which have selectable bonuses)
+    if (armor.set === 'fighting-spirit' || armor.set === 'helper') {
         var picked = armor.bonuses || [];
         var label = 'Bonuses (' + picked.length + '/4)';
         html += '<span class="gc-acc-bonus-trigger" onclick="GC.openArmorBonusPopup(' + pid + ',\'' + slot.key + '\',this)" title="Click to edit bonuses">' + label + '</span>';

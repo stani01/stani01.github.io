@@ -135,6 +135,74 @@ var EXTREME_ARMOR_BONUS = {
     obstinacy: { bonusMagicResist: 30, bonusPDef: 15, bonusMDef: 15, bonusHp: 20 }
 };
 
+// Helper gear: base [pDef, mDef] per armor type and tier
+var HELPER_BASE_DEF = {
+    'physical-plate':   { high: [12, 12], mid: [13, 13], low: [14, 14] },
+    'magical-plate':    { high: [12, 12], mid: [13, 13], low: [14, 14] },
+    'physical-chain':   { high: [12, 12], mid: [13, 13], low: [14, 14] },
+    'magical-chain':    { high: [12, 12], mid: [13, 13], low: [14, 14] },
+    'physical-leather': { high: [12, 12], mid: [13, 13], low: [14, 14] },
+    'magical-leather':  { high: [12, 12], mid: [13, 13], low: [14, 14] },
+    'physical-cloth':   { high: [12, 12], mid: [13, 13], low: [14, 14] },
+    'magical-cloth':    { high: [12, 12], mid: [13, 13], low: [14, 14] }
+};
+
+// Helper gear common stats per tier (applies to both acrimony and presumption)
+var HELPER_COMMON = {
+    high: { hp: 16, attack: 16 },
+    mid:  { hp: 15, attack: 15 },
+    low:  { hp: 14, attack: 14 }
+};
+
+var HELPER_BONUSES_HIGH = [
+    { key: 'hp', name: 'HP', stat: 'hp', value: 1344 },
+    { key: 'crit',     name: 'Crit', stat: 'crit', value: 254 },
+    { key: 'physicalDef',   name: 'Physical Defence', stat: 'physicalDef', value: 210 },
+    { key: 'magicalDef',   name: 'Magical Defence', stat: 'magicalDef', value: 210 },
+    { key: 'pveAttack',   name: 'Add. PvE Atk.', stat: 'pveAttack', value: 76 },
+    { key: 'pveDefence',   name: 'Add. PvE Def.', stat: 'pveDefence', value: 76 },
+];
+
+var HELPER_BONUSES_MID = [
+    { key: 'hp', name: 'HP', stat: 'hp', value: 968 },
+    { key: 'crit',     name: 'Crit', stat: 'crit', value: 183 },
+    { key: 'physicalDef',   name: 'Physical Defence', stat: 'physicalDef', value: 210 },
+    { key: 'magicalDef',   name: 'Magical Defence', stat: 'magicalDef', value: 210 },
+    { key: 'pveAttack',   name: 'Add. PvE Atk.', stat: 'pveAttack', value: 65 },
+    { key: 'pveDefence',   name: 'Add. PvE Def.', stat: 'pveDefence', value: 65 },
+];
+
+var HELPER_BONUSES_LOW = [
+    { key: 'hp', name: 'HP', stat: 'hp', value: 672 },
+    { key: 'crit',     name: 'Crit', stat: 'crit', value: 127 },
+    { key: 'physicalDef',   name: 'Physical Defence', stat: 'physicalDef', value: 210 },
+    { key: 'magicalDef',   name: 'Magical Defence', stat: 'magicalDef', value: 210 },
+    { key: 'pveAttack',   name: 'Add. PvE Atk.', stat: 'pveAttack', value: 56 },
+    { key: 'pveDefence',   name: 'Add. PvE Def.', stat: 'pveDefence', value: 56 },
+];
+
+var HELPER_BONUSES_BOOTS = [
+    { key: 'hp', name: 'HP', stat: 'hp', value: 0 },
+    { key: 'crit',     name: 'Crit', stat: 'crit', value: 127 },
+    { key: 'physicalDef',   name: 'Physical Defence', stat: 'physicalDef', value: 210 },
+    { key: 'magicalDef',   name: 'Magical Defence', stat: 'magicalDef', value: 210 },
+    { key: 'pveAttack',   name: 'Add. PvE Atk.', stat: 'pveAttack', value: 56 },
+    { key: 'pveDefence',   name: 'Add. PvE Def.', stat: 'pveDefence', value: 56 },
+];
+
+function getHelperBonusDefs(slotKey) {
+    var tier = EX_TIER[slotKey] || 'low';
+    if (tier === 'high') return HELPER_BONUSES_HIGH;
+    if (tier === 'mid') return HELPER_BONUSES_MID;
+    if (slotKey === 'boots') return HELPER_BONUSES_BOOTS;
+    return HELPER_BONUSES_LOW;
+}
+
+// Helper enchant bonuses: { attack, def, hp, crit } each with { low, mid, high }
+var HELPER_ENCHANT = {
+    15: { pveAttack: { low: 36, mid: 36, high: 36 }, pveDefence: { low: 158, mid: 158, high: 158 }}
+};
+
 // Calculate actual stats for one armor slot
 function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBonuses, bonusValues) {
     var s = emptyStats();
@@ -207,6 +275,41 @@ function getArmorSlotStats(armorType, setKey, slotKey, enchantLevel, selectedBon
             if (setKey === 'acrimony' && b.crit) {
                 s.crit += b.crit[tier];
             }
+        }
+        s.hp += s.hpBonus;
+    } else if (setKey === 'helper') {
+        var tier = EX_TIER[slotKey];
+        var baseDef = HELPER_BASE_DEF[armorType];
+        if (!baseDef) return s;
+        var bd = baseDef[tier];
+        var ec = HELPER_COMMON[tier];
+        s.physicalDef = bd[0];
+        s.magicalDef = bd[1];
+        s.hpBase = ec.hp;
+        s.hp = s.hpBase;
+        s.attack = ec.attack;
+        
+        // Add selected bonuses
+        if (selectedBonuses && selectedBonuses.length > 0) {
+            var bonusList = getHelperBonusDefs(slotKey);
+            selectedBonuses.forEach(function(bKey) {
+                var found = bonusList.find(function(b) { return b.key === bKey; });
+                if (found && found.stat) {
+                    var bv = (bonusValues && typeof bonusValues[bKey] === 'number') ? bonusValues[bKey] : found.value;
+                    if (found.stat === 'hp') {
+                        s.hpBonus += bv;
+                    } else {
+                        s[found.stat] += bv;
+                    }
+                }
+            });
+        }
+        
+        // Enchant bonus: only for +15
+        var enchBonus = HELPER_ENCHANT[15];
+        if (enchBonus) {
+            s.pveAttack += enchBonus.pveAttack[tier];
+            s.pveDefence += enchBonus.pveDefence[tier];
         }
         s.hp += s.hpBonus;
     }

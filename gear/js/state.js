@@ -301,12 +301,29 @@ function restoreProfile(id, saved, cls) {
                         if (typeof sa.enchant === 'number' && sa.enchant >= 8 && sa.enchant <= 15) p.armor[slot.key].enchant = sa.enchant;
                         if (Array.isArray(sa.bonuses)) {
                             var isHigh = (slot.key === 'helmet' || slot.key === 'chest' || slot.key === 'pants');
-                            var validBonusKeys = (isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW).map(function(b) { return b.key; });
-                            p.armor[slot.key].bonuses = sa.bonuses.filter(function(k) { return validBonusKeys.indexOf(k) !== -1; }).slice(0, 4);
+                            var restoredSet = p.armor[slot.key].set;
+                            var validBonusList;
+                            if (restoredSet === 'helper') {
+                                validBonusList = getHelperBonusDefs(slot.key);
+                            } else {
+                                validBonusList = isHigh ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+                            }
+                            var validBonusKeys = validBonusList.map(function(b) { return b.key; });
+                            p.armor[slot.key].bonuses = sa.bonuses.filter(function(k) { return validBonusKeys.indexOf(k) !== -1; });
+                        }
+                        if (p.armor[slot.key].set === 'helper' && (!p.armor[slot.key].bonuses || !p.armor[slot.key].bonuses.length)) {
+                            var helperDefaults = getHelperBonusDefs(slot.key);
+                            p.armor[slot.key].bonuses = helperDefaults.map(function(b) { return b.key; });
                         }
                         if (sa.bonusValues) {
                             var isHighBV = (slot.key === 'helmet' || slot.key === 'chest' || slot.key === 'pants');
-                            var baseBonusList = isHighBV ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+                            var restoredSetBV = p.armor[slot.key].set;
+                            var baseBonusList;
+                            if (restoredSetBV === 'helper') {
+                                baseBonusList = getHelperBonusDefs(slot.key);
+                            } else {
+                                baseBonusList = isHighBV ? FS_BONUSES_HIGH : FS_BONUSES_LOW;
+                            }
                             // If Apsu is active for this slot, temporarily raise caps for overridden bonuses
                             var apsuOvrRestore = (apsuInfoRestore && apsuInfoRestore.slot === slot.key && apsuInfoRestore.bonusOverride) ? apsuInfoRestore.bonusOverride : null;
                             if (apsuOvrRestore) {
@@ -317,6 +334,13 @@ function restoreProfile(id, saved, cls) {
                                 restoreBonusValues(p.armor[slot.key].bonusValues, sa.bonusValues, adjustedList);
                             } else {
                                 restoreBonusValues(p.armor[slot.key].bonusValues, sa.bonusValues, baseBonusList);
+                            }
+                        }
+                        if (p.armor[slot.key].set === 'helper' && p.armor[slot.key].bonuses && p.armor[slot.key].bonuses.indexOf('hp') !== -1) {
+                            var helperBonusList = getHelperBonusDefs(slot.key);
+                            var helperHpDef = helperBonusList.find(function(b) { return b.key === 'hp'; });
+                            if (helperHpDef && p.armor[slot.key].bonusValues.hp === 0 && helperHpDef.value > 0) {
+                                p.armor[slot.key].bonusValues.hp = helperHpDef.value;
                             }
                         }
                     }
@@ -385,7 +409,11 @@ function restoreProfile(id, saved, cls) {
             if (saved.oath) {
                 var oathKeys = OATH_OPTIONS.map(function(o) { return o.key; });
                 ARMOR_SLOTS.forEach(function(slot) {
-                    if (saved.oath[slot.key] && oathKeys.indexOf(saved.oath[slot.key]) !== -1) {
+                    var slotSet = p.armor[slot.key] ? p.armor[slot.key].set : 'none';
+                    var savedOath = saved.oath[slot.key];
+                    if (slotSet === 'helper') {
+                        p.oath[slot.key] = (savedOath === 'silent-skill') ? 'silent-skill' : 'none';
+                    } else if (savedOath && oathKeys.indexOf(savedOath) !== -1) {
                         p.oath[slot.key] = saved.oath[slot.key];
                     }
                 });
