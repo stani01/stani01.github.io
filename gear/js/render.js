@@ -2027,12 +2027,25 @@ function renderTraitTab() {
                 // Reset all traits for a set to first column
                 window.GC = window.GC || {};
                 GC.resetTrait = function(pid) {
+                    if (GC && typeof GC.openResetConfirmModal === 'function') {
+                        GC.openResetConfirmModal('Reset traits for this set?', function() {
+                            if (!traitSelections[pid]) traitSelections[pid] = {};
+                            [81, 82, 83, 84, 85].forEach(function(lvl) {
+                                traitSelections[pid][lvl] = 0;
+                            });
+                            renderTraitTab();
+                            if (typeof updateComparison === 'function') updateComparison();
+                            if (typeof saveState === 'function') saveState();
+                        });
+                        return;
+                    }
                     if (!traitSelections[pid]) traitSelections[pid] = {};
                     [81, 82, 83, 84, 85].forEach(function(lvl) {
                         traitSelections[pid][lvl] = 0;
                     });
                     renderTraitTab();
                     if (typeof updateComparison === 'function') updateComparison();
+                    if (typeof saveState === 'function') saveState();
                 };
         html += '</div>';
         html += '<div class="gc-section-label gc-relic-stats-label" style="text-align:center;margin-bottom:8px">Daevanion Traits</div>';

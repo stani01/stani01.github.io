@@ -1,5 +1,77 @@
 'use strict';
 
+var lastResetSnapshot = null;
+var pendingResetAction = null;
+
+function updateUndoResetButtonState() {
+    var btn = document.getElementById('gc-undo-reset-btn');
+    if (!btn) return;
+    btn.disabled = !lastResetSnapshot;
+}
+
+function captureResetSnapshot() {
+    lastResetSnapshot = {
+        state: JSON.parse(JSON.stringify(state)),
+        setOrder: JSON.parse(JSON.stringify(setOrder)),
+        setNames: JSON.parse(JSON.stringify(setNames)),
+        comparisonPair: JSON.parse(JSON.stringify(comparisonPair)),
+        nextSetId: nextSetId,
+        activeSetId: activeSetId,
+        traitSelections: JSON.parse(JSON.stringify(typeof traitSelections !== 'undefined' ? traitSelections : {})),
+        formsActiveGrade: JSON.parse(JSON.stringify(typeof formsActiveGrade !== 'undefined' ? formsActiveGrade : {}))
+    };
+    updateUndoResetButtonState();
+}
+
+function restoreResetSnapshot() {
+    if (!lastResetSnapshot) return false;
+
+    state = JSON.parse(JSON.stringify(lastResetSnapshot.state));
+    setOrder = JSON.parse(JSON.stringify(lastResetSnapshot.setOrder));
+    setNames = JSON.parse(JSON.stringify(lastResetSnapshot.setNames));
+    comparisonPair = JSON.parse(JSON.stringify(lastResetSnapshot.comparisonPair));
+    nextSetId = lastResetSnapshot.nextSetId;
+    activeSetId = lastResetSnapshot.activeSetId;
+
+    if (typeof traitSelections !== 'undefined') {
+        traitSelections = JSON.parse(JSON.stringify(lastResetSnapshot.traitSelections));
+    }
+    if (typeof formsActiveGrade !== 'undefined') {
+        formsActiveGrade = JSON.parse(JSON.stringify(lastResetSnapshot.formsActiveGrade));
+    }
+
+    saveTraitSelections();
+    renderAll();
+    saveState();
+
+    lastResetSnapshot = null;
+    updateUndoResetButtonState();
+    return true;
+}
+
+function openResetConfirmModal(message, onConfirm) {
+    var modal = document.getElementById('gc-reset-confirm-modal');
+    if (!modal) return;
+    pendingResetAction = onConfirm;
+    var html = '<div class="gc-mana-overlay" onclick="GC.closeResetConfirmModal()"></div>';
+    html += '<div class="gc-mana-dialog" style="max-width: 420px; width: 92%;">';
+    html += '<div class="gc-mana-titlebar">';
+    html += '<span class="gc-mana-title">⚠️ Confirm Reset</span>';
+    html += '<span class="gc-mana-close" onclick="GC.closeResetConfirmModal()">✕</span>';
+    html += '</div>';
+    html += '<div class="gc-mana-body" style="padding: 14px 16px;">';
+    html += '<div style="color: rgba(230,220,200,0.9); font-size: 0.9em; line-height: 1.5;">' + escapeTooltipText(message) + '</div>';
+    html += '<div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">';
+    html += '<button class="gc-mana-preset-btn" onclick="GC.closeResetConfirmModal()">Cancel</button>';
+    html += '<button class="gc-mana-preset-btn gc-mana-clear-btn" onclick="GC.confirmResetAction()">Reset</button>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    modal.innerHTML = html;
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
 
 window.GC = {
     selectClass: function(className) {
@@ -288,7 +360,12 @@ window.GC = {
         saveState();
     },
 
-    resetAll: function() {
+    resetAll: function(skipConfirm) {
+        if (!skipConfirm) {
+            openResetConfirmModal('Reset everything to defaults? This will reset all sets.', function() { GC.resetAll(true); });
+            return;
+        }
+        captureResetSnapshot();
         // Clean up any extra sets from localStorage
         setOrder.forEach(function(id) {
             if (id !== 1 && id !== 2) {
@@ -328,7 +405,11 @@ window.GC = {
         }
     },
 
-    resetWeapons: function(pid) {
+    resetWeapons: function(pid, skipConfirm) {
+        if (!skipConfirm) {
+            openResetConfirmModal('Reset weapon setup for this set to defaults?', function() { GC.resetWeapons(pid, true); });
+            return;
+        }
         if (!pid) pid = activeSetId;
         var p = state[pid];
         if (!p) return;
@@ -343,12 +424,25 @@ window.GC = {
         saveState();
     },
 
-    resetProfile: function(pid) {
+    resetProfile: function(pid, skipConfirm) {
+        if (!skipConfirm) {
+            openResetConfirmModal('Reset this set to defaults?', function() { GC.resetProfile(pid, true); });
+            return;
+        }
+        captureResetSnapshot();
         state[pid] = createDefaultProfile(selectedClass);
         renderProfile(pid);
         renderTransform(pid);
         updateComparison();
         saveState();
+    },
+
+    undoLastReset: function() {
+        if (!restoreResetSnapshot()) {
+            showShareToast('No reset action to undo', true);
+            return;
+        }
+        showShareToast('✓ Last reset undone');
     },
 
     setTransform: function(pid, tfKey) {
@@ -366,7 +460,11 @@ window.GC = {
         saveState();
     },
 
-    resetTransform: function(pid) {
+    resetTransform: function(pid, skipConfirm) {
+        if (!skipConfirm) {
+            openResetConfirmModal('Reset transformation for this set?', function() { GC.resetTransform(pid, true); });
+            return;
+        }
         state[pid].transform = 'none';
         state[pid].transformEnchant = 0;
         renderTransform(pid);
@@ -405,7 +503,11 @@ window.GC = {
         saveState();
     },
 
-    resetForms: function(pid) {
+    resetForms: function(pid, skipConfirm) {
+        if (!skipConfirm) {
+            openResetConfirmModal('Reset owned forms for this set?', function() { GC.resetForms(pid, true); });
+            return;
+        }
         state[pid].ownedForms = {};
         renderCollections(pid);
         updateComparison();
@@ -483,7 +585,11 @@ window.GC = {
         el.value = stored;
     },
 
-    resetCollections: function(pid) {
+    resetCollections: function(pid, skipConfirm) {
+        if (!skipConfirm) {
+            openResetConfirmModal('Reset collections for this set?', function() { GC.resetCollections(pid, true); });
+            return;
+        }
         var p = state[pid];
         p.collections = { itemColl: {} };
         p.collLevels = { normal: 10, large: 10, powerful: 10 };
@@ -532,7 +638,11 @@ window.GC = {
     setRelicLevel: function(pid, rawVal) { this.finalizeRelicLevel(pid, { value: rawVal }); },
     setRelicLevelSlider: function(pid, rawVal) { this.finalizeRelicSlider(pid, rawVal); },
 
-    resetRelic: function(pid) {
+    resetRelic: function(pid, skipConfirm) {
+        if (!skipConfirm) {
+            openResetConfirmModal('Reset relic level for this set?', function() { GC.resetRelic(pid, true); });
+            return;
+        }
         state[pid].relic = { level: 300 };
         renderRelic(pid);
         updateComparison();
@@ -584,7 +694,11 @@ window.GC = {
         saveState();
     },
 
-    resetSkillBuffs: function(pid) {
+    resetSkillBuffs: function(pid, skipConfirm) {
+        if (!skipConfirm) {
+            openResetConfirmModal('Reset skill buffs for this set?', function() { GC.resetSkillBuffs(pid, true); });
+            return;
+        }
         var p = state[pid];
         p.skillBuffs = {};
         p.skillBuffEnchants = {};
@@ -1942,6 +2056,26 @@ window.GC = {
         updateComparison();
         saveState();
     },
+
+    openResetConfirmModal: function(message, onConfirm) {
+        openResetConfirmModal(message, onConfirm);
+    },
+
+    confirmResetAction: function() {
+        var action = pendingResetAction;
+        pendingResetAction = null;
+        this.closeResetConfirmModal();
+        if (typeof action === 'function') action();
+    },
+
+    closeResetConfirmModal: function() {
+        var modal = document.getElementById('gc-reset-confirm-modal');
+        if (!modal) return;
+        modal.style.display = 'none';
+        modal.innerHTML = '';
+        document.body.style.overflow = '';
+        pendingResetAction = null;
+    },
 };
 
 function closeOathPopup() {
@@ -2095,6 +2229,11 @@ var manaModal = document.createElement('div');
 manaModal.id = 'gc-mana-modal';
 manaModal.className = 'gc-mana-modal';
 document.body.appendChild(manaModal);
+
+var resetConfirmModal = document.createElement('div');
+resetConfirmModal.id = 'gc-reset-confirm-modal';
+resetConfirmModal.className = 'gc-mana-modal';
+document.body.appendChild(resetConfirmModal);
 
 // Bonuses modal container
 var bonusModal = document.createElement('div');

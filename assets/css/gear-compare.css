@@ -513,18 +513,19 @@
 }
 
 .gc-profile-header-with-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding-right: 0;
     min-height: 44px;
+    text-align: left;
 }
 
 .gc-profile-header-actions {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
     display: flex;
     align-items: center;
     gap: 6px;
+    margin-left: auto;
 }
 
 .gc-profile-header-actions .gc-icon-picker {
@@ -582,6 +583,23 @@
     background: rgba(255, 80, 80, 0.15);
     border-color: rgba(255, 80, 80, 0.4);
     color: #ff6b6b;
+}
+
+.gc-undo-reset-btn {
+    color: rgba(120, 180, 255, 0.95);
+    background: rgba(100, 180, 255, 0.07);
+    border-color: rgba(120, 180, 255, 0.28);
+}
+
+.gc-undo-reset-btn:hover:not(:disabled) {
+    border-color: rgba(120, 180, 255, 0.55);
+    background: rgba(100, 180, 255, 0.16);
+    box-shadow: 0 0 8px rgba(120, 180, 255, 0.22);
+}
+
+.gc-undo-reset-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
 .gc-set-title {

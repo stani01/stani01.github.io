@@ -8,3 +8,4 @@ if (loadShareFromURL()) {
 }
 renderAll();
 if (activeTab !== 'equipment') activateTab(activeTab);
+if (typeof updateUndoResetButtonState === 'function') updateUndoResetButtonState();
