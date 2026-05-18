@@ -1175,6 +1175,10 @@
     line-height: 1.35;
 }
 
+.gc-item-tooltip-stat-dim {
+    opacity: 0.42;
+}
+
 .gc-item-tooltip-stat-name {
     color: rgba(239, 225, 178, 0.95);
 }

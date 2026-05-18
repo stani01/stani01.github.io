@@ -18,10 +18,9 @@ function msIndicator(pid, gearKey, setKey, profile) {
 
 var TOOLTIP_STAT_ORDER = [
     'hp', 'attack', 'physicalAttack', 'magicAttack', 'weaponAttack',
-    'accuracy', 'crit', 'healingBoost',
-    'physicalDef', 'magicalDef', 'magicResist', 'evasion', 'block', 'parry',
-    'pvpAttack', 'pveAttack', 'pvpDefence', 'pveDefence',
-    'increasedRegen', 'dp'
+    'accuracy', 'crit', 'healingBoost', 'increasedRegen',
+    'physicalDef', 'magicalDef', 'magicResist', 'evasion', 'block', 'parry', 'dp',
+    'pvpAttack', 'pveAttack', 'pvpDefence', 'pveDefence'
 ];
 
 function escapeTooltipText(value) {
@@ -100,13 +99,33 @@ function collectExtremeArmorBonusRows(setKey, enchantLevel, tier) {
     
     var tierValue = tier; // 'low', 'mid', or 'high'
     
+    // HP bonus with enchant
+    if (bonusData.bonusHp !== undefined) {
+        var enchHp = (enchantValues.hp && enchantValues.hp[tierValue]) || 0;
+        rows.push({
+            name: 'HP',
+            value: bonusData.bonusHp,
+            bonus: enchHp || undefined
+        });
+    }
+    
     // Attack bonus with enchant
     if (bonusData.bonusAtk !== undefined) {
         var enchAtk = (enchantValues.attack && enchantValues.attack[tierValue]) || 0;
         rows.push({
-            name: 'Attack Bonus',
+            name: 'Attack',
             value: bonusData.bonusAtk,
             bonus: enchAtk || undefined
+        });
+    }
+
+    // Magic Resist bonus with enchant (Obstinacy only)
+    if (bonusData.bonusMagicResist !== undefined) {
+        var enchMr = (enchantValues.magicResist && enchantValues.magicResist[tierValue]) || 0;
+        rows.push({
+            name: 'Magic Resist',
+            value: bonusData.bonusMagicResist,
+            bonus: enchMr || undefined
         });
     }
     
@@ -127,26 +146,6 @@ function collectExtremeArmorBonusRows(setKey, enchantLevel, tier) {
             name: 'Magical Defence',
             value: bonusData.bonusMDef,
             bonus: enchDef || undefined
-        });
-    }
-    
-    // Magic Resist bonus with enchant (Obstinacy only)
-    if (bonusData.bonusMagicResist !== undefined) {
-        var enchMr = (enchantValues.magicResist && enchantValues.magicResist[tierValue]) || 0;
-        rows.push({
-            name: 'Magic Resist',
-            value: bonusData.bonusMagicResist,
-            bonus: enchMr || undefined
-        });
-    }
-    
-    // HP bonus with enchant
-    if (bonusData.bonusHp !== undefined) {
-        var enchHp = (enchantValues.hp && enchantValues.hp[tierValue]) || 0;
-        rows.push({
-            name: 'HP',
-            value: bonusData.bonusHp,
-            bonus: enchHp || undefined
         });
     }
     
@@ -266,7 +265,8 @@ function renderTooltipSection(title, rows, isStatGrid) {
             html += '</div>';
             return;
         }
-        html += '<div class="gc-item-tooltip-stat">';
+        var statClass = 'gc-item-tooltip-stat' + (row && row.dimmed ? ' gc-item-tooltip-stat-dim' : '');
+        html += '<div class="' + statClass + '">';
         html += '<span class="gc-item-tooltip-stat-name">' + escapeTooltipText(row.name) + '</span>';
         var valueText = formatTooltipStatValue(row.value);
         if (typeof row.bonus === 'number' && row.bonus !== 0) {
@@ -379,12 +379,25 @@ function buildWeaponTooltip(pid, title, gearKey, setKey, weaponType, enchantLeve
             if (baseValue === 0) return;
             basicRows.push({ name: getStatLabelByKey(statKey), value: baseValue });
         });
+
+        var dimmedFuseStats = {};
+        var profile = state[pid];
+        if (profile && gearKey === 'offHand') {
+            var weaponCfg = getProfileWeaponConfig(profile);
+            var mainParts = getWeaponParts(profile.mainWeapon.set, weaponCfg.mainType, profile.mainWeapon.enchant, profile.mainWeapon.bonuses, profile.mainWeapon.bonusValues);
+            ['pvpAttack', 'pveAttack', 'pvpDefence', 'pveDefence'].forEach(function(statKey) {
+                var fuseTotal = baseParts.bonus[statKey] || 0;
+                if (!fuseTotal) return;
+                var mainTotal = (mainParts.bonus[statKey] || 0) + (mainParts.enchant[statKey] || 0);
+                if (mainTotal >= fuseTotal) dimmedFuseStats[statKey] = true;
+            });
+        }
         
         var optionalRows = [];
         TOOLTIP_STAT_ORDER.forEach(function(statKey) {
             var bonusValue = baseParts.bonus[statKey] || 0;
             if (bonusValue === 0) return;
-            optionalRows.push({ name: getStatLabelByKey(statKey), value: bonusValue });
+            optionalRows.push({ name: getStatLabelByKey(statKey), value: bonusValue, dimmed: !!dimmedFuseStats[statKey] });
         });
         
         var fixed = WEAPON_STATS_FIXED[setKey];
@@ -422,35 +435,46 @@ function buildWeaponTooltip(pid, title, gearKey, setKey, weaponType, enchantLeve
     });
     
     // Optional stats: fuse bonus + selectable bonuses, with enchant merged into matching rows
-    var optionalRows = [];
+    var optionalRowByName = {};
     
     // Add fuse bonuses (bonus values from getWeaponParts)
     TOOLTIP_STAT_ORDER.forEach(function(statKey) {
         var bonusValue = baseParts.bonus[statKey] || 0;
         if (bonusValue === 0) return;
-        optionalRows.push({ name: getStatLabelByKey(statKey), value: bonusValue });
+        var label = getStatLabelByKey(statKey);
+        optionalRowByName[label] = { name: label, value: bonusValue };
     });
     
     // Add selectable bonuses
     var fixed = WEAPON_STATS_FIXED[setKey];
+    var selectedBonuses = [];
     if (fixed && fixed.bonuses) {
-        var selectedBonuses = collectBonusRows(bonuses || [], fixed.bonuses, bonusValues);
-        optionalRows = optionalRows.concat(selectedBonuses);
+        selectedBonuses = collectBonusRows(bonuses || [], fixed.bonuses, bonusValues);
     }
     
-    // Merge enchant bonuses into optional rows when possible; otherwise add as standalone optional rows
-    var optionalRowByName = {};
-    optionalRows.forEach(function(row) { optionalRowByName[row.name] = row; });
+    // Merge enchant bonuses and collect all bonus stat keys
+    var bonusStatKeys = {};
     TOOLTIP_STAT_ORDER.forEach(function(statKey) {
         var enchantValue = (baseParts.enchant && baseParts.enchant[statKey]) || 0;
         if (!enchantValue) return;
         var label = getStatLabelByKey(statKey);
+        bonusStatKeys[label] = true;
         if (optionalRowByName[label]) {
             optionalRowByName[label].bonus = enchantValue;
         } else {
-            optionalRows.push({ name: label, value: 0, bonus: enchantValue });
+            optionalRowByName[label] = { name: label, value: 0, bonus: enchantValue };
         }
     });
+    
+    // Rebuild optionalRows in TOOLTIP_STAT_ORDER, then append selectable bonuses
+    var optionalRows = [];
+    TOOLTIP_STAT_ORDER.forEach(function(statKey) {
+        var label = getStatLabelByKey(statKey);
+        if (optionalRowByName[label]) {
+            optionalRows.push(optionalRowByName[label]);
+        }
+    });
+    optionalRows = optionalRows.concat(selectedBonuses);
     
     return renderGearTooltipCard({
         name: title,
@@ -574,6 +598,15 @@ function buildArmorTooltip(pid, slotKey, armorState, setName) {
                 name: 'Attack',
                 value: 0,
                 bonus: fsEnchAtk || undefined
+            });
+        }
+        
+        // For low parts, reorder so increasedRegen appears before defences, and attack after defences
+        if (!isHigh) {
+            optionalRows.sort(function(a, b) {
+                var aPriority = (a.name === 'Increased Regen') ? 0 : (a.name.indexOf('Defence') !== -1) ? 1 : (a.name === 'Attack') ? 2 : 1;
+                var bPriority = (b.name === 'Increased Regen') ? 0 : (b.name.indexOf('Defence') !== -1) ? 1 : (b.name === 'Attack') ? 2 : 1;
+                return aPriority - bPriority;
             });
         }
         

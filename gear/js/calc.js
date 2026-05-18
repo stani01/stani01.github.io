@@ -191,7 +191,13 @@ function calculateDetailedStats(profileId) {
         addWeaponComponent(mainParts.base, 'base');
         addWeaponComponent(mainParts.bonus, 'bonus');
         addWeaponComponent(mainParts.enchant, 'bonus');
-        addWeaponComponent(fuseParts.bonus, 'bonus');
+        var fuseBonusToAdd = Object.assign({}, fuseParts.bonus);
+        ['pvpAttack', 'pveAttack', 'pvpDefence', 'pveDefence'].forEach(function(statKey) {
+            var mainTotal = (mainParts.bonus[statKey] || 0) + (mainParts.enchant[statKey] || 0);
+            var fuseTotal = fuseParts.bonus[statKey] || 0;
+            fuseBonusToAdd[statKey] = Math.max(mainTotal, fuseTotal) - mainTotal;
+        });
+        addWeaponComponent(fuseBonusToAdd, 'bonus');
         sources.weapons.attack += Math.floor(fuseParts.baseAtk / 10);
 
     } else if (ohType === 'weapon') {
