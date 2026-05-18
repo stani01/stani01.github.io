@@ -624,6 +624,10 @@ window.GC = {
         var linkType = skill.id.toString().length > 4 ? 'item' : (skill.category === 'Title' ? 'title' : 'skill');
         var linksHtml = '';
         if (skill.id !== '-') {
+            // special cases when ID don't match type
+            if (skill.id === '20881' || skill.id === '20882' || skill.id === '13295' || skill.id === '13296') {
+                linkType = 'skill';
+            }
             linksHtml = '<div class="skill-info-links">' +
                 '<a href="https://aioncodex.com/en/' + linkType + '/' + skill.id + '/" target="_blank" class="skill-info-link">AionCodex</a>' +
                 '<a href="https://aionpowerbook.com/powerbook/' + linkType + '/' + skill.id + '" target="_blank" class="skill-info-link">PowerBook</a>' +

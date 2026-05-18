@@ -276,6 +276,18 @@ var GC_SKILL_DATABASE = {
                       Increases Physical Defence by 200.<br>
                       Increases Magic Defence by 200.`
     },
+    'wordOfProtection': {
+        name: '[Improved] Word of Protection',
+        icon: '../assets/icons/cbt_ch_a_improvedalldefend_g1.png',
+        id: '6158',
+        class: 'Chanter',
+        category: 'Greater Stigma',
+        usageCost: '181 MP',
+        castTime: 'Cast Instantly',
+        cooldown: '30s',
+        description: `Increases Evasion, Parry, Block of group members by 350 for 1m.<br>
+                      Increases Stun Resist by 280.`
+    },
     'blessingOfRock': {
         name: 'Blessing of Rock',
         icon: '../assets/icons/cbt_cl_blessofrock_g1.png',
@@ -322,6 +334,50 @@ var GC_SKILL_DATABASE = {
         castTime: 'Cast Instantly',
         cooldown: '0s',
         description: `When attacking, there\'s a certain probability that your PvE attack and PvP attack increase by 1000.`
+    },
+    'attackRune': {
+        name: 'Attack: Increases Attack Power',
+        icon: '../assets/icons/rune_powerboost.png',
+        id: '6382',
+        class: '',
+        category: 'Buff',
+        usageCost: '',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: `For every attack there is a 5% chance that Physical Attack and Magic Attack will be increased by 400 (+28 per enchant).`
+    },
+    'critRune': {
+        name: 'Crit: Increases Critical Strike',
+        icon: '../assets/icons/rune_critboost.png',
+        id: '6383',
+        class: '',
+        category: 'Buff',
+        usageCost: '',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: `For every attack there is a 5% chance that Critical Strike and Critical Spell will be increased by 800 (+56 per enchant).`
+    },
+    'attackWings': {
+        name: 'Ice Dragon Feather: Boost Physical Attack',
+        icon: '../assets/icons/asd_atkup_phy_g1.png',
+        id: '13295',
+        class: '',
+        category: 'Special Buff',
+        usageCost: '',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: `For every attack there is a 2% chance that PvP and PvE attack will be increased by 400.`
+    },
+    'critWings': {
+        name: 'Ice Dragon Feather: Boost Crit Strike',
+        icon: '../assets/icons/asd_criticalup_phy_g1.png',
+        id: '13296',
+        class: '',
+        category: 'Special Buff',
+        usageCost: '',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: `For every attack there is a 2% chance that Critical Strike and Critical Spell will be increased by 1000.`
     },
 
     // -- Universal buffs for physical classes --
@@ -932,6 +988,11 @@ var GC_SKILL_BUFFS = {
         { key: 'melodyOfLife', value: '+500 physDef, +15% HP', stats: { physicalDef: 500, hpIncreasePercent: 15 }, defaultActive: false,  excludes: ['prayerOfProtection', 'blessingOfRock', 'blessingOfStone'] },
         { key: 'jorgoth500', value: '+500 PvE Attack / +500 PvP Attack', stats: { pveAttack: 500, pvpAttack: 500 }, defaultActive: false, excludes: ['jorgoth1000'] },
         { key: 'jorgoth1000', value: '+1000 PvE Attack / +1000 PvP Attack', stats: { pveAttack: 1000, pvpAttack: 1000 }, defaultActive: false , excludes: ['jorgoth500'] },
+        { key: 'attackRune', value: '+400 Attack', stats: { attack: 400}, defaultActive: false, enchant: { stat: 'attack', perLevel: 28, maxLevel: 26, defaultLevel: 20 } },
+        { key: 'critRune', value: '+800 Crit', stats: { crit: 800}, defaultActive: false, enchant: { stat: 'crit', perLevel: 56, maxLevel: 26, defaultLevel: 20 } },
+        { key: 'wordOfProtection',  value: '+350 Evasion / Parry / Block', stats: { evasion: 350, parry: 350, block: 350 }, defaultActive: false },
+        { key: 'attackWings', value: '+400 PvE Attack / +400 PvP Attack', stats: { pveAttack: 400, pvpAttack: 400 }, defaultActive: false, excludes: ['critWings'] },
+        { key: 'critWings', value: '+1000 Crit', stats: { crit: 1000 }, defaultActive: false , excludes: ['attackWings'] },
     ],
 
     // Universal buffs shown only to PHYSICAL classes (gladiator, templar, assassin, ranger, chanter, painter)
