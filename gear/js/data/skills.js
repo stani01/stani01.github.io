@@ -379,6 +379,17 @@ var GC_SKILL_DATABASE = {
         cooldown: '0s',
         description: `For every attack there is a 2% chance that Critical Strike and Critical Spell will be increased by 1000.`
     },
+    'critDmgRune': {
+        name: 'Support: Crit. Damage Reduction',
+        icon: '../assets/icons/rune_boostdefence.png',
+        id: '6405',
+        class: '',
+        category: 'Passive',
+        usageCost: '',
+        castTime: 'Cast Instantly',
+        cooldown: '0s',
+        description: `Increases your Strike Fortitude and Spell Fortitude by 50 (+4 per enchant).`
+    },
 
     // -- Universal buffs for physical classes --
     'magicIncitement': {
@@ -993,6 +1004,7 @@ var GC_SKILL_BUFFS = {
         { key: 'wordOfProtection',  value: '+350 Evasion / Parry / Block', stats: { evasion: 350, parry: 350, block: 350 }, defaultActive: false },
         { key: 'attackWings', value: '+400 PvE Attack / +400 PvP Attack', stats: { pveAttack: 400, pvpAttack: 400 }, defaultActive: false, excludes: ['critWings'] },
         { key: 'critWings', value: '+1000 Crit', stats: { crit: 1000 }, defaultActive: false , excludes: ['attackWings'] },
+        { key: 'critDmgRune', value: '+50 Fortitudes', stats: { strikeFortitude: 50, spellFortitude: 50 }, defaultActive: false, enchant: { stats: { strikeFortitude: 4, spellFortitude: 4 }, maxLevel: 26, defaultLevel: 20 } },
     ],
 
     // Universal buffs shown only to PHYSICAL classes (gladiator, templar, assassin, ranger, chanter, painter)
