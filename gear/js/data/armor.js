@@ -137,21 +137,21 @@ var EXTREME_ARMOR_BONUS = {
 
 // Helper gear: base [pDef, mDef] per armor type and tier
 var HELPER_BASE_DEF = {
-    'physical-plate':   { high: [12, 12], mid: [13, 13], low: [14, 14] },
-    'magical-plate':    { high: [12, 12], mid: [13, 13], low: [14, 14] },
-    'physical-chain':   { high: [12, 12], mid: [13, 13], low: [14, 14] },
-    'magical-chain':    { high: [12, 12], mid: [13, 13], low: [14, 14] },
-    'physical-leather': { high: [12, 12], mid: [13, 13], low: [14, 14] },
-    'magical-leather':  { high: [12, 12], mid: [13, 13], low: [14, 14] },
-    'physical-cloth':   { high: [12, 12], mid: [13, 13], low: [14, 14] },
-    'magical-cloth':    { high: [12, 12], mid: [13, 13], low: [14, 14] }
+    'physical-plate':   { high: [1592, 1365], mid: [1368, 1173], low: [1157, 991] },
+    'magical-plate':    { high: [1547, 1410], mid: [1329, 1212], low: [1124, 1025] },
+    'physical-chain':   { high: [1547, 1410], mid: [1329, 1212], low: [1124, 1025] },
+    'magical-chain':    { high: [1456, 1501], mid: [1290, 1251], low: [1091, 1058] },
+    'physical-leather': { high: [1456, 1501], mid: [1290, 1251], low: [1091, 1058] },
+    'magical-leather':  { high: [1410, 1547], mid: [1212, 1329], low: [1025, 1124] },
+    'physical-cloth':   { high: [1410, 1547], mid: [1212, 1329], low: [1025, 1124] },
+    'magical-cloth':    { high: [1365, 1592], mid: [1173, 1368], low: [991, 1157] }
 };
 
 // Helper gear common stats per tier (applies to both acrimony and presumption)
 var HELPER_COMMON = {
-    high: { hp: 16, attack: 16 },
-    mid:  { hp: 15, attack: 15 },
-    low:  { hp: 14, attack: 14 }
+    high: { hp: 2368, attack: 1596 },
+    mid:  { hp: 2013, attack: 1351 },
+    low:  { hp: 1438, attack: 1143 }
 };
 
 var HELPER_BONUSES_HIGH = [

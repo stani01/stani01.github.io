@@ -773,6 +773,27 @@ function getGearSetKey(pid, gearKey) {
     return 'fighting-spirit';
 }
 
+function getBulkArmorSetSelection(profile) {
+    var bulkArmorSets = ARMOR_SETS.filter(function(set) {
+        return !set.slots || set.slots.length === ARMOR_SLOTS.length;
+    });
+    var bulkArmorKeys = bulkArmorSets.map(function(set) { return set.key; });
+    var firstSet = profile.armor[ARMOR_SLOTS[0].key].set;
+    if (bulkArmorKeys.indexOf(firstSet) === -1) return '';
+    for (var i = 1; i < ARMOR_SLOTS.length; i++) {
+        if (profile.armor[ARMOR_SLOTS[i].key].set !== firstSet) return '';
+    }
+    return firstSet;
+}
+
+function getBulkAccessorySetSelection(profile) {
+    var firstSet = profile.accessories[ALL_ACCESSORY_KEYS[0]].set;
+    for (var i = 1; i < ALL_ACCESSORY_KEYS.length; i++) {
+        if (profile.accessories[ALL_ACCESSORY_KEYS[i]].set !== firstSet) return '';
+    }
+    return firstSet;
+}
+
 function renderManaModal(pid, scrollToGear) {
     var profile = state[pid];
 
@@ -2224,6 +2245,18 @@ function renderProfile(id) {
         var singleOpt = ARMOR_TYPE_OPTIONS.find(function(o) { return o.key === classInfo.armorTypes[0]; });
         html += '<span class="gc-armor-type-badge">' + singleOpt.name + '</span>';
     }
+    var bulkArmorSetKey = getBulkArmorSetSelection(profile);
+    html += '<div class="gc-bulk-set-right">';
+    html += '<span class="gc-bulk-set-label">Full set:</span>';
+    html += '<select class="gc-bulk-set-select" onchange="GC.pickBulkArmorSet(' + id + ', this.value)" title="Apply one armor set to all armor slots">';
+    html += '<option value=""' + (!bulkArmorSetKey ? ' selected' : '') + '>Custom</option>';
+    ARMOR_SETS.filter(function(set) {
+        return !set.slots || set.slots.length === ARMOR_SLOTS.length;
+    }).forEach(function(set) {
+        html += '<option value="' + set.key + '"' + (bulkArmorSetKey === set.key ? ' selected' : '') + '>' + escapeTooltipText(set.name) + '</option>';
+    });
+    html += '</select>';
+    html += '</div>';
     html += '</div>';
 
     var LEFT_SLOTS  = ['helmet', 'chest', 'pants'];
@@ -2245,7 +2278,19 @@ function renderProfile(id) {
 
     // -- Accessories Section --
     html += '<div class="gc-section">';
-    html += '<div class="gc-section-label">💎 Accessories</div>';
+    html += '<div class="gc-section-label-row">';
+    html += '<span class="gc-section-label">💎 Accessories</span>';
+    var bulkAccessorySetKey = getBulkAccessorySetSelection(profile);
+    html += '<div class="gc-bulk-set-right">';
+    html += '<span class="gc-bulk-set-label">Full set:</span>';
+    html += '<select class="gc-bulk-set-select" onchange="GC.pickBulkAccessorySet(' + id + ', this.value)" title="Apply one accessory set to all accessory slots">';
+    html += '<option value=""' + (!bulkAccessorySetKey ? ' selected' : '') + '>Custom</option>';
+    ACCESSORY_SETS.forEach(function(set) {
+        html += '<option value="' + set.key + '"' + (bulkAccessorySetKey === set.key ? ' selected' : '') + '>' + escapeTooltipText(set.name) + '</option>';
+    });
+    html += '</select>';
+    html += '</div>';
+    html += '</div>';
     // Upper row: feather, wings, bracelet
     html += '<div class="gc-acc-upper">';
     ACCESSORY_SLOTS_UPPER.forEach(function(sl) {

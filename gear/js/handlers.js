@@ -950,6 +950,53 @@ window.GC = {
         saveState();
     },
 
+    pickBulkArmorSet: function(pid, setKey) {
+        var p = state[pid];
+        if (!p || !setKey) return;
+        p.apsuEnabled = false;
+        ARMOR_SLOTS.forEach(function(slot) {
+            var slotKey = slot.key;
+            p.armor[slotKey].set = setKey;
+            p.armor[slotKey].bonusValues = {};
+            if (setKey === 'none') {
+                p.armor[slotKey].bonuses = [];
+                delete p.armor[slotKey].enchant;
+            } else if (setKey === 'fighting-spirit') {
+                p.armor[slotKey].bonuses = getDefaultArmorBonuses(slotKey);
+                delete p.armor[slotKey].enchant;
+            } else if (setKey === 'helper') {
+                p.armor[slotKey].bonuses = getHelperBonusDefs(slotKey).map(function(b) { return b.key; });
+                delete p.armor[slotKey].enchant;
+                if (p.oath && p.oath[slotKey] !== 'none' && p.oath[slotKey] !== 'silent-skill') {
+                    p.oath[slotKey] = 'none';
+                }
+            } else {
+                p.armor[slotKey].bonuses = [];
+                if (typeof p.armor[slotKey].enchant !== 'number') {
+                    p.armor[slotKey].enchant = 9;
+                }
+            }
+        });
+        renderProfile(pid);
+        updateComparison();
+        saveState();
+    },
+
+    pickBulkAccessorySet: function(pid, setKey) {
+        var p = state[pid];
+        if (!p || !setKey) return;
+        var bc = p.bonusCollapsed || {};
+        ALL_ACCESSORY_KEYS.forEach(function(accKey) {
+            p.accessories[accKey].set = setKey;
+            p.accessories[accKey].bonuses = getDefaultAccBonuses(setKey, accKey);
+            p.accessories[accKey].bonusValues = {};
+            bc[accKey] = false;
+        });
+        renderProfile(pid);
+        updateComparison();
+        saveState();
+    },
+
     openEnchantPicker: function(pid, slotType, triggerEl) {
         var popup = document.getElementById('gc-enchant-popup');
         var isOpen = popup.style.display === 'flex';

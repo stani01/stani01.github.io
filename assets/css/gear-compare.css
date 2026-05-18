@@ -710,6 +710,35 @@
     margin-bottom: 0;
 }
 
+.gc-bulk-set-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gc-bulk-set-label {
+    font-size: 0.78em;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.gc-bulk-set-select {
+    min-width: 132px;
+    max-width: 180px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-primary);
+    background: rgba(20, 20, 30, 0.92);
+    color: var(--text-primary);
+    font-size: 0.8em;
+}
+
+.gc-bulk-set-select:focus {
+    outline: 1px solid var(--accent);
+    border-color: var(--accent);
+}
+
 
 .gc-armor-type-badge {
     font-size: 0.82em;
