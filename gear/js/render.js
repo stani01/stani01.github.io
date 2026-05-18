@@ -794,6 +794,29 @@ function getBulkAccessorySetSelection(profile) {
     return firstSet;
 }
 
+function renderBulkSetDropdown(pid, groupKey, currentSetKey, options, title) {
+    var currentLabel = 'Custom';
+    if (currentSetKey) {
+        var currentOption = options.find(function(option) { return option.key === currentSetKey; });
+        if (currentOption) currentLabel = currentOption.name;
+    }
+
+    var html = '<div class="gc-bulk-set-dropdown" data-bulk-group="' + groupKey + '">';
+    html += '<button type="button" class="gc-bulk-set-select" onclick="GC.toggleBulkSetMenu(' + pid + ',\'' + groupKey + '\',this)" aria-haspopup="true" aria-expanded="false" title="' + escapeTooltipText(title) + '">';
+    html += '<span class="gc-bulk-set-select-label">' + escapeTooltipText(currentLabel) + '</span>';
+    html += '<span class="gc-bulk-set-caret" aria-hidden="true">▾</span>';
+    html += '</button>';
+    html += '<div class="gc-bulk-set-menu">';
+    html += '<button type="button" class="gc-bulk-set-option' + (!currentSetKey ? ' gc-bulk-set-option-selected' : '') + '" onclick="GC.pickBulkSetOption(' + pid + ',\'' + groupKey + '\',\'\')">Custom</button>';
+    options.forEach(function(option) {
+        var selectedClass = currentSetKey === option.key ? ' gc-bulk-set-option-selected' : '';
+        html += '<button type="button" class="gc-bulk-set-option' + selectedClass + '" onclick="GC.pickBulkSetOption(' + pid + ',\'' + groupKey + '\',\'' + option.key + '\')">' + escapeTooltipText(option.name) + '</button>';
+    });
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
 function renderManaModal(pid, scrollToGear) {
     var profile = state[pid];
 
@@ -2246,16 +2269,12 @@ function renderProfile(id) {
         html += '<span class="gc-armor-type-badge">' + singleOpt.name + '</span>';
     }
     var bulkArmorSetKey = getBulkArmorSetSelection(profile);
-    html += '<div class="gc-bulk-set-right">';
-    html += '<span class="gc-bulk-set-label">Full set:</span>';
-    html += '<select class="gc-bulk-set-select" onchange="GC.pickBulkArmorSet(' + id + ', this.value)" title="Apply one armor set to all armor slots">';
-    html += '<option value=""' + (!bulkArmorSetKey ? ' selected' : '') + '>Custom</option>';
-    ARMOR_SETS.filter(function(set) {
-        return !set.slots || set.slots.length === ARMOR_SLOTS.length;
-    }).forEach(function(set) {
-        html += '<option value="' + set.key + '"' + (bulkArmorSetKey === set.key ? ' selected' : '') + '>' + escapeTooltipText(set.name) + '</option>';
+    var bulkArmorSetOptions = ARMOR_SETS.filter(function(set) {
+        return !set.slots || set.slots.length === ARMOR_SLOTS.length || set.key === 'obstinacy';
     });
-    html += '</select>';
+    html += '<div class="gc-bulk-set-right">';
+    html += '<span class="gc-bulk-set-label">Select set:</span>';
+    html += renderBulkSetDropdown(id, 'armor', bulkArmorSetKey, bulkArmorSetOptions, 'Apply one armor set to all armor slots');
     html += '</div>';
     html += '</div>';
 
@@ -2282,13 +2301,8 @@ function renderProfile(id) {
     html += '<span class="gc-section-label">💎 Accessories</span>';
     var bulkAccessorySetKey = getBulkAccessorySetSelection(profile);
     html += '<div class="gc-bulk-set-right">';
-    html += '<span class="gc-bulk-set-label">Full set:</span>';
-    html += '<select class="gc-bulk-set-select" onchange="GC.pickBulkAccessorySet(' + id + ', this.value)" title="Apply one accessory set to all accessory slots">';
-    html += '<option value=""' + (!bulkAccessorySetKey ? ' selected' : '') + '>Custom</option>';
-    ACCESSORY_SETS.forEach(function(set) {
-        html += '<option value="' + set.key + '"' + (bulkAccessorySetKey === set.key ? ' selected' : '') + '>' + escapeTooltipText(set.name) + '</option>';
-    });
-    html += '</select>';
+    html += '<span class="gc-bulk-set-label">Select set:</span>';
+    html += renderBulkSetDropdown(id, 'accessory', bulkAccessorySetKey, ACCESSORY_SETS, 'Apply one accessory set to all accessory slots');
     html += '</div>';
     html += '</div>';
     // Upper row: feather, wings, bracelet
@@ -2493,8 +2507,8 @@ function renderArmorSlot(pid, slot, armor, profile, material) {
     if (hasArmorEnchant) {
         html += '<span class="gc-enchant-trigger" onclick="GC.openEnchantPicker(' + pid + ',\'armor:' + slot.key + '\',this)">+' + armor.enchant + '</span>';
     }
-    // Bonus popup trigger (for fighting spirit and helper, which have selectable bonuses)
-    if (armor.set === 'fighting-spirit' || armor.set === 'helper') {
+    // Bonus popup trigger (for fighting spirit only; helper bonuses are fixed)
+    if (armor.set === 'fighting-spirit') {
         var picked = armor.bonuses || [];
         var label = 'Bonuses (' + picked.length + '/4)';
         html += '<span class="gc-acc-bonus-trigger" onclick="GC.openArmorBonusPopup(' + pid + ',\'' + slot.key + '\',this)" title="Click to edit bonuses">' + label + '</span>';

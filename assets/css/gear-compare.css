@@ -723,20 +723,103 @@
     white-space: nowrap;
 }
 
+.gc-bulk-set-dropdown {
+    position: relative;
+}
+
 .gc-bulk-set-select {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
     min-width: 132px;
     max-width: 180px;
     padding: 4px 10px;
     border-radius: 8px;
-    border: 1px solid var(--border-primary);
-    background: rgba(20, 20, 30, 0.92);
-    color: var(--text-primary);
+    border: 2px solid rgba(200, 160, 60, 0.2);
+    background: rgba(15, 15, 25, 0.5);
+    color: rgba(230, 220, 200, 0.7);
     font-size: 0.8em;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gc-bulk-set-select:hover {
+    border-color: rgba(200, 160, 60, 0.5);
+    color: rgba(230, 220, 200, 0.95);
 }
 
 .gc-bulk-set-select:focus {
-    outline: 1px solid var(--accent);
-    border-color: var(--accent);
+    outline: none;
+    border-color: rgba(200, 160, 60, 0.6);
+    color: rgba(230, 220, 200, 0.95);
+}
+
+.gc-bulk-set-select[aria-expanded="true"] {
+    border-color: rgba(200, 160, 60, 0.6);
+    color: rgba(230, 220, 200, 0.95);
+    box-shadow: 0 0 0 1px rgba(200, 160, 60, 0.18);
+}
+
+.gc-bulk-set-select-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.gc-bulk-set-caret {
+    color: rgba(200, 160, 60, 0.8);
+    font-size: 0.82em;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.gc-bulk-set-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 100%;
+    background: rgba(20, 20, 35, 0.97);
+    border: 1px solid rgba(200, 160, 60, 0.3);
+    border-radius: 10px;
+    padding: 6px;
+    z-index: 110;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.gc-bulk-set-menu-open {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.gc-bulk-set-option {
+    width: 100%;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: rgba(30, 30, 50, 0.6);
+    color: rgba(230, 220, 200, 0.78);
+    font: inherit;
+    font-size: 0.78em;
+    text-align: left;
+    padding: 7px 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.gc-bulk-set-option:hover {
+    border-color: rgba(200, 160, 60, 0.35);
+    background: rgba(200, 160, 60, 0.12);
+    color: rgba(230, 220, 200, 0.96);
+}
+
+.gc-bulk-set-option-selected {
+    border-color: rgba(200, 160, 60, 0.4);
+    background: rgba(200, 160, 60, 0.16);
+    color: #f4e1a0;
 }
 
 

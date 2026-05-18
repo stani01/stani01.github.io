@@ -713,6 +713,36 @@ window.GC = {
         if (!wasOpen) menu.classList.add('gc-picker-open');
     },
 
+    toggleBulkSetMenu: function(pid, groupKey, triggerEl) {
+        var dropdown = triggerEl && triggerEl.closest('.gc-bulk-set-dropdown');
+        if (!dropdown) return;
+        var menu = dropdown.querySelector('.gc-bulk-set-menu');
+        if (!menu) return;
+
+        var wasOpen = menu.classList.contains('gc-bulk-set-menu-open');
+        closeBulkSetMenus();
+        document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
+        closeOathPopup();
+        closeSetPopup();
+        closeEnchantPopup();
+        closeAccBonusPopup();
+
+        if (wasOpen) return;
+        menu.classList.add('gc-bulk-set-menu-open');
+        triggerEl.setAttribute('aria-expanded', 'true');
+    },
+
+    pickBulkSetOption: function(pid, groupKey, setKey) {
+        closeBulkSetMenus();
+        if (groupKey === 'armor') {
+            GC.pickBulkArmorSet(pid, setKey);
+            return;
+        }
+        if (groupKey === 'accessory') {
+            GC.pickBulkAccessorySet(pid, setKey);
+        }
+    },
+
     pickMainWeapon: function(pid, wKey) {
         document.querySelectorAll('.gc-icon-picker-menu').forEach(function(m) { m.classList.remove('gc-picker-open'); });
         closeOathPopup();
@@ -953,9 +983,11 @@ window.GC = {
     pickBulkArmorSet: function(pid, setKey) {
         var p = state[pid];
         if (!p || !setKey) return;
-        p.apsuEnabled = false;
-        ARMOR_SLOTS.forEach(function(slot) {
-            var slotKey = slot.key;
+        var setDef = ARMOR_SETS.find(function(set) { return set.key === setKey; });
+        if (!setDef) return;
+        var targetSlots = setDef.slots || ARMOR_SLOTS.map(function(slot) { return slot.key; });
+
+        targetSlots.forEach(function(slotKey) {
             p.armor[slotKey].set = setKey;
             p.armor[slotKey].bonusValues = {};
             if (setKey === 'none') {
@@ -977,6 +1009,10 @@ window.GC = {
                 }
             }
         });
+        var apsuInfo = APSU_DATA[selectedClass];
+        if (apsuInfo && (!p.armor[apsuInfo.slot] || p.armor[apsuInfo.slot].set !== 'fighting-spirit')) {
+            p.apsuEnabled = false;
+        }
         renderProfile(pid);
         updateComparison();
         saveState();
@@ -1755,6 +1791,15 @@ function closeAccBonusPopup() {
     }
 }
 
+function closeBulkSetMenus() {
+    document.querySelectorAll('.gc-bulk-set-menu').forEach(function(menu) {
+        menu.classList.remove('gc-bulk-set-menu-open');
+    });
+    document.querySelectorAll('.gc-bulk-set-select[aria-expanded="true"]').forEach(function(trigger) {
+        trigger.setAttribute('aria-expanded', 'false');
+    });
+}
+
 function renderAccBonusPopupContent(popup, pid, slotKey) {
     var acc = state[pid].accessories[slotKey];
     var statsType = ACC_STATS_TYPE[slotKey];
@@ -2023,6 +2068,9 @@ document.addEventListener('click', function(e) {
     if (!e.target.closest('.gc-acc-bonus-popup') && !e.target.closest('.gc-acc-bonus-trigger')) {
         closeAccBonusPopup();
     }
+    if (!e.target.closest('.gc-bulk-set-dropdown')) {
+        closeBulkSetMenus();
+    }
     if (!e.target.closest('.gc-item-tooltip-trigger')) {
         hideGlobalItemTooltip();
     }
@@ -2034,6 +2082,7 @@ window.addEventListener('scroll', function() {
     closeSetPopup();
     closeEnchantPopup();
     closeAccBonusPopup();
+    closeBulkSetMenus();
     hideGlobalItemTooltip();
 }, true);
 
@@ -2052,6 +2101,7 @@ document.addEventListener('click', function(e) {
 // Close mana modal on Escape
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
+        closeBulkSetMenus();
         var modal = document.getElementById('gc-mana-modal');
         if (modal && modal.style.display === 'block') {
             GC.closeManaModal();
