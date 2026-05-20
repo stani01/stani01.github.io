@@ -96,9 +96,19 @@ function ByteReader(b64) {
     for (var i = 0; i < bin.length; i++) this.buf[i] = bin.charCodeAt(i);
     this.pos = 0;
 }
-ByteReader.prototype.u8 = function() { return this.buf[this.pos++] || 0; };
+ByteReader.prototype.u8 = function() {
+    if (this.pos >= this.buf.length) {
+        throw new Error('Unexpected end of share payload');
+    }
+    return this.buf[this.pos++];
+};
 ByteReader.prototype.u16 = function() { return (this.u8() << 8) | this.u8(); };
 ByteReader.prototype.remaining = function() { return this.buf.length - this.pos; };
+ByteReader.prototype.bytes = function(count) {
+    var out = [];
+    for (var i = 0; i < count; i++) out.push(this.u8());
+    return out;
+};
 ByteReader.prototype.nibbles = function(count) {
     var out = [];
     for (var i = 0; i < count; i += 2) {
@@ -352,7 +362,13 @@ function encodeSetsPayload() {
 // DECODE
 // ===============================================================================
 
-function decodeProfileFromReader(r, cls, id, includePerProfileWeaponConfig, fallbackWeaponConfig) {
+function decodeProfileFromReader(r, cls, id, includePerProfileWeaponConfig, fallbackWeaponConfig, traitTarget, decodeOptions) {
+    if (!traitTarget) {
+        if (typeof traitSelections === 'undefined') traitSelections = {};
+        traitTarget = traitSelections;
+    }
+    decodeOptions = decodeOptions || {};
+
     var p = createDefaultProfile(cls);
 
     if (includePerProfileWeaponConfig) {
@@ -483,10 +499,15 @@ function decodeProfileFromReader(r, cls, id, includePerProfileWeaponConfig, fall
     };
 
     // -- Owned Forms --
-    var formBools = r.bools(ALL_FORM_IDS.length);
+    var formsPackedBytes = decodeOptions.formsPackedBytes || Math.ceil(ALL_FORM_IDS.length / 8);
+    var formBytes = r.bytes(formsPackedBytes);
     p.ownedForms = {};
     for (var fi = 0; fi < ALL_FORM_IDS.length; fi++) {
-        if (formBools[fi]) p.ownedForms[ALL_FORM_IDS[fi]] = true;
+        var fByteIdx = Math.floor(fi / 8);
+        var fMask = 1 << (fi % 8);
+        if (fByteIdx < formBytes.length && (formBytes[fByteIdx] & fMask)) {
+            p.ownedForms[ALL_FORM_IDS[fi]] = true;
+        }
     }
 
     // -- Item Collections (6 * u16) --
@@ -506,10 +527,9 @@ function decodeProfileFromReader(r, cls, id, includePerProfileWeaponConfig, fall
     p.relic = { level: clamp(r.u16(), 1, 300) };
 
     // -- Traits --
-    if (typeof traitSelections === 'undefined') traitSelections = {};
-    traitSelections[id] = {};
+    traitTarget[id] = {};
     [81, 82, 83, 84, 85].forEach(function(lvl) {
-        traitSelections[id][lvl] = clamp(r.u8(), 0, 2);
+        traitTarget[id][lvl] = clamp(r.u8(), 0, 2);
     });
 
     // -- Skill Buffs (bit-packed) --
@@ -517,9 +537,12 @@ function decodeProfileFromReader(r, cls, id, includePerProfileWeaponConfig, fall
     var allBuffs = getSkillBuffsForClass(cls);
     allBuffs.forEach(function(buff) { p.skillBuffs[buff.key] = !!buff.defaultActive; });
     if (r.remaining() > 0) {
-        var sbBools = r.bools(GC_SKILL_KEYS.length);
+        var skillPackedBytes = decodeOptions.skillPackedBytes || Math.ceil(GC_SKILL_KEYS.length / 8);
+        var skillBytes = r.bytes(skillPackedBytes);
         for (var si = 0; si < GC_SKILL_KEYS.length; si++) {
-            p.skillBuffs[GC_SKILL_KEYS[si]] = sbBools[si];
+            var sByteIdx = Math.floor(si / 8);
+            var sMask = 1 << (si % 8);
+            p.skillBuffs[GC_SKILL_KEYS[si]] = (sByteIdx < skillBytes.length) ? !!(skillBytes[sByteIdx] & sMask) : false;
         }
     }
 
@@ -604,6 +627,24 @@ function decodeProfileFromReader(r, cls, id, includePerProfileWeaponConfig, fall
     return p;
 }
 
+function applyDecodedShareState(decoded) {
+    if (!decoded) return false;
+
+    selectedClass = decoded.selectedClass;
+    setOrder = decoded.setOrder;
+    setNames = decoded.setNames;
+    state = decoded.state;
+    nextSetId = decoded.nextSetId;
+    activeSetId = decoded.activeSetId;
+    comparisonPair = decoded.comparisonPair;
+    traitSelections = decoded.traitSelections;
+
+    if (typeof formsActiveGrade !== 'undefined') {
+        decoded.setOrder.forEach(function(id) { formsActiveGrade[id] = 'ultimate'; });
+    }
+    return true;
+}
+
 // --- Main decode function --------------------------------------------------
 function decodeShareString(s) {
     if (!s || s.length < 4) return false;
@@ -622,13 +663,12 @@ function decodeSetsPayload(payload) {
     return decodeShareString(payload);
 }
 
-function decodeShareV7(b64) {
+function decodeShareV7WithPackedWidths(b64, formsPackedBytes, skillPackedBytes) {
     var r = new ByteReader(b64);
 
     // -- Global header (1 byte) --
     var cls = val(SH_CLASSES, r.u8());
-    if (!CLASS_DATA[cls]) return false;
-    selectedClass = cls;
+    if (!CLASS_DATA[cls]) return null;
 
     // -- Multi-set header --
     var numSets = clamp(r.u8(), 2, MAX_SETS);
@@ -645,34 +685,103 @@ function decodeShareV7(b64) {
     }
 
     // Build setOrder and setNames
-    setOrder = [];
-    setNames = {};
-    state = {};
+    var decodedSetOrder = [];
+    var decodedSetNames = {};
+    var decodedState = {};
     for (var si = 0; si < numSets; si++) {
         var setId = si + 1;
-        setOrder.push(setId);
-        setNames[setId] = names[si];
+        decodedSetOrder.push(setId);
+        decodedSetNames[setId] = names[si];
     }
-    nextSetId = numSets + 1;
-    activeSetId = setOrder[0];
 
-    // Comparison pair
-    comparisonPair = {
-        a: setOrder[clamp(compIdxA, 0, numSets - 1)],
-        b: setOrder[clamp(compIdxB, 0, numSets - 1)]
+    var decodedTraits = {};
+    var decodeOptions = {
+        formsPackedBytes: formsPackedBytes,
+        skillPackedBytes: skillPackedBytes
     };
 
-    // Reset formsActiveGrade for the new sets
-    if (typeof formsActiveGrade !== 'undefined') {
-        setOrder.forEach(function(id) { formsActiveGrade[id] = 'ultimate'; });
-    }
-
-    // -- Decode each profile --
-    setOrder.forEach(function(id) {
-        state[id] = decodeProfileFromReader(r, cls, id, true, null);
+    decodedSetOrder.forEach(function(id) {
+        decodedState[id] = decodeProfileFromReader(r, cls, id, true, null, decodedTraits, decodeOptions);
     });
 
-    return true;
+    // A valid decode must consume exactly the payload; otherwise we likely used
+    // incompatible packed widths for legacy links.
+    if (r.remaining() !== 0) return null;
+
+    return {
+        selectedClass: cls,
+        setOrder: decodedSetOrder,
+        setNames: decodedSetNames,
+        state: decodedState,
+        nextSetId: numSets + 1,
+        activeSetId: decodedSetOrder[0],
+        comparisonPair: {
+            a: decodedSetOrder[clamp(compIdxA, 0, numSets - 1)],
+            b: decodedSetOrder[clamp(compIdxB, 0, numSets - 1)]
+        },
+        traitSelections: decodedTraits
+    };
+}
+
+function normalizeImportedPayload(input) {
+    if (!input || typeof input !== 'string') return '';
+    var clean = input.trim();
+    if (!clean) return '';
+
+    try {
+        clean = decodeURIComponent(clean);
+    } catch (e) {
+        // Keep original when input is not URI-encoded.
+    }
+
+    // Accept full URLs, plain hashes, and raw payloads.
+    var shareIdx = clean.indexOf('#s=');
+    if (shareIdx !== -1) {
+        clean = clean.substring(shareIdx + 3);
+    } else if (clean.indexOf('#') === 0 && clean.indexOf('#s=') === -1) {
+        // Legacy plain hash support: "#7.ABCD..."
+        clean = clean.substring(1);
+    }
+
+    if (clean.indexOf('s=') === 0) clean = clean.substring(2);
+    if (clean.indexOf('#s=') === 0) clean = clean.substring(3);
+    if (clean.indexOf('?s=') === 0) clean = clean.substring(3);
+
+    var queryShareIdx = clean.indexOf('&s=');
+    if (queryShareIdx !== -1) clean = clean.substring(queryShareIdx + 3);
+
+    // Normalize common transport changes.
+    clean = clean.replace(/\s+/g, '');
+
+    return clean;
+}
+
+function decodeShareV7(b64) {
+    var currentFormsPackedBytes = Math.ceil(ALL_FORM_IDS.length / 8);
+    var currentSkillPackedBytes = Math.ceil(GC_SKILL_KEYS.length / 8);
+
+    // Try current widths first, then a few legacy fallbacks where bit-packed
+    // lists were shorter in older builds.
+    var formCandidates = [
+        currentFormsPackedBytes,
+        Math.max(1, currentFormsPackedBytes - 1),
+        Math.max(1, currentFormsPackedBytes - 2)
+    ].filter(function(v, i, arr) { return arr.indexOf(v) === i; });
+
+    var skillCandidates = [
+        currentSkillPackedBytes,
+        Math.max(1, currentSkillPackedBytes - 1),
+        Math.max(1, currentSkillPackedBytes - 2)
+    ].filter(function(v, i, arr) { return arr.indexOf(v) === i; });
+
+    for (var fi = 0; fi < formCandidates.length; fi++) {
+        for (var si = 0; si < skillCandidates.length; si++) {
+            var decoded = decodeShareV7WithPackedWidths(b64, formCandidates[fi], skillCandidates[si]);
+            if (decoded && applyDecodedShareState(decoded)) return true;
+        }
+    }
+
+    return false;
 }
 
 function decodeShareV6(b64) {
@@ -736,6 +845,8 @@ function decodeShareV6(b64) {
         state[id] = decodeProfileFromReader(r, cls, id, false, legacyWeaponConfig);
     });
 
+    if (r.remaining() !== 0) return false;
+
     return true;
 }
 
@@ -752,7 +863,7 @@ function loadShareFromURL() {
     var hash = window.location.hash;
     if (hash.indexOf('#s=') !== 0) return false;
     try {
-        var code = hash.substring(3);
+        var code = normalizeImportedPayload(hash);
         var ok = decodeShareString(code);
         if (ok && history.replaceState) {
             history.replaceState(null, '', window.location.pathname);
@@ -847,13 +958,8 @@ function uploadSetsFromFilePicker() {
 
 function applyImportedSetsPayload(payload) {
     if (!payload || typeof payload !== 'string') return false;
-    var clean = payload.trim();
+    var clean = normalizeImportedPayload(payload);
     if (!clean) return false;
-    if (clean.indexOf('#s=') === 0) clean = clean.substring(3);
-    if (clean.indexOf('https://') === 0 || clean.indexOf('https://') === 0) {
-        var hashIdx = clean.indexOf('#s=');
-        if (hashIdx !== -1) clean = clean.substring(hashIdx + 3);
-    }
     var ok = decodeSetsPayload(clean);
     if (!ok) return false;
     renderAll();

@@ -1,5 +1,5 @@
 /* Service Worker: network-first for .js/.css and skipWaiting update flow */
-var CACHE_NAME = 'site-static-v1';
+var CACHE_NAME = 'site-static-v2';
 
 self.addEventListener('install', function (event) {
     self.skipWaiting();
