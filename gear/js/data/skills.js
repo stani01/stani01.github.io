@@ -1081,7 +1081,7 @@ var GC_SKILL_BUFFS = {
     gunner: [
         { key: 'focusedMagic', value: '+1200 Attack', stats: { attack: 1200 }, defaultActive: false },
         { key: 'magicBlessing', value: '+700 Attack / +800 Accuracy', stats: { attack: 700, accuracy: 800 }, defaultActive: false },
-        { key: 'enhanceMagicProjectile ', value: '+500 PvP Attack / +500 PvE Attack', stats: { pvpAttack: 500, pveAttack: 500 }, defaultActive: false },
+        { key: 'enhanceMagicProjectile', value: '+500 PvP Attack / +500 PvE Attack', stats: { pvpAttack: 500, pveAttack: 500 }, defaultActive: false },
     ],
     bard: [
         { key: 'cheeryMelody', value: '+1000 PvE Attack', stats: { pveAttack: 1000 }, defaultActive: false, enchant: { stat: 'pveAttack', perLevel: 20, maxLevel: 26, defaultLevel: 20 } },
