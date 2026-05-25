@@ -204,6 +204,51 @@
     color: #b565f5;
 }
 
+.character-card.gladiator-alt {
+    position: relative;
+    background: linear-gradient(135deg, rgba(24, 12, 45, 0.95), rgba(60, 20, 110, 0.95));
+    border-color: rgba(196, 142, 255, 0.55);
+    box-shadow: 0 12px 30px rgba(123, 80, 255, 0.18);
+}
+
+.character-card.gladiator-alt::before {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(18, 8, 48, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    padding: 4px 10px;
+}
+
+.character-card.gladiator-alt .character-name {
+    background: linear-gradient(90deg, #ffdd6f 0%, #ffd300 40%, #f4a600 100%);
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 12px rgba(255, 190, 45, 0.4);
+}
+
+.character-card.gladiator-alt .character-name::after {
+    content: " ⚒️";
+}
+
+.character-card.gladiator-alt:hover {
+    transform: translateX(5px) scale(1.02);
+    border-color: rgba(255, 205, 110, 0.8);
+    box-shadow: 0 18px 32px rgba(255, 154, 40, 0.2);
+}
+
+.fxrm-card::after,
+.kingen-card::after {
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    font-size: 1.2rem;
+}
+
 .deleted-section {
     opacity: 0.6;
 }
