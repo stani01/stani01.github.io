@@ -61,7 +61,7 @@
         var entries = [def];
         if (Array.isArray(def.linkedTooltips)) entries = entries.concat(def.linkedTooltips);
         if (entries.length <= 1) return renderStigmaTooltipCard(entries[0]);
-        return '<div class="gc-stigma-tooltip-grid">' + entries.map(function(item) { return renderStigmaTooltipCard(item); }).join('') + '</div>';
+        return '<div class="stigma-tooltip-grid">' + entries.map(function(item) { return renderStigmaTooltipCard(item); }).join('') + '</div>';
     }
 
     function buildActionTooltipHtml(title, description) {
@@ -164,33 +164,37 @@
     function renderSlot(tier, slotIndex, build) {
         var locked = isStigmaSlotLocked(selectedClass, tier, slotIndex, build);
         var current = build[tier][slotIndex] || '';
-        var options = getStigmaOptions(selectedClass, tier, slotIndex, build);
+        var optionGroups = getStigmaOptionGroups(selectedClass, tier, slotIndex, build);
         var selectedDef = getStigmaDefinition(selectedClass, current);
         var slotHasIcon = !!(selectedDef && selectedDef.icon);
         var slotTitle = selectedDef ? (selectedDef.name + ' | ' + (selectedDef.cooldown || '-') + ' | ' + (selectedDef.description || '')) : 'No stigma selected';
         var slotTooltipHtml = selectedDef ? buildStigmaTooltipHtml(selectedDef) : '';
         var canClear = !!current;
-        var optionCols = Math.max(1, Math.min(options.length, 4));
+        var optionCount = optionGroups.reduce(function(count, group) { return count + group.defs.length; }, 0);
+        var optionCols = Math.max(1, Math.min(optionCount, 4));
 
-        var html = '<div class="gc-stigma-slot gc-stigma-map-node">';
-        html += '<div class="gc-stigma-current gc-stigma-tier-' + tier + (selectedDef ? ' is-filled gc-item-tooltip-trigger' : '') + '" tabindex="0" role="button" aria-label="' + escapeHtml(slotTitle) + '"' + (slotTooltipHtml ? ' data-tooltip-html="' + escapeHtml(slotTooltipHtml) + '"' : '') + '>';
-        if (slotHasIcon) html += '<img src="' + selectedDef.icon + '" class="gc-stigma-current-icon" alt="">';
+        var html = '<div class="stigma-slot stigma-map-node">';
+        html += '<div class="stigma-current stigma-tier-' + tier + (selectedDef ? ' is-filled gc-item-tooltip-trigger' : '') + '" tabindex="0" role="button" aria-label="' + escapeHtml(slotTitle) + '"' + (slotTooltipHtml ? ' data-tooltip-html="' + escapeHtml(slotTooltipHtml) + '"' : '') + '>';
+        if (slotHasIcon) html += '<img src="' + selectedDef.icon + '" class="stigma-current-icon" alt="">';
         html += '</div>';
         if (canClear) {
-            html += '<button type="button" class="gc-stigma-clear-btn" aria-label="Remove stigma" title="Remove stigma" onclick="StigmaApp.clearStigma(\'' + tier + '\',' + slotIndex + ')">✕</button>';
+            html += '<button type="button" class="stigma-clear-btn" aria-label="Remove stigma" title="Remove stigma" onclick="StigmaApp.clearStigma(\'' + tier + '\',' + slotIndex + ')">✕</button>';
         }
 
-        html += '<div class="gc-stigma-option-grid" style="--stigma-option-cols:' + optionCols + ';">';
-        options.forEach(function(def) {
-            var defTitle = def.name + ' | ' + (def.cooldown || '-') + ' | ' + (def.description || '');
-            var optionTooltipHtml = buildStigmaTooltipHtml(def);
-            html += '<button class="gc-stigma-option gc-item-tooltip-trigger gc-stigma-tier-' + tier + (def.key === current ? ' selected' : '') + '" ' + (locked ? 'disabled' : '') + ' data-tooltip-html="' + escapeHtml(optionTooltipHtml) + '" aria-label="' + escapeHtml(defTitle) + '" onclick="StigmaApp.setStigma(\'' + tier + '\',' + slotIndex + ',\'' + def.key + '\')">';
-            html += '<img src="' + def.icon + '" class="gc-stigma-option-icon" alt="">';
-            html += '</button>';
+        html += '<div class="stigma-option-grid" style="--stigma-option-cols:' + optionCols + ';">';
+        optionGroups.forEach(function(group) {
+            html += '<div class="stigma-option-group-label">' + escapeHtml(group.tier.charAt(0).toUpperCase() + group.tier.slice(1)) + '</div>';
+            group.defs.forEach(function(def) {
+                var defTitle = def.name + ' | ' + (def.cooldown || '-') + ' | ' + (def.description || '');
+                var optionTooltipHtml = buildStigmaTooltipHtml(def);
+                html += '<button class="stigma-option gc-item-tooltip-trigger stigma-tier-' + group.tier + (def.key === current ? ' selected' : '') + '" ' + (locked ? 'disabled' : '') + ' data-tooltip-html="' + escapeHtml(optionTooltipHtml) + '" aria-label="' + escapeHtml(defTitle) + '" onclick="StigmaApp.setStigma(\'' + tier + '\',' + slotIndex + ',\'' + def.key + '\')">';
+                html += '<img src="' + def.icon + '" class="stigma-option-icon" alt="">';
+                html += '</button>';
+            });
         });
 
         html += '</div>';
-        if (locked) html += '<div class="gc-stigma-slot-note">Locked</div>';
+        if (locked) html += '<div class="stigma-slot-note">Locked</div>';
         html += '</div>';
         return html;
     }
@@ -301,7 +305,7 @@
         if (!el) return;
 
         if (!classHasStigmas(selectedClass)) {
-            el.innerHTML = '<div class="gc-stigma-panel"><div class="gc-stigma-title">No stigma data for this class yet</div></div>';
+            el.innerHTML = '<div class="stigma-panel"><div class="stigma-title">No stigma data for this class yet</div></div>';
             return;
         }
 
@@ -317,18 +321,18 @@
         var vision = getStigmaDefinition(selectedClass, visionKey);
         var visionActive = !!unlocked;
 
-        var html = '<div class="gc-stigma-panel">';
+        var html = '<div class="stigma-panel">';
         html += '<div class="stigma-builder-head">';
         html += '<button class="gc-reset-btn gc-item-tooltip-trigger" onclick="StigmaApp.resetClassStigmas()" aria-label="Reset current class stigmas" title="Reset current class stigmas" data-tooltip-html="' + escapeHtml(buildActionTooltipHtml('Reset Build', 'Clears the current class stigma selection and restores an empty board.')) + '">↺</button>';
         html += '</div>';
 
         html += '<div class="stigma-two-col">';
         html += '<div class="stigma-left">';
-        html += '<div class="gc-stigma-layout">';
-        html += '<div class="gc-stigma-main-map' + (visionActive ? ' is-vision-active' : '') + '" style="--stigma-base-width:' + STIGMA_LAYOUT.width + ';--stigma-base-height:' + STIGMA_LAYOUT.height + ';">';
+        html += '<div class="stigma-layout">';
+        html += '<div class="stigma-main-map' + (visionActive ? ' is-vision-active' : '') + '" style="--stigma-base-width:' + STIGMA_LAYOUT.width + ';--stigma-base-height:' + STIGMA_LAYOUT.height + ';">';
 
         STIGMA_LAYOUT.slots.forEach(function(slot) {
-            html += '<div class="gc-stigma-map-slot" style="left:' + toPercent(slot.x, STIGMA_LAYOUT.width) + ';top:' + toPercent(slot.y, STIGMA_LAYOUT.height) + ';">';
+            html += '<div class="stigma-map-slot" style="left:' + toPercent(slot.x, STIGMA_LAYOUT.width) + ';top:' + toPercent(slot.y, STIGMA_LAYOUT.height) + ';">';
             html += renderSlot(slot.tier, slot.index, build);
             html += '</div>';
         });
@@ -336,9 +340,9 @@
             if (unlocked && vision && vision.icon) {
                 var visionTooltipHtml = buildStigmaTooltipHtml(vision);
                 var visionLabel = vision.name + ' | ' + (vision.cooldown || '-') + ' | ' + (vision.description || '');
-                html += '<div class="gc-stigma-map-slot gc-stigma-vision-marker" style="left:' + toPercent(STIGMA_LAYOUT.vision.x, STIGMA_LAYOUT.width) + ';top:' + toPercent(STIGMA_LAYOUT.vision.y, STIGMA_LAYOUT.height) + ';">';
-                html += '<button type="button" class="gc-stigma-vision-trigger gc-item-tooltip-trigger" tabindex="0" aria-label="' + escapeHtml(visionLabel) + '" data-tooltip-html="' + escapeHtml(visionTooltipHtml) + '">';
-                html += '<img src="' + vision.icon + '" class="gc-stigma-vision-icon" alt="">';
+                html += '<div class="stigma-map-slot stigma-vision-marker" style="left:' + toPercent(STIGMA_LAYOUT.vision.x, STIGMA_LAYOUT.width) + ';top:' + toPercent(STIGMA_LAYOUT.vision.y, STIGMA_LAYOUT.height) + ';">';
+                html += '<button type="button" class="stigma-vision-trigger gc-item-tooltip-trigger" tabindex="0" aria-label="' + escapeHtml(visionLabel) + '" data-tooltip-html="' + escapeHtml(visionTooltipHtml) + '">';
+                html += '<img src="' + vision.icon + '" class="stigma-vision-icon" alt="">';
                 html += '</button>';
                 html += '</div>';
             }
