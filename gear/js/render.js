@@ -1413,6 +1413,12 @@ function renderAll() {
     updateComparison();
 }
 
+function renderStigmas(pid) {
+    // Stigma UI was moved to the standalone tool under /stigma.
+    // Keep this no-op for compatibility with existing handler calls.
+    void pid;
+}
+
 // -- Skill Buffs rendering --
 function renderSkillBuffs(pid) {
     var el = document.getElementById('buffs-' + pid);

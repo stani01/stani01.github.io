@@ -104,7 +104,8 @@
         { label: 'Enchanting Simulator',   href: '/enchant/' },
         { label: 'Gear Compare',           href: '/gear/' },
         { label: 'Statistics Finder',      href: '/stats/' },
-        { label: 'Progress Tracker',       href: '/tracker/' }
+        { label: 'Progress Tracker',       href: '/tracker/' },
+        { label: 'Stigma Builder',         href: '/stigma/' }
     ];
     var _pathParts = window.location.pathname.split('/').filter(function(p) { return p !== ''; });
     var currentPage = _pathParts.length > 0 ? '/' + _pathParts[0] + '/' : '/';

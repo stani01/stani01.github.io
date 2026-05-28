@@ -72,6 +72,8 @@ function openResetConfirmModal(message, onConfirm) {
     document.body.style.overflow = 'hidden';
 }
 
+// Optimizer feature was removed from the gear page.
+
 
 window.GC = {
     selectClass: function(className) {
@@ -351,6 +353,22 @@ window.GC = {
         renderAll();
         saveState();
         showShareToast('\u2713 ' + name + ' removed');
+    },
+
+    closeOptimizerModal: function() {
+        var modal = document.getElementById('gc-optimizer-modal');
+        if (!modal) return;
+        modal.style.display = 'none';
+        modal.innerHTML = '';
+        document.body.style.overflow = '';
+    },
+
+    closeRotationModal: function() {
+        var modal = document.getElementById('gc-rotation-modal');
+        if (!modal) return;
+        modal.style.display = 'none';
+        modal.innerHTML = '';
+        document.body.style.overflow = '';
     },
 
     setComparisonPair: function(side, setId) {
@@ -712,6 +730,67 @@ window.GC = {
         renderSkillBuffs(pid);
         updateComparison();
         saveState();
+    },
+
+    setClassStigma: function(pid, tier, slotIndex, key) {
+        if (typeof classHasStigmas !== 'function' || !classHasStigmas(selectedClass)) return;
+        var p = state[pid];
+        if (typeof ensureStigmaBuild !== 'function') return;
+        var build = ensureStigmaBuild(p, selectedClass);
+        if (!build) return;
+
+        if (!build[tier] || slotIndex < 0 || slotIndex >= build[tier].length) return;
+
+        var nextKey = key || null;
+        if (build[tier][slotIndex] && build[tier][slotIndex] === nextKey) nextKey = null;
+        var locked = (typeof isStigmaSlotLocked === 'function') ? isStigmaSlotLocked(selectedClass, tier, slotIndex, build) : true;
+        if (locked && nextKey) {
+            showShareToast('Fill base stigma slots first to unlock this slot', true);
+            renderStigmas(pid);
+            return;
+        }
+
+        if (nextKey) {
+            var def = (typeof getStigmaDefinition === 'function') ? getStigmaDefinition(selectedClass, nextKey) : null;
+            var tierMap = (typeof getStigmaTierMap === 'function') ? getStigmaTierMap(selectedClass) : {};
+            if (!def || tierMap[nextKey] !== tier) {
+                showShareToast('Invalid stigma selection', true);
+                renderStigmas(pid);
+                return;
+            }
+
+            var duplicate = false;
+            ['gold', 'blue', 'green'].forEach(function(t) {
+                build[t].forEach(function(existingKey, i) {
+                    if (t === tier && i === slotIndex) return;
+                    if (existingKey && existingKey === nextKey) duplicate = true;
+                });
+            });
+            if (duplicate) {
+                showShareToast('This stigma is already equipped', true);
+                renderStigmas(pid);
+                return;
+            }
+        }
+
+        build[tier][slotIndex] = nextKey;
+        if (typeof normalizeStigmaBuild === 'function') normalizeStigmaBuild(selectedClass, build);
+
+        renderStigmas(pid);
+        updateComparison();
+        saveState();
+    },
+
+    resetClassStigmas: function(pid) {
+        if (typeof classHasStigmas !== 'function' || !classHasStigmas(selectedClass)) return;
+        if (typeof createDefaultStigmaBuild !== 'function') return;
+        state[pid].stigmas = createDefaultStigmaBuild(selectedClass);
+        state[pid].stigmasClass = selectedClass;
+        if (typeof normalizeStigmaBuild === 'function') normalizeStigmaBuild(selectedClass, state[pid].stigmas);
+        renderStigmas(pid);
+        updateComparison();
+        saveState();
+        showShareToast('✓ Stigmas reset');
     },
 
     showSkillInfo: function(evt, skillKey) {
@@ -1604,6 +1683,7 @@ window.GC = {
         closeSetPopup();
         closeEnchantPopup();
         closeAccBonusPopup();
+        this.closeOptimizerModal();
         this.closeManaModal();
         var modal = document.getElementById('gc-bonus-modal');
         modal.innerHTML = renderBonusModal(pid, scrollToGear);
@@ -1844,6 +1924,7 @@ window.GC = {
     // -- Manastone Modal Handlers --
     openManaModal: function(pid, scrollToGear) {
         this.closeBonusModal();
+        this.closeOptimizerModal();
         closeOathPopup();
         closeSetPopup();
         closeEnchantPopup();
@@ -2241,6 +2322,17 @@ bonusModal.id = 'gc-bonus-modal';
 bonusModal.className = 'gc-mana-modal';
 document.body.appendChild(bonusModal);
 
+// Optimizer modal container
+var optimizerModal = document.createElement('div');
+optimizerModal.id = 'gc-optimizer-modal';
+optimizerModal.className = 'gc-mana-modal';
+document.body.appendChild(optimizerModal);
+
+var rotationModal = document.createElement('div');
+rotationModal.id = 'gc-rotation-modal';
+rotationModal.className = 'gc-mana-modal';
+document.body.appendChild(rotationModal);
+
 // Manastone slot picker popup
 var manaSlotPopup = document.createElement('div');
 manaSlotPopup.id = 'gc-mana-slot-popup';
@@ -2438,6 +2530,14 @@ document.addEventListener('keydown', function(e) {
         var modal = document.getElementById('gc-mana-modal');
         if (modal && modal.style.display === 'block') {
             GC.closeManaModal();
+        }
+        var optModal = document.getElementById('gc-optimizer-modal');
+        if (optModal && optModal.style.display === 'block') {
+            GC.closeOptimizerModal();
+        }
+        var rotationModalEl = document.getElementById('gc-rotation-modal');
+        if (rotationModalEl && rotationModalEl.style.display === 'block') {
+            GC.closeRotationModal();
         }
         // Also close skill info modal
         var skillModal = document.getElementById('gcSkillInfoModal');
