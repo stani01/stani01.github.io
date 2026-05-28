@@ -1,5 +1,7 @@
 'use strict';
 
+var GC_SKILL_ICON_PLACEHOLDER = '../assets/icons/icon_ui_skills.png';
+
 // ===============================================================================
 // SKILL BUFFS & DEBUFFS DATABASE
 //
@@ -1142,4 +1144,102 @@ function getSkillBuffsForClass(className) {
         list = list.concat(GC_SKILL_BUFFS[className]);
     }
     return list;
+}
+
+var GC_CLASS_COMBAT_DATA = {
+    gladiator: {
+        buffs: [
+            {
+                key: 'attack-position-buff',
+                name: '(Improved) Attack Position',
+                icon: GC_SKILL_ICON_PLACEHOLDER,
+                linkedBuffKey: 'attackPosition',
+                cooldownSec: 120,
+                durationSec: 60,
+                effects: { attack: 1800, accuracy: 1200, crit: 1200 }
+            },
+            {
+                key: 'divine-protection-buff',
+                name: '(Improved) Divine Protection',
+                icon: GC_SKILL_ICON_PLACEHOLDER,
+                linkedBuffKey: 'divineProtectionUniversal',
+                cooldownSec: 300,
+                durationSec: 10,
+                effects: { crit: 5000 }
+            },
+            {
+                key: 'vaizel-call-buff',
+                name: 'Vaizel Call',
+                icon: GC_SKILL_ICON_PLACEHOLDER,
+                linkedBuffKey: 'vaizelCall',
+                cooldownSec: 300,
+                durationSec: 40,
+                effects: { attack: 800 }
+            },
+            {
+                key: 'repeated-jolting-strike-buff',
+                name: '[Evolution] Repeated Jolting Strike',
+                icon: GC_SKILL_ICON_PLACEHOLDER,
+                linkedBuffKey: 'joltingStrike',
+                cooldownSec: 300,
+                durationSec: 15,
+                effects: { pvpAttack: 600, pveAttack: 600 }
+            },
+            {
+                key: 'blessed-light-buff',
+                name: 'Blessed Light',
+                icon: GC_SKILL_ICON_PLACEHOLDER,
+                linkedBuffKey: 'blessedLight',
+                cooldownSec: 300,
+                durationSec: 10,
+                effects: { attack: 500 }
+            }
+        ],
+        skills: [
+            { key: 'repeated-body-smash', name: 'Repeated Body Smash', type: 'attack', damage: 696, hits: 2, cooldownSec: 5, executeTimeSec: 1, priority: 1, requiresChain: true, unlocks: ['body-blow'] },
+            { key: 'energy-explosion', name: 'Energy Explosion', type: 'attack', damage: 1814, cooldownSec: 3, executeTimeSec: 1, priority: 2, requiresChain: true },
+            { key: 'body-smash', name: 'Body Smash', type: 'attack', damage: 989, cooldownSec: 5, executeTimeSec: 1, priority: 3, unlocks: ['repeated-body-smash'] },
+            { key: 'body-blow', name: 'Body Blow', type: 'attack', damage: 1082, cooldownSec: 5, executeTimeSec: 1, priority: 4, requiresChain: true },
+            { key: 'leaping-strike', name: '(Improved) Leaping Strike', type: 'attack', damage: 3229, cooldownSec: 20, executeTimeSec: 1, priority: 5 },
+            { key: 'robust-blow', name: 'Robust Blow', type: 'attack', damage: 858, cooldownSec: 5, executeTimeSec: 1, priority: 6, requiresChain: true, unlocks: ['wrathful-strike'] },
+            { key: 'whirling-blow', name: 'Whirling Blow', type: 'attack', damage: 2200, cooldownSec: 27, executeTimeSec: 1, priority: 7, appliesTargetState: { key: 'stumble', durationSec: 4 } },
+            { key: 'ferocious-strike', name: 'Ferocious Strike', type: 'attack', damage: 921, cooldownSec: 5, executeTimeSec: 1, priority: 8, unlocks: ['robust-blow'] },
+            { key: 'fury-absorption', name: 'Fury Absorption', type: 'attack', damage: 1127, cooldownSec: 10, executeTimeSec: 1, priority: 9, unlocks: ['pressure-wave'] },
+            { key: 'pressure-wave', name: 'Pressure Wave', type: 'attack', damage: 1283, cooldownSec: 8, executeTimeSec: 1, priority: 10, requiresChain: true, unlocks: ['seismic-billow'] },
+            { key: 'wrathful-strike', name: 'Wrathful Strike', type: 'attack', damage: 935, cooldownSec: 20, executeTimeSec: 1, priority: 12, requiresChain: true, appliesTargetState: { key: 'stumble', durationSec: 4 } },
+            { key: 'bloodlust-explosion', name: '(Improved) Bloodlust Explosion', type: 'attack', damage: 1829, cooldownSec: 40, executeTimeSec: 1, priority: 13, appliesEnemyDebuff: { defensePercent: 8, durationSec: 30 } },
+            { key: 'weakening-blow', name: 'Weakening Blow', type: 'attack', damage: 921, cooldownSec: 15, executeTimeSec: 1, priority: 17, unlocks: ['energy-explosion'], appliesEnemyDebuff: { defenseFlat: 300, durationSec: 12 } },
+            { key: 'boosted-martial-cleave', name: '(Improved) Boosted Martial Cleave', type: 'utility', damage: 0, cooldownSec: 14, executeTimeSec: 1, priority: 18, requiresChain: true, cooldownReduction: { targetKey: 'leaping-strike', percent: 50 } },
+            { key: 'raving-madness', name: '(Improved) Raving Madness', type: 'attack', damage: 2690, cooldownSec: 90, executeTimeSec: 1, priority: 19, appliesTargetState: { key: 'stumble', durationSec: 4 } },
+            { key: 'cleave', name: 'Cleave', type: 'attack', damage: 605, cooldownSec: 18, executeTimeSec: 1, priority: 20, unlocks: ['great-cleave'] },
+            { key: 'counter-leech', name: 'Counter Leech', type: 'attack', damage: 1113, cooldownSec: 60, executeTimeSec: 1, priority: 21 },
+            { key: 'shattering-blow', name: '(Improved) Shattering Blow', type: 'attack', damage: 1064, cooldownSec: 60, executeTimeSec: 1, priority: 22, appliesTargetState: { key: 'stumble', durationSec: 4 } },
+            { key: 'great-cleave', name: 'Great Cleave', type: 'attack', damage: 604, cooldownSec: 14, executeTimeSec: 1, priority: 28, requiresChain: true, unlocks: ['boosted-martial-cleave'] },
+            { key: 'seismic-billow', name: 'Seismic Billow', type: 'attack', damage: 426, cooldownSec: 90, executeTimeSec: 1, priority: 29, requiresChain: true, appliesTargetState: { key: 'stumble', durationSec: 4 } },
+            { key: 'wrathful-wave', name: 'Wrathful Wave', type: 'attack', damage: 918, cooldownSec: 600, executeTimeSec: 1, priority: 35, appliesTargetState: { key: 'stumble', durationSec: 4 } },
+            { key: 'blade-of-incitement', name: 'Blade of Incitement', type: 'attack', damage: 75, cooldownSec: 30, executeTimeSec: 1, priority: 36 }
+        ]
+    }
+};
+
+function getCombatDataForClass(className) {
+    return GC_CLASS_COMBAT_DATA[className] || { buffs: [], skills: [] };
+}
+
+function getCombatBuffsForClass(className) {
+    return getCombatDataForClass(className).buffs.slice();
+}
+
+function getCombatSkillsForClass(className) {
+    return getCombatDataForClass(className).skills.map(function(skill) {
+        var copy = Object.assign({}, skill);
+        if (!copy.icon) copy.icon = GC_SKILL_ICON_PLACEHOLDER;
+        return copy;
+    });
+}
+
+function getTimedCombatBuffKeys(className) {
+    return getCombatBuffsForClass(className).map(function(buff) {
+        return buff.linkedBuffKey;
+    }).filter(Boolean);
 }

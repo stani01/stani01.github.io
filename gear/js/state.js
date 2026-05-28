@@ -35,6 +35,12 @@ function createDefaultProfile(className) {
                 magicalDef: 150   // Enchant M.Def
             }
         },
+        optimizer: {
+            mode: 'pve',
+            enemyDefense: 22000,
+            enemyFortitude: 350,
+            timeTargetSec: 30
+        }
     };
     ARMOR_SLOTS.forEach(function(slot) {
         profile.armor[slot.key] = {
@@ -88,6 +94,12 @@ function createDefaultProfile(className) {
     // Initialize owned forms (all selected by default)
     profile.ownedForms = {};
     ALL_FORM_IDS.forEach(function(id) { profile.ownedForms[id] = true; });
+    // Initialize stigma state (class-specific if supported)
+    profile.stigmas = (typeof createDefaultStigmaBuild === 'function') ? createDefaultStigmaBuild(className) : null;
+    profile.stigmasClass = (typeof classHasStigmas === 'function' && classHasStigmas(className)) ? className : null;
+    // Initialize optimization tracking
+    profile.isOptimized = false;
+    profile.optimizedFromSetId = null;
     return profile;
 }
 
@@ -243,7 +255,7 @@ function loadState() {
             }
         });
         if (data.activeTab === 'equipment' || data.activeTab === 'transforms' ||
-            data.activeTab === 'collections' || data.activeTab === 'relic' || data.activeTab === 'trait' || data.activeTab === 'skill-buffs') {
+            data.activeTab === 'collections' || data.activeTab === 'relic' || data.activeTab === 'trait' || data.activeTab === 'stigmas' || data.activeTab === 'skill-buffs') {
             activeTab = data.activeTab;
         }
         // Restore formsActiveGrade per set
@@ -529,6 +541,27 @@ function restoreProfile(id, saved, cls) {
                         p.skillBuffEnchants[b.key] = val;
                     }
                 });
+            }
+            if (saved.optimizer && typeof saved.optimizer === 'object') {
+                if (saved.optimizer.mode === 'pvp' || saved.optimizer.mode === 'pve') p.optimizer.mode = saved.optimizer.mode;
+                if (typeof saved.optimizer.enemyDefense === 'number') p.optimizer.enemyDefense = Math.max(0, saved.optimizer.enemyDefense);
+                if (typeof saved.optimizer.enemyFortitude === 'number') p.optimizer.enemyFortitude = Math.max(0, saved.optimizer.enemyFortitude);
+                if (typeof saved.optimizer.timeTargetSec === 'number') p.optimizer.timeTargetSec = Math.max(5, saved.optimizer.timeTargetSec);
+            }
+            // Restore stigma setup for supported classes
+            if (typeof classHasStigmas === 'function' && classHasStigmas(selectedClass) && saved.stigmas && typeof saved.stigmas === 'object') {
+                p.stigmas = (typeof createDefaultStigmaBuild === 'function') ? createDefaultStigmaBuild(selectedClass) : null;
+                p.stigmasClass = selectedClass;
+                if (p.stigmas) {
+                    ['gold', 'blue', 'green'].forEach(function(tier) {
+                        if (!Array.isArray(saved.stigmas[tier]) || !Array.isArray(p.stigmas[tier])) return;
+                        for (var i = 0; i < p.stigmas[tier].length; i++) {
+                            var key = saved.stigmas[tier][i];
+                            if (typeof key === 'string') p.stigmas[tier][i] = key;
+                        }
+                    });
+                    if (typeof normalizeStigmaBuild === 'function') normalizeStigmaBuild(selectedClass, p.stigmas);
+                }
             }
             // Restore owned forms
             if (saved.ownedForms && typeof saved.ownedForms === 'object') {
