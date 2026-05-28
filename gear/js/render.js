@@ -84,14 +84,19 @@ function collectExtremeArmorBonusRows(setKey, enchantLevel, tier) {
     if (!setKey || setKey === 'none') return rows;
     
     // Get item-level bonuses from data structure
-    var bonusData = EXTREME_ARMOR_BONUS[setKey];
+    var bonusData;
+    if (setKey === 'helper') {
+        bonusData = HELPER_ARMOR_BONUS[tier];
+    } else {
+        bonusData = EXTREME_ARMOR_BONUS[setKey];
+    }
     if (!bonusData) return rows;
     
     // Get enchant bonuses if applicable
     var enchantTable = null;
     var enchantValues = {};
     if (enchantLevel >= 8) {
-        enchantTable = (setKey === 'acrimony') ? ACRI_ENCHANT : (setKey === 'presumption') ? PRES_ENCHANT : (setKey === 'obstinacy') ? OBST_ENCHANT : null;
+        enchantTable = (setKey === 'acrimony') ? ACRI_ENCHANT : (setKey === 'presumption') ? PRES_ENCHANT : (setKey === 'obstinacy') ? OBST_ENCHANT : (setKey === 'helper') ? HELPER_ENCHANT : null;
         if (enchantTable && enchantTable[enchantLevel]) {
             enchantValues = enchantTable[enchantLevel];
         }
@@ -131,7 +136,7 @@ function collectExtremeArmorBonusRows(setKey, enchantLevel, tier) {
     
     // Physical Defence bonus with enchant
     if (bonusData.bonusPDef !== undefined) {
-        var enchDef = (enchantValues.def && enchantValues.def[tierValue]) || 0;
+        var enchDef = (setKey === 'helper') ? 0 : ((enchantValues.def && enchantValues.def[tierValue]) || 0);
         rows.push({
             name: 'Physical Defence',
             value: bonusData.bonusPDef,
@@ -141,7 +146,7 @@ function collectExtremeArmorBonusRows(setKey, enchantLevel, tier) {
     
     // Magical Defence bonus with enchant
     if (bonusData.bonusMDef !== undefined) {
-        var enchDef = (enchantValues.def && enchantValues.def[tierValue]) || 0;
+        var enchDef = (setKey === 'helper') ? 0 : ((enchantValues.def && enchantValues.def[tierValue]) || 0);
         rows.push({
             name: 'Magical Defence',
             value: bonusData.bonusMDef,
@@ -1411,12 +1416,6 @@ function renderAll() {
     });
     renderTraitTab();
     updateComparison();
-}
-
-function renderStigmas(pid) {
-    // Stigma UI was moved to the standalone tool under /stigma.
-    // Keep this no-op for compatibility with existing handler calls.
-    void pid;
 }
 
 // -- Skill Buffs rendering --

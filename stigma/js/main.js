@@ -197,11 +197,11 @@
 
     function buildVisionLegendData(className) {
         var cfg = getStigmaConfig(className);
-        if (!cfg) return { groups: [], fallbackVisionKey: 'summon-battlefield-flag' };
+        if (!cfg) return { groups: [], fallbackVisionKey: null };
 
         var goldDefs = cfg.tiers.gold || [];
         var blueDefs = cfg.tiers.blue || [];
-        var fallbackVisionKey = 'summon-battlefield-flag';
+        var fallbackVisionKey = resolveStigmaVisionKey(className, createDefaultStigmaBuild(className)) || (cfg.tiers.vision && cfg.tiers.vision[0] ? cfg.tiers.vision[0].key : null);
         var grouped = {};
 
         for (var g = 0; g < goldDefs.length; g++) {
@@ -213,7 +213,7 @@
                     sampleBuild.blue[1] = blueDefs[j].key;
                     var visionKey = resolveStigmaVisionKey(className, sampleBuild) || fallbackVisionKey;
 
-                    if (visionKey === 'summon-battlefield-flag') continue;
+                    if (visionKey === fallbackVisionKey) continue;
                     if (!grouped[visionKey]) grouped[visionKey] = [];
 
                     grouped[visionKey].push({
@@ -378,7 +378,8 @@
             if (nextKey) {
                 var def = getStigmaDefinition(selectedClass, nextKey);
                 var tierMap = getStigmaTierMap(selectedClass);
-                if (!def || tierMap[nextKey] !== tier) return;
+                var stigmaTier = tierMap[nextKey];
+                if (!def || !isStigmaSlotCompatible(tier, stigmaTier)) return;
 
                 var duplicate = false;
                 ['gold', 'blue', 'green'].forEach(function(t) {

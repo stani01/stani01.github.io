@@ -65,14 +65,14 @@
 #stigma-builder .gc-stigma-main-map {
     width: min(100%, 500px);
     max-width: 500px;
-    background-image: url('../../assets/icons/stigmas_locked.png');
+    background-image: url('../../assets/icons/visionStigmaBg.png');
     background-repeat: no-repeat;
     background-position: center top;
     background-size: 100% auto;
 }
 
 #stigma-builder .gc-stigma-main-map.is-vision-active {
-    background-image: url('../../assets/icons/stigmas_unlocked.png');
+    background-image: url('../../assets/icons/visionStigmaBg.png');
     background-position: center top;
 }
 

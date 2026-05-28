@@ -224,6 +224,189 @@ var GC_STIGMA_REGISTRY = {
 
             return 'summon-battlefield-flag';
         }
+    },
+    templar: {
+        displayName: 'Templar',
+        slots: { gold: 1, blue: 3, green: 5 },
+        baseUnlocked: { gold: 1, blue: 2, green: 3 },
+        tiers: {
+            green: [
+                {
+                    key: 'baricade-of-steel',
+                    name: '(Improved) Baricade of Steel',
+                    icon: '../assets/icons/live_kn_a_reflectshield_g1.png',
+                    cooldown: '11s',
+                    description: 'Increases block by 4400, physical defence by 550, stun knock back stumble spin aetherhold and immobilization resists by 1500, slowing resistance by 1000. You cannot jump when using the skill. Active skill.' 
+                },
+                {
+                    key: 'holy-shield',
+                    name: '(Improved) Holy Shield',
+                    icon: '../assets/icons/cbt_kn_a_holywrath_g1.png',
+                    cooldown: '42s',
+                    description: 'For 20s, reflects 678 damage back to an opponent within 5m that attacks you.',
+                },
+                {
+                    key: 'divine-fury',
+                    name: '(Improved) Divine Fury',
+                    icon: '../assets/icons/cbt_kn_a_divinepower_g1.png',
+                    cooldown: '48s',
+                    description: 'Increases Physical Attack by 550 for 30s.'
+                },
+                {
+                    key: 'incur-wrath',
+                    name: '(Improved) Incur Wrath',
+                    icon: '../assets/icons/live_kn_a_highprovoke_g1.png',
+                    cooldown: '7s',
+                    description: 'Taunts an enemy to increase their enmity towards you. Increases the additional PvE def by 1500. If the target is a player, their Enmity will probably be directed at you.',
+                },
+                {
+                    key: 'elimination-strike',
+                    name: '(Improved) Elimination Strike',
+                    icon: '../assets/icons/kn_a_executionalstrike_g1.png',
+                    cooldown: '42s',
+                    description: 'Deals 3022 physical damage.',
+                },
+                {
+                    key: 'punishment',
+                    name: '(Improved) Punishment',
+                    icon: '../assets/icons/cbt_kn_a_divineslash_g1.png',
+                    cooldown: '10s',
+                    description: 'Deals 2749 physical damage. High probability of a crit strike. Multicast 2 times.'
+                },
+                {
+                    key: 'aether-armour',
+                    name: '(Improved) Aether Armour',
+                    icon: '../assets/icons/live_kn_a_stigma_resistarmor_g1.png',
+                    cooldown: '43s',
+                    description: 'Increases magic resist by 4400 for 20s. Increases magic def by 1000.'
+                },
+                {
+                    key: 'inquisitor-blow',
+                    name: '(Improved) Inquisitor\'s Blow',
+                    icon: '../assets/icons/live_kn_a_thunderblade_g1.png',
+                    cooldown: '21s',
+                    description: 'Deals 1672 physical damage.'
+                },
+                {
+                    key: 'siegebreaker',
+                    name: '(Improved) Siegebreaker',
+                    icon: '../assets/icons/cbt_wa_a_gatecrush_g1.png',
+                    cooldown: '8.4s',
+                    description: 'Deals 417 physical damage. Deals 33750 additional damage if the target is a castle gate.',
+                    combat: { type: 'attack', damage: 417, cooldownSec: 8.4, executeTimeSec: 1, priority: 34 }
+                }
+            ],
+            blue: [
+                {
+                    key: 'prayer-of-resilience',
+                    name: '(Improved) Prayer of Resilience',
+                    icon: '../assets/icons/live_kn_a_recover_g1.png',
+                    cooldown: '48s',
+                    description: 'Restores 8775 HP',
+                },
+                {
+                    key: 'prayer-of-victory',
+                    name: '(Improved) Prayer of Victory',
+                    icon: '../assets/icons/live_kn_a_sentinel_a_g1.png',
+                    cooldown: '1m12s',
+                    description: 'Increases HP by 3510 for 2m. Increases add pvp def and pve def by 300.',
+                },
+                {
+                    key: 'divine-justice',
+                    name: '(Improved) Divine Justice',
+                    icon: '../assets/icons/live_kn_a_brainstorm_g1.png',
+                    cooldown: '48s',
+                    castTime: '0.5s',
+                    description: 'Deals 1503 physical damage. Stuns the target for 2s.'
+                },
+                {
+                    key: 'magic-smash',
+                    name: '(Improved) Magic Smash',
+                    icon: '../assets/icons/live_kn_a_powersink_g1.png',
+                    cooldown: '21s',
+                    description: 'Reduces Healing Boost by 800 for 8s. Deals 1584 physical damage. The effect cannot be removed.'
+                },
+                {
+                    key: 'punishing-wave',
+                    name: '(Improved) Punishing Wave',
+                    icon: '../assets/icons/live_kn_a_fortitudewave_g1.png',
+                    cooldown: '1m3s',
+                    description: 'Deals 1584 physical damage. Immobilises the target for 10s. There is only a slight chance this state can be removed.'
+                },
+                {
+                    key: 'shield-of-faith',
+                    name: '(Improved) Shield of Faith',
+                    icon: '../assets/icons/live_kn_a_invinsibleshield_g1.png',
+                    cooldown: '1m30s',
+                    description: 'You block 12 times for 20s.',
+                }
+            ],
+            gold: [
+                {
+                    key: 'empyrean-providence',
+                    name: '(Improved) Empyrean Providence',
+                    icon: '../assets/icons/live_kn_a_invinsibleprotect_g1.png',
+                    cooldown: '2m42s',
+                    description: 'Reduces your damage by 50% for 12s. Increases stun, knockback, stumble, spin and aether hold resists by 1500.'
+                },
+                {
+                    key: 'shield-blast',
+                    name: '(Improved) Shield Blast',
+                    icon: '../assets/icons/live_kn_a_destructshield_g1.png',
+                    cooldown: '28s',
+                    description: 'Has a high chance of hitting the target and then deals 2026 physical damage. Causes the target to stumble.'
+                }
+            ],
+            vision: [
+                {
+                    key: 'bloodsucking-punishment',
+                    name: '(Improved) Bloodsucking Punishment',
+                    icon: '../assets/icons/kn_a_godpunishment_g1.png',
+                    cooldown: '12s',
+                    description: 'Deals 2185 physical damage. Absorbs HP equal to 50% of the damage. Aborbs MP equal to 30% of the damage.'
+                },
+                {
+                    key: 'barrier-shield',
+                    name: '(Improved) Barrier Shield',
+                    icon: '../assets/icons/kn_a_standingshield_g1.png',
+                    cooldown: '1m12s',
+                    description: 'Reduces your damage by 80% for 15s. Drastically reduces your movement speed. Grants up to 50000 protection.',
+                    combat: { type: 'attack', damage: 2146, hits: 3, cooldownSec: 63, executeTimeSec: 1, priority: 14 }
+                },
+                {
+                    key: 'reflection-of-chastisement',
+                    name: '(Improved) Reflection of Chastisement',
+                    icon: '../assets/icons/kn_a_skillreflector_g1.png',
+                    cooldown: '1m24s',
+                    description: 'When you are attacked, the effect of attack skills is reflected back on the enemy for 5s.'
+                }
+            ]
+        },
+        resolveVision: function(build) {
+            if (!build) return 'barrier-shield';
+
+            var gold = build.gold[0];
+            var blue = (build.blue || []).filter(Boolean);
+            var has = function(key) { return blue.indexOf(key) !== -1; };
+
+            if (gold === 'empyrean-providence') {
+                if ((has('prayer-of-victory') && has('prayer-of-resilience')) ||
+                    (has('prayer-of-victory') && has('shield-of-faith')) ||
+                    (has('prayer-of-resilience') && has('shield-of-faith'))) {
+                    return 'bloodsucking-punishment';
+                }
+            }
+
+            if (gold === 'shield-blast') {
+                if ((has('divine-justice') && has('punishing-wave')) ||
+                    (has('divine-justice') && has('magic-smash')) ||
+                    (has('punishing-wave') && has('magic-smash'))) {
+                    return 'reflection-of-chastisement';
+                }
+            }
+
+            return 'barrier-shield';
+        }
     }
 };
 
@@ -241,6 +424,19 @@ function buildStigmaTierMap(className) {
         });
     });
     return map;
+}
+
+function getAllowedStigmaTiersForSlot(slotTier) {
+    if (slotTier === 'gold') return ['gold', 'blue', 'green'];
+    if (slotTier === 'blue') return ['blue', 'green'];
+    if (slotTier === 'green') return ['green'];
+    return [];
+}
+
+function isStigmaSlotCompatible(slotTier, stigmaTier) {
+    if (!slotTier || !stigmaTier) return false;
+    var allowed = getAllowedStigmaTiersForSlot(slotTier);
+    return allowed.indexOf(stigmaTier) !== -1;
 }
 
 function classHasStigmas(className) {
@@ -290,7 +486,8 @@ function normalizeStigmaBuild(className, build) {
     GC_STIGMA_TIERS.forEach(function(tier) {
         build[tier] = (build[tier] || []).map(function(key) {
             if (!key) return null;
-            return tierMap[key] === tier ? key : null;
+            var stigmaTier = tierMap[key];
+            return isStigmaSlotCompatible(tier, stigmaTier) ? key : null;
         });
     });
 
@@ -332,7 +529,15 @@ function getStigmaOptions(className, tier, slotIndex, build) {
         });
     });
 
-    return (cfg.tiers[tier] || []).filter(function(def) {
+    var allowedTiers = getAllowedStigmaTiersForSlot(tier);
+    var options = [];
+    allowedTiers.forEach(function(allowedTier) {
+        (cfg.tiers[allowedTier] || []).forEach(function(def) {
+            options.push(def);
+        });
+    });
+
+    return options.filter(function(def) {
         return !selected[def.key] || def.key === current;
     });
 }
