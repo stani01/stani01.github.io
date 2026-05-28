@@ -391,10 +391,29 @@
 @media (max-width: 1080px) {
     #stigma-builder .stigma-two-col {
         grid-template-columns: 1fr;
-        gap: 10px;
+        gap: 22px;
     }
 
     #stigma-builder .stigma-builder-head .gc-reset-btn {
         right: 2px;
+    }
+}
+
+@media (hover: none), (pointer: coarse) {
+    #stigma-builder .gc-stigma-current:hover::before,
+    #stigma-builder .gc-stigma-current:focus-visible::before,
+    #stigma-builder .gc-stigma-option:hover::before,
+    #stigma-builder .gc-stigma-option:focus-visible::before,
+    #stigma-builder .gc-stigma-vision-trigger:hover::before,
+    #stigma-builder .gc-stigma-vision-trigger:focus-visible::before {
+        opacity: 0;
+    }
+
+    #stigma-builder .gc-stigma-current:hover,
+    #stigma-builder .gc-stigma-current.is-filled:hover,
+    #stigma-builder .gc-stigma-option:hover:not(:disabled) {
+        background-position: 0 -98px;
+        border-color: transparent;
+        box-shadow: none;
     }
 }

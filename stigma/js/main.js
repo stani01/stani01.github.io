@@ -370,7 +370,7 @@
             if (!build[tier] || slotIndex < 0 || slotIndex >= build[tier].length) return;
 
             var nextKey = key || null;
-            if (build[tier][slotIndex] && build[tier][slotIndex] === nextKey) nextKey = null;
+            if (build[tier][slotIndex] && build[tier][slotIndex] === nextKey) return;
 
             var locked = isStigmaSlotLocked(selectedClass, tier, slotIndex, build);
             if (locked && nextKey) return;
@@ -453,6 +453,10 @@
     }
     var activeItemTooltipTrigger = null;
 
+    function canUseInteractiveTooltips() {
+        return !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+    }
+
     function positionGlobalItemTooltip(trigger) {
         if (!trigger || !globalItemTooltip || globalItemTooltip.style.display !== 'block') return;
         var margin = 8;
@@ -492,6 +496,7 @@
     }
 
     document.addEventListener('mouseover', function(e) {
+        if (!canUseInteractiveTooltips()) return;
         var trigger = e.target.closest('.gc-item-tooltip-trigger[data-tooltip-html]');
         if (!trigger) return;
         if (activeItemTooltipTrigger === trigger) {
@@ -502,6 +507,7 @@
     });
 
     document.addEventListener('mouseout', function(e) {
+        if (!canUseInteractiveTooltips()) return;
         if (!activeItemTooltipTrigger) return;
         var leftTrigger = e.target.closest('.gc-item-tooltip-trigger[data-tooltip-html]');
         if (!leftTrigger || leftTrigger !== activeItemTooltipTrigger) return;
@@ -510,12 +516,14 @@
     });
 
     document.addEventListener('focusin', function(e) {
+        if (!canUseInteractiveTooltips()) return;
         var trigger = e.target.closest('.gc-item-tooltip-trigger[data-tooltip-html]');
         if (!trigger) return;
         showGlobalItemTooltip(trigger);
     });
 
     document.addEventListener('focusout', function(e) {
+        if (!canUseInteractiveTooltips()) return;
         var trigger = e.target.closest('.gc-item-tooltip-trigger[data-tooltip-html]');
         if (!trigger) return;
         if (e.relatedTarget && trigger.contains(e.relatedTarget)) return;
