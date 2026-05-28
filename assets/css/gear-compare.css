@@ -4153,7 +4153,11 @@
     padding: 10px 12px;
     border: 1px solid rgba(220, 180, 90, 0.35);
     border-radius: 8px;
-    background: linear-gradient(rgba(20, 14, 9, 0.68), rgba(20, 14, 9, 0.68));
+    background: linear-gradient(rgba(20, 14, 9, 0.68), rgba(20, 14, 9, 0.68)),
+                url('../icons/stigma-panel-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .gc-stigma-header {
