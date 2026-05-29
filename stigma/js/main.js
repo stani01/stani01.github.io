@@ -547,7 +547,7 @@
 
         openSkillLegendMobile: function() {
             var legendHtml = renderSkillDetailsForClass(selectedClass);
-            openStigmaMobileModal('Skill Details', legendHtml);
+            openStigmaMobileModal('All Stigmas Details', legendHtml);
         },
 
         clearStigma: function(tier, slotIndex) {
