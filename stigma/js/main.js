@@ -406,10 +406,17 @@
                 html += '<div class="stigma-legend-target">' + renderLegendIcon(group.visionDef, 'stigma-legend-icon-vision', autoAttrs) + '</div>';
                 html += '<div class="stigma-legend-arrow">&larr;</div>';
                 html += '<div class="stigma-legend-combos">';
-                (group.combos || []).forEach(function(combo) {
+                (group.combos || []).forEach(function(combo, index) {
                     html += '<div class="stigma-legend-combo">';
-                    html += renderLegendIcon(combo.gold);
-                    html += '<span class="stigma-legend-plus">+</span>';
+                    //html += renderLegendIcon(combo.gold);
+                    if (index === 1) {
+                        html += renderLegendIcon(combo.gold);
+                        html += '<span class="stigma-legend-plus">+</span>';
+                    }else {
+                        html += '<div class="stigma-legend-icon-placeholder"></div>';
+                        html += '<span class="stigma-legend-plus is-hidden">+</span>';
+                    }
+                    //html += '<span class="stigma-legend-plus">+</span>';
                     html += renderLegendIcon(combo.blueA);
                     html += '<span class="stigma-legend-plus">+</span>';
                     html += renderLegendIcon(combo.blueB);

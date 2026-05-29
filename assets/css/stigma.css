@@ -728,6 +728,16 @@
     padding-top: 12px;
 }
 
+#stigma-builder .stigma-legend-icon-placeholder {
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+}
+
+#stigma-builder .stigma-legend-plus.is-hidden {
+    visibility: hidden;
+}
+
 @media (max-width: 768px) {
 
     #stigma-builder .stigma-two-col {
@@ -1043,5 +1053,10 @@
 
     body.stigma-modal-open {
         overflow: hidden;
+    }
+    
+    #stigma-builder .stigma-legend-icon-placeholder {
+        width: 42px;
+        height: 42px;
     }
 }

@@ -646,82 +646,126 @@ var GC_STIGMA_REGISTRY = {
             return 'collision-trap';
         }
     },
-    // sorcerer: {
-    //     displayName: 'Sorcerer',
-    //     slots: { gold: 1, blue: 3, green: 5 },
-    //     baseUnlocked: { gold: 1, blue: 2, green: 3 },
-    //     tiers: {
-    //         green: [
-    //             { key: 'green1', name: '(Improved) green1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green2', name: '(Improved) green2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green3', name: '(Improved) green3', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green4', name: '(Improved) green4', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green5', name: '(Improved) green5', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green6', name: '(Improved) green6', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green7', name: '(Improved) green7', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green8', name: '(Improved) green8', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green9', name: '(Improved) green9', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ],
-    //         blue: [
-    //             { key: 'blue1', name: '(Improved) blue1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue2', name: '(Improved) blue2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue3', name: '(Improved) blue3', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue4', name: '(Improved) blue4', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue5', name: '(Improved) blue5', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue6', name: '(Improved) blue6', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ],
-    //         gold: [
-    //             { key: 'gold1', name: '(Improved) gold1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'gold2', name: '(Improved) gold2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ],
-    //         vision: [
-    //             { key: 'vision1', name: '(Improved) vision1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'vision2', name: '(Improved) vision2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'vision3', name: '(Improved) vision3', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ]
-    //     },
-    //     resolveVision: function(build) {
-    //         return 'vision3';
-    //     }
-    // },
-    // spiritmaster: {
-    //     displayName: 'Spiritmaster',
-    //     slots: { gold: 1, blue: 3, green: 5 },
-    //     baseUnlocked: { gold: 1, blue: 2, green: 3 },
-    //     tiers: {
-    //         green: [
-    //             { key: 'green1', name: '(Improved) green1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green2', name: '(Improved) green2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green3', name: '(Improved) green3', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green4', name: '(Improved) green4', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green5', name: '(Improved) green5', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green6', name: '(Improved) green6', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green7', name: '(Improved) green7', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green8', name: '(Improved) green8', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green9', name: '(Improved) green9', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ],
-    //         blue: [
-    //             { key: 'blue1', name: '(Improved) blue1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue2', name: '(Improved) blue2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue3', name: '(Improved) blue3', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue4', name: '(Improved) blue4', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue5', name: '(Improved) blue5', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue6', name: '(Improved) blue6', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ],
-    //         gold: [
-    //             { key: 'gold1', name: '(Improved) gold1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'gold2', name: '(Improved) gold2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ],
-    //         vision: [
-    //             { key: 'vision1', name: '(Improved) vision1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'vision2', name: '(Improved) vision2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'vision3', name: '(Improved) vision3', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ]
-    //     },
-    //     resolveVision: function(build) {
-    //         return 'vision3';
-    //     }
-    // },
+    sorcerer: {
+        displayName: 'Sorcerer',
+        slots: { gold: 1, blue: 3, green: 5 },
+        baseUnlocked: { gold: 1, blue: 2, green: 3 },
+        tiers: {
+            green: [
+                { key: 'arcane-thunderbolt', name: '(Improved) Arcane Thunderbolt', icon: '../assets/icons/live_wi_a_stormshock_g1.png', cooldown: '1m3s', castTime: '1s', description: 'Deals 2725 magical wind damage. Stunes the target for 3s.' },
+                { key: 'absolute-zero', name: '(Improved) Absolute Zero', icon: '../assets/icons/live_wi_a_hibernation_g1.png', cooldown: '54s', description: 'You are stunned and cannot be attacked for 6s.' },
+                { key: 'ice-sheet', name: '(Improved) Ice Sheet', icon: '../assets/icons/cbt_wi_a_light_frostpillar_g1.png', cooldown: '1m4s', description: 'Deals magical water damage to the target. Reduces the target\'s movement speed.' },
+                { key: 'exchange-vitality', name: '(Improved) Exchange Vitality', icon: '../assets/icons/live_wi_a_hpmpexchange_g1.png', cooldown: '1m48s', description: 'Swaps around your current HP and MP.' },
+                { key: 'curse-of-weakness', name: '(Improved) Curse of Weakness', icon: '../assets/icons/cbt_wi_a_countermagic_g1.png', cooldown: '1m4s', description: 'Whenever the target uses a magic attack, it sustains magic damage equal to 15% of its maximum HP for 30s. The maximum magic damage is 4000.' },
+                { key: 'boon-of-quickness', name: '(Improved) Boon of Quickness', icon: '../assets/icons/cbt_wi_a_dark_icyveins_g1.png', cooldown: '1m15s', description: 'Increases the target\'s casting time for all magical skills by 50% for 15s.' },
+                { key: 'ice-harpoon', name: '(Improved) Ice Harpoon', icon: '../assets/icons/live_wi_a_stigma_icelance_g1.png', cooldown: '6s', castTime: '2.5s', description: 'Deals 4419 magical water damage.' },
+                { key: 'elemental-ward', name: '(Improved) Elemental Ward', icon: '../assets/icons/live_wi_a_elementalseal_g1.png', cooldown: '48s', description: 'Increases Magic Defence and Magic Resist by 1800 for 15s.' },
+                { key: 'cyclone-strike', name: '(Improved) Cyclone Strike', icon: '../assets/icons/live_wi_a_cyclonestrike_g1.png', cooldown: '1m3s', castTime: '4s', description: 'Deals 8046 magical wind damage.' }
+            ],
+            blue: [
+                { key: 'sleeping-storm', name: '(Improved) Sleeping Storm', icon: '../assets/icons/live_wi_a_sleepingstorm_g1.png', cooldown: '1m4s', castTime: '1s', description: 'Puts the target to sleep for 16s. The duration is reduced by 50% when applied to a player.' },
+                { key: 'summon-stone', name: '(Improved) Summon Stone', icon: '../assets/icons/live_wi_a_rockfall_g1.png', cooldown: '12s', description: 'Deal 2092 magical earth damage.' },
+                { key: 'summon-whirlwind', name: '(Improved) Summon Whirlwind', icon: '../assets/icons/live_wi_a_summontornado_g1.png', cooldown: '1m8s', description: 'Summons a whirlwind for 3s. Deals magical wind damage to the target and stuns it.' },
+                { key: 'flame-spray', name: '(Improved) Flame Spray', icon: '../assets/icons/live_wi_a_flamestrike_g1.png', cooldown: '21s', castTime: '3.5s', description: 'Deals 6277 magical fire damage.' },
+                { key: 'illusion-storm', name: '(Improved) Illusion Storm', icon: '../assets/icons/live_wi_a_illusionstorm_g1.png', cooldown: '1m24s', description: 'Deals 1702 magical fire damage. Stuns the target for 3s.' },
+                { key: 'wind-cut-down', name: '(Improved) Wind Cut Down', icon: '../assets/icons/live_wi_a_windcutter_g1.png', cooldown: '16s', castTime: '1s', description: 'Deals 2658 magical wind damage. Reduces Magic Defence by 350 for 5s~7s.' }
+            ],
+            gold: [
+                { key: 'winter-armour', name: '(Improved) Winter Armour', icon: '../assets/icons/live_wi_a_icyshield_g1.png', cooldown: '1m12s', description: 'Reflects 3569 damage at the enemies attacking you up to 5 away for 15s. Reduces the target\'s movement and attack speed for 2s' },
+                { key: 'glacial-shard', name: '(Improved) Glacial Shard', icon: '../assets/icons/live_wi_a_zeropoint_g1.png', cooldown: '42s', castTime: '4s', description: 'Deals 8437 magical water damage.' }
+            ],
+            vision: [
+                { key: 'wind-of-torpor', name: '(Improved) Wind of Torpor', icon: '../assets/icons/wi_a_windsleep_g1.png', cooldown: '2m', description: 'Puts the target to sleep for 16s. The next magic attack lands a crit strike. The duration is reduced by 50% when applied to a player.' },
+                { key: 'boon-of-flame', name: '(Improved) Boon of Flame', icon: '../assets/icons/wi_a_fireshield_g1.png', cooldown: '1s', description: 'Increases magic dmg by 18%. Also reduces MP consumption by 50%. Increases Crit Spell by 1000.' },
+                { key: 'refuge-barrier', name: '(Improved) Refuge Barrier', icon: '../assets/icons/wi_a_stonebarrier_g1.png', cooldown: '1m24s', description: 'Increases your casting time by 100% for 6s but grants you a protective shield. Grants up to 150000 protection. Enemies within 10m who attack the protective shield are petrified.' }
+            ]
+        },
+        resolveVision: function(build) {
+            if (!build) return 'refuge-barrier';
+
+            var gold = build.gold[0];
+            var blue = (build.blue || []).filter(Boolean);
+            var has = function(key) { return blue.indexOf(key) !== -1; };
+
+            if (gold === 'winter-armour') {
+                if ((has('sleeping-storm') && has('wind-cut-down')) ||
+                    (has('sleeping-storm') && has('illusion-storm')) ||
+                    (has('wind-cut-down') && has('illusion-storm'))) {
+                    return 'wind-of-torpor';
+                }
+            }
+
+            if (gold === 'glacial-shard') {
+                if ((has('summon-stone') && has('flame-spray')) ||
+                    (has('summon-stone') && has('summon-whirlwind')) ||
+                    (has('flame-spray') && has('summon-whirlwind'))) {
+                    return 'boon-of-flame';
+                }
+            }
+
+            return 'refuge-barrier';
+        }
+    },
+    spiritmaster: {
+        displayName: 'Spiritmaster',
+        slots: { gold: 1, blue: 3, green: 5 },
+        baseUnlocked: { gold: 1, blue: 2, green: 3 },
+        tiers: {
+            green: [
+                { key: 'enmitySwap', name: '(Improved) Enmity Swap', icon: '../assets/icons/cbt_el_a_sympatheticswitch_a_g1.png', cooldown: '42s', castTime: '0s', description: 'Restores the target\'s HP by 10800. The summoned spirit vanishes when the skill ends.' },
+                { key: 'earthProtection', name: '(Improved) Earth Protection', icon: '../assets/icons/el_a_earthguardiance_g1.png', cooldown: '56s', castTime: '1.5s', description: 'Removes states which restrict your movement. Increases Immobilization Resist by 1000 for 12s. Increases Slowing Resistance by 1000.' },
+                { key: 'curseOfMagicPower', name: '(Improved) Curse of Magic Power', icon: '../assets/icons/el_a_magicalbreakdown_g1.png', cooldown: '37s', castTime: '0.8s', description: 'Reduces the target\'s Magic Defence by 600 for 15s.' },
+                { key: 'wildernessRage', name: '(Improved) Wilderness Rage', icon: '../assets/icons/el_a_cursedbreath_1_g1.png', cooldown: '21s', castTime: '1.1s | Level 1 - 1.6s | Level 2 - 1.6s | Level 3 - 5s', description: 'Deals 3612/4740/6459 magical earth damage.' },
+                { key: 'commandBurnToAshes', name: '(Improved) Command: Burn-to-Ashes', icon: '../assets/icons/live_el_a_stigma_order_ethereruption_g1.png', cooldown: '37s', castTime: '2s', description: 'Water Spirit: Magical Water Damage. Wind Spirit: Magical Wind Damage. Earth Spirit: Magical Earth Damage. Fire Spirit: Magical Fire Damage. Magma Spirit: Magical Earth Damage. Tempest Spirit: Magical Water Damage.' },
+                { key: 'cycloneOfWrath', name: '(Improved) Cyclone of Wrath', icon: '../assets/icons/live_el_a_stigma_stormblade_g1.png', cooldown: '8s', castTime: '2s', description: 'Deals 1086 magical wind damage. Deals 886 additional damage every 2s for 8s.' },
+                { key: 'witheringGloom', name: '(Improved) Withering Gloom', icon: '../assets/icons/live_el_a_enervationcurse_g1.png', cooldown: '1m3s', castTime: '2s', description: 'Reduces the target\'s maximum HP and MP by 5000 for 30s. Reduces the target\'s recovery by 15%. MP regeneration is not possible. The effect cannot be removed.' },
+                { key: 'commandWallOfProtection', name: '(Improved) Command: Wall of Protection', icon: '../assets/icons/cbt_el_a_order_elementalfield_g1.png', cooldown: '43s', castTime: '0.8s', description: 'Commands the spirit to use its magical buff. Water Spirit: Increases Magical Accuracy and Resist Magic. Wind Spirit: Increases Accuracy and Evasion. Earth Spirit: HP regeneration, removes physical and mental altered states. Fire Spirit: Increases Physical Attack and reflects damage. Magma Spirit: Increases Physical Attack and removes physical and mental altered states. Tempest Spirit: Increases Physical Attack and removes physical and mental altered states.' },
+                { key: 'cloakingWord', name: '(Improved) Cloaking Word', icon: '../assets/icons/live_el_a_escape_g1.png', cooldown: '21s', castTime: '0.5s', description: 'Puts the target in normal stealth mode for 30s. Reduces movement speed. Not available in battle.' }
+            ],
+            blue: [
+                { key: 'magic-implosion', name: '(Improved) Magic Implosion', icon: '../assets/icons/live_el_a_manareverse_g1.png', cooldown: '21s', castTime: '0s', description: 'Removes big magic buffs and debuffs from the target and deals 1885 magic damage. Deals 1464 additional damage to the target every 3s for 30s. It can be removed with skills that dispel magical buffs or debuffs.' },
+                { key: 'infernal-pain', name: '(Improved) Infernal Pain', icon: '../assets/icons/live_el_a_hellpain_g1.png', cooldown: '21s', castTime: '1.5s', description: 'DescrDeals 1357 magical earth damage. Deals 1244 additional damage every 3s for 12s. The effect cannot be removed.' },
+                { key: 'command-ruinous-offensive', name: '(Improved) Command: Ruinous Offensive', icon: '../assets/icons/live_el_a_stigma_order_destructimpact_g1.png', cooldown: '18s', castTime: '0.8s', description: 'Commands the spirit to use its attack skill. Water Spirit: Magical Water Damage, reduce Magic Defence. Wind Spirit: Magical Wind Damage, reduce Magic Defence. Earth Spirit: Magical Earth Damage, reduce Physical Defence. Fire Spirit: Magical Fire Damage, reduce Physical Defence. Magma Spirit: Magical Fire Damage, Physical Defence, reduce Magic Defence. Tempest Spirit: Magical Wind Damage, Physical Defence, reduce Magic Defence.' },
+                { key: 'cyclone-servant', name: '(Improved) Summon Cyclone Servant', icon: '../assets/icons/live_el_a_light_slave_stormservent_g1.png', cooldown: '21s', castTime: '0s', description: 'Deals 1210 magical wind damage every 3 seconds for 10 seconds. The effect cannot be removed.' },
+                { key: 'healing-spirit', name: '(Improved) Healing Spirit', icon: '../assets/icons/live_el_a_elementalcharge_g1.png', cooldown: '32s', castTime: '0s', description: 'Restores 100% of the spirit\'s HP. Removes all magical debuffs.' },
+                { key: 'shackle-of-vulnerability', name: '(Improved) Shackle of Vulnerability', icon: '../assets/icons/live_el_a_enfeeblement_g1.png', cooldown: '18s', castTime: '1s', description: 'Reduces the attack speed of the target for 20s. Increases the target\'s casting time for all magical skills. Reduces Magic Defence by 660. It can be removed with skills that dispel magical buffs or debuffs.' }
+            ],
+            gold: [
+                { key: 'infernal-blight', name: '(Improved) Infernal Blight', icon: '../assets/icons/live_el_a_hellcurse_g1.png', cooldown: '37s', castTime: '1s', description: 'Reduces the target\'s Physical Defence by 900 for 30s. Reduces Magic Defence by 900. Reduces Magic Resist by 800.' },
+                { key: 'strengthening-spirit', name: '(Improved) Strengthening Spirit: Spirit Armour', icon: '../assets/icons/live_el_a_enchantarmor_g1.png', cooldown: '37s', castTime: '1s', description: 'Increases the spirit\'s Physical Attack by 1500 for 5m. Increases Magic Attack by 1500. Increases Physical Defence by 1200. Increases Magic Defence by 1200. Increases Speed by 30%. Increases Magical Acc by 5500. Increases Accuracy by 5500.' }
+            ],
+            vision: [
+                { key: 'spirit-bundling', name: '(Improved) Spirit Bundling', icon: '../assets/icons/el_a_soulking_g1.png', cooldown: '1m12s', description: 'Increases Magical Acc by 1,000 for 3m. Increases Magic Attack by 1,000. Increases Crit Spell by 500. Increases HP by 12,000. Increases Speed by 10%. Increases magic damage by 12%. If you summon a spirit, the skill effect disappears.' },
+                { key: 'command-faithful-substitution', name: '(Improved) Command: Faithful Substitution', icon: '../assets/icons/el_a_order_sacrifice_g1.png', cooldown: '48s', description: 'Commands the spirit to protect the target. The spirit absorbs 70% of the damage instead of the caster.' },
+                { key: 'large-scale-absorption', name: '(Improved) Large-Scale Absorption', icon: '../assets/icons/el_a_energysink_g1.png', cooldown: '48s', description: 'Deals 675 damage to the target every 2 for 15s. Absorbs HP from the enemy equal to the amount of damage dealt. Max. 10,000 HP Absorption.' }
+            ]
+        },
+        resolveVision: function(build) {
+            if (!build) return 'large-scale-absorption';
+
+            var gold = build.gold[0];
+            var blue = (build.blue || []).filter(Boolean);
+            var has = function(key) { return blue.indexOf(key) !== -1; };
+
+            if (gold === 'infernal-blight') {
+                if ((has('infernal-pain') && has('shackle-of-vulnerability')) ||
+                    (has('infernal-pain') && has('magic-implosion')) ||
+                    (has('shackle-of-vulnerability') && has('magic-implosion'))) {
+                    return 'spirit-bundling';
+                }
+            }
+
+            if (gold === 'strengthening-spirit') {
+                if ((has('healing-spirit') && has('cyclone-servant')) ||
+                    (has('healing-spirit') && has('command-ruinous-offensive')) ||
+                    (has('cyclone-servant') && has('command-ruinous-offensive'))) {
+                    return 'command-faithful-substitution';
+                }
+            }
+
+            return 'large-scale-absorption';
+        }
+    },
     // cleric: {
     //     displayName: 'Cleric',
     //     slots: { gold: 1, blue: 3, green: 5 },
