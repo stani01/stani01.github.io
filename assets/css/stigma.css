@@ -227,7 +227,8 @@
     margin-bottom: 2px;
 }
 
-.stigma-slot:focus-within .stigma-option-grid {
+.stigma-slot:focus-within .stigma-option-grid,
+.stigma-slot.is-open .stigma-option-grid {
     display: grid;
 }
 
@@ -747,6 +748,51 @@
 
     #stigma-builder .stigma-builder-head .gc-reset-btn {
         right: 2px;
+    }
+}
+
+@media (max-width: 760px) {
+    #stigma-builder .stigma-layout {
+        justify-content: center;
+    }
+
+    #stigma-builder .stigma-main-map {
+        max-width: 340px;
+        width: min(100%, 340px);
+        aspect-ratio: 320 / 252;
+    }
+
+    #stigma-builder .stigma-current {
+        width: 70px;
+        height: 62px;
+        min-height: 62px;
+        background-size: 70px 124px;
+    }
+
+    #stigma-builder .stigma-current-icon {
+        width: 30px;
+        height: 30px;
+    }
+
+    #stigma-builder .stigma-option-grid {
+        grid-template-columns: repeat(var(--stigma-option-cols, 4), 42px);
+        gap: 6px;
+    }
+
+    #stigma-builder .stigma-option {
+        width: 42px;
+        height: 42px;
+    }
+
+    #stigma-builder .stigma-option-icon {
+        width: 26px;
+        height: 26px;
+    }
+
+    #stigma-builder .stigma-clear-btn {
+        width: 18px;
+        height: 18px;
+        left: -12px;
     }
 }
 
