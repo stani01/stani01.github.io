@@ -95,10 +95,6 @@
     flex-shrink: 0;
 }
 
-.stigma-main-map.is-vision-active {
-    background-position: center bottom;
-}
-
 .stigma-map-slot {
     position: absolute;
     transform: translateZ(0);
@@ -732,36 +728,6 @@
     padding-top: 12px;
 }
 
-/* @media (max-width: 1080px) {
-    #stigma-builder .stigma-two-col {
-        grid-template-columns: 1fr;
-        gap: 22px;
-    }
-
-    #stigma-builder .stigma-builder-head .gc-reset-btn {
-        right: 2px;
-    }
-}
-
-@media (hover: none), (pointer: coarse) {
-    #stigma-builder .stigma-current:hover::before,
-    #stigma-builder .stigma-current:focus-visible::before,
-    #stigma-builder .stigma-option:hover::before,
-    #stigma-builder .stigma-option:focus-visible::before,
-    #stigma-builder .stigma-vision-trigger:hover::before,
-    #stigma-builder .stigma-vision-trigger:focus-visible::before {
-        opacity: 0;
-    }
-
-    #stigma-builder .stigma-current:hover,
-    #stigma-builder .stigma-current.is-filled:hover,
-    #stigma-builder .stigma-option:hover:not(:disabled) {
-        background-position: 0 -98px;
-        border-color: transparent;
-        box-shadow: none;
-    }
-} */
-
 @media (max-width: 768px) {
 
     #stigma-builder .stigma-two-col {
@@ -775,7 +741,7 @@
         max-width: 320px;
         margin: 0 auto;
         background-size: 90% auto;
-        background-position: center center;
+        background-position: center top;
         padding-bottom: 90px;
     }
 
