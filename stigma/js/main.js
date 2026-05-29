@@ -23,6 +23,153 @@
         vision: { x: 202, y: 159 }
     };
 
+    var STIGMA_PRESET_BUILD_MAP = {
+        gladiator: {
+            pve: {
+                gold: ['drainingSword'],
+                blue: ['sharpStrike', 'sureStrike', 'exhaustingWave'],
+                green: ['lockdown', 'magicDefence', 'howl', 'earthquakeWave', 'siegebreaker']
+            },
+            pvp: {
+                gold: ['whirlingStrike'],
+                blue: ['severePrecisionCut', 'tendonSlice', 'sharpStrike'],
+                green: ['lockdown', 'magicDefence', 'howl', 'ankleSnare', 'cripplingCut']
+            }
+        },
+        templar: {
+            pve: {
+                gold: ['empyreanProvidence'],
+                blue: ['shieldOfFaith', 'prayerOfVictory', 'punishingWave'],
+                green: ['punishment', 'eliminationStrike', 'divineFury', 'inquisitorBlow', 'incurWrath']
+            },
+            pvp: {
+                gold: ['shieldBlast'],
+                blue: ['magicSmash', 'punishingWave', 'prayerOfVictory'],
+                green: ['punishment', 'eliminationStrike', 'divineFury', 'aetherArmour', 'barricadeOfSteel']
+            }
+        },
+        assassin: {
+            pve: {
+                gold: ['quickeningDoom'],
+                blue: ['dashAndSlash', 'applyLethalVenom', 'lightningSlash'],
+                green: ['deadlyAbandon', 'runeCarveSigilStrike', 'eyeOfWrath', 'venomousStrike', 'shadowWalk']
+            },
+            pvp: {
+                gold: ['daggerOath'],
+                blue: ['fleeingPosture', 'sensoryBoost', 'dashAndSlash'],
+                green: ['deadlyAbandon', 'runeCarveSigilStrike', 'shadowfall', 'ambushRaid', 'shadowWalk']
+            }
+        },
+        ranger: {
+            pve: {
+                gold: ['galeArrow'],
+                blue: ['lethalArrow', 'explosiveArrow', 'sharpenArrows'],
+                green: ['focusedShots', 'arrowDeluge', 'bowOfBlessing', 'sealArrow', 'naturesResolve']
+            },
+            pvp: {
+                gold: ['lightningArrow'],
+                blue: ['lethalArrow', 'explosiveArrow', 'ragingWindArrow'],
+                green: ['focusedShots', 'arrowDeluge', 'bowOfBlessing', 'sealArrow', 'naturesResolve']
+            }
+        },
+        sorcerer: {
+            pve: {
+                gold: ['glacialShard'],
+                blue: ['flameSpray', 'summonStone', 'windCutDown'],
+                green: ['cycloneStrike', 'arcaneThunderbolt', 'iceHarpoon', 'exchangeVitality', 'elementalWard']
+            },
+            pvp: {
+                gold: ['winterArmour'],
+                blue: ['sleepingStorm', 'windCutDown', 'summonWhirlwind'],
+                green: ['cycloneStrike', 'arcaneThunderbolt', 'iceHarpoon', 'iceSheet', 'elementalWard']
+            }
+        },
+        spiritmaster: {
+            pve: {
+                gold: ['infernalBlight'],
+                blue: ['magicImplosion', 'infernalPain', 'cycloneServant'],
+                green: ['curseOfMagicPower', 'cycloneOfWrath', 'wildernessRage', 'commandWallOfProtection', 'enmitySwap']
+            },
+            pvp: {
+                gold: ['infernalBlight'],
+                blue: ['magicImplosion', 'infernalPain', 'shackleOfVulnerability'],
+                green: ['curseOfMagicPower', 'cycloneOfWrath', 'wildernessRage', 'witheringGloom', 'earthProtection']
+            }
+        },
+        cleric: {
+            pve: {
+                gold: ['callLightning'],
+                blue: ['sacrificialPower', 'chainOfSuffering', 'rippleOfPurification'],
+                green: ['lightningBoltOfRetaliation', 'savingGrace', 'nobleGrace', 'festeringWound', 'enfeeblingBurst']
+            },
+            pvp: {
+                gold: ['callLightning'],
+                blue: ['sacrificialPower', 'chainOfSuffering', 'rippleOfPurification'],
+                green: ['lightningBoltOfRetaliation', 'savingGrace', 'nobleGrace', 'festeringWound', 'enfeeblingBurst']
+            }
+        },
+        chanter: {
+            pve: {
+                gold: ['numbingBlow'],
+                blue: ['blessingOfWind', 'mountainCrash', 'healingBurst'],
+                green: ['healingConduit', 'annihilation', 'soulLock', 'deadlyBlow', 'wordOfInspiration']
+            },
+            pvp: {
+                gold: ['numbingBlow'],
+                blue: ['blessingOfWind', 'mountainCrash', 'healingBurst'],
+                green: ['wordOfLife', 'annihilation', 'soulLock', 'rise', 'wordOfInspiration']
+            }
+        },
+        aethertech: {
+            pve: {
+                gold: ['leapOfDestruction'],
+                blue: ['powerIncrease', 'lifelineSlash', 'stormStrike'],
+                green: ['idiumBombardment', 'idiumRay', 'waveOfDestruction', 'magicFocus', 'cleaveArmour']
+            },
+            pvp: {
+                gold: ['idShield'],
+                blue: ['powerIncrease', 'magicVeil', 'mobilityBoost'],
+                green: ['idiumBombardment', 'idiumRay', 'waveOfDestruction', 'absorbingReflectorShield', 'cleaveArmour']
+            }
+        },
+        gunner: {
+            pve: {
+                gold: ['soulCannon'],
+                blue: ['fissureCannonball', 'giftOfMagicPower', 'enhanceMagicProjectile'],
+                green: ['spiritCannon', 'frostCannon', 'flameBombardment', 'rapidVolley', 'soulsuckerShot']
+            },
+            pvp: {
+                gold: ['soulCannon'],
+                blue: ['fissureCannonball', 'giftOfMagicPower', 'bindingCannonball'],
+                green: ['spiritCannon', 'frostCannon', 'flameBombardment', 'shockCannon', 'soulsuckerShot']
+            }
+        },
+        bard: {
+            pve: {
+                gold: ['disharmony'],
+                blue: ['magicBoostMode', 'moskieRequiem', 'melodyOfJoy'],
+                green: ['marchOfTheBees', 'harmonyOfDesolation', 'requiemOfOblivion', 'variationOfPeace', 'healingVariation']
+            },
+            pvp: {
+                gold: ['disharmony'],
+                blue: ['magicBoostMode', 'moskieRequiem', 'paralysisResonation'],
+                green: ['marchOfTheBees', 'harmonyOfDesolation', 'requiemOfOblivion', 'danceOfTheJester', 'melodyOfDiscipline']
+            }
+        },
+        painter: {
+            pve: {
+                gold: ['colourFist'],
+                blue: ['colourOutbreak', 'flashPortrait', 'intoTheBlack'],
+                green: ['lifeBinding', 'colourFight', 'colourOfSilence', 'colourProtectionShield', 'colourfulRain']
+            },
+            pvp: {
+                gold: ['imprisonment'],
+                blue: ['newWork', 'intoTheBlack', 'colourOutbreak'],
+                green: ['lifeBinding', 'colourFight', 'colourOfSilence', 'colourProtectionShield', 'colourfulRain']
+            }
+        },
+    };
+
     function escapeHtml(value) {
         return String(value)
             .replace(/&/g, '&amp;')
@@ -91,6 +238,110 @@
         if (!buildsByClass[className]) buildsByClass[className] = createDefaultStigmaBuild(className);
         normalizeStigmaBuild(className, buildsByClass[className]);
         return buildsByClass[className];
+    }
+
+    function createPresetStigmaBuild(className, type) {
+        var cfg = getStigmaConfig(className);
+        if (!cfg) return createDefaultStigmaBuild(className);
+
+        var build = createDefaultStigmaBuild(className);
+        if (!build) return null;
+
+        var presetData = (STIGMA_PRESET_BUILD_MAP[className] || {})[type] || null;
+        if (presetData) {
+            GC_STIGMA_TIERS.forEach(function(tier) {
+                var tierPreset = Array.isArray(presetData[tier]) ? presetData[tier] : [];
+                for (var i = 0; i < build[tier].length; i++) {
+                    build[tier][i] = tierPreset[i] || null;
+                }
+            });
+        }
+
+        normalizeStigmaBuild(className, build);
+        return build;
+    }
+
+    var STIGMA_SHORT_SHARE_SLOT_ORDER = [
+        { tier: 'gold', index: 0 },
+        { tier: 'blue', index: 0 },
+        { tier: 'blue', index: 1 },
+        { tier: 'blue', index: 2 },
+        { tier: 'green', index: 0 },
+        { tier: 'green', index: 1 },
+        { tier: 'green', index: 2 },
+        { tier: 'green', index: 3 },
+        { tier: 'green', index: 4 }
+    ];
+
+    function encodeShortStigmaShare(className, build) {
+        var classIndex = CLASS_ORDER.indexOf(className);
+        if (classIndex < 0) return null;
+
+        var code = classIndex.toString(36);
+        var cfg = getStigmaConfig(className);
+        STIGMA_SHORT_SHARE_SLOT_ORDER.forEach(function(slot) {
+            var value = '0';
+            if (build && build[slot.tier] && build[slot.tier][slot.index]) {
+                var key = build[slot.tier][slot.index];
+                var tierList = cfg ? (cfg.tiers[slot.tier] || []) : [];
+                var optionIndex = tierList.findIndex(function(def) { return def.key === key; });
+                if (optionIndex !== -1) {
+                    value = (optionIndex + 1).toString(36);
+                }
+            }
+            code += value;
+        });
+        return code;
+    }
+
+    function decodeShortStigmaShare(code) {
+        if (typeof code !== 'string' || code.length !== 10) return null;
+        code = code.toLowerCase();
+
+        var classIndex = parseInt(code[0], 36);
+        if (isNaN(classIndex) || classIndex < 0 || classIndex >= CLASS_ORDER.length) return null;
+
+        var className = CLASS_ORDER[classIndex];
+        if (!classHasStigmas(className)) return null;
+
+        var cfg = getStigmaConfig(className);
+        if (!cfg) return null;
+
+        var build = createDefaultStigmaBuild(className);
+        if (!build) return null;
+
+        STIGMA_SHORT_SHARE_SLOT_ORDER.forEach(function(slot, index) {
+            var char = code[index + 1];
+            var value = parseInt(char, 36);
+            if (!isNaN(value) && value > 0) {
+                var optionIndex = value - 1;
+                var tierList = cfg.tiers[slot.tier] || [];
+                if (optionIndex >= 0 && optionIndex < tierList.length) {
+                    build[slot.tier][slot.index] = tierList[optionIndex].key;
+                }
+            }
+        });
+
+        normalizeStigmaBuild(className, build);
+        return { className: className, build: build };
+    }
+
+    function decodeSharedBuildFromUrl() {
+        if (typeof URLSearchParams === 'undefined') return false;
+        try {
+            var params = new URLSearchParams(window.location.search);
+            var code = params.get('stigma');
+            if (!code) return false;
+
+            var decoded = decodeShortStigmaShare(code);
+            if (!decoded) return false;
+
+            selectedClass = decoded.className;
+            buildsByClass[selectedClass] = decoded.build;
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
 
     function saveState() {
@@ -465,7 +716,18 @@
 
         var html = '<div class="stigma-panel">';
         html += '<div class="stigma-builder-head">';
-        html += '<button class="gc-reset-btn gc-item-tooltip-trigger" onclick="StigmaApp.resetClassStigmas()" aria-label="Reset current class stigmas" title="Reset current class stigmas" data-tooltip-html="' + escapeHtml(buildActionTooltipHtml('Reset Build', 'Clears the current class stigma selection and restores an empty board.')) + '">↺</button>';
+        html += '<div class="stigma-preset-actions">';
+        html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pve" onclick="StigmaApp.applyPresetBuild(\'pve\')" aria-label="Developer\'s PvE build" title="Developer\'s PvE build">';
+        html += '<img src="../assets/icons/icon_pve.png" alt="PVE">';
+        html += '</button>';
+        html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pvp" onclick="StigmaApp.applyPresetBuild(\'pvp\')" aria-label="Developer\'s PvP build" title="Developer\'s PvP build">';
+        html += '<img src="../assets/icons/icon_pvp.png" alt="PVP">';
+        html += '</button>';
+        html += '<button type="button" class="stigma-preset-btn stigma-share-btn" onclick="StigmaApp.shareCurrentBuild()" aria-label="Share current setup" title="Share current setup">';
+        html += '<span class="stigma-share-label">Share Build</span>';
+        html += '</button>';
+        html += '</div>';
+        html += '<button class="gc-reset-btn" onclick="StigmaApp.resetClassStigmas()" aria-label="Reset current class stigmas" title="Reset current class stigmas" data-tooltip-html="' + escapeHtml(buildActionTooltipHtml('Reset Build', 'Clears the current class stigma selection and restores an empty board.')) + '">↺</button>';
         html += '</div>';
 
         html += '<div class="stigma-two-col">';
@@ -552,6 +814,103 @@
             renderBuilder();
         },
 
+        shareCurrentBuild: function() {
+            var build = ensureClassBuild(selectedClass);
+            if (!build) return;
+
+            var code = encodeShortStigmaShare(selectedClass, build);
+            if (!code) return;
+
+            var baseUrl = window.location.href.split('?')[0];
+            var shareUrl = baseUrl + '?stigma=' + encodeURIComponent(code);
+
+            function fallbackCopy(text) {
+                try {
+                    var ta = document.createElement('textarea');
+                    ta.style.position = 'fixed';
+                    ta.style.top = 0;
+                    ta.style.left = 0;
+                    ta.style.width = '2em';
+                    ta.style.height = '2em';
+                    ta.style.padding = 0;
+                    ta.style.border = 'none';
+                    ta.style.outline = 'none';
+                    ta.style.boxShadow = 'none';
+                    ta.style.background = 'transparent';
+                    ta.value = text;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    var ok = document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    return !!ok;
+                } catch (e) {
+                    try { if (ta && ta.parentNode) ta.parentNode.removeChild(ta); } catch (e2) {}
+                    return false;
+                }
+            }
+
+            var btn = document.querySelector('.stigma-preset-actions .stigma-share-btn') || document.querySelector('.stigma-share-btn');
+
+            function animateButton() {
+                if (!btn) return;
+                btn.classList.remove('copied');
+                // force reflow to restart animation
+                // eslint-disable-next-line no-unused-expressions
+                btn.offsetWidth;
+                btn.classList.add('copied');
+                setTimeout(function() {
+                    btn.classList.remove('copied');
+                }, 1500);
+            }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareUrl).then(function() {
+                    if (typeof showShareToast === 'function') showShareToast('✓ Link copied to clipboard!');
+                    animateButton();
+                    var labelEl = btn ? btn.querySelector('.stigma-share-label') : null;
+                    var original = labelEl ? labelEl.textContent : null;
+                    if (labelEl) {
+                        labelEl.textContent = 'Link copied ✓';
+                        setTimeout(function() {
+                            if (labelEl) labelEl.textContent = original;
+                        }, 1500);
+                    }
+                }).catch(function() {
+                    var ok = fallbackCopy(shareUrl);
+                    if (ok) {
+                        if (typeof showShareToast === 'function') showShareToast('✓ Link copied to clipboard!');
+                        animateButton();
+                        var labelEl = btn ? btn.querySelector('.stigma-share-label') : null;
+                        var original = labelEl ? labelEl.textContent : null;
+                        if (labelEl) {
+                            labelEl.textContent = 'Link copied ✓';
+                            setTimeout(function() {
+                                if (labelEl) labelEl.textContent = original;
+                            }, 1500);
+                        }
+                    } else {
+                        if (typeof showShareToast === 'function') showShareToast('Could not copy link', true);
+                    }
+                });
+            } else {
+                var ok = fallbackCopy(shareUrl);
+                if (ok) {
+                    if (typeof showShareToast === 'function') showShareToast('✓ Link copied to clipboard!');
+                    animateButton();
+                    var labelEl = btn ? btn.querySelector('.stigma-share-label') : null;
+                    var original = labelEl ? labelEl.textContent : null;
+                    if (labelEl) {
+                        labelEl.textContent = 'Link copied ✓';
+                        setTimeout(function() {
+                            if (labelEl) labelEl.textContent = original;
+                        }, 1500);
+                    }
+                } else {
+                    if (typeof showShareToast === 'function') showShareToast('Could not copy link', true);
+                }
+            }
+        },
+
         openSkillLegendMobile: function() {
             var legendHtml = renderSkillDetailsForClass(selectedClass);
             openStigmaMobileModal('All Stigmas Details', legendHtml);
@@ -567,15 +926,23 @@
             }
         },
 
+        applyPresetBuild: function(type) {
+            if (!classHasStigmas(selectedClass)) return;
+            if (type !== 'pve' && type !== 'pvp') return;
+
+            var build = createPresetStigmaBuild(selectedClass, type);
+            if (!build) return;
+
+            buildsByClass[selectedClass] = build;
+            normalizeStigmaBuild(selectedClass, build);
+            saveState();
+            renderBuilder();
+        },
+
         applyVisionLegendFirstCombo: function(goldKey, blueAKey, blueBKey) {
             var build = ensureClassBuild(selectedClass);
             if (!build) return;
             if (!goldKey || !blueAKey || !blueBKey) return;
-
-            var goldDef = getStigmaDefinition(selectedClass, goldKey);
-            var blueADef = getStigmaDefinition(selectedClass, blueAKey);
-            var blueBDef = getStigmaDefinition(selectedClass, blueBKey);
-            if (!goldDef || !blueADef || !blueBDef) return;
 
             var tierMap = getStigmaTierMap(selectedClass);
             if (tierMap[goldKey] !== 'gold' || tierMap[blueAKey] !== 'blue' || tierMap[blueBKey] !== 'blue') return;
@@ -595,6 +962,7 @@
     };
 
     loadState();
+    decodeSharedBuildFromUrl();
     if (!CLASS_DATA[selectedClass]) selectedClass = getFirstSupportedClass();
     if (!classHasStigmas(selectedClass)) selectedClass = getFirstSupportedClass();
     ensureClassBuild(selectedClass);
