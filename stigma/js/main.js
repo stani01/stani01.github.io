@@ -4,7 +4,6 @@
     var STORAGE_KEY = 'stigma-builder-state-v1';
     var selectedClass = 'gladiator';
     var buildsByClass = {};
-    var activeStigmaSlot = null;
 
     // Tuned to the current stigma board background artwork.
     var STIGMA_LAYOUT = {
@@ -23,46 +22,6 @@
         ],
         vision: { x: 202, y: 159 }
     };
-
-    var STIGMA_MOBILE_LAYOUT = {
-        width: 320,
-        height: 252,
-        vision: { x: 160, y: 122 },
-        extraSlotPositions: [
-            { x: 80, y: 232 },
-            { x: 160, y: 232 },
-            { x: 240, y: 232 }
-        ]
-    };
-
-    function getStigmaLayout() {
-        var viewportWidth = Math.min(
-            window.innerWidth || Infinity,
-            document.documentElement.clientWidth || Infinity,
-            (window.visualViewport && window.visualViewport.width) || Infinity
-        );
-
-        if (viewportWidth <= 760) {
-            var mobileSlots = STIGMA_LAYOUT.slots.map(function(slot, index) {
-                if (index >= 6) {
-                    return {
-                        tier: slot.tier,
-                        index: slot.index,
-                        x: STIGMA_MOBILE_LAYOUT.extraSlotPositions[index - 6].x,
-                        y: STIGMA_MOBILE_LAYOUT.extraSlotPositions[index - 6].y
-                    };
-                }
-                return slot;
-            });
-            return {
-                width: STIGMA_MOBILE_LAYOUT.width,
-                height: STIGMA_MOBILE_LAYOUT.height,
-                slots: mobileSlots,
-                vision: STIGMA_MOBILE_LAYOUT.vision
-            };
-        }
-        return STIGMA_LAYOUT;
-    }
 
     function escapeHtml(value) {
         return String(value)
@@ -132,22 +91,6 @@
         if (!buildsByClass[className]) buildsByClass[className] = createDefaultStigmaBuild(className);
         normalizeStigmaBuild(className, buildsByClass[className]);
         return buildsByClass[className];
-    }
-
-    function openStigmaSlot(tier, slotIndex) {
-        activeStigmaSlot = { tier: tier, slotIndex: slotIndex };
-    }
-
-    function closeStigmaSlot() {
-        activeStigmaSlot = null;
-    }
-
-    function toggleStigmaSlot(tier, slotIndex) {
-        if (activeStigmaSlot && activeStigmaSlot.tier === tier && activeStigmaSlot.slotIndex === slotIndex) {
-            closeStigmaSlot();
-        } else {
-            openStigmaSlot(tier, slotIndex);
-        }
     }
 
     function saveState() {
@@ -230,9 +173,8 @@
         var optionCount = optionGroups.reduce(function(count, group) { return count + group.defs.length; }, 0);
         var optionCols = Math.max(1, Math.min(optionCount, 4));
 
-        var slotOpen = activeStigmaSlot && activeStigmaSlot.tier === tier && activeStigmaSlot.slotIndex === slotIndex;
-        var html = '<div class="stigma-slot stigma-map-node' + (slotOpen ? ' is-open' : '') + '">';
-        html += '<div class="stigma-current stigma-tier-' + tier + (selectedDef ? ' is-filled gc-item-tooltip-trigger' : '') + '" tabindex="0" role="button" aria-label="' + escapeHtml(slotTitle) + '" onclick="StigmaApp.toggleSlotOptions(\'' + tier + '\',' + slotIndex + ')"' + (slotTooltipHtml ? ' data-tooltip-html="' + escapeHtml(slotTooltipHtml) + '"' : '') + '>';
+        var html = '<div class="stigma-slot stigma-map-node">';
+        html += '<div class="stigma-current stigma-tier-' + tier + (selectedDef ? ' is-filled gc-item-tooltip-trigger' : '') + '" tabindex="0" role="button" aria-label="' + escapeHtml(slotTitle) + '"' + (slotTooltipHtml ? ' data-tooltip-html="' + escapeHtml(slotTooltipHtml) + '"' : '') + '>';
         if (slotHasIcon) html += '<img src="' + selectedDef.icon + '" class="stigma-current-icon" alt="">';
         html += '</div>';
         if (canClear) {
@@ -373,7 +315,6 @@
             return;
         }
 
-        var layout = getStigmaLayout();
         var className = CLASS_DATA[selectedClass] ? CLASS_DATA[selectedClass].name : selectedClass;
         var unlocked = isStigmaExtraUnlocked(selectedClass, build);
         var visionKey = resolveStigmaVisionKey(selectedClass, build);
@@ -388,10 +329,10 @@
         html += '<div class="stigma-two-col">';
         html += '<div class="stigma-left">';
         html += '<div class="stigma-layout">';
-        html += '<div class="stigma-main-map' + (visionActive ? ' is-vision-active' : '') + '" style="--stigma-base-width:' + layout.width + ';--stigma-base-height:' + layout.height + '">';
+        html += '<div class="stigma-main-map' + (visionActive ? ' is-vision-active' : '') + '" style="--stigma-base-width:' + STIGMA_LAYOUT.width + ';--stigma-base-height:' + STIGMA_LAYOUT.height + ';">';
 
-        layout.slots.forEach(function(slot) {
-            html += '<div class="stigma-map-slot" style="left:' + toPercent(slot.x, layout.width) + ';top:' + toPercent(slot.y, layout.height) + ';">';
+        STIGMA_LAYOUT.slots.forEach(function(slot) {
+            html += '<div class="stigma-map-slot" style="left:' + toPercent(slot.x, STIGMA_LAYOUT.width) + ';top:' + toPercent(slot.y, STIGMA_LAYOUT.height) + ';">';
             html += renderSlot(slot.tier, slot.index, build);
             html += '</div>';
         });
@@ -399,7 +340,7 @@
             if (unlocked && vision && vision.icon) {
                 var visionTooltipHtml = buildStigmaTooltipHtml(vision);
                 var visionLabel = vision.name + ' | ' + (vision.cooldown || '-') + ' | ' + (vision.description || '');
-                html += '<div class="stigma-map-slot stigma-vision-marker" style="left:' + toPercent(layout.vision.x, layout.width) + ';top:' + toPercent(layout.vision.y, layout.height) + ';">';
+                html += '<div class="stigma-map-slot stigma-vision-marker" style="left:' + toPercent(STIGMA_LAYOUT.vision.x, STIGMA_LAYOUT.width) + ';top:' + toPercent(STIGMA_LAYOUT.vision.y, STIGMA_LAYOUT.height) + ';">';
                 html += '<button type="button" class="stigma-vision-trigger gc-item-tooltip-trigger" tabindex="0" aria-label="' + escapeHtml(visionLabel) + '" data-tooltip-html="' + escapeHtml(visionTooltipHtml) + '">';
                 html += '<img src="' + vision.icon + '" class="stigma-vision-icon" alt="">';
                 html += '</button>';
@@ -421,7 +362,6 @@
         selectClass: function(className) {
             if (!CLASS_DATA[className]) return;
             selectedClass = className;
-            activeStigmaSlot = null;
             ensureClassBuild(className);
             saveState();
             renderClassSelector();
@@ -458,13 +398,11 @@
             build[tier][slotIndex] = nextKey;
             normalizeStigmaBuild(selectedClass, build);
             saveState();
-            closeStigmaSlot();
             renderBuilder();
         },
 
         resetClassStigmas: function() {
             if (!classHasStigmas(selectedClass)) return;
-            activeStigmaSlot = null;
             buildsByClass[selectedClass] = createDefaultStigmaBuild(selectedClass);
             normalizeStigmaBuild(selectedClass, buildsByClass[selectedClass]);
             saveState();
@@ -473,11 +411,6 @@
 
         clearStigma: function(tier, slotIndex) {
             StigmaApp.setStigma(tier, slotIndex, '');
-        },
-
-        toggleSlotOptions: function(tier, slotIndex) {
-            toggleStigmaSlot(tier, slotIndex);
-            renderBuilder();
         },
 
         applyVisionLegendFirstCombo: function(goldKey, blueAKey, blueBKey) {
