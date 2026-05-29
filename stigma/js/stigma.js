@@ -766,82 +766,132 @@ var GC_STIGMA_REGISTRY = {
             return 'large-scale-absorption';
         }
     },
-    // cleric: {
-    //     displayName: 'Cleric',
-    //     slots: { gold: 1, blue: 3, green: 5 },
-    //     baseUnlocked: { gold: 1, blue: 2, green: 3 },
-    //     tiers: {
-    //         green: [
-    //             { key: 'green1', name: '(Improved) green1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green2', name: '(Improved) green2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green3', name: '(Improved) green3', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green4', name: '(Improved) green4', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green5', name: '(Improved) green5', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green6', name: '(Improved) green6', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green7', name: '(Improved) green7', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green8', name: '(Improved) green8', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green9', name: '(Improved) green9', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ],
-    //         blue: [
-    //             { key: 'blue1', name: '(Improved) blue1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue2', name: '(Improved) blue2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue3', name: '(Improved) blue3', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue4', name: '(Improved) blue4', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue5', name: '(Improved) blue5', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue6', name: '(Improved) blue6', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ],
-    //         gold: [
-    //             { key: 'gold1', name: '(Improved) gold1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'gold2', name: '(Improved) gold2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ],
-    //         vision: [
-    //             { key: 'vision1', name: '(Improved) vision1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'vision2', name: '(Improved) vision2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'vision3', name: '(Improved) vision3', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ]
-    //     },
-    //     resolveVision: function(build) {
-    //         return 'vision3';
-    //     }
-    // },
-    // chanter: {
-    //     displayName: 'Chanter',
-    //     slots: { gold: 1, blue: 3, green: 5 },
-    //     baseUnlocked: { gold: 1, blue: 2, green: 3 },
-    //     tiers: {
-    //         green: [
-    //             { key: 'green1', name: '(Improved) green1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green2', name: '(Improved) green2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green3', name: '(Improved) green3', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green4', name: '(Improved) green4', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green5', name: '(Improved) green5', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green6', name: '(Improved) green6', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green7', name: '(Improved) green7', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green8', name: '(Improved) green8', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'green9', name: '(Improved) green9', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ],
-    //         blue: [
-    //             { key: 'blue1', name: '(Improved) blue1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue2', name: '(Improved) blue2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue3', name: '(Improved) blue3', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue4', name: '(Improved) blue4', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue5', name: '(Improved) blue5', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'blue6', name: '(Improved) blue6', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ],
-    //         gold: [
-    //             { key: 'gold1', name: '(Improved) gold1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'gold2', name: '(Improved) gold2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ],
-    //         vision: [
-    //             { key: 'vision1', name: '(Improved) vision1', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'vision2', name: '(Improved) vision2', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' },
-    //             { key: 'vision3', name: '(Improved) vision3', icon: '../assets/icons/link', cooldown: '42s', description: 'Description.' }
-    //         ]
-    //     },
-    //     resolveVision: function(build) {
-    //         return 'vision3';
-    //     }
-    // },
+    cleric: {
+        displayName: 'Cleric',
+        slots: { gold: 1, blue: 3, green: 5 },
+        baseUnlocked: { gold: 1, blue: 2, green: 3 },
+        tiers: {
+            green: [
+                { key: 'green1', name: '(Improved) Sprint Skill', icon: '../assets/icons/pr_a_sprint_g1.png', cooldown: '56s', description: 'Increases movement speed by 30% for 15 seconds.' },
+                { key: 'green2', name: '(Improved) Reverse Condition', icon: '../assets/icons/cbt_pr_a_reversecondition_g1.png', cooldown: '1m4s', description: 'Swaps around HP and MP.' },
+                { key: 'green3', name: '(Improved) Saving Grace', icon: '../assets/icons/live_pr_a_restorelife_g1.png', cooldown: '8s', description: 'Activated when Block and Resist Magic are performed successfully. For 15s, you absorb 500 HP each time you are hit. Increases Physical Defence and Magic Defence by 950. Increases healing by 10%.' },
+                { key: 'green4', name: '(Improved) Sympathetic Heal', icon: '../assets/icons/cbt_pr_a_bindingheal_g1.png', cooldown: '7s', castTime: '2s', description: 'Restores 2924 HP to allies. Regenerates part of your HP.' },
+                { key: 'green5', name: '(Improved) Festering Wound', icon: '../assets/icons/cbt_pr_a_coursewound_g1.png', cooldown: '32s', description: 'Reduces the target\'s recovery by 50% for 1m.' },
+                { key: 'green6', name: '(Improved) Blinding Light', icon: '../assets/icons/cbt_pr_a_blindinglight_g1.png', cooldown: '1m15s', description: 'Blinds the target for 15s.' },
+                { key: 'green7', name: '(Improved) Lightning Bolt of Retaliation', icon: '../assets/icons/pr_a_thunderofpunishment_g1.png', cooldown: '14s', description: 'Deals 2965 magical wind damage.' },
+                { key: 'green8', name: '(Improved) Enfeebling Burst', icon: '../assets/icons/live_pr_a_suffermemory_g1.png', cooldown: '40s', castTime: '1s', description: 'Reduces the target\'s Physical Attack by 1000 for 20s. Reduces Magic Attack by 1000.' },
+                { key: 'green9', name: '(Improved) Noble Grace', icon: '../assets/icons/live_pr_a_healinggrace_g1.png', cooldown: '1m12s', description: 'Increases HP by 10000 for 15s. Increases Healing Boost by 500.' }
+            ],
+            blue: [
+                { key: 'sacrificialPower', name: '(Improved) Sacrificial Power', icon: '../assets/icons/live_pr_a_offensivemode_g1.png', cooldown: '30s', description: 'Increases Magical Acc by 1800. Increases Add. PvE Atk. by 800. Increases Magic Attack by 1600. Increases Crit Spell by 1250. Reduces Healing Boost by 1500. Active Skill.' },
+                { key: 'summonHealingServant', name: '(Improved) Summon Healing Servant', icon: '../assets/icons/live_pr_a_light_healingservent_g1.png', cooldown: '42s', castTime: '1s', description: 'Summons a spirit that restores 1485 HP. It vanishes after a while.' },
+                { key: 'rippleOfPurification', name: '(Improved) Ripple of Purification', icon: '../assets/icons/live_pr_a_tranquility_g1.png', cooldown: '48s', castTime: '1s', description: 'Removes altered states from a group member. Restores 4843 HP. Also restores an additional 2897 HP every 2s for 15s.' },
+                { key: 'splendourOfRebirth', name: '(Improved) Splendour of Rebirth', icon: '../assets/icons/live_pr_a_regeneraitionshine_g1.png', cooldown: '42s', description: 'Restores 1702 HP. Restores an additional 1702 HP for you every 2s for 15s.' },
+                { key: 'chainOfSuffering', name: '(Improved) Chain of Suffering', icon: '../assets/icons/live_pr_a_painlinks_g1.png', cooldown: '48s', castTime: '2s', description: 'Deals 1736 magical earth damage. Deals 1654 additional damage every 2s for 30s. If the target is another player and you die while it is in effect, you are resurrected at the Kisk or Obelisk.' },
+                { key: 'summonNobleEnergy', name: '(Improved) Summon Noble Energy', icon: '../assets/icons/live_pr_a_light_eternalservent_g1.png', cooldown: '21s', description: 'Summons a spirit that deals 5435 magical fire damage. The spirit vanishes after a while and consumes part of its own HP with each attack.' }
+            ],
+            gold: [
+                { key: 'benevolence', name: '(Improved) Benevolence', icon: '../assets/icons/live_pr_a_healershand_g1.png', cooldown: '0s', description: 'Increases Healing Boost by 650. Reduces Magic Attack by 1500. Active Skill.' },
+                { key: 'callLightning', name: '(Improved) Call Lightning', icon: '../assets/icons/live_pr_a_calllightning_g1.png', cooldown: '42s', castTime: '2.5s', description: 'Deals 5405 magical wind damage.' }
+            ],
+            vision: [
+                { key: 'sealOfJudgement', name: '(Improved) Seal of Judgement', icon: '../assets/icons/pr_a_punishinglight_g1.png', cooldown: '21s', description: 'Reduces Magic Resist by 5000 for 12s. Reduces Magic Defence by 500. Reduces Physical Defence by 500. The effect cannot be removed.' },
+                { key: 'lifeSavingSplendour', name: '(Improved) Life-Saving Splendour', icon: '../assets/icons/pr_a_keeplife_g1.png', cooldown: '1m12s', description: 'Restores 20000 HP if the HP of group members falls below 50%.' },
+                { key: 'summonTauntingEnergy', name: '(Improved) Summon Taunting Energy', icon: '../assets/icons/pr_a_provokeservent_g1.png', cooldown: '1m3s', description: 'Summons a spirit that provokes enemies. The effect has a 50% probability of affecting the target.' }
+            ]
+        },
+        resolveVision: function(build) {
+            if (!build) return 'summonTauntingEnergy';
+
+            var gold = build.gold[0];
+            var blue = (build.blue || []).filter(Boolean);
+            var has = function(key) { return blue.indexOf(key) !== -1; };
+
+            if (gold === 'callLightning') {
+                if ((has('chainOfSuffering') && has('sacrificialPower')) ||
+                    (has('chainOfSuffering') && has('summonNobleEnergy')) ||
+                    (has('sacrificialPower') && has('summonNobleEnergy'))) {
+                    return 'sealOfJudgement';
+                }
+            }
+
+            if (gold === 'benevolence') {
+                if ((has('summonHealingServant') && has('splendourOfRebirth')) ||
+                    (has('summonHealingServant') && has('rippleOfPurification')) ||
+                    (has('splendourOfRebirth') && has('rippleOfPurification'))) {
+                    return 'lifeSavingSplendour';
+                }
+            }
+
+            return 'summonTauntingEnergy';
+        }
+    },
+    chanter: {
+        displayName: 'Chanter',
+        slots: { gold: 1, blue: 3, green: 5 },
+        baseUnlocked: { gold: 1, blue: 2, green: 3 },
+        tiers: {
+            green: [
+                { key: 'ragingEncouragement', name: '(Improved) Raging Encouragement', icon: '../assets/icons/live_ch_a_encouragerun_g1.png', cooldown: '56s', description: 'Increases the target\'s Speed by 30% for 12s.' },
+                { key: 'wordOfInspiration', name: '(Improved) Word of Inspiration', icon: '../assets/icons/cbt_ch_a_improvedallattack_g1.png', cooldown: '30s', description: 'Increases Physical Attack by 750. Increases Accuracy and Crit Strike by 600. Increases Add. PvE Atk. by 500. Reduces Healing Boost by 1000. Active Skill.' },
+                { key: 'wordOfLife', name: '(Improved) Word of Life', icon: '../assets/icons/cbt_ch_a_improvedlifestream_g1.png', cooldown: '42s', description: 'Restores your HP by 2334 every 2s for 10s.' },
+                { key: 'rise', name: '(Improved) Rise', icon: '../assets/icons/live_ch_a_phoenixstep_g1.png', cooldown: '1m4s', description: 'Removes a shock state and increases Stun, Knock Back, Stumble, Spin, and Aether\'s Hold Resists by 2000 for 7s.' },
+                { key: 'soulLock', name: '(Improved) Soul Lock', icon: '../assets/icons/live_ch_a_soaredrock_g1.png', cooldown: '21s', description: 'Deals 1153 physical damage. Binds the target for 3s.' },
+                { key: 'splashSwing', name: '(Improved) Splash Swing', icon: '../assets/icons/live_ch_a_splashswing_g1.png', cooldown: '11s', description: 'After a successful parry, deals 2875 physical damage.' },
+                { key: 'annihilation', name: '(Improved) Annihilation', icon: '../assets/icons/live_ch_a_triplethrust_g1.png', cooldown: '42s', description: 'Deals 916 physical damage. Multicast 3 times.',
+                    linkedTooltips: [
+                        {
+                            key: 'blast', name: '(Improved) Blast', icon: '../assets/icons/live_ch_a_thruststrike_g1.png', cooldown: '42s', description: 'Deals 1101 physical damage. Stuns the target for 2s.'
+                        }
+                    ],
+                },
+                { key: 'deadlyBlow', name: '(Improved) Deadly Blow', icon: '../assets/icons/ch_a_harshthrust_1_g1.png', cooldown: '21s', castTime: '0.3s', description: 'Has a high chance of hitting the target and then deals 1485 physical damage. Causes the target to stumble.' },
+                { key: 'healingConduit', name: '(Improved) Healing Conduit', icon: '../assets/icons/cbt_ch_a_healingtank_g1.png', cooldown: '48s', description: 'Restores 810 HP of allies provided the target is within 15m and sustains damage for 10s.' }
+            ],
+            blue: [
+                { key: 'blessingOfStone', name: '(Improved) Blessing of Stone', icon: '../assets/icons/live_ch_a_blessprotect_g1.png', cooldown: '0s', description: 'Increases the target\'s HP by 25% for 30m. Increases Physical and Magic Defence by 350.' },
+                { key: 'blessingOfWind', name: '(Improved) Blessing of Wind', icon: '../assets/icons/live_ch_a_imbuepower_g1.png', cooldown: '1m3s', description: 'Increases Physical Attack by 800 for 30s. Also deals 2244 additional damage for each attack.' },
+                { key: 'wordOfProtection', name: '(Improved) Word of Protection', icon: '../assets/icons/cbt_ch_a_improvedalldefend_g1.png', cooldown: '30s', description: 'Increases Evasion, Parry, Block of group members by 350 for 1m. Increases Stun Resist by 280.' },
+                { key: 'mountainCrash', name: '(Improved) Mountain Crash', icon: '../assets/icons/live_ch_a_mountaincrash_g1.png', cooldown: '21s', description: 'Deals 3015 physical damage. Reduces Physical Defence by 350 for 12s.' },
+                { key: 'disorientatingBlow', name: '(Improved) Disorientating Blow', icon: '../assets/icons/live_ch_a_shockwave_g1.png', cooldown: '42s', description: 'Deals 954 physical damage. Causes the target to stumble.' },
+                { key: 'healingBurst', name: '(Improved) Healing Burst', icon: '../assets/icons/live_ch_a_surperiorheal_g1.png', cooldown: '7s', castTime: '2s', description: 'Restores 6894 HP.' }
+            ],
+            gold: [
+                { key: 'numbingBlow', name: '(Improved) Numbing Blow', icon: '../assets/icons/live_ch_a_slowcrash_g1.png', cooldown: '28s', description: 'Deals 2267 physical damage. Reduces the target\'s attack speed for 10s. Increases magic casting time by 50%.' },
+                { key: 'elementalScreen', name: '(Improved) Elemental Screen', icon: '../assets/icons/live_ch_a_improvedbody_g1.png', cooldown: '1m15s', description: 'Increases Physical and Magic Defence of group members by 1,500 for 30s.' }
+            ],
+            vision: [
+                { key: 'roaringWindBludgeon', name: '(Improved) Roaring Wind Bludgeon', icon: '../assets/icons/ch_a_tornado_g1.png', cooldown: '21s', description: 'Deals 3644 physical damage.' },
+                { key: 'magicOfIncitement', name: '(Improved) Magic of Incitement', icon: '../assets/icons/ch_a_physicalenhancement_g1.png', cooldown: '42s', description: 'Increases Crit Strike of group members by 800 for 5m. Increases Accuracy by 800. Increases Physical Attack by 600.' },
+                { key: 'blastSpell', name: '(Improved) Blast Spell', icon: '../assets/icons/ch_a_brand_g1.png', cooldown: '1m3s', description: 'Reduces Accuracy by 1,000 for 15s. Reduces Magical Acc by 1000. Reduces Physical Defence by 1200. Reduces Magic Defence by 1200.' }
+            ]
+        },
+        resolveVision: function(build) {
+            if (!build) return 'blastSpell';
+
+            var gold = build.gold[0];
+            var blue = (build.blue || []).filter(Boolean);
+            var has = function(key) { return blue.indexOf(key) !== -1; };
+
+            if (gold === 'numbingBlow') {
+                if ((has('blessingOfWind') && has('mountainCrash')) ||
+                    (has('blessingOfWind') && has('disorientatingBlow')) ||
+                    (has('mountainCrash') && has('disorientatingBlow'))) {
+                    return 'roaringWindBludgeon';
+                }
+            }
+
+            if (gold === 'elementalScreen') {
+                if ((has('healingBurst') && has('blessingOfStone')) ||
+                    (has('healingBurst') && has('wordOfProtection')) ||
+                    (has('blessingOfStone') && has('wordOfProtection'))) {
+                    return 'magicOfIncitement';
+                }
+            }
+
+            return 'blastSpell';
+        }
+    },
     // aethertech: {
     //     displayName: 'Aethertech',
     //     slots: { gold: 1, blue: 3, green: 5 },
