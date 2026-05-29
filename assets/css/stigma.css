@@ -87,7 +87,6 @@
     width: min(100%, 400px);
     max-width: 400px;
     aspect-ratio: 400 / 315;
-    background-image: url('../icons/stigmasbg.jpg');
     background-repeat: no-repeat;
     background-position: center top;
     background-size: 100% auto;
@@ -363,12 +362,6 @@
     margin-top: 8px;
     font-size: 0.76em;
     color: #c7c3b6;
-}
-
-@media (max-width: 980px) {
-    .stigma-layout {
-        align-items: center;
-    }
 }
 
 #stigma-builder .stigma-panel {
@@ -739,7 +732,7 @@
     padding-top: 12px;
 }
 
-@media (max-width: 1080px) {
+/* @media (max-width: 1080px) {
     #stigma-builder .stigma-two-col {
         grid-template-columns: 1fr;
         gap: 22px;
@@ -766,5 +759,323 @@
         background-position: 0 -98px;
         border-color: transparent;
         box-shadow: none;
+    }
+} */
+
+@media (max-width: 768px) {
+
+    #stigma-builder .stigma-two-col {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    #stigma-builder .stigma-main-map {
+        width: min(100%, 320px);
+        max-width: 320px;
+        margin: 0 auto;
+        background-size: 90% auto;
+        background-position: center center;
+        padding-bottom: 90px;
+    }
+
+    #stigma-builder .stigma-layout {
+        justify-content: center;
+    }
+
+    #stigma-builder .stigma-map-slot {
+        transform: translate(-50%, -50%);
+    }
+
+    #stigma-builder .stigma-slot {
+        width: 72px;
+    }
+
+    #stigma-builder .stigma-current {
+        width: 70px;
+        height: 64px;
+        min-height: 64px;
+        background-size: 70px 128px;
+        background-position: 0 -64px;
+    }
+
+    #stigma-builder .stigma-current-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    #stigma-builder .stigma-option-grid {
+        grid-template-columns: repeat(var(--stigma-option-cols, 4), 34px);
+        gap: 6px;
+    }
+
+    #stigma-builder .stigma-option {
+        width: 34px;
+        height: 34px;
+    }
+
+    #stigma-builder .stigma-option-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    #stigma-builder .stigma-clear-btn {
+        width: 14px;
+        height: 14px;
+        left: -10px;
+    }
+
+    #stigma-builder .stigma-clear-btn {
+        display: none;
+    }
+
+    /* MAIN 6 */
+
+    #stigma-builder .stigma-map-slot:nth-child(1) {
+        left: calc(50%) !important;
+        top: calc(14%) !important;
+    }
+
+    #stigma-builder .stigma-map-slot:nth-child(2) {
+        left: calc(25%) !important;
+        top: calc(35%) !important;
+    }
+
+    #stigma-builder .stigma-map-slot:nth-child(3) {
+        left: calc(74%) !important;
+        top: calc(35%) !important;
+    }
+
+    #stigma-builder .stigma-map-slot:nth-child(4) {
+        left: calc(28%) !important;
+        top: calc(68%) !important;
+    }
+
+    #stigma-builder .stigma-map-slot:nth-child(5) {
+        left: calc(51%) !important;
+        top: calc(80%) !important;
+    }
+
+    #stigma-builder .stigma-map-slot:nth-child(6) {
+        left: calc(73%) !important;
+        top: calc(67%) !important;
+    }
+
+    /* SIDE 3 BELOW */
+
+    #stigma-builder .stigma-map-slot:nth-child(7) {
+        left: 20% !important;
+        top: 110% !important;
+    }
+
+    #stigma-builder .stigma-map-slot:nth-child(8) {
+        left: 50% !important;
+        top: 110% !important;
+    }
+
+    #stigma-builder .stigma-map-slot:nth-child(9) {
+        left: 80% !important;
+        top: 110% !important;
+    }
+
+    #stigma-builder .stigma-vision-marker {
+        left: 51% !important;
+        top: 46% !important;
+    }
+
+    #stigma-builder .stigma-vision-icon {
+        width: 30px;
+        height: 30px;
+    }
+
+    #stigma-builder .stigma-legend {
+        width: min(100%, 320px);
+        margin: 48px auto 0;
+    }
+
+    #stigma-builder .stigma-legend-row {
+        grid-template-columns: 40px 16px 1fr;
+    }
+
+    #stigma-builder .stigma-legend-icon,
+    #stigma-builder .stigma-legend-icon-vision {
+        width: 42px;
+        height: 42px;
+    }
+
+    #stigma-builder .stigma-legend-icon img {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+.stigma-mobile-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+}
+
+.stigma-mobile-modal.is-open {
+    display: block;
+}
+
+.stigma-mobile-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(4px);
+}
+
+.stigma-mobile-modal-dialog {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(92vw, 420px);
+
+    background: #11151c;
+    border: 1px solid rgba(190,160,90,.45);
+    border-radius: 14px;
+
+    padding: 18px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.stigma-mobile-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    width: 34px;
+    height: 34px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: rgba(255,255,255,.08);
+    color: white;
+
+    cursor: pointer;
+}
+
+.stigma-mobile-dialog-title {
+    color: #f5e9c9;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.stigma-mobile-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.stigma-mobile-action-button {
+    border: 1px solid rgba(190,160,90,.45);
+    background: rgba(255,255,255,.08);
+    color: #f3ebd7;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.stigma-mobile-action-button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.stigma-mobile-group {
+    margin-bottom: 14px;
+}
+
+.stigma-mobile-group-label {
+    color: #c4b387;
+    font-size: 0.76rem;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+    .stigma-mobile-skill-card {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    .stigma-mobile-skill-card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+
+    .stigma-mobile-skill-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+    }
+
+    .stigma-mobile-skill-title {
+        color: #f5e9c9;
+        font-weight: 700;
+        font-size: 0.97rem;
+    }
+
+    .stigma-mobile-skill-meta {
+        color: #d6c8a1;
+        font-size: 0.82rem;
+        margin-bottom: 8px;
+    }
+
+    .stigma-mobile-skill-meta-line {
+        margin-bottom: 4px;
+    }
+
+    .stigma-mobile-skill-description {
+        color: #e7dfc9;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .stigma-option-grid-mobile {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+.stigma-mobile-open-btn {
+    display: none;
+}
+
+@media (max-width: 768px) {
+
+    .stigma-mobile-open-btn {
+        display: block;
+        margin-top: 6px;
+
+        border: 1px solid rgba(190,160,90,.45);
+        background: rgba(0,0,0,.35);
+
+        color: #ddd;
+        border-radius: 8px;
+
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+
+    #stigma-builder .stigma-option-grid {
+        display: none !important;
+    }
+
+    body.stigma-modal-open {
+        overflow: hidden;
     }
 }

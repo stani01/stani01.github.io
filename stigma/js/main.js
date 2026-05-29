@@ -174,7 +174,7 @@
         var optionCols = Math.max(1, Math.min(optionCount, 4));
 
         var html = '<div class="stigma-slot stigma-map-node">';
-        html += '<div class="stigma-current stigma-tier-' + tier + (selectedDef ? ' is-filled gc-item-tooltip-trigger' : '') + '" tabindex="0" role="button" aria-label="' + escapeHtml(slotTitle) + '"' + (slotTooltipHtml ? ' data-tooltip-html="' + escapeHtml(slotTooltipHtml) + '"' : '') + '>';
+        html += '<div class="stigma-current stigma-tier-' + tier + (selectedDef ? ' is-filled gc-item-tooltip-trigger' : '') + '" tabindex="0" role="button" onclick="StigmaApp.toggleSlotOptions(\'' + tier + '\',' + slotIndex + ')" aria-label="' + escapeHtml(slotTitle) + '"' + (slotTooltipHtml ? ' data-tooltip-html="' + escapeHtml(slotTooltipHtml) + '"' : '') + '>';
         if (slotHasIcon) html += '<img src="' + selectedDef.icon + '" class="stigma-current-icon" alt="">';
         html += '</div>';
         if (canClear) {
@@ -197,6 +197,103 @@
         if (locked) html += '<div class="stigma-slot-note">Locked</div>';
         html += '</div>';
         return html;
+    }
+
+    function isMobileScreen() {
+        return !!(
+            (window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches) ||
+            ((window.innerWidth || 0) <= 768)
+        );
+    }
+
+    var stigmaMobileModal = null;
+    var stigmaMobileModalTitle = null;
+    var stigmaMobileModalContent = null;
+
+    function createStigmaMobileModal() {
+        if (stigmaMobileModal) return;
+
+        var existing = document.getElementById('stigma-mobile-modal');
+        if (existing) {
+            stigmaMobileModal = existing;
+        } else {
+            stigmaMobileModal = document.createElement('div');
+            stigmaMobileModal.id = 'stigma-mobile-modal';
+            stigmaMobileModal.className = 'stigma-mobile-modal';
+            stigmaMobileModal.innerHTML =
+                '<div class="stigma-mobile-modal-backdrop"></div>' +
+                '<div class="stigma-mobile-modal-dialog">' +
+                    '<button type="button" class="stigma-mobile-close" aria-label="Close">✕</button>' +
+                    '<div class="stigma-mobile-dialog-title"></div>' +
+                    '<div class="stigma-mobile-dialog-content"></div>' +
+                '</div>';
+            document.body.appendChild(stigmaMobileModal);
+        }
+
+        stigmaMobileModalTitle = stigmaMobileModal.querySelector('.stigma-mobile-dialog-title');
+        stigmaMobileModalContent = stigmaMobileModal.querySelector('.stigma-mobile-dialog-content');
+
+        var closeButton = stigmaMobileModal.querySelector('.stigma-mobile-close');
+        var backdrop = stigmaMobileModal.querySelector('.stigma-mobile-modal-backdrop');
+        if (closeButton) closeButton.addEventListener('click', closeStigmaMobileModal);
+        if (backdrop) backdrop.addEventListener('click', closeStigmaMobileModal);
+    }
+
+    function openStigmaMobileModal(title, html) {
+        createStigmaMobileModal();
+        if (stigmaMobileModalTitle) stigmaMobileModalTitle.textContent = title || '';
+        if (stigmaMobileModalContent) stigmaMobileModalContent.innerHTML = html || '';
+        stigmaMobileModal.classList.add('is-open');
+        document.body.classList.add('stigma-modal-open');
+    }
+
+    function closeStigmaMobileModal() {
+        if (!stigmaMobileModal) return;
+        stigmaMobileModal.classList.remove('is-open');
+        document.body.classList.remove('stigma-modal-open');
+    }
+
+    function openStigmaTooltipModal(tooltipHtml, title) {
+        if (!tooltipHtml) return;
+        openStigmaMobileModal(title || 'Details', tooltipHtml);
+    }
+
+    function renderStigmaSlotModal(tier, slotIndex) {
+        var build = ensureClassBuild(selectedClass);
+        if (!build) return;
+
+        var locked = isStigmaSlotLocked(selectedClass, tier, slotIndex, build);
+        var current = build[tier][slotIndex] || '';
+        var optionGroups = getStigmaOptionGroups(selectedClass, tier, slotIndex, build);
+        var title = 'Choose ' + tier + ' stigma';
+
+        var html = '<div class="stigma-mobile-modal-body">';
+        html += '<div class="stigma-mobile-dialog-header">';
+        html += '<div class="stigma-mobile-dialog-title-text">' + escapeHtml(title) + '</div>';
+        if (current) {
+            html += '<button type="button" class="stigma-mobile-action-button" onclick="StigmaApp.clearStigma(\'' + tier + '\',' + slotIndex + ')">Remove</button>';
+        }
+        html += '</div>';
+
+        if (!optionGroups.length) {
+            html += '<div class="stigma-mobile-empty">No stigmas available.</div>';
+        } else {
+            optionGroups.forEach(function(group) {
+                html += '<div class="stigma-mobile-group">';
+                html += '<div class="stigma-mobile-group-label">' + escapeHtml(group.tier.charAt(0).toUpperCase() + group.tier.slice(1)) + '</div>';
+                html += '<div class="stigma-option-grid-mobile">';
+                group.defs.forEach(function(def) {
+                    html += '<button type="button" class="stigma-option stigma-tier-' + group.tier + (def.key === current ? ' selected' : '') + '" ' + (locked ? 'disabled' : '') + ' onclick="StigmaApp.setStigma(\'' + tier + '\',' + slotIndex + ',\'' + def.key + '\')">';
+                    html += '<img src="' + def.icon + '" class="stigma-option-icon" alt="">';
+                    html += '</button>';
+                });
+                html += '</div>';
+                html += '</div>';
+            });
+        }
+
+        html += '</div>';
+        openStigmaMobileModal(title, html);
     }
 
     function buildVisionLegendData(className) {
@@ -250,13 +347,47 @@
         var label = def.name + ' | ' + (def.cooldown || '-') + ' | ' + (def.description || '');
         var cls = 'stigma-legend-icon gc-item-tooltip-trigger';
         if (extraClass) cls += ' ' + extraClass;
-        var html = '<button type="button" class="' + cls + '" data-tooltip-html="' + escapeHtml(tooltipHtml) + '" aria-label="' + escapeHtml(label) + '"' + (extraAttrs || '') + '>';
+        var html = '<button type="button" class="' + cls + '" data-tooltip-html="' + escapeHtml(tooltipHtml) + '" data-tooltip-title="' + escapeHtml(def.name) + '" aria-label="' + escapeHtml(label) + '"' + (extraAttrs || '') + '>';
         html += '<img src="' + def.icon + '" alt="">';
         html += '</button>';
         return html;
     }
 
-    function renderVisionLegend(className) {
+    function renderMobileSkillDetailCard(def) {
+        if (!def) return '';
+        var html = '<div class="stigma-mobile-skill-card">';
+        html += '<div class="stigma-mobile-skill-card-header">';
+        html += '<img src="' + def.icon + '" class="stigma-mobile-skill-icon" alt="">';
+        html += '<div class="stigma-mobile-skill-title">' + escapeHtml(def.name) + '</div>';
+        html += '</div>';
+        html += '<div class="stigma-mobile-skill-meta">';
+        if (def.cooldown) html += '<div class="stigma-mobile-skill-meta-line">Cooldown: ' + escapeHtml(def.cooldown) + '</div>';
+        if (def.castTime) html += '<div class="stigma-mobile-skill-meta-line">Cast Time: ' + escapeHtml(def.castTime) + '</div>';
+        html += '</div>';
+        if (def.description) html += '<div class="stigma-mobile-skill-description">' + escapeHtml(def.description) + '</div>';
+        html += '</div>';
+        return html;
+    }
+
+    function renderSkillDetailsForClass(className) {
+        var cfg = getStigmaConfig(className);
+        if (!cfg) return '<div class="stigma-mobile-empty">No skills available for this class.</div>';
+        var html = '';
+        ['vision', 'gold', 'blue', 'green'].forEach(function(tier) {
+            var defs = cfg.tiers[tier] || [];
+            if (!defs.length) return;
+            var label = tier === 'vision' ? 'Vision Skills' : (tier.charAt(0).toUpperCase() + tier.slice(1) + ' Skills');
+            html += '<div class="stigma-mobile-group">';
+            html += '<div class="stigma-mobile-group-label">' + escapeHtml(label) + '</div>';
+            defs.forEach(function(def) {
+                html += renderMobileSkillDetailCard(def);
+            });
+            html += '</div>';
+        });
+        return html;
+    }
+
+    function renderVisionLegend(className, showMobileLegendButton) {
         var data = buildVisionLegendData(className);
         var html = '<div class="stigma-legend">';
         html += '<div class="stigma-legend-title">Vision Legend</div>';
@@ -295,6 +426,10 @@
         html += '<div class="stigma-legend-arrow">&larr;</div>';
         html += '<div class="stigma-legend-fallback-text">Everything else</div>';
         html += '</div>';
+
+        if (showMobileLegendButton && isMobileScreen()) {
+            html += '<button type="button" class="stigma-mobile-open-btn" onclick="StigmaApp.openSkillLegendMobile()">Show Skills Details</button>';
+        }
 
         html += '</div>';
         return html;
@@ -341,7 +476,7 @@
                 var visionTooltipHtml = buildStigmaTooltipHtml(vision);
                 var visionLabel = vision.name + ' | ' + (vision.cooldown || '-') + ' | ' + (vision.description || '');
                 html += '<div class="stigma-map-slot stigma-vision-marker" style="left:' + toPercent(STIGMA_LAYOUT.vision.x, STIGMA_LAYOUT.width) + ';top:' + toPercent(STIGMA_LAYOUT.vision.y, STIGMA_LAYOUT.height) + ';">';
-                html += '<button type="button" class="stigma-vision-trigger gc-item-tooltip-trigger" tabindex="0" aria-label="' + escapeHtml(visionLabel) + '" data-tooltip-html="' + escapeHtml(visionTooltipHtml) + '">';
+                html += '<button type="button" class="stigma-vision-trigger gc-item-tooltip-trigger" tabindex="0" aria-label="' + escapeHtml(visionLabel) + '" data-tooltip-title="' + escapeHtml(vision.name) + '" data-tooltip-html="' + escapeHtml(visionTooltipHtml) + '">';
                 html += '<img src="' + vision.icon + '" class="stigma-vision-icon" alt="">';
                 html += '</button>';
                 html += '</div>';
@@ -351,7 +486,7 @@
         html += '</div>';
         html += '</div>';
 
-        html += renderVisionLegend(selectedClass);
+        html += renderVisionLegend(selectedClass, true);
         html += '</div>';
         html += '</div>';
         
@@ -398,6 +533,7 @@
             build[tier][slotIndex] = nextKey;
             normalizeStigmaBuild(selectedClass, build);
             saveState();
+            closeStigmaMobileModal();
             renderBuilder();
         },
 
@@ -409,8 +545,19 @@
             renderBuilder();
         },
 
+        openSkillLegendMobile: function() {
+            var legendHtml = renderSkillDetailsForClass(selectedClass);
+            openStigmaMobileModal('Skill Details', legendHtml);
+        },
+
         clearStigma: function(tier, slotIndex) {
             StigmaApp.setStigma(tier, slotIndex, '');
+        },
+
+        toggleSlotOptions: function(tier, slotIndex) {
+            if (isMobileScreen()) {
+                renderStigmaSlotModal(tier, slotIndex);
+            }
         },
 
         applyVisionLegendFirstCombo: function(goldKey, blueAKey, blueBKey) {
@@ -459,7 +606,7 @@
     var activeItemTooltipTrigger = null;
 
     function canUseInteractiveTooltips() {
-        return !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+        return !isMobileScreen() && !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
     }
 
     function positionGlobalItemTooltip(trigger) {
@@ -536,6 +683,17 @@
     });
 
     document.addEventListener('click', function(e) {
+        if (isMobileScreen()) {
+            var legendTrigger = e.target.closest('.stigma-legend-icon.gc-item-tooltip-trigger, .stigma-vision-trigger.gc-item-tooltip-trigger');
+            if (legendTrigger && !e.target.closest('#stigma-mobile-modal')) {
+                openStigmaTooltipModal(
+                    legendTrigger.getAttribute('data-tooltip-html'),
+                    legendTrigger.getAttribute('data-tooltip-title') || legendTrigger.getAttribute('aria-label')
+                );
+                return;
+            }
+        }
+
         if (!e.target.closest('.gc-item-tooltip-trigger')) {
             hideGlobalItemTooltip();
         }
