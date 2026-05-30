@@ -630,18 +630,18 @@ var GC_STIGMA_REGISTRY = {
             var has = function(key) { return blue.indexOf(key) !== -1; };
 
             if (gold === 'agonisingArrow') {
-                if ((has('huntersMight') && has('sharpenArrows')) ||
-                    (has('huntersMight') && has('galeArrow')) ||
-                    (has('sharpenArrows') && has('galeArrow'))) {
-                    return 'shadowbound';
+                if ((has('huntersMight') && has('lethalArrow')) ||
+                    (has('huntersMight') && has('explosiveArrow')) ||
+                    (has('lethalArrow') && has('explosiveArrow'))) {
+                    return 'spearOfPenetration';
                 }
             }
 
             if (gold === 'lightningArrow') {
-                if ((has('ragingWindArrow') && has('explosiveArrow')) ||
-                    (has('ragingWindArrow') && has('lethalArrow')) ||
-                    (has('explosiveArrow') && has('lethalArrow'))) {
-                    return 'spearOfPenetration';
+                if ((has('ragingWindArrow') && has('galeArrow')) ||
+                    (has('ragingWindArrow') && has('sharpenArrows')) ||
+                    (has('galeArrow') && has('sharpenArrows'))) {
+                    return 'shadowbound';
                 }
             }
 
