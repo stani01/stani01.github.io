@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f0c29">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Aion Translator</title>
+    <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="https://assets.playnccdn.com/common/aion.ico">
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/translator.css">
+    <link rel="stylesheet" href="../assets/css/gear-compare.css">
+</head>
+<body class="page-gear-compare">
+
+    <div class="container">
+        <h1>Aion Translator</h1>
+        <div class="subtitle">AION Retail 8.x</div>
+
+        <div id="translator" class="translator-root elyos-mode">
+            <div class="translator-controls">
+                <div class="faction-select" id="faction-select">
+                    <button class="faction-btn selected" data-faction="elyos" id="faction-elyos">
+                        <img src="../assets/icons/elyos.png" alt="Elyos">
+                        <span class="visually-hidden">Elyos</span>
+                    </button>
+                    <button class="faction-btn" data-faction="asmodian" id="faction-asmodian">
+                        <img src="../assets/icons/asmodian.png" alt="Asmodian">
+                        <span class="visually-hidden">Asmodian</span>
+                    </button>
+                </div>
+                <div class="controls-separator"></div>
+                <div class="action-buttons" id="action-buttons" aria-label="Action">
+                    <button class="action-btn selected" data-action="speak" id="action-speak" type="button">
+                        <span class="action-icon">🗣️</span>
+                        <span class="action-text">Speak</span>
+                    </button>
+                    <button class="action-btn" data-action="understand" id="action-understand" type="button">
+                        <span class="action-icon">👂</span>
+                        <span class="action-text">Understand</span>
+                    </button>
+                </div>
+                <div class="controls-separator"></div>
+                <div class="action-buttons" id="action-buttons" aria-label="Action">
+                    <button id="copy-translation" type="button" class="btn" onclick="TranslationApp.copyCurrentText()" aria-label="Copy translation output" title="Copy translation output">
+                        <span class="copy-label">Copy Translation</span>
+                    </button>
+                    <button id="clear-input" class="btn">Clear</button>
+                </div>
+            </div>
+
+            <div class="translator-container">
+                <textarea id="input-text" class="translator-input" placeholder="Type text here..."></textarea>
+                <textarea id="output-text" class="translator-output" placeholder="Translation will appear here..." readonly></textarea>
+            </div>
+        </div>
+
+        <div id="site-footer"></div>
+    </div>
+
+    <script src="../assets/js/site-common.js"></script>
+
+    <script src="js/translator.js"></script>
+
+</body>
+</html>
