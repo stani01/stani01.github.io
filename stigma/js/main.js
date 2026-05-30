@@ -62,12 +62,12 @@
         },
         ranger: {
             pve: {
-                gold: ['galeArrow'],
-                blue: ['lethalArrow', 'explosiveArrow', 'sharpenArrows'],
+                gold: ['lethalArrow'],
+                blue: ['explosiveArrow', 'sharpenArrows', 'galeArrow'],
                 green: ['focusedShots', 'arrowDeluge', 'bowOfBlessing', 'sealArrow', 'naturesResolve']
             },
             pvp: {
-                gold: ['lightningArrow'],
+                gold: ['agonisingArrow'],
                 blue: ['lethalArrow', 'explosiveArrow', 'ragingWindArrow'],
                 green: ['focusedShots', 'arrowDeluge', 'bowOfBlessing', 'sealArrow', 'naturesResolve']
             }
