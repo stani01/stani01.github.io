@@ -121,7 +121,8 @@
         // if action is 'understand', use the OTHER faction's tables (we are decoding their speech).
         const tablesFaction = (action === 'speak') ? selectedFaction : (selectedFaction === 'elyos' ? 'asmodian' : 'elyos');
         const {subs, next} = tablesFor(tablesFaction);
-        return (action === 'speak') ? encodeText(text, subs, next) : decodeText(text, subs, next);
+        return encodeText(text, subs, next);
+        //return (action === 'speak') ? encodeText(text, subs, next) : decodeText(text, subs, next);
     }
 
     function doTranslate() {
