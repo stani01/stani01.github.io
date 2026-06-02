@@ -172,6 +172,16 @@
         },
     };
 
+    // One char per daevanion skill (in class skill order), same codes as share links:
+    // 0 = no explicit selection (falls back to default), 1-6 = variants, 7 = default skill.
+    // Example for 6-skill classes: pve: '111111', pvp: '444444'
+    var DAEVANION_PRESET_SHORT_CODE_MAP = {
+        // gladiator: {
+        //     pve: '111111',
+        //     pvp: '444444'
+        // }
+    };
+
     function escapeHtml(value) {
         return String(value)
             .replace(/&/g, '&amp;')
@@ -673,6 +683,32 @@
         var preferred = presetType === 'pvp' ? { row: 'normal', type: 'type1' } : { row: 'improved', type: 'type1' };
         if (getDaevanionSkillVariant(skill, preferred.row, preferred.type)) return preferred;
         return getDaevanionDefaultUsed(skill);
+    }
+
+    function getDaevanionPresetFromShortCode(className, presetType, skills) {
+        if (!className || !presetType || !Array.isArray(skills) || !skills.length) return null;
+
+        var classPreset = DAEVANION_PRESET_SHORT_CODE_MAP[className];
+        if (!classPreset || typeof classPreset !== 'object') return null;
+
+        var code = classPreset[presetType];
+        if (typeof code !== 'string') return null;
+
+        code = code.trim().toLowerCase();
+        if (code.length !== skills.length) return null;
+
+        var used = {};
+        skills.forEach(function(skill, index) {
+            if (!skill || !skill.key) return;
+
+            var variantCode = parseInt(code[index], 36);
+            var selected = getDaevanionSelectionFromVariantCode(skill, variantCode);
+            if (!selected) selected = getDaevanionDefaultSkillSelection(skill);
+            if (!selected) selected = getDaevanionDefaultUsed(skill);
+            used[skill.key] = selected;
+        });
+
+        return used;
     }
 
     function decodeSharedBuildFromUrl() {
@@ -1339,12 +1375,17 @@
             var skills = getDaevanionSkillsForClass(selectedClass);
             if (!skills.length) return;
 
-            ensureDaevanionClassState(selectedClass);
-            var used = daevanionUsedByClass[selectedClass];
-            skills.forEach(function(skill) {
-                if (!skill || !skill.key) return;
-                used[skill.key] = getDaevanionPresetSelection(skill, type);
-            });
+            var shortPreset = getDaevanionPresetFromShortCode(selectedClass, type, skills);
+            if (shortPreset) {
+                daevanionUsedByClass[selectedClass] = shortPreset;
+            } else {
+                ensureDaevanionClassState(selectedClass);
+                var used = daevanionUsedByClass[selectedClass];
+                skills.forEach(function(skill) {
+                    if (!skill || !skill.key) return;
+                    used[skill.key] = getDaevanionPresetSelection(skill, type);
+                });
+            }
 
             saveState();
             renderDaevanionBuilder();
