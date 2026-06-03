@@ -176,10 +176,54 @@
     // 0 = no explicit selection (falls back to default), 1-6 = variants, 7 = default skill.
     // Example for 6-skill classes: pve: '111111', pvp: '444444'
     var DAEVANION_PRESET_SHORT_CODE_MAP = {
-        // gladiator: {
-        //     pve: '111111',
-        //     pvp: '444444'
-        // }
+        gladiator: {
+            pve: '112222',
+            pvp: '212211'
+        },
+        templar: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        assassin: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        ranger: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        sorcerer: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        spiritmaster: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        cleric: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        chanter: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        aethertech: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        gunner: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        bard: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        painter: {
+            pve: '112222',
+            pvp: '112221'
+        },
     };
 
     function escapeHtml(value) {
@@ -430,10 +474,10 @@
         var html = '<div class="stigma-panel daevanion-panel">';
         html += '<div class="stigma-builder-head daevanion-builder-head">';
         html += '<div class="stigma-preset-actions">';
-        html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pve" onclick="StigmaApp.applyDaevanionPresetBuild(\'pve\')" aria-label="Daevanion PvE preset" title="Daevanion PvE preset">';
+        html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pve" onclick="StigmaApp.applyDaevanionPresetBuild(\'pve\')" aria-label="Developer\'s PvE build" title="Developer\'s PvE build">';
         html += '<img src="../assets/icons/icon_pve.png" alt="PVE">';
         html += '</button>';
-        html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pvp" onclick="StigmaApp.applyDaevanionPresetBuild(\'pvp\')" aria-label="Daevanion PvP preset" title="Daevanion PvP preset">';
+        html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pvp" onclick="StigmaApp.applyDaevanionPresetBuild(\'pvp\')" aria-label="Developer\'s PvP build" title="Developer\'s PvP build">';
         html += '<img src="../assets/icons/icon_pvp.png" alt="PVP">';
         html += '</button>';
         html += '<button type="button" class="stigma-preset-btn stigma-share-btn daevanion-share-btn" onclick="StigmaApp.shareCurrentDaevanionBuild()" aria-label="Share current daevanion build" title="Share current daevanion build">';
