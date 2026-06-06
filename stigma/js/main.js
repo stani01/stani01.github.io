@@ -181,12 +181,12 @@
             pvp: '212211'
         },
         templar: {
-            pve: '112222',
-            pvp: '112221'
+            pve: '123212',
+            pvp: '212221'
         },
         assassin: {
-            pve: '112222',
-            pvp: '112221'
+            pve: '121112',
+            pvp: '121222'
         },
         ranger: {
             pve: '112222',
@@ -429,15 +429,25 @@
         return html;
     }
 
-    function getDaevanionUsedColumnMinWidth(skills) {
+    function getDaevanionUsedColumnMinWidth() {
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');
         var rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
         var fontFamily = getComputedStyle(document.body).fontFamily || 'sans-serif';
         ctx.font = (rootFontSize * 0.84) + 'px ' + fontFamily;
 
+        var allSkills = [];
+        if (window.DAEVANION_SKILLS_BY_CLASS && typeof window.DAEVANION_SKILLS_BY_CLASS === 'object') {
+            Object.keys(window.DAEVANION_SKILLS_BY_CLASS).forEach(function(classKey) {
+                var list = window.DAEVANION_SKILLS_BY_CLASS[classKey];
+                if (Array.isArray(list)) {
+                    allSkills = allSkills.concat(list);
+                }            
+            });
+        }
+
         var maxTextWidth = 0;
-        skills.forEach(function(skill) {
+        allSkills.forEach(function(skill) {
             var allDefs = [];
             if (skill.defaultSkill) allDefs.push(skill.defaultSkill);
             ['improved', 'normal'].forEach(function(row) {
@@ -469,19 +479,20 @@
 
         ensureDaevanionClassState(selectedClass);
 
-        var usedColMinWidth = getDaevanionUsedColumnMinWidth(skills);
+        var usedColMinWidth = getDaevanionUsedColumnMinWidth();
 
-        var html = '<div class="stigma-panel daevanion-panel">';
+        var html = '<div class="warning-box"">🚧 Daevanion tooltip descriptions are under construction. Placeholder data is shown until the page is complete.🚧<br>🚧 Found a discrepancy? Let us know!🚧</div>';
+        html += '<div class="stigma-panel daevanion-panel">';
         html += '<div class="stigma-builder-head daevanion-builder-head">';
         html += '<div class="stigma-preset-actions">';
-        html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pve" onclick="StigmaApp.applyDaevanionPresetBuild(\'pve\')" aria-label="Developer\'s PvE build" title="Developer\'s PvE build">';
-        html += '<img src="../assets/icons/icon_pve.png" alt="PVE">';
-        html += '</button>';
-        html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pvp" onclick="StigmaApp.applyDaevanionPresetBuild(\'pvp\')" aria-label="Developer\'s PvP build" title="Developer\'s PvP build">';
-        html += '<img src="../assets/icons/icon_pvp.png" alt="PVP">';
-        html += '</button>';
+        // html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pve" onclick="StigmaApp.applyDaevanionPresetBuild(\'pve\')" aria-label="Developer\'s PvE build" title="Developer\'s PvE build">';
+        // html += '<img src="../assets/icons/icon_pve.png" alt="PVE">';
+        // html += '</button>';
+        // html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pvp" onclick="StigmaApp.applyDaevanionPresetBuild(\'pvp\')" aria-label="Developer\'s PvP build" title="Developer\'s PvP build">';
+        // html += '<img src="../assets/icons/icon_pvp.png" alt="PVP">';
+        // html += '</button>';
         html += '<button type="button" class="stigma-preset-btn stigma-share-btn daevanion-share-btn" onclick="StigmaApp.shareCurrentDaevanionBuild()" aria-label="Share current daevanion build" title="Share current daevanion build">';
-        html += '<span class="stigma-share-label">Share Build</span>';
+        html += '<span class="stigma-share-label">Share Build 🔗</span>';
         html += '</button>';
         html += '</div>';
         html += '<button class="gc-reset-btn" onclick="StigmaApp.resetClassDaevanion()" aria-label="Reset current class daevanion selection" title="Reset current class daevanion selection" data-tooltip-html="' + escapeHtml(buildActionTooltipHtml('Reset Daevanion', 'Resets selected daevanion skills for the current class.')) + '">↺</button>';
@@ -1174,7 +1185,7 @@
         html += '<img src="../assets/icons/icon_pvp.png" alt="PVP">';
         html += '</button>';
         html += '<button type="button" class="stigma-preset-btn stigma-share-btn" onclick="StigmaApp.shareCurrentBuild()" aria-label="Share current setup" title="Share current setup">';
-        html += '<span class="stigma-share-label">Share Build</span>';
+        html += '<span class="stigma-share-label">Share Build 🔗</span>';
         html += '</button>';
         html += '</div>';
         html += '<button class="gc-reset-btn" onclick="StigmaApp.resetClassStigmas()" aria-label="Reset current class stigmas" title="Reset current class stigmas" data-tooltip-html="' + escapeHtml(buildActionTooltipHtml('Reset Build', 'Clears the current class stigma selection and restores an empty board.')) + '">↺</button>';
@@ -1645,7 +1656,8 @@
 
     document.addEventListener('click', function(e) {
         if (isMobileScreen()) {
-            var legendTrigger = e.target.closest('.stigma-legend-icon.gc-item-tooltip-trigger, .stigma-vision-trigger.gc-item-tooltip-trigger, .daevanion-skill-btn.gc-item-tooltip-trigger, .daevanion-used-skill.gc-item-tooltip-trigger');
+            //var legendTrigger = e.target.closest('.stigma-legend-icon.gc-item-tooltip-trigger, .stigma-vision-trigger.gc-item-tooltip-trigger, .daevanion-skill-btn.gc-item-tooltip-trigger, .daevanion-used-skill.gc-item-tooltip-trigger');
+            var legendTrigger = e.target.closest('.stigma-legend-icon.gc-item-tooltip-trigger, .stigma-vision-trigger.gc-item-tooltip-trigger, .daevanion-used-skill.gc-item-tooltip-trigger');
             if (legendTrigger && !e.target.closest('#stigma-mobile-modal')) {
                 openStigmaTooltipModal(
                     legendTrigger.getAttribute('data-tooltip-html'),
