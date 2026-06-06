@@ -238,7 +238,7 @@ var TF_COLLECTIONS = [
     // -- 85–87: Faction lord collections --
     { key: 'tf-lady-elysea', name: 'Lady of Elysea', stat: 'attack', value: 350,
       forms: [982114, 982112, 982111, 982107, 982050] },
-    { key: 'tf-lord-asmodae', name: 'Lord of Asmodae', stat: 'classDef', value: 350,
+    { key: 'tf-lord-asmodae', name: 'Lord of Asmodae', stat: 'physicalDef', value: 350,
       forms: [982115, 982113, 982110, 982108, 982074] },
     { key: 'tf-ulti-conqueror', name: 'Ultimate Transformation Conqueror', stat: 'hp', value: 10000,
       bonus: 'Summon: Alliance',

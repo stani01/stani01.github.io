@@ -93,7 +93,6 @@ function calculateDetailedStats(profileId) {
     if (selectedClass === 'aethertech') {
         addHpToSource('passive', 24266, 'base');
         sources.passive.evasion += 20;
-        sources.passive.crit += 50;
     }
     if (selectedClass === 'gunner') {
         addHpToSource('passive', 20834, 'base');
@@ -351,10 +350,6 @@ function calculateDetailedStats(profileId) {
                 sources.collections.accuracy += coll.value;
             } else if (coll.stat === 'magicAccuracy' && !isPhys) {
                 sources.collections.accuracy += coll.value;
-            } else if (coll.stat === 'classDef' && isPhys) {
-                sources.collections.physicalDef += coll.value;
-            } else if (coll.stat === 'classDef' && !isPhys) {
-                sources.collections.magicalDef += coll.value;
             } else if (sources.collections[coll.stat] !== undefined){
                 sources.collections[coll.stat] += coll.value;
             }

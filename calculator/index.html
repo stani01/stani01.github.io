@@ -1800,6 +1800,14 @@
                 { ...WEAPONS.staff, mult: 1.7 }
             ]
         },
+        'painter': { 
+            kp: 100, 
+            type: 'physical', 
+            icon: '../assets/icons/painter.png',
+            weapons: [
+                { ...WEAPONS.paintRings, mult: 1.7 }
+            ]
+        },
         'sorcerer': { 
             kp: 120, 
             type: 'magical', 
@@ -1826,6 +1834,14 @@
                 { ...WEAPONS.mace, mult: 1.5 }
             ]
         },
+        'aethertech': { 
+            kp: 105, 
+            type: 'magical', 
+            icon: '../assets/icons/aethertech.png',
+            weapons: [
+                { ...WEAPONS.aetherKey, mult: 1.5 }
+            ]
+        },
         'gunner': { 
             kp: 100, 
             type: 'magical', 
@@ -1835,14 +1851,6 @@
                 { ...WEAPONS.revolver, mult: 1.5 }
             ]
         },
-        'aethertech': { 
-            kp: 105, 
-            type: 'magical', 
-            icon: '../assets/icons/aethertech.png',
-            weapons: [
-                { ...WEAPONS.aetherKey, mult: 1.5 }
-            ]
-        },
         'bard': { 
             kp: 110, 
             type: 'magical', 
@@ -1850,20 +1858,12 @@
             weapons: [
                 { ...WEAPONS.harp, mult: 1.5 }
             ]
-        },
-        'painter': { 
-            kp: 100, 
-            type: 'physical', 
-            icon: '../assets/icons/painter.png',
-            weapons: [
-                { ...WEAPONS.paintRings, mult: 1.7 }
-            ]
         }
     };
 
     // Class order for UI display
     const CLASS_ORDER = ['gladiator', 'templar', 'assassin', 'ranger', 'sorcerer', 'spiritmaster', 
-                         'cleric', 'chanter', 'gunner', 'aethertech', 'bard', 'painter'];
+                         'cleric', 'chanter', 'aethertech', 'gunner', 'bard', 'painter'];
 
     let currentMode = 'pve';
     let selectedClass = 'gladiator';
