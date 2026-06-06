@@ -1487,13 +1487,13 @@
                 },
                 rows: {
                     improved: {
-                        type1: { name: '(Improved) Symphony of Rage', icon: '../assets/icons/ba_songofanger_custom_a.png', description: 'Dummy description Bard Skill 3 Type 1 improved.', usageCost: 'DP 2000', cooldown: '45s' },
-                        type2: { name: '(Improved) Aether Symphony', icon: '../assets/icons/ba_songofanger_custom_a.png', description: 'Dummy description Bard Skill 3 Type 2 improved.', usageCost: 'DP 2000', cooldown: '45s' },
+                        type1: { name: '(Improved) Symphony of Rage', icon: '../assets/icons/ba_songofanger_custom_a_up.png', description: 'Dummy description Bard Skill 3 Type 1 improved.', usageCost: 'DP 2000', cooldown: '45s' },
+                        type2: { name: '(Improved) Aether Symphony', icon: '../assets/icons/ba_songofanger_custom_b_up.png', description: 'Dummy description Bard Skill 3 Type 2 improved.', usageCost: 'DP 2000', cooldown: '45s' },
                         type3: null
                     },
                     normal: {
                         type1: { name: 'Symphony of Rage', icon: '../assets/icons/ba_songofanger_custom_a.png', description: 'Dummy description Bard Skill 3 Type 1 normal.', usageCost: 'DP 2000', cooldown: '45s' },
-                        type2: { name: 'Aether Symphony', icon: '../assets/icons/ba_songofanger_custom_a.png', description: 'Dummy description Bard Skill 3 Type 2 normal.', usageCost: 'DP 2000', cooldown: '45s' },
+                        type2: { name: 'Aether Symphony', icon: '../assets/icons/ba_songofanger_custom_b.png', description: 'Dummy description Bard Skill 3 Type 2 normal.', usageCost: 'DP 2000', cooldown: '45s' },
                         type3: null
                     }
                 },
