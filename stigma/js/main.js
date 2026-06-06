@@ -4,6 +4,8 @@
     var STORAGE_KEY = 'stigma-builder-state-v1';
     var selectedClass = 'gladiator';
     var buildsByClass = {};
+    var daevanionUsedByClass = {};
+    var stigmaActiveTab = 'stigma';
 
     // Tuned to the current stigma board background artwork.
     var STIGMA_LAYOUT = {
@@ -170,6 +172,60 @@
         },
     };
 
+    // One char per daevanion skill (in class skill order), same codes as share links:
+    // 0 = no explicit selection (falls back to default), 1-6 = variants, 7 = default skill.
+    // Example for 6-skill classes: pve: '111111', pvp: '444444'
+    var DAEVANION_PRESET_SHORT_CODE_MAP = {
+        gladiator: {
+            pve: '112222',
+            pvp: '212211'
+        },
+        templar: {
+            pve: '123212',
+            pvp: '212221'
+        },
+        assassin: {
+            pve: '121112',
+            pvp: '121222'
+        },
+        ranger: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        sorcerer: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        spiritmaster: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        cleric: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        chanter: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        aethertech: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        gunner: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        bard: {
+            pve: '112222',
+            pvp: '112221'
+        },
+        painter: {
+            pve: '112222',
+            pvp: '112221'
+        },
+    };
+
     function escapeHtml(value) {
         return String(value)
             .replace(/&/g, '&amp;')
@@ -191,6 +247,7 @@
         html += '<img src="' + (def.icon) + '" class="gc-item-tooltip-item-icon" alt="">';
         html += '</div>';
         html += '<div class="gc-item-tooltip-meta">';
+        if (def.usageCost) html += '<div class="gc-item-tooltip-meta-line">Usage Cost: ' + escapeHtml(def.usageCost) + '</div>';
         if (def.cooldown) html += '<div class="gc-item-tooltip-meta-line">Cooldown: ' + escapeHtml(def.cooldown) + '</div>';
         if (def.castTime) html += '<div class="gc-item-tooltip-meta-line">Cast Time: ' + escapeHtml(def.castTime) + '</div>';
         html += '</div>';
@@ -219,6 +276,276 @@
         if (description) html += '<div class="gc-item-tooltip-wide">' + escapeHtml(description) + '</div>';
         html += '</div>';
         return html;
+    }
+
+    function getDaevanionSkillsForClass(className) {
+        if (!window.DAEVANION_SKILLS_BY_CLASS) return [];
+        var list = window.DAEVANION_SKILLS_BY_CLASS[className];
+        return Array.isArray(list) ? list : [];
+    }
+
+    function ensureDaevanionClassState(className) {
+        var skills = getDaevanionSkillsForClass(className);
+        if (!daevanionUsedByClass[className] || typeof daevanionUsedByClass[className] !== 'object') {
+            daevanionUsedByClass[className] = {};
+        }
+        var used = daevanionUsedByClass[className];
+
+        skills.forEach(function(skill) {
+            if (!skill || !skill.key) return;
+            var current = used[skill.key];
+            if (current) {
+                if (current.row === 'default' && current.type === 'default' && skill.defaultSkill) return;
+                if (getDaevanionSkillVariant(skill, current.row, current.type)) return;
+            }
+
+            var fallback = getDaevanionDefaultUsed(skill);
+            used[skill.key] = fallback;
+        });
+
+        return used;
+    }
+
+    function getDaevanionDefaultUsed(skill) {
+        if (!skill || !skill.rows) return null;
+        var preferred = skill.defaultUsed;
+        if (preferred && getDaevanionSkillVariant(skill, preferred.row, preferred.type)) return preferred;
+
+        var rowKeys = ['improved', 'normal'];
+        var typeKeys = ['type1', 'type2', 'type3'];
+        for (var i = 0; i < rowKeys.length; i++) {
+            for (var j = 0; j < typeKeys.length; j++) {
+                if (getDaevanionSkillVariant(skill, rowKeys[i], typeKeys[j])) {
+                    return { row: rowKeys[i], type: typeKeys[j] };
+                }
+            }
+        }
+        return null;
+    }
+
+    function getDaevanionDefaultSkillSelection(skill) {
+        if (skill && skill.defaultSkill) return { row: 'default', type: 'default' };
+        return getDaevanionDefaultUsed(skill);
+    }
+
+    function getDaevanionSkillVariant(skill, rowKey, typeKey) {
+        if (!skill || !skill.rows || !skill.rows[rowKey]) return null;
+        return skill.rows[rowKey][typeKey] || null;
+    }
+
+    function getDaevanionSelectedVariant(className, skill) {
+        var classState = ensureDaevanionClassState(className);
+        if (!classState || !skill || !skill.key) return null;
+        var selected = classState[skill.key] || getDaevanionDefaultUsed(skill);
+        if (!selected) return null;
+
+        if (selected.row === 'default' && selected.type === 'default' && skill.defaultSkill) {
+            return {
+                row: 'default',
+                type: 'default',
+                def: skill.defaultSkill
+            };
+        }
+
+        var def = getDaevanionSkillVariant(skill, selected.row, selected.type);
+        if (def) {
+            return {
+                row: selected.row,
+                type: selected.type,
+                def: def
+            };
+        }
+
+        var fallback = getDaevanionDefaultUsed(skill);
+        var fallbackDef = fallback ? getDaevanionSkillVariant(skill, fallback.row, fallback.type) : null;
+        return fallback && fallbackDef ? { row: fallback.row, type: fallback.type, def: fallbackDef } : null;
+    }
+
+    function activateStigmaTab(tabKey) {
+        stigmaActiveTab = (tabKey === 'daevanion') ? 'daevanion' : 'stigma';
+
+        document.querySelectorAll('#stigma-tab-bar .gc-tab').forEach(function(btn) {
+            btn.classList.remove('gc-tab-active');
+        });
+        var activeBtn = document.querySelector('#stigma-tab-bar .gc-tab[data-tab="' + stigmaActiveTab + '"]');
+        if (activeBtn) activeBtn.classList.add('gc-tab-active');
+
+        document.querySelectorAll('#tab-stigma, #tab-daevanion').forEach(function(panel) {
+            panel.classList.remove('gc-tab-panel-active');
+        });
+        var activePanel = document.getElementById('tab-' + stigmaActiveTab);
+        if (activePanel) activePanel.classList.add('gc-tab-panel-active');
+    }
+
+    function initStigmaTabs() {
+        var tabBar = document.getElementById('stigma-tab-bar');
+        if (!tabBar) return;
+        tabBar.addEventListener('click', function(e) {
+            var btn = e.target.closest('.gc-tab');
+            if (!btn) return;
+            var tab = btn.getAttribute('data-tab');
+            if (!tab || tab === stigmaActiveTab) return;
+            activateStigmaTab(tab);
+        });
+    }
+
+    function renderDaevanionCell(def, isSelected, extraClasses, clickHandler) {
+        var cls = 'daevanion-skill-btn gc-item-tooltip-trigger';
+        if (extraClasses) cls += ' ' + extraClasses;
+        if (isSelected) cls += ' is-selected';
+
+        var title = def ? (def.name + ' | ' + (def.cooldown || '-') + ' | ' + (def.description || '')) : 'Locked';
+        var tooltipHtml = def ? buildStigmaTooltipHtml(def) : buildActionTooltipHtml('Locked', 'This slot is locked.');
+        var icon = def ? def.icon : (window.DAEVANION_LOCKED_ICON || '../assets/icons/locked_daevanion.png');
+
+        var html = '<button type="button" class="' + cls + '" aria-label="' + escapeHtml(title) + '" data-tooltip-title="' + escapeHtml(def ? def.name : 'Locked') + '" data-tooltip-html="' + escapeHtml(tooltipHtml) + '"';
+        if (clickHandler) {
+            html += ' onclick="' + clickHandler + '"';
+        } else {
+            html += ' disabled';
+        }
+        html += '>';
+        html += '<span class="daevanion-skill-icon-wrap">';
+        html += '<img src="' + icon + '" class="daevanion-skill-icon" alt="">';
+        html += '</span>';
+        html += '</button>';
+        return html;
+    }
+
+    function renderDaevanionUsedCell(selected) {
+        if (!selected || !selected.def) {
+            return '<div class="daevanion-used-empty">No selection</div>';
+        }
+
+        var def = selected.def;
+        var tooltipHtml = buildStigmaTooltipHtml(def);
+        var title = def.name + ' | ' + (def.cooldown || '-') + ' | ' + (def.description || '');
+        var html = '<div class="daevanion-used-skill gc-item-tooltip-trigger" aria-label="' + escapeHtml(title) + '" data-tooltip-title="' + escapeHtml(def.name) + '" data-tooltip-html="' + escapeHtml(tooltipHtml) + '">';
+        html += '<span class="daevanion-used-icon-wrap">';
+        html += '<img src="' + escapeHtml(def.icon) + '" class="daevanion-used-icon" alt="">';
+        html += '</span>';
+        html += '<span class="daevanion-used-name">' + escapeHtml(def.name) + '</span>';
+        html += '</div>';
+        return html;
+    }
+
+    function getDaevanionUsedColumnMinWidth() {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        var rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+        var fontFamily = getComputedStyle(document.body).fontFamily || 'sans-serif';
+        ctx.font = (rootFontSize * 0.84) + 'px ' + fontFamily;
+
+        var allSkills = [];
+        if (window.DAEVANION_SKILLS_BY_CLASS && typeof window.DAEVANION_SKILLS_BY_CLASS === 'object') {
+            Object.keys(window.DAEVANION_SKILLS_BY_CLASS).forEach(function(classKey) {
+                var list = window.DAEVANION_SKILLS_BY_CLASS[classKey];
+                if (Array.isArray(list)) {
+                    allSkills = allSkills.concat(list);
+                }            
+            });
+        }
+
+        var maxTextWidth = 0;
+        allSkills.forEach(function(skill) {
+            var allDefs = [];
+            if (skill.defaultSkill) allDefs.push(skill.defaultSkill);
+            ['improved', 'normal'].forEach(function(row) {
+                ['type1', 'type2', 'type3'].forEach(function(type) {
+                    var v = getDaevanionSkillVariant(skill, row, type);
+                    if (v) allDefs.push(v);
+                });
+            });
+            allDefs.forEach(function(d) {
+                if (d && d.name) {
+                    var w = ctx.measureText(d.name).width;
+                    if (w > maxTextWidth) maxTextWidth = w;
+                }
+            });
+        });
+        // icon (72px) + gap (8px) + text + cell padding (24px)
+        return Math.ceil(72 + 8 + maxTextWidth + 24);
+    }
+
+    function renderDaevanionBuilder() {
+        var el = document.getElementById('daevanion-builder');
+        if (!el) return;
+
+        var skills = getDaevanionSkillsForClass(selectedClass);
+        if (!skills.length) {
+            el.innerHTML = '<div class="stigma-panel"><div class="stigma-title">No daevanion skills for this class yet</div></div>';
+            return;
+        }
+
+        ensureDaevanionClassState(selectedClass);
+
+        var usedColMinWidth = getDaevanionUsedColumnMinWidth();
+
+        var html = '<div class="warning-box"">🚧 Daevanion tooltip descriptions are under construction. Placeholder data is shown until the page is complete.🚧<br>🚧 Found a discrepancy? Let us know!🚧</div>';
+        html += '<div class="stigma-panel daevanion-panel">';
+        html += '<div class="stigma-builder-head daevanion-builder-head">';
+        html += '<div class="stigma-preset-actions">';
+        // html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pve" onclick="StigmaApp.applyDaevanionPresetBuild(\'pve\')" aria-label="Developer\'s PvE build" title="Developer\'s PvE build">';
+        // html += '<img src="../assets/icons/icon_pve.png" alt="PVE">';
+        // html += '</button>';
+        // html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pvp" onclick="StigmaApp.applyDaevanionPresetBuild(\'pvp\')" aria-label="Developer\'s PvP build" title="Developer\'s PvP build">';
+        // html += '<img src="../assets/icons/icon_pvp.png" alt="PVP">';
+        // html += '</button>';
+        html += '<button type="button" class="stigma-preset-btn stigma-share-btn daevanion-share-btn" onclick="StigmaApp.shareCurrentDaevanionBuild()" aria-label="Share current daevanion build" title="Share current daevanion build">';
+        html += '<span class="stigma-share-label">Share Build 🔗</span>';
+        html += '</button>';
+        html += '</div>';
+        html += '<button class="gc-reset-btn" onclick="StigmaApp.resetClassDaevanion()" aria-label="Reset current class daevanion selection" title="Reset current class daevanion selection" data-tooltip-html="' + escapeHtml(buildActionTooltipHtml('Reset Daevanion', 'Resets selected daevanion skills for the current class.')) + '">↺</button>';
+        html += '</div>';
+        html += '<div class="daevanion-table-wrap">';
+        html += '<table class="daevanion-table">';
+        html += '<thead><tr>';
+        html += '<th>Default</th>';
+        html += '<th>Type 1</th>';
+        html += '<th>Type 2</th>';
+        html += '<th>Type 3</th>';
+        html += '<th>Skill Used</th>';
+        html += '</tr></thead>';
+        html += '<tbody>';
+
+        skills.forEach(function(skill) {
+            var selected = getDaevanionSelectedVariant(selectedClass, skill);
+
+            html += '<tr>';
+            html += '<td rowspan="2" class="daevanion-cell-default">';
+            html += renderDaevanionCell(
+                skill.defaultSkill,
+                !!(selected && selected.row === 'default' && selected.type === 'default'),
+                'daevanion-default-skill',
+                'StigmaApp.setDaevanionSkill(\'' + selectedClass + '\',\'' + skill.key + '\',\'default\',\'default\')'
+            );
+            html += '</td>';
+
+            ['type1', 'type2', 'type3'].forEach(function(typeKey) {
+                var def = getDaevanionSkillVariant(skill, 'improved', typeKey);
+                var isSelected = !!(selected && selected.row === 'improved' && selected.type === typeKey);
+                var onclick = def ? ('StigmaApp.setDaevanionSkill(\'' + selectedClass + '\',\'' + skill.key + '\',\'improved\',\'' + typeKey + '\')') : null;
+                html += '<td>' + renderDaevanionCell(def, isSelected, 'daevanion-row-improved', onclick) + '</td>';
+            });
+
+            html += '<td rowspan="2" class="daevanion-cell-used" style="min-width:' + usedColMinWidth + 'px">' + renderDaevanionUsedCell(selected) + '</td>';
+            html += '</tr>';
+
+            html += '<tr>';
+            ['type1', 'type2', 'type3'].forEach(function(typeKey) {
+                var def = getDaevanionSkillVariant(skill, 'normal', typeKey);
+                var isSelected = !!(selected && selected.row === 'normal' && selected.type === typeKey);
+                var onclick = def ? ('StigmaApp.setDaevanionSkill(\'' + selectedClass + '\',\'' + skill.key + '\',\'normal\',\'' + typeKey + '\')') : null;
+                html += '<td>' + renderDaevanionCell(def, isSelected, 'daevanion-row-normal', onclick) + '</td>';
+            });
+            html += '</tr>';
+        });
+
+        html += '</tbody>';
+        html += '</table>';
+        html += '</div>';
+        html += '</div>';
+        el.innerHTML = html;
     }
 
     function toPercent(value, total) {
@@ -271,6 +598,16 @@
         { tier: 'green', index: 2 },
         { tier: 'green', index: 3 },
         { tier: 'green', index: 4 }
+    ];
+
+    var DAEVANION_SHORT_VARIANT_ORDER = [
+        { row: 'improved', type: 'type1' },
+        { row: 'improved', type: 'type2' },
+        { row: 'improved', type: 'type3' },
+        { row: 'normal', type: 'type1' },
+        { row: 'normal', type: 'type2' },
+        { row: 'normal', type: 'type3' },
+        { row: 'default', type: 'default' }
     ];
 
     function encodeShortStigmaShare(className, build) {
@@ -326,19 +663,138 @@
         return { className: className, build: build };
     }
 
+    function getDaevanionSelectionVariantCode(skill, selection) {
+        if (!skill || !selection) return 0;
+        if (selection.row === 'default' && selection.type === 'default' && skill.defaultSkill) {
+            return DAEVANION_SHORT_VARIANT_ORDER.length;
+        }
+        if (!getDaevanionSkillVariant(skill, selection.row, selection.type)) return 0;
+        for (var i = 0; i < DAEVANION_SHORT_VARIANT_ORDER.length; i++) {
+            var variant = DAEVANION_SHORT_VARIANT_ORDER[i];
+            if (variant.row === selection.row && variant.type === selection.type) return i + 1;
+        }
+        return 0;
+    }
+
+    function getDaevanionSelectionFromVariantCode(skill, code) {
+        if (!skill) return null;
+        var idx = code - 1;
+        if (idx < 0 || idx >= DAEVANION_SHORT_VARIANT_ORDER.length) return null;
+        var variant = DAEVANION_SHORT_VARIANT_ORDER[idx];
+        if (variant.row === 'default' && variant.type === 'default') {
+            return skill.defaultSkill ? { row: 'default', type: 'default' } : null;
+        }
+        if (!getDaevanionSkillVariant(skill, variant.row, variant.type)) return null;
+        return { row: variant.row, type: variant.type };
+    }
+
+    function encodeShortDaevanionShare(className, classUsed) {
+        var classIndex = CLASS_ORDER.indexOf(className);
+        if (classIndex < 0) return null;
+
+        var skills = getDaevanionSkillsForClass(className);
+        if (!skills.length) return null;
+
+        var used = classUsed || ensureDaevanionClassState(className);
+        var code = classIndex.toString(36);
+
+        skills.forEach(function(skill) {
+            var selected = used && skill ? used[skill.key] : null;
+            var variantCode = getDaevanionSelectionVariantCode(skill, selected);
+            code += variantCode.toString(36);
+        });
+
+        return code;
+    }
+
+    function decodeShortDaevanionShare(code) {
+        if (typeof code !== 'string' || code.length < 2) return null;
+        code = code.toLowerCase();
+
+        var classIndex = parseInt(code[0], 36);
+        if (isNaN(classIndex) || classIndex < 0 || classIndex >= CLASS_ORDER.length) return null;
+
+        var className = CLASS_ORDER[classIndex];
+        if (!CLASS_DATA[className]) return null;
+
+        var skills = getDaevanionSkillsForClass(className);
+        if (!skills.length) return null;
+        if (code.length !== skills.length + 1) return null;
+
+        var used = {};
+        skills.forEach(function(skill, index) {
+            if (!skill || !skill.key) return;
+            var value = parseInt(code[index + 1], 36);
+            var selected = getDaevanionSelectionFromVariantCode(skill, value);
+            if (!selected) selected = getDaevanionDefaultUsed(skill);
+            used[skill.key] = selected;
+        });
+
+        return { className: className, used: used };
+    }
+
+    function getDaevanionPresetSelection(skill, presetType) {
+        if (!skill) return null;
+        var preferred = presetType === 'pvp' ? { row: 'normal', type: 'type1' } : { row: 'improved', type: 'type1' };
+        if (getDaevanionSkillVariant(skill, preferred.row, preferred.type)) return preferred;
+        return getDaevanionDefaultUsed(skill);
+    }
+
+    function getDaevanionPresetFromShortCode(className, presetType, skills) {
+        if (!className || !presetType || !Array.isArray(skills) || !skills.length) return null;
+
+        var classPreset = DAEVANION_PRESET_SHORT_CODE_MAP[className];
+        if (!classPreset || typeof classPreset !== 'object') return null;
+
+        var code = classPreset[presetType];
+        if (typeof code !== 'string') return null;
+
+        code = code.trim().toLowerCase();
+        if (code.length !== skills.length) return null;
+
+        var used = {};
+        skills.forEach(function(skill, index) {
+            if (!skill || !skill.key) return;
+
+            var variantCode = parseInt(code[index], 36);
+            var selected = getDaevanionSelectionFromVariantCode(skill, variantCode);
+            if (!selected) selected = getDaevanionDefaultSkillSelection(skill);
+            if (!selected) selected = getDaevanionDefaultUsed(skill);
+            used[skill.key] = selected;
+        });
+
+        return used;
+    }
+
     function decodeSharedBuildFromUrl() {
         if (typeof URLSearchParams === 'undefined') return false;
         try {
             var params = new URLSearchParams(window.location.search);
-            var code = params.get('stigma');
-            if (!code) return false;
+            var applied = false;
 
-            var decoded = decodeShortStigmaShare(code);
-            if (!decoded) return false;
+            var daevanionCode = params.get('daevanion');
+            if (daevanionCode) {
+                var decodedDaevanion = decodeShortDaevanionShare(daevanionCode);
+                if (decodedDaevanion) {
+                    selectedClass = decodedDaevanion.className;
+                    daevanionUsedByClass[selectedClass] = decodedDaevanion.used;
+                    stigmaActiveTab = 'daevanion';
+                    applied = true;
+                }
+            }
 
-            selectedClass = decoded.className;
-            buildsByClass[selectedClass] = decoded.build;
-            return true;
+            var stigmaCode = params.get('stigma');
+            if (stigmaCode) {
+                var decodedStigma = decodeShortStigmaShare(stigmaCode);
+                if (decodedStigma) {
+                    selectedClass = decodedStigma.className;
+                    buildsByClass[selectedClass] = decodedStigma.build;
+                    if (!applied) stigmaActiveTab = 'stigma';
+                    applied = true;
+                }
+            }
+
+            return applied;
         } catch (e) {
             return false;
         }
@@ -348,7 +804,8 @@
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
                 selectedClass: selectedClass,
-                buildsByClass: buildsByClass
+                buildsByClass: buildsByClass,
+                daevanionUsedByClass: daevanionUsedByClass
             }));
         } catch (e) {
             // Ignore private mode / quota failures.
@@ -383,6 +840,10 @@
                     buildsByClass[className] = base;
                     normalizeStigmaBuild(className, buildsByClass[className]);
                 });
+            }
+
+            if (parsed.daevanionUsedByClass && typeof parsed.daevanionUsedByClass === 'object') {
+                daevanionUsedByClass = parsed.daevanionUsedByClass;
             }
         } catch (e) {
             // Ignore corrupted storage.
@@ -724,7 +1185,7 @@
         html += '<img src="../assets/icons/icon_pvp.png" alt="PVP">';
         html += '</button>';
         html += '<button type="button" class="stigma-preset-btn stigma-share-btn" onclick="StigmaApp.shareCurrentBuild()" aria-label="Share current setup" title="Share current setup">';
-        html += '<span class="stigma-share-label">Share Build</span>';
+        html += '<span class="stigma-share-label">Share Build 🔗</span>';
         html += '</button>';
         html += '</div>';
         html += '<button class="gc-reset-btn" onclick="StigmaApp.resetClassStigmas()" aria-label="Reset current class stigmas" title="Reset current class stigmas" data-tooltip-html="' + escapeHtml(buildActionTooltipHtml('Reset Build', 'Clears the current class stigma selection and restores an empty board.')) + '">↺</button>';
@@ -767,9 +1228,11 @@
             if (!CLASS_DATA[className]) return;
             selectedClass = className;
             ensureClassBuild(className);
+            ensureDaevanionClassState(className);
             saveState();
             renderClassSelector();
             renderBuilder();
+            renderDaevanionBuilder();
         },
 
         setStigma: function(tier, slotIndex, key) {
@@ -804,6 +1267,7 @@
             saveState();
             closeStigmaMobileModal();
             renderBuilder();
+            renderDaevanionBuilder();
         },
 
         resetClassStigmas: function() {
@@ -812,6 +1276,7 @@
             normalizeStigmaBuild(selectedClass, buildsByClass[selectedClass]);
             saveState();
             renderBuilder();
+            renderDaevanionBuilder();
         },
 
         shareCurrentBuild: function() {
@@ -937,6 +1402,133 @@
             normalizeStigmaBuild(selectedClass, build);
             saveState();
             renderBuilder();
+            renderDaevanionBuilder();
+        },
+
+        setDaevanionSkill: function(className, skillKey, rowKey, typeKey) {
+            if (!CLASS_DATA[className]) return;
+            var skills = getDaevanionSkillsForClass(className);
+            var skill = skills.find(function(item) { return item && item.key === skillKey; });
+            if (!skill) return;
+
+            if (rowKey === 'default' && typeKey === 'default') {
+                if (!skill.defaultSkill) return;
+            } else {
+                var variant = getDaevanionSkillVariant(skill, rowKey, typeKey);
+                if (!variant) return;
+            }
+
+            ensureDaevanionClassState(className);
+            daevanionUsedByClass[className][skillKey] = { row: rowKey, type: typeKey };
+            if (selectedClass !== className) selectedClass = className;
+            saveState();
+            renderDaevanionBuilder();
+        },
+
+        applyDaevanionPresetBuild: function(type) {
+            if (type !== 'pve' && type !== 'pvp') return;
+            var skills = getDaevanionSkillsForClass(selectedClass);
+            if (!skills.length) return;
+
+            var shortPreset = getDaevanionPresetFromShortCode(selectedClass, type, skills);
+            if (shortPreset) {
+                daevanionUsedByClass[selectedClass] = shortPreset;
+            } else {
+                ensureDaevanionClassState(selectedClass);
+                var used = daevanionUsedByClass[selectedClass];
+                skills.forEach(function(skill) {
+                    if (!skill || !skill.key) return;
+                    used[skill.key] = getDaevanionPresetSelection(skill, type);
+                });
+            }
+
+            saveState();
+            renderDaevanionBuilder();
+        },
+
+        resetClassDaevanion: function() {
+            var skills = getDaevanionSkillsForClass(selectedClass);
+            if (!skills.length) return;
+
+            daevanionUsedByClass[selectedClass] = {};
+            skills.forEach(function(skill) {
+                if (!skill || !skill.key) return;
+                daevanionUsedByClass[selectedClass][skill.key] = getDaevanionDefaultSkillSelection(skill);
+            });
+            saveState();
+            renderDaevanionBuilder();
+        },
+
+        shareCurrentDaevanionBuild: function() {
+            var skills = getDaevanionSkillsForClass(selectedClass);
+            if (!skills.length) return;
+
+            ensureDaevanionClassState(selectedClass);
+            var code = encodeShortDaevanionShare(selectedClass, daevanionUsedByClass[selectedClass]);
+            if (!code) return;
+
+            var baseUrl = window.location.href.split('?')[0];
+            var shareUrl = baseUrl + '?daevanion=' + encodeURIComponent(code);
+
+            function fallbackCopy(text) {
+                try {
+                    var ta = document.createElement('textarea');
+                    ta.style.position = 'fixed';
+                    ta.style.top = 0;
+                    ta.style.left = 0;
+                    ta.style.width = '2em';
+                    ta.style.height = '2em';
+                    ta.style.padding = 0;
+                    ta.style.border = 'none';
+                    ta.style.outline = 'none';
+                    ta.style.boxShadow = 'none';
+                    ta.style.background = 'transparent';
+                    ta.value = text;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    var ok = document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    return !!ok;
+                } catch (e) {
+                    try { if (ta && ta.parentNode) ta.parentNode.removeChild(ta); } catch (e2) {}
+                    return false;
+                }
+            }
+
+            var btn = document.querySelector('.daevanion-builder-head .daevanion-share-btn') || document.querySelector('.daevanion-share-btn');
+
+            function animateButton() {
+                if (!btn) return;
+                btn.classList.remove('copied');
+                btn.offsetWidth;
+                btn.classList.add('copied');
+                setTimeout(function() {
+                    btn.classList.remove('copied');
+                }, 1500);
+            }
+
+            function onCopySuccess() {
+                if (typeof showShareToast === 'function') showShareToast('✓ Link copied to clipboard!');
+                animateButton();
+                var labelEl = btn ? btn.querySelector('.stigma-share-label') : null;
+                var original = labelEl ? labelEl.textContent : null;
+                if (labelEl) {
+                    labelEl.textContent = 'Link copied ✓';
+                    setTimeout(function() {
+                        if (labelEl) labelEl.textContent = original;
+                    }, 1500);
+                }
+            }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareUrl).then(onCopySuccess).catch(function() {
+                    if (fallbackCopy(shareUrl)) onCopySuccess();
+                    else if (typeof showShareToast === 'function') showShareToast('Could not copy link', true);
+                });
+            } else {
+                if (fallbackCopy(shareUrl)) onCopySuccess();
+                else if (typeof showShareToast === 'function') showShareToast('Could not copy link', true);
+            }
         },
 
         applyVisionLegendFirstCombo: function(goldKey, blueAKey, blueBKey) {
@@ -958,6 +1550,7 @@
             normalizeStigmaBuild(selectedClass, build);
             saveState();
             renderBuilder();
+            renderDaevanionBuilder();
         }
     };
 
@@ -966,9 +1559,13 @@
     if (!CLASS_DATA[selectedClass]) selectedClass = getFirstSupportedClass();
     if (!classHasStigmas(selectedClass)) selectedClass = getFirstSupportedClass();
     ensureClassBuild(selectedClass);
+    ensureDaevanionClassState(selectedClass);
 
     renderClassSelector();
     renderBuilder();
+    renderDaevanionBuilder();
+    initStigmaTabs();
+    activateStigmaTab(stigmaActiveTab);
 
     // Global item tooltip mounted on body to avoid clipping behind panel layers.
     var globalItemTooltip = document.getElementById('gc-global-item-tooltip');
@@ -1059,7 +1656,8 @@
 
     document.addEventListener('click', function(e) {
         if (isMobileScreen()) {
-            var legendTrigger = e.target.closest('.stigma-legend-icon.gc-item-tooltip-trigger, .stigma-vision-trigger.gc-item-tooltip-trigger');
+            //var legendTrigger = e.target.closest('.stigma-legend-icon.gc-item-tooltip-trigger, .stigma-vision-trigger.gc-item-tooltip-trigger, .daevanion-skill-btn.gc-item-tooltip-trigger, .daevanion-used-skill.gc-item-tooltip-trigger');
+            var legendTrigger = e.target.closest('.stigma-legend-icon.gc-item-tooltip-trigger, .stigma-vision-trigger.gc-item-tooltip-trigger, .daevanion-used-skill.gc-item-tooltip-trigger');
             if (legendTrigger && !e.target.closest('#stigma-mobile-modal')) {
                 openStigmaTooltipModal(
                     legendTrigger.getAttribute('data-tooltip-html'),
