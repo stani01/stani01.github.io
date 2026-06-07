@@ -38,6 +38,8 @@
         output: document.getElementById('output-text'),
         copyBottom: document.getElementById('copy-translation'),
         clearIn: document.getElementById('clear-input'),
+        infoToggle: document.getElementById('translator-info-toggle'),
+        infoPanel: document.getElementById('translator-info-panel'),
         actionBtns: Array.from(document.querySelectorAll('.action-btn')),
         factionBtns: Array.from(document.querySelectorAll('.faction-btn'))
     };
@@ -150,6 +152,18 @@
     // events
     if (els.copyBottom) els.copyBottom.addEventListener('click', function(){ copyToClipboard(els.output.value || ''); if (typeof showShareToast === 'function') showShareToast('✓ Copied translation'); });
     if (els.clearIn) els.clearIn.addEventListener('click', ()=>{ if (els.input) { els.input.value=''; els.input.focus(); doTranslate(); } });
+    if (els.infoToggle && els.infoPanel) {
+        els.infoToggle.addEventListener('click', function() {
+            const isOpen = !els.infoPanel.hasAttribute('hidden');
+            if (isOpen) {
+                els.infoPanel.setAttribute('hidden', '');
+                this.setAttribute('aria-expanded', 'false');
+            } else {
+                els.infoPanel.removeAttribute('hidden');
+                this.setAttribute('aria-expanded', 'true');
+            }
+        });
+    }
     els.actionBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             els.actionBtns.forEach(b => b.classList.remove('selected'));

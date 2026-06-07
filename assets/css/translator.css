@@ -85,9 +85,16 @@
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    overflow: visible;
+}
+
+.translator-root .translator-controls {
+    overflow: visible;
 }
 
 .translator-root .action-btn {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
@@ -101,7 +108,98 @@
     font-size: 0.92rem;
 }
 
-.translator-root .action-btn:hover {
+.translator-root .action-btn[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%) translateY(6px);
+    white-space: nowrap;
+    padding: 0.45rem 0.65rem;
+    border-radius: 10px;
+    background: rgba(15, 18, 30, 0.95);
+    color: #f5f7ff;
+    font-size: 0.85rem;
+    line-height: 1.3;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+    z-index: 1000;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+}
+
+.translator-root .action-btn[data-tooltip]::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%) translateY(2px);
+    border: 6px solid transparent;
+    border-top-color: rgba(15, 18, 30, 0.95);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+    z-index: 1000;
+}
+
+.translator-root .action-btn[data-tooltip]:hover::after,
+.translator-root .action-btn[data-tooltip]:focus-visible::after,
+.translator-root .action-btn[data-tooltip]:hover::before,
+.translator-root .action-btn[data-tooltip]:focus-visible::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.translator-root .translator-info-toggle {
+    display: none;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 12px;
+    border: 1px solid rgba(181, 101, 245, 0.18);
+    background: rgba(20, 24, 34, 0.94);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: transform 0.16s ease, background 0.18s ease, border-color 0.18s ease;
+    font-size: 0.92rem;
+}
+
+.translator-root .translator-info-toggle:hover,
+.translator-root .translator-info-toggle:focus-visible {
+    background: rgba(181, 101, 245, 0.16);
+    border-color: var(--accent-purple);
+    transform: translateY(-1px);
+}
+
+.translator-root .translator-info-panel {
+    display: none;
+    max-width: 100%;
+    margin-top: 0.75rem;
+    padding: 0.9rem 1rem;
+    border-radius: 16px;
+    background: rgba(18, 22, 34, 0.96);
+    border: 1px solid rgba(181, 101, 245, 0.18);
+    color: var(--text-primary);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.translator-root .translator-info-panel:not([hidden]) {
+    display: block;
+}
+
+.translator-root .translator-info-panel p {
+    margin: 0 0 0.65rem;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.translator-root .translator-info-panel p:last-child {
+    margin-bottom: 0;
+}
+
+.translator-root .action-btn:hover,
+.translator-root .action-btn:focus-visible {
+    z-index: 10;
     background: rgba(181, 101, 245, 0.2);
     border-color: var(--accent-purple);
     transform: translateY(-2px);
@@ -268,8 +366,9 @@
     }
 
     .translator-root .translator-controls {
-        justify-content: center;
-        gap: 0.5rem;
+        justify-content: space-between;
+        gap: 0.75rem;
+        width: 100%;
     }
 
     .translator-root #clear-input { 
@@ -280,12 +379,12 @@
         display: none;
     }
 
-    .translator-root .translator-controls {
-        justify-content: center;
-        gap: 1rem;
+    .translator-root .translator-info-toggle {
+        display: inline-flex;
     }
 
-    .translator-root .controls-separator {
+    .translator-root .action-btn[data-tooltip]::after,
+    .translator-root .action-btn[data-tooltip]::before {
         display: none;
     }
 
