@@ -980,7 +980,7 @@
                     normal: {
                         type1: { name: 'Thunder', icon: '../assets/icons/pr_soniceruption_custom_a.png', description: 'Dummy description Cleric Skill 5 Type 1 normal.', usageCost: 'DP 2000', cooldown: '45s' },
                         type2: { name: 'Boosted Thunder', icon: '../assets/icons/pr_divinetouch_custom_b.png', description: 'Dummy description Cleric Skill 5 Type 2 normal.', usageCost: 'DP 2000', cooldown: '45s' },
-                        type3: { name: 'Chain Lightning', icon: '../assets/icons/pr_divinetouch_custom_b.png', description: 'Dummy description Cleric Skill 5 Type 3 normal.', usageCost: 'DP 2000', cooldown: '45s' }
+                        type3: { name: 'Chain Lightning', icon: '../assets/icons/pr_divinetouch_custom_c.png', description: 'Dummy description Cleric Skill 5 Type 3 normal.', usageCost: 'DP 2000', cooldown: '45s' }
                     }
                 },
                 defaultUsed: { row: 'improved', type: 'type1' }
