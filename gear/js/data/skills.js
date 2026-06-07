@@ -1026,7 +1026,7 @@ var GC_SKILL_BUFFS = {
 
     gladiator: [
         { key: 'combatPrep',    value: '+800 Attack / +800 PvP Attack / -600 PvP Def', stats: { attack: 800, pvpAttack: 800, pvpDefence: -600 },  defaultActive: false, excludes: ['defencePrep'] },
-        { key: 'defencePrep',    value: '+800 Defs / +800 PvP def / -600 PvP Attack', stats: { defense: 800, pvpDefence: 800, pvpAttack: -600 },  defaultActive: false, excludes: ['combatPrep'] },
+        { key: 'defencePrep',    value: '+800 Defs / +800 PvP def / -600 PvP Attack', stats: { physicalDef: 800, magicalDef: 800, pvpDefence: 800, pvpAttack: -600 },  defaultActive: false, excludes: ['combatPrep'] },
         { key: 'attackPosition', value: '+1800 Attack / +1200 Acc / +1200 Crit', stats: { attack: 1800, accuracy: 1200, crit: 1200 },  defaultActive: false, excludes: ['vowOfCharge'] },
         { key: 'vowOfCharge', value: '+3600 Attack', stats: { attack: 3600 },  defaultActive: false, excludes: ['attackPosition'] },
     ],
