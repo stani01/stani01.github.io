@@ -117,12 +117,15 @@
 
     function translateUsing(text) {
         const action = getSelectedAction();
-        // Determine which faction tables to use: if action is 'speak', use selectedFaction's tables (we are speaking as that faction).
-        // if action is 'understand', use the OTHER faction's tables (we are decoding their speech).
-        const tablesFaction = (action === 'speak') ? selectedFaction : (selectedFaction === 'elyos' ? 'asmodian' : 'elyos');
+        // Determine which faction tables to use:
+        // - 'speak': use selectedFaction tables and encode text.
+        // - 'understand': use the opposite faction tables and encode text.
+        // - 'decode': use selectedFaction tables and decode text.
+        const tablesFaction = (action === 'speak' || action === 'decode')
+            ? selectedFaction
+            : (selectedFaction === 'elyos' ? 'asmodian' : 'elyos');
         const {subs, next} = tablesFor(tablesFaction);
-        return encodeText(text, subs, next);
-        //return (action === 'speak') ? encodeText(text, subs, next) : decodeText(text, subs, next);
+        return (action === 'decode') ? decodeText(text, subs, next) : encodeText(text, subs, next);
     }
 
     function doTranslate() {
