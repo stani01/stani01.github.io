@@ -6,6 +6,7 @@
     var buildsByClass = {};
     var daevanionUsedByClass = {};
     var stigmaActiveTab = 'stigma';
+    var isDaevanionWarningCollapsed = false;
 
     // Tuned to the current stigma board background artwork.
     var STIGMA_LAYOUT = {
@@ -235,8 +236,14 @@
             .replace(/'/g, '&#39;');
     }
 
-    function renderStigmaTooltipCard(def) {
+    function formatTooltipDescription(value, autoSentenceBreak) {
+        var text = escapeHtml(value || '');
+        return text.replace(/\n/g, '<br>');
+    }
+
+    function renderStigmaTooltipCard(def, opts) {
         if (!def) return '';
+        var autoSentenceBreak = !opts || opts.autoSentenceBreak !== false;
         var html = '<div class="gc-item-tooltip-card">';
         html += '<div class="gc-item-tooltip-title-row">';
         html += '<span class="gc-item-tooltip-title">' + escapeHtml(def.name || '') + '</span>';
@@ -254,18 +261,18 @@
         html += '</div>';
         if (def.description) {
             html += '<hr class="gc-item-tooltip-separator">';
-            html += '<div class="gc-item-tooltip-wide">' + escapeHtml(def.description) + '</div>';
+            html += '<div class="gc-item-tooltip-wide">' + formatTooltipDescription(def.description, autoSentenceBreak) + '</div>';
         }
         html += '</div>';
         return html;
     }
 
-    function buildStigmaTooltipHtml(def) {
+    function buildStigmaTooltipHtml(def, opts) {
         if (!def) return '';
         var entries = [def];
         if (Array.isArray(def.linkedTooltips)) entries = entries.concat(def.linkedTooltips);
-        if (entries.length <= 1) return renderStigmaTooltipCard(entries[0]);
-        return '<div class="stigma-tooltip-grid">' + entries.map(function(item) { return renderStigmaTooltipCard(item); }).join('') + '</div>';
+        if (entries.length <= 1) return renderStigmaTooltipCard(entries[0], opts);
+        return '<div class="stigma-tooltip-grid">' + entries.map(function(item) { return renderStigmaTooltipCard(item, opts); }).join('') + '</div>';
     }
 
     function buildActionTooltipHtml(title, description) {
@@ -273,7 +280,7 @@
         html += '<div class="gc-item-tooltip-title-row">';
         html += '<span class="gc-item-tooltip-title">' + escapeHtml(title || '') + '</span>';
         html += '</div>';
-        if (description) html += '<div class="gc-item-tooltip-wide">' + escapeHtml(description) + '</div>';
+        if (description) html += '<div class="gc-item-tooltip-wide">' + formatTooltipDescription(description) + '</div>';
         html += '</div>';
         return html;
     }
@@ -375,6 +382,45 @@
         });
         var activePanel = document.getElementById('tab-' + stigmaActiveTab);
         if (activePanel) activePanel.classList.add('gc-tab-panel-active');
+
+        syncTabUrl();
+        saveState();
+    }
+
+    function buildUrlWithParams(params) {
+        var parts = [];
+        params.forEach(function(value, key) {
+            if (key === 'daevanion' && value === '') {
+                parts.push('daevanion');
+            } else {
+                parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
+            }
+        });
+        var query = parts.length ? ('?' + parts.join('&')) : '';
+        return window.location.pathname + query + (window.location.hash || '');
+    }
+
+    function syncTabUrl() {
+        if (typeof URLSearchParams === 'undefined' || !window.history || !window.history.replaceState) return;
+
+        var params = new URLSearchParams(window.location.search);
+        var hasDaevanionShareCode = params.has('daevanion') && !!params.get('daevanion');
+
+        if (stigmaActiveTab === 'daevanion') {
+            if (!hasDaevanionShareCode) {
+                params.set('daevanion', '');
+            }
+        } else {
+            if (params.has('daevanion') && !params.get('daevanion')) {
+                params.delete('daevanion');
+            }
+        }
+
+        var nextUrl = buildUrlWithParams(params);
+        var currentUrl = window.location.pathname + window.location.search + (window.location.hash || '');
+        if (nextUrl !== currentUrl) {
+            window.history.replaceState(null, '', nextUrl);
+        }
     }
 
     function initStigmaTabs() {
@@ -395,7 +441,7 @@
         if (isSelected) cls += ' is-selected';
 
         var title = def ? (def.name + ' | ' + (def.cooldown || '-') + ' | ' + (def.description || '')) : 'Locked';
-        var tooltipHtml = def ? buildStigmaTooltipHtml(def) : buildActionTooltipHtml('Locked', 'This slot is locked.');
+        var tooltipHtml = def ? buildStigmaTooltipHtml(def, { autoSentenceBreak: false }) : buildActionTooltipHtml('Locked', 'This slot is locked.');
         var icon = def ? def.icon : (window.DAEVANION_LOCKED_ICON || '../assets/icons/locked_daevanion.png');
 
         var html = '<button type="button" class="' + cls + '" aria-label="' + escapeHtml(title) + '" data-tooltip-title="' + escapeHtml(def ? def.name : 'Locked') + '" data-tooltip-html="' + escapeHtml(tooltipHtml) + '"';
@@ -418,7 +464,7 @@
         }
 
         var def = selected.def;
-        var tooltipHtml = buildStigmaTooltipHtml(def);
+        var tooltipHtml = buildStigmaTooltipHtml(def, { autoSentenceBreak: false });
         var title = def.name + ' | ' + (def.cooldown || '-') + ' | ' + (def.description || '');
         var html = '<div class="daevanion-used-skill gc-item-tooltip-trigger" aria-label="' + escapeHtml(title) + '" data-tooltip-title="' + escapeHtml(def.name) + '" data-tooltip-html="' + escapeHtml(tooltipHtml) + '">';
         html += '<span class="daevanion-used-icon-wrap">';
@@ -481,7 +527,14 @@
 
         var usedColMinWidth = getDaevanionUsedColumnMinWidth();
 
-        var html = '<div class="warning-box"">🚧 Daevanion tooltip descriptions are under construction. Placeholder data is shown until the page is complete.🚧<br>🚧 Found a discrepancy? Let us know!🚧</div>';
+        var warningExpanded = !isDaevanionWarningCollapsed;
+        var html = '<div class="daevanion-warning-wrap' + (warningExpanded ? ' is-open' : ' is-collapsed') + '">';
+        html += '<button type="button" class="daevanion-warning-mini-toggle" aria-expanded="' + (warningExpanded ? 'true' : 'false') + '" aria-label="Show warning" title="Show warning" onclick="StigmaApp.toggleDaevanionWarning()">i</button>';
+        html += '<div class="warning-box daevanion-warning-box">';
+        html += '<button type="button" class="daevanion-warning-close" aria-label="Hide warning" title="Hide warning" onclick="StigmaApp.toggleDaevanionWarning()">✕</button>';
+        html += '<div class="daevanion-warning-content">🚧 Daevanion tooltip descriptions are under construction. Placeholder data is shown until the page is complete.🚧<br>🚧 Found a discrepancy? Let us know!🚧</div>';
+        html += '</div>';
+        html += '</div>';
         html += '<div class="stigma-panel daevanion-panel">';
         html += '<div class="stigma-builder-head daevanion-builder-head">';
         html += '<div class="stigma-preset-actions">';
@@ -772,6 +825,17 @@
             var params = new URLSearchParams(window.location.search);
             var applied = false;
 
+            if (params.has('tab')) {
+                var tabParam = (params.get('tab') || '').toLowerCase();
+                if (tabParam === 'daevanion') stigmaActiveTab = 'daevanion';
+                if (tabParam === 'stigma') stigmaActiveTab = 'stigma';
+            }
+
+            // Support /stigma/?daevanion as a plain tab deep-link without share code.
+            if (params.has('daevanion') && !params.get('daevanion')) {
+                stigmaActiveTab = 'daevanion';
+            }
+
             var daevanionCode = params.get('daevanion');
             if (daevanionCode) {
                 var decodedDaevanion = decodeShortDaevanionShare(daevanionCode);
@@ -805,7 +869,9 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
                 selectedClass: selectedClass,
                 buildsByClass: buildsByClass,
-                daevanionUsedByClass: daevanionUsedByClass
+                daevanionUsedByClass: daevanionUsedByClass,
+                stigmaActiveTab: stigmaActiveTab,
+                isDaevanionWarningCollapsed: isDaevanionWarningCollapsed
             }));
         } catch (e) {
             // Ignore private mode / quota failures.
@@ -821,6 +887,14 @@
 
             if (parsed.selectedClass && CLASS_DATA[parsed.selectedClass]) {
                 selectedClass = parsed.selectedClass;
+            }
+
+            if (parsed.stigmaActiveTab === 'daevanion' || parsed.stigmaActiveTab === 'stigma') {
+                stigmaActiveTab = parsed.stigmaActiveTab;
+            }
+
+            if (typeof parsed.isDaevanionWarningCollapsed === 'boolean') {
+                isDaevanionWarningCollapsed = parsed.isDaevanionWarningCollapsed;
             }
 
             if (parsed.buildsByClass && typeof parsed.buildsByClass === 'object') {
@@ -1076,7 +1150,7 @@
         if (def.cooldown) html += '<div class="stigma-mobile-skill-meta-line">Cooldown: ' + escapeHtml(def.cooldown) + '</div>';
         if (def.castTime) html += '<div class="stigma-mobile-skill-meta-line">Cast Time: ' + escapeHtml(def.castTime) + '</div>';
         html += '</div>';
-        if (def.description) html += '<div class="stigma-mobile-skill-description">' + escapeHtml(def.description) + '</div>';
+        if (def.description) html += '<div class="stigma-mobile-skill-description">' + formatTooltipDescription(def.description) + '</div>';
         html += '</div>';
         return html;
     }
@@ -1550,6 +1624,12 @@
             normalizeStigmaBuild(selectedClass, build);
             saveState();
             renderBuilder();
+            renderDaevanionBuilder();
+        },
+
+        toggleDaevanionWarning: function() {
+            isDaevanionWarningCollapsed = !isDaevanionWarningCollapsed;
+            saveState();
             renderDaevanionBuilder();
         }
     };
