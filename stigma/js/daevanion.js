@@ -794,25 +794,34 @@ Multicast 2 times.`),
                 defaultSkill: {
                     name: 'Pain Rune Burst',
                     icon: '../assets/icons/cbt_as_signetburst_g1.png',
-                    description: d(`DummydefaultskillforAssassinSkill1.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m'
+                    description: d(`Removes a rune up to level 5 from a target and deals magic damage.
+Stuns the target.
+The higher the rune level, the higher the probability that the effect occurs..`),
+                    usageCost: '270 MP',
+                    cooldown: '18s'
                 },
                 rows: {
                     improved: {
                         type1: {
                             name: '(Improved) Seal Eruption',
                             icon: '../assets/icons/as_signetburst_custom_a_up.png',
-                            description: d(`DummydescriptionAssassinSkill1Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Removes a rune up to level 5 from a target and deals magic damage.
+Stuns the target.
+The higher the rune level, the higher the probability that the effect occurs.
+Damage is higher than a normal Pain Rune and the cooldown is shorter.`),
+                            usageCost: '270 MP',
+                            cooldown: '8s'
                         },
                         type2: {
                             name: '(Improved) Seal Destruction',
                             icon: '../assets/icons/as_signetburst_custom_b_up.png',
-                            description: d(`DummydescriptionAssassinSkill1Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Removes a rune up to level 5 from a target and deals magic damage.
+Stuns the target.
+Stun lasts longer than after a normal Pain Rune.
+When using the skill, the cooldown for Shadowfall is reset.
+The higher the rune level, the higher the probability that the effect occurs.`),
+                            usageCost: '270 MP',
+                            cooldown: '14.4s'
                         },
                         type3: null
                     },
@@ -820,16 +829,23 @@ Multicast 2 times.`),
                         type1: {
                             name: 'Seal Eruption',
                             icon: '../assets/icons/as_signetburst_custom_a.png',
-                            description: d(`DummydescriptionAssassinSkill1Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Removes a rune up to level 5 from a target and deals magic damage.
+Stuns the target.
+The higher the rune level, the higher the probability that the effect occurs.
+Damage is higher than a normal Pain Rune and the cooldown is shorter.`),
+                            usageCost: '270 MP',
+                            cooldown: '10s'
                         },
                         type2: {
                             name: 'Seal Destruction',
                             icon: '../assets/icons/as_signetburst_custom_b.png',
-                            description: d(`DummydescriptionAssassinSkill1Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Removes a rune up to level 5 from a target and deals magic damage.
+Stuns the target.
+Stun lasts longer than after a normal Pain Rune.
+When using the skill, the cooldown for Shadowfall is reduced by 70%.
+The higher the rune level, the higher the probability that the effect occurs.`),
+                            usageCost: '270 MP',
+                            cooldown: '18s'
                         },
                         type3: null
                     }
@@ -844,9 +860,11 @@ Multicast 2 times.`),
                 defaultSkill: {
                     name: 'Killing Spree',
                     icon: '../assets/icons/live_as_pollutioncut_g1.png',
-                    description: d(`DummydefaultskillforAssassinSkill2.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m'
+                    description: d(`Deals 754 physical damage.
+Deals 1391 more damage if the target is poisoned or stunned.
+Multicast 3 times.`),
+                    usageCost: '142 MP',
+                    cooldown: '30s'
                 },
                 rows: {
                     improved: {
@@ -854,39 +872,54 @@ Multicast 2 times.`),
                         type2: {
                             name: '(Improved) Boosted Second Slash',
                             icon: '../assets/icons/as_pollutioncut_custom_b_up.png',
-                            description: d(`DummydescriptionAssassinSkill2Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1,312 physical damage.
+Deals 2,003 more damage when attacking from behind or if the target is poisoned or stunned.
+Temporarily increases the probability that the attack skill deals a crit strike by 100%.
+Multicast 3 times`),
+                            usageCost: '142 MP',
+                            cooldown: '30s'
                         },
                         type3: {
                             name: '(Improved) Soulbreak',
                             icon: '../assets/icons/as_pollutioncut_custom_c_up.png',
-                            description: d(`DummydescriptionAssassinSkill2Type3improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 995 physical damage.
+Deals 2003 extra damage if the target is poisoned or its movement speed is reduced.
+Stuns the target for 1s.
+Multicast 3 times`),
+                            usageCost: '142 MP',
+                            cooldown: '30s'
                         }
                     },
                     normal: {
                         type1: {
                             name: 'Second Slash',
                             icon: '../assets/icons/as_pollutioncut_custom_a.png',
-                            description: d(`DummydescriptionAssassinSkill2Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 829 physical damage.
+                                Deals 1,391 more damage if the target is poisoned or stunned.
+                                Temporarily increases the probability that the attack skill deals a crit strike by 50%.
+                                Multicast 3 times.`),
+                            usageCost: '142 MP',
+                            cooldown: '30s'
                         },
                         type2: {
                             name: 'Boosted Second Slash',
                             icon: '../assets/icons/as_pollutioncut_custom_b.png',
-                            description: d(`DummydescriptionAssassinSkill2Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 910 (+8 per level) physical damage.
+Deals 1,391 more damage when attacking from behind or if the target is poisoned or stunned.
+Temporarily increases the probability that the attack skill deals a crit strike by 80%.
+Multicast 3 times`),
+                            usageCost: '142 MP',
+                            cooldown: '30s'
                         },
                         type3: {
                             name: 'Soulbreak',
                             icon: '../assets/icons/as_pollutioncut_custom_c.png',
-                            description: d(`DummydescriptionAssassinSkill2Type3normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 829 (+8 per level) physical damage.
+Deals 1,391 extra damage if the target is poisoned.
+Stuns the target for 1s.
+Multicast 3 times`),
+                            usageCost: '142 MP',
+                            cooldown: '30s'
                         }
                     }
                 },
@@ -900,25 +933,30 @@ Multicast 2 times.`),
                 defaultSkill: {
                     name: 'Wind Walk',
                     icon: '../assets/icons/cbt_as_windwalk_g1.png',
-                    description: d(`DummydefaultskillforAssassinSkill3.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m'
+                    description: d(`You are in advanced stealth mode for 10s-20s.
+You may use up to 3 magical buffs on yourself and still remain in stealth.
+Available during battle..`),
+                    usageCost: '3000 DP',
+                    cooldown: '2m'
                 },
                 rows: {
                     improved: {
                         type1: {
                             name: '(Improved) Shadow of Resistance',
                             icon: '../assets/icons/as_windwalk_custom_a_up.png',
-                            description: d(`DummydescriptionAssassinSkill3Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Even if you're attacked for 5s, your improved stealth mode will be maintained.
+Available during battle.`),
+                            usageCost: '2000 DP',
+                            cooldown: '1m30s'
                         },
                         type2: {
                             name: '(Improved) Speed\'s Shadow',
                             icon: '../assets/icons/as_windwalk_custom_b_up.png',
-                            description: d(`DummydescriptionAssassinSkill3Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`You are in a normal stealth mode for 9s.
+You may use up to 2 magic buffs on yourself and still remain in stealth mode.
+Available during battle.`),
+                            usageCost: '1000 DP',
+                            cooldown: '40s'
                         },
                         type3: null
                     },
@@ -926,16 +964,19 @@ Multicast 2 times.`),
                         type1: {
                             name: 'Shadow of Resistance',
                             icon: '../assets/icons/as_windwalk_custom_a.png',
-                            description: d(`DummydescriptionAssassinSkill3Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Even if you're attacked for 3s, your improved stealth mode will be maintained.
+Available during battle.`),
+                            usageCost: '3000 DP',
+                            cooldown: '2m'
                         },
                         type2: {
                             name: 'Speed\'s Shadow',
                             icon: '../assets/icons/as_windwalk_custom_b.png',
-                            description: d(`DummydescriptionAssassinSkill3Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`You are in a normal stealth mode for 6s.
+You may use up to one magical buff on yourself and still remain in stealth mode.
+Available during battle.`),
+                            usageCost: '2000 DP',
+                            cooldown: '1m'
                         },
                         type3: null
                     }
@@ -950,25 +991,30 @@ Multicast 2 times.`),
                 defaultSkill: {
                     name: 'Bloodthirster Surprise Attack',
                     icon: '../assets/icons/cbt_sc_assaultstabber_g1.png',
-                    description: d(`DummydefaultskillforAssassinSkill4.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m'
+                    description: d(`Deals 607 physical damage.
+Deals 2,888 additional damage when attacking from behind.
+Restores HP equal to 50% of the additional damage.
+Perfect Surprise Attack.`),
+                    usageCost: '91 MP',
+                    cooldown: '16s'
                 },
                 rows: {
                     improved: {
                         type1: {
                             name: '(Improved) Bestial Surprise Attack',
                             icon: '../assets/icons/sc_assaultstabber_custom_a_up.png',
-                            description: d(`DummydescriptionAssassinSkill4Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 2,185 physical damage.
+Restores HP equal to 50% of the damage.`),
+                            usageCost: '91 MP',
+                            cooldown: '16s'
                         },
                         type2: {
                             name: '(Improved) Crushing Surprise Attack',
                             icon: '../assets/icons/sc_assaultstabber_custom_b_up.png',
-                            description: d(`DummydescriptionAssassinSkill4Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1,091 physical damage.
+Deals 3,466 additional damage and makes the target stumble if they are stunned.`),
+                            usageCost: '91 MP',
+                            cooldown: '12s'
                         },
                         type3: null
                     },
@@ -976,16 +1022,18 @@ Multicast 2 times.`),
                         type1: {
                             name: 'Bestial Surprise Attack',
                             icon: '../assets/icons/sc_assaultstabber_custom_a.png',
-                            description: d(`DummydescriptionAssassinSkill4Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1,821 (+17 per level) physical damage.
+Restores HP equal to 30% of the damage.`),
+                            usageCost: '91 MP',
+                            cooldown: '16s'
                         },
                         type2: {
                             name: 'Crushing Surprise Attack',
                             icon: '../assets/icons/sc_assaultstabber_custom_b.png',
-                            description: d(`DummydescriptionAssassinSkill4Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 607 (+6 per level) physical damage.
+Deals 2,888 additional damage and makes the target stumble if they are stunned.`),
+                            usageCost: '91 MP',
+                            cooldown: '16s'
                         },
                         type3: null
                     }
@@ -1000,25 +1048,35 @@ Multicast 2 times.`),
                 defaultSkill: {
                     name: 'Swift Ambush',
                     icon: '../assets/icons/cbt_as_blindside_g1.png',
-                    description: d(`DummydefaultskillforAssassinSkill5.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m'
+                    description: d(`You get behind the target and deal 816 physical damage to it.
+Stuns the target for 3s.
+Increases your movement speed by 30% for 5s.
+Perfect Ambush.`),
+                    usageCost: '228 MP',
+                    cooldown: '40s'
                 },
                 rows: {
                     improved: {
                         type1: {
                             name: '(Improved) Swift Heavy Attack',
                             icon: '../assets/icons/as_blindside_custom_a_up.png',
-                            description: d(`DummydescriptionAssassinSkill5Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`You get behind the target and deal 979 physical damage to it.
+Stuns the target for 2s.
+Boosts your movement speed by 30% for 4 seconds.
+All attack skills deal Crit Strikes for 4 seconds.`),
+                            usageCost: '228 MP',
+                            cooldown: '40s'
                         },
                         type2: {
                             name: '(Improved) Swift Storm Attack',
                             icon: '../assets/icons/as_blindside_custom_b_up.png',
-                            description: d(`DummydescriptionAssassinSkill5Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`You get behind the target and deal 1,862 physical damage to it.
+Stuns the target for 3s.
+Poisons the target for 8 seconds and reduces its movement speed.
+Boosts your movement speed by 30% for 5s.
+In addition, resets the cooldowns for Beast Leap, Flash of Speed and Beast Fang when used.`),
+                            usageCost: '228 MP',
+                            cooldown: '30s'
                         },
                         type3: null
                     },
@@ -1026,16 +1084,23 @@ Multicast 2 times.`),
                         type1: {
                             name: 'Swift Heavy Attack',
                             icon: '../assets/icons/as_blindside_custom_a.png',
-                            description: d(`DummydescriptionAssassinSkill5Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`You get behind the target and deal 816 (+8 per level) physical damage to it.
+Stuns the target for 2s.
+Boosts your movement speed by 30% for 3 seconds.
+All attack skills deal Crit Strikes for 3 seconds.`),
+                            usageCost: '228 MP',
+                            cooldown: '40s'
                         },
                         type2: {
                             name: 'Swift Storm Attack',
                             icon: '../assets/icons/as_blindside_custom_b.png',
-                            description: d(`DummydescriptionAssassinSkill5Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`You get behind the target and deal 1,552 physical damage to it.
+Stuns the target for 3s.
+Poisons the target for 8 seconds and reduces its movement speed.
+Boosts your movement speed by 30% for 5s.
+Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
+                            usageCost: '228 MP',
+                            cooldown: '40s'
                         },
                         type3: null
                     }
@@ -1050,8 +1115,10 @@ Multicast 2 times.`),
                 defaultSkill: {
                     name: 'Whirlwind Blow',
                     icon: '../assets/icons/cbt_as_flowingspiner_g1.png',
-                    description: d(`DummydefaultskillforAssassinSkill6.`),
-                    usageCost: '2000 MP',
+                    description: d(`Deals 951 physical damage after successful evasion and resist magic.
+                        The target suffers the spin effect.
+                        Perfect Whirlwind Slash.`),
+                    usageCost: '183 MP',
                     cooldown: '1m'
                 },
                 rows: {
@@ -1059,16 +1126,21 @@ Multicast 2 times.`),
                         type1: {
                             name: '(Improved) Whirling Slicer',
                             icon: '../assets/icons/as_flowingspiner_custom_a_up.png',
-                            description: d(`DummydescriptionAssassinSkill6Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 2,227 physical damage after successful evasion and resist magic.
+                                The target suffers the Spin effect.
+                                Resets the cooldown for Focused Evasion, Aethertwisting, Blinding Burst and Sensory Boost.`),
+                            usageCost: '183 MP',
+                            cooldown: '40s'
                         },
                         type2: {
                             name: '(Improved) Whirlwind Slash',
                             icon: '../assets/icons/as_flowingspiner_custom_b_up.png',
-                            description: d(`DummydescriptionAssassinSkill6Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1,713 physical damage.
+                                A successful attack reduces the cooldown for Swift Ambush, Dash and Slash and Flash of Speed by 20%.
+                                A crit strike reduces the cooldown by an additional 20%.
+                                Multicast 3 times.`),
+                            usageCost: '183 MP',
+                            cooldown: '1m'
                         },
                         type3: null
                     },
@@ -1076,16 +1148,22 @@ Multicast 2 times.`),
                         type1: {
                             name: 'Assassin Whirling Slicer',
                             icon: '../assets/icons/as_flowingspiner_custom_a.png',
-                            description: d(`DummydescriptionAssassinSkill6Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1,427 (+13 per level) physical damage after successful evasion and resist magic.
+                                The target suffers the Spin effect.
+                                Reduces the cooldown for Focused Evasion and Aethertwisting by 30%.
+                                A crit strike reduces the cooldown by another 30%.`),
+                            usageCost: '183 MP',
+                            cooldown: '1m'
                         },
                         type2: {
                             name: 'Assassin Whirlwind Slash',
                             icon: '../assets/icons/as_flowingspiner_custom_b.png',
-                            description: d(`DummydescriptionAssassinSkill6Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1,427 (+13 per level) physical damage.
+                                A successful attack reduces the cooldown for Swift Ambush, Dash and Slash and Flash of Speed by 10%.
+                                A crit strike reduces the cooldown by an additional 10%.
+                                Multicast 3 times.`),
+                            usageCost: '183 MP',
+                            cooldown: '1m'
                         },
                         type3: null
                     }
