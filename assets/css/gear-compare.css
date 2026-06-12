@@ -2760,10 +2760,8 @@
 
 
 .gc-comp-table {
-    table-layout: fixed;
+    table-layout: auto;
     width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
     border-collapse: collapse;
     font-size: 0.82em;
 }
@@ -2788,21 +2786,20 @@
 
 .gc-comp-th-stat {
     text-align: left !important;
-    width: 25%;
+    width: 16%;
 }
 
 .gc-comp-th-val {
-    width: 25%;
+    width: auto;
 }
 
 .gc-comp-th-diff {
-    width: 25%;
+    width: 12%;
+    white-space: nowrap;
 }
 
 .gc-comp-ghost {
-    width: 0%; 
-    padding: 0 !important;
-    border: none !important;
+    display: none;
 }
 
 .gc-comp-group-row {
@@ -2912,7 +2909,8 @@
     transform: translateY(-50%);
     height: 65%;
     border-radius: 3px;
-    transition: width 0.3s ease;
+    width: 100% !important;
+    transition: none;
 }
 
 .gc-comp-bar-1 {

@@ -4,7 +4,7 @@
 function calculateCritPercentage(critStat) {
     if (critStat <= 0) return 0;
     var percentage = Math.floor((critStat * 170) / (24000 + critStat));
-    return Math.min(percentage, 100);
+    return percentage;
 }
 
 var SOURCE_LABELS = [

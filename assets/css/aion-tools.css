@@ -5522,15 +5522,15 @@ flex: 1;
 
 .gc-comp-th-stat {
     text-align: left !important;
-    width: 25%;
+    width: 22%;
 }
 
 .gc-comp-th-val {
-    width: 25%;
+    width: 31%;
 }
 
 .gc-comp-th-diff {
-    width: 25%;
+    width: 16%;
 }
 
 .gc-comp-ghost {
@@ -5639,12 +5639,18 @@ flex: 1;
 
 /* -- Stat Bar Visualization -- */
 .gc-comp-bar-wrap {
-    width: 100%;
+    width: 220px;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 10px;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 22px;
+    min-height: 24px;
+    border: 1px solid rgba(120, 140, 160, 0.35);
+    border-radius: 4px;
+    background: rgba(14, 20, 30, 0.45);
     overflow: hidden;
 }
 
@@ -5655,7 +5661,8 @@ flex: 1;
     transform: translateY(-50%);
     height: 65%;
     border-radius: 3px;
-    transition: width 0.3s ease;
+    width: 100% !important;
+    transition: none;
 }
 
 .gc-comp-bar-1 {
@@ -6126,6 +6133,10 @@ flex: 1;
     .gc-comp-table thead th,
     .gc-comp-row td {
         padding: 4px 6px;
+    }
+    .gc-comp-bar-wrap {
+        width: 170px;
+        padding: 0 8px;
     }
     .gc-set-title {
         font-size: 1.2em;
