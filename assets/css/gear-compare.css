@@ -1199,19 +1199,21 @@
 
 .gc-item-tooltip-item-icon-back {
     position: absolute;
-    left: 2px;
-    top: 2px;
+    left: 50%;
+    top: 50%;
     width: 42px;
     height: 42px;
+    transform: translate(-50%, -50%);
     opacity: 0.42;
 }
 
 .gc-item-tooltip-item-icon {
     position: absolute;
-    left: 0;
-    top: 0;
+    left: 50%;
+    top: 50%;
     width: 42px;
     height: 42px;
+    transform: translate(-50%, -50%);
     object-fit: contain;
 }
 
@@ -3238,6 +3240,21 @@
 
 .gc-slot-icon-framed {
     position: relative;
+}
+
+/* Starshine already has its own decorative frame, so suppress generic
+   purple border/scale hover to avoid double-border and frame shift. */
+.gc-slot-icon-framed,
+.gc-set-trigger .gc-slot-icon-framed {
+    border-color: transparent;
+}
+
+.gc-slot-icon-framed:hover,
+.gc-slot-icon-framed:focus-visible,
+.gc-set-trigger:hover .gc-slot-icon-framed {
+    border-color: transparent;
+    box-shadow: none;
+    transform: scale(1.05);
 }
 
 .gc-slot-icon-frame {
