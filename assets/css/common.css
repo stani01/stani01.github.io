@@ -148,8 +148,7 @@ a:hover {
     justify-content: center;
     align-items: center;
     gap: 2px;
-    background: rgba(15, 15, 22, 0.85);
-    backdrop-filter: blur(12px);
+    background: rgba(15, 15, 22, 0.95);
     border-bottom: 1px solid rgba(77, 184, 255, 0.15);
     padding: 6px 12px;
     position: sticky;

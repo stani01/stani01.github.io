@@ -6,9 +6,10 @@
     'use strict';
 
     // Bump this value on deploys that should force users onto fresh HTML/CSS/JS.
-    var ASSET_CACHE_VERSION = '16.06.2026.01';
+    var ASSET_CACHE_VERSION = '16.06.2026.02';
     var ASSET_VERSION_STORAGE_KEY = 'aionToolsAssetVersion';
     var ASSET_VERSION_RELOAD_KEY = 'aionToolsAssetReload_' + ASSET_CACHE_VERSION;
+    var currentScript = document.currentScript || null;
 
     function appendVersionParam(urlLike) {
         try {
@@ -30,11 +31,30 @@
 
     function bustScriptSrcs() {
         document.querySelectorAll('script[src]').forEach(function (script) {
+            if (script === currentScript) return;
             var src = script.getAttribute('src');
             if (!src) return;
             script.setAttribute('src', appendVersionParam(src));
         });
     }
+
+    function refreshAssetLinks() {
+        bustStylesheetLinks();
+        bustScriptSrcs();
+    }
+
+    try {
+        if (window.localStorage) {
+            var currentAssetVersion = localStorage.getItem(ASSET_VERSION_STORAGE_KEY);
+            if (currentAssetVersion !== ASSET_CACHE_VERSION) {
+                localStorage.setItem(ASSET_VERSION_STORAGE_KEY, ASSET_CACHE_VERSION);
+            }
+        }
+    } catch (e) {
+        // ignore localStorage failures
+    }
+
+    refreshAssetLinks();
 
     function showAssetUpdateToast() {
         var toast = document.createElement('div');
