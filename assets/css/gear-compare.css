@@ -1227,8 +1227,69 @@
 .gc-item-tooltip-meta-line {
     color: rgba(232, 213, 167, 0.88);
     font-size: 0.73em;
-    line-height: 1.25;
+    line-height: 1.35;
 }
+
+.gc-item-tooltip-number {
+    color: #f7e18b;
+}
+
+.gc-item-tooltip-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+.gc-item-tooltip-table-row-title {
+}
+
+.gc-item-tooltip-table-cell-title {
+    padding-bottom: 10px;
+    color: #f4e1a0;
+    font-size: 0.88em;
+    font-weight: 700;
+    text-align: left;
+}
+
+.gc-item-tooltip-table-cell-icon,
+.gc-item-tooltip-table-cell-meta,
+.gc-item-tooltip-table-cell-area {
+    vertical-align: top;
+    padding: 4px 4px 0 4px;
+}
+
+.gc-item-tooltip-table-cell-icon {
+    width: 55px;
+    min-width: 55px;
+    max-width: 55px;
+    text-align: center;
+    padding-right: 0;
+    overflow: hidden;
+}
+
+.gc-item-tooltip-table-cell-meta {
+    width: auto;
+}
+
+.gc-item-tooltip-table-cell-area {
+    width: 110px;
+    text-align: center;
+}
+
+.gc-item-tooltip-table-row-desc {
+}
+
+.gc-item-tooltip-table-cell-desc {
+    padding-top: 10px;
+    color: rgba(232, 213, 167, 0.96);
+    font-size: 0.82em;
+    line-height: 1.5;
+}
+
+.gc-item-tooltip-aoe-icon { display: block; margin: 0 auto; }
+.gc-item-tooltip-aoe-meters { font-size: 11px; color: #ccc; margin-top: 2px; }
+
+.gc-item-tooltip-aoe-title { font-size: 11px; color: #e6d8b2; font-weight: 700; margin-bottom: 4px; text-align: center; }
 
 .gc-item-tooltip-enchant {
     color: #d39b44;

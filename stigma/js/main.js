@@ -237,7 +237,16 @@
     }
 
     function formatTooltipInlineValue(value) {
-        return decorateTooltipGrowth(escapeHtml(value || ''));
+        return highlightTooltipNumbers(decorateTooltipGrowth(escapeHtml(value || '')));
+    }
+
+    function highlightTooltipNumbers(text) {
+        return String(text || '').replace(/[0-9]+(?:\.[0-9]+)?/g, function(match, offset, source) {
+            if (offset >= 2 && source[offset - 2] === '&' && source[offset - 1] === '#') {
+                return match;
+            }
+            return '<span class="gc-item-tooltip-number">' + match + '</span>';
+        });
     }
 
     function decorateTooltipGrowth(text) {
@@ -245,7 +254,8 @@
             var classes = 'gc-item-tooltip-growth';
             if (sign === '-') classes += ' is-reduction';
             if (/per level/i.test(match)) classes += ' is-per-level';
-            return '<span class="' + classes + '">' + match + '</span>';
+            var cleanText = match.replace(/[()]/g, '');
+            return '<span class="' + classes + '">' + cleanText + '</span>';
         });
     }
 
@@ -257,25 +267,50 @@
     function renderStigmaTooltipCard(def, opts) {
         if (!def) return '';
         var autoSentenceBreak = !opts || opts.autoSentenceBreak !== false;
+        var aoeType = def.areaIcon;
+        var aoeText = def.area;
+        var showAoe = (aoeType !== undefined || aoeText !== undefined);
+        var aoeIconMap = {
+            'targetConic': '../assets/icons/targetConic.png',
+            'targetCircle': '../assets/icons/targetCircle.png',
+            'targetSingle': '../assets/icons/targetSingle.png',
+            'targetRect': '../assets/icons/targetRect.png'
+        };
+        var aoeIcon = aoeType ? aoeIconMap[aoeType] || aoeIconMap['targetConic'] : '';
+
         var html = '<div class="gc-item-tooltip-card">';
-        html += '<div class="gc-item-tooltip-title-row">';
-        html += '<span class="gc-item-tooltip-title">' + escapeHtml(def.name || '') + '</span>';
-        html += '</div>';
-        html += '<div class="gc-item-tooltip-media-row">';
+        html += '<table class="gc-item-tooltip-table">';
+        html += '<tr class="gc-item-tooltip-table-row-title">';
+        html += '<td class="gc-item-tooltip-table-cell-title" colspan="3">' + escapeHtml(def.name || '') + '</td>';
+        html += '</tr>';
+        html += '<tr class="gc-item-tooltip-table-row-meta">';
+        html += '<td class="gc-item-tooltip-table-cell-icon">';
         html += '<div class="gc-item-tooltip-item-icons">';
         html += '<img src="../assets/icons/icon_frame_2.png" class="gc-item-tooltip-item-icon-back" alt="">';
-        html += '<img src="' + (def.icon) + '" class="gc-item-tooltip-item-icon" alt="">';
+        html += '<img src="' + escapeHtml(def.icon || '') + '" class="gc-item-tooltip-item-icon" alt="">';
         html += '</div>';
-        html += '<div class="gc-item-tooltip-meta">';
+        html += '</td>';
+        html += '<td class="gc-item-tooltip-table-cell-meta"' + (showAoe ? '' : ' colspan="2"') + '>';
+        if (def.target) html += '<div class="gc-item-tooltip-meta-line">Target: ' + formatTooltipInlineValue(def.target) + '</div>';
+        if (def.usageDistance) html += '<div class="gc-item-tooltip-meta-line">Usage distance: ' + formatTooltipInlineValue(def.usageDistance) + '</div>';
         if (def.usageCost) html += '<div class="gc-item-tooltip-meta-line">Usage Cost: ' + formatTooltipInlineValue(def.usageCost) + '</div>';
         if (def.cooldown) html += '<div class="gc-item-tooltip-meta-line">Cooldown: ' + formatTooltipInlineValue(def.cooldown) + '</div>';
         if (def.castTime) html += '<div class="gc-item-tooltip-meta-line">Cast Time: ' + formatTooltipInlineValue(def.castTime) + '</div>';
-        html += '</div>';
-        html += '</div>';
-        if (def.description) {
-            html += '<hr class="gc-item-tooltip-separator">';
-            html += '<div class="gc-item-tooltip-wide">' + formatTooltipDescription(def.description, autoSentenceBreak) + '</div>';
+        html += '</td>';
+        if (showAoe) {
+            html += '<td class="gc-item-tooltip-table-cell-area">';
+            html += '<div class="gc-item-tooltip-aoe-title">Area of application</div>';
+            if (aoeIcon) html += '<img class="gc-item-tooltip-aoe-icon" src="' + aoeIcon + '" alt="Area of application">';
+            if (aoeText) html += '<div class="gc-item-tooltip-aoe-meters">' + formatTooltipInlineValue(aoeText) + '</div>';
+            html += '</td>';
         }
+        html += '</tr>';
+        if (def.description) {
+            html += '<tr class="gc-item-tooltip-table-row-desc">';
+            html += '<td class="gc-item-tooltip-table-cell-desc" colspan="3">' + formatTooltipDescription(def.description, autoSentenceBreak) + '</td>';
+            html += '</tr>';
+        }
+        html += '</table>';
         html += '</div>';
         return html;
     }
@@ -545,7 +580,7 @@
         html += '<button type="button" class="daevanion-warning-mini-toggle" aria-expanded="' + (warningExpanded ? 'true' : 'false') + '" aria-label="Show warning" title="Show warning" onclick="StigmaApp.toggleDaevanionWarning()">i</button>';
         html += '<div class="warning-box daevanion-warning-box">';
         html += '<button type="button" class="daevanion-warning-close" aria-label="Hide warning" title="Hide warning" onclick="StigmaApp.toggleDaevanionWarning()">✕</button>';
-        html += '<div class="daevanion-warning-content">🚧 Daevanion tooltip descriptions are under construction. Placeholder data is shown until the page is complete.🚧<br>🚧 Found a discrepancy? Let us know!🚧</div>';
+        html += '<div class="daevanion-warning-content">🚧 Daevanion tooltip descriptions are under construction. Placeholder data is shown until the page is complete.🚧<br>🚧 Found a discrepancy? Let us know!🚧 Finalized classes so far: <img src="../assets/icons/gladiator.png"></img><img src="../assets/icons/templar.png"></img><img src="../assets/icons/assassin.png"></img><img src="../assets/icons/ranger.png"></img><img src="../assets/icons/sorcerer.png"></img></div>';
         html += '</div>';
         html += '</div>';
         html += '<div class="stigma-panel daevanion-panel">';
