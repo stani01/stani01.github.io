@@ -796,7 +796,7 @@ Multicast 2 times.`),
                     icon: '../assets/icons/cbt_as_signetburst_g1.png',
                     description: d(`Removes a rune up to level 5 from a target and deals magic damage.
 Stuns the target.
-The higher the rune level, the higher the probability that the effect occurs..`),
+The higher the rune level, the higher the probability that the effect occurs.`),
                     usageCost: '270 MP',
                     cooldown: '18s'
                 },
@@ -935,7 +935,7 @@ Multicast 3 times`),
                     icon: '../assets/icons/cbt_as_windwalk_g1.png',
                     description: d(`You are in advanced stealth mode for 10s-20s.
 You may use up to 3 magical buffs on yourself and still remain in stealth.
-Available during battle..`),
+Available during battle.`),
                     usageCost: '3000 DP',
                     cooldown: '2m'
                 },
@@ -1180,25 +1180,32 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                 defaultSkill: {
                     name: 'Shackle Arrow',
                     icon: '../assets/icons/cbt_ra_rootarrow_g1.png',
-                    description: d(`DummydefaultskillforRangerSkill1.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m'
+                    description: d(`Deals 1125 physical damage.
+Immobilises the target for 10s.
+Reduces Evasion by 1000.`),
+                    usageCost: '292 MP',
+                    cooldown: '30s'
                 },
                 rows: {
                     improved: {
                         type1: {
                             name: '(Improved) Shackling Arrow',
                             icon: '../assets/icons/ra_rootarrow_custom_a_up.png',
-                            description: d(`DummydescriptionRangerSkill1Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 519 physical damage.
+Immobilises the target for 8s. There is only a slight chance this state can be removed.
+Reduces Evasion by 2000.
+Reduces Physical Defence by 10%.`),
+                            usageCost: '292 MP',
+                            cooldown: '20s'
                         },
                         type2: {
                             name: '(Improved) Shackling Arrow Torrent',
                             icon: '../assets/icons/ra_rootarrow_custom_b_up.png',
-                            description: d(`DummydescriptionRangerSkill1Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 2076 physical damage.
+Immobilises the target for 12s.
+Reduces Evasion by 2000.`),
+                            usageCost: '292 MP',
+                            cooldown: '30s'
                         },
                         type3: null
                     },
@@ -1206,16 +1213,21 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                         type1: {
                             name: 'Shackling Arrow',
                             icon: '../assets/icons/ra_rootarrow_custom_a.png',
-                            description: d(`DummydescriptionRangerSkill1Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 433 (+5 per level) physical damage.
+Immobilises the target for 3.5 seconds. There is only a slight chance this state can be removed.
+Reduces Evasion by 1000.
+Reduces Physical Defence by 10%.`),
+                            usageCost: '292 MP',
+                            cooldown: '30s'
                         },
                         type2: {
                             name: 'Shackling Arrow Torrent',
                             icon: '../assets/icons/ra_rootarrow_custom_b.png',
-                            description: d(`DummydescriptionRangerSkill1Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1730 (+17 per level) physical damage.
+Immobilises the target for 10s.
+Reduces Evasion by 1000.`),
+                            usageCost: '292 MP',
+                            cooldown: '30s'
                         },
                         type3: null
                     }
@@ -1230,9 +1242,10 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                 defaultSkill: {
                     name: 'Silencing Shot',
                     icon: '../assets/icons/cbt_ra_silentarrow_g1.png',
-                    description: d(`DummydefaultskillforRangerSkill2.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m'
+                    description: d(`Deals 707 physical damage.
+Silences the target for 4s.`),
+                    usageCost: '183 MP',
+                    cooldown: '18s'
                 },
                 rows: {
                     improved: {
@@ -1240,39 +1253,46 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                         type2: {
                             name: '(Improved) Silencing Thrust',
                             icon: '../assets/icons/ra_silentarrow_custom_b_up.png',
-                            description: d(`DummydescriptionRangerSkill2Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1272 physical damage.
+Silences the target for 4s.
+The effect cannot be removed.`),
+                            usageCost: '183 MP',
+                            cooldown: '40s'
                         },
                         type3: {
                             name: '(Improved) Binding Arrow',
                             icon: '../assets/icons/ra_silentarrow_custom_c_up.png',
-                            description: d(`DummydescriptionRangerSkill2Type3improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1272 physical damage.
+Binds the target for 5s.`),
+                            usageCost: '183 MP',
+                            cooldown: '20s'
                         }
                     },
                     normal: {
                         type1: {
                             name: 'Throwing Daggers of Silence',
                             icon: '../assets/icons/ra_counterslash_custom_a.png',
-                            description: d(`DummydescriptionRangerSkill2Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1060 physical damage.
+Silences the target for 5s.`),
+                            usageCost: '183 MP',
+                            cooldown: '18s'
                         },
                         type2: {
                             name: 'Silencing Thrust',
                             icon: '../assets/icons/ra_silentarrow_custom_b_up.png',
-                            description: d(`DummydescriptionRangerSkill2Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1060 (+11 per level) physical damage.
+Silences the target for 3s.
+Cannot remove the effect.`),
+                            usageCost: '183 MP',
+                            cooldown: '40s'
                         },
                         type3: {
                             name: 'Binding Arrow',
                             icon: '../assets/icons/ra_silentarrow_custom_c_up.png',
-                            description: d(`DummydescriptionRangerSkill2Type3normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1060 (+11 per level) physical damage.
+Binds the target for 4s.`),
+                            usageCost: '183 MP',
+                            cooldown: '20s'
                         }
                     }
                 },
@@ -1286,8 +1306,10 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                 defaultSkill: {
                     name: 'Retreating Slash',
                     icon: '../assets/icons/cbt_ra_backdashstab_g1.png',
-                    description: d(`DummydefaultskillforRangerSkill3.`),
-                    usageCost: '2000 MP',
+                    description: d(`Deals 90 physical damage.
+You are knocked back 25m.
+Stuns the target for 1s.`),
+                    usageCost: '69 MP',
                     cooldown: '1m'
                 },
                 rows: {
@@ -1295,16 +1317,26 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                         type1: {
                             name: '(Improved) Knock-back',
                             icon: '../assets/icons/ra_backdashstab_custom_a_up.png',
-                            description: d(`DummydescriptionRangerSkill3Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1440 physical damage.
+You are knocked back 15m.
+Stuns the target for 3s.
+Your next 5 physical attack skills are improved by 30% for 1 min.
+Increases Accuracy by 3,000
+Increases Magical Accuracy by 3,000.`),
+                            usageCost: '69 MP',
+                            cooldown: '1m'
                         },
                         type2: {
                             name: '(Improved) Rear Strike',
                             icon: '../assets/icons/ra_backdashstab_custom_b_up.png',
-                            description: d(`DummydescriptionRangerSkill3Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 90 physical damage.
+You are knocked back 25m.
+Stuns the target for 1s.
+Reduces movement speed.
+Increases your movement speed by 30% for 10s.
+Resets the cooldown of Instant Sprint and Speed of the Wind.`),
+                            usageCost: '69 MP',
+                            cooldown: '48s'
                         },
                         type3: null
                     },
@@ -1312,16 +1344,26 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                         type1: {
                             name: 'Knockback',
                             icon: '../assets/icons/ra_backdashstab_custom_a.png',
-                            description: d(`DummydescriptionRangerSkill3Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1200 (+12 per level) physical damage.
+You are knocked back 15m.
+Stuns the target for 2s.
+Your next 5 physical attack skills are improved by 30% for 1 min.
+Increases Accuracy by 2,000
+Increases Magical Accuracy by 2,000.`),
+                            usageCost: '69 MP',
+                            cooldown: '1m'
                         },
                         type2: {
                             name: 'Rear Strike',
                             icon: '../assets/icons/ra_backdashstab_custom_b.png',
-                            description: d(`DummydescriptionRangerSkill3Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 90 physical damage.
+You are knocked back 25m.
+Stuns the target for 1s.
+Reduces movement speed.
+Increases your movement speed by 30% for 10s.
+Resets the cooldown of Instant Sprint.`),
+                            usageCost: '69 MP',
+                            cooldown: '1m (-0.6s per level)'
                         },
                         type3: null
                     }
@@ -1336,25 +1378,31 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                 defaultSkill: {
                     name: 'Rupture Arrow',
                     icon: '../assets/icons/cbt_ra_crushshot_g1.png',
-                    description: d(`DummydefaultskillforRangerSkill4.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m'
+                    description: d(`Deals 1188 random physical damage.
+Knocks the target back.`),
+                    usageCost: '289 MP',
+                    cooldown: '24s'
                 },
                 rows: {
                     improved: {
                         type1: {
                             name: '(Improved) Arrow Rain of Destruction',
                             icon: '../assets/icons/ra_crushshot_custom_a_up.png',
-                            description: d(`DummydescriptionRangerSkill4Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1568 random physical damage.
+Knocks the target back.
+Reduces the cooldown for Stunning Shot.`),
+                            usageCost: '289 MP',
+                            cooldown: '24s'
                         },
                         type2: {
                             name: '(Improved) Sustained Arrow Rain',
                             icon: '../assets/icons/ra_crushshot_custom_b_up.png',
-                            description: d(`DummydescriptionRangerSkill4Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1097 random physical damage.
+Knocks the target back.
+A Crit Strike means the next attack skill will also land a Crit Strike.
+Multicast 3 times`),
+                            usageCost: '289 MP',
+                            cooldown: '24s'
                         },
                         type3: null
                     },
@@ -1362,16 +1410,21 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                         type1: {
                             name: 'Arrow Rain of Destruction',
                             icon: '../assets/icons/ra_crushshot_custom_a.png',
-                            description: d(`DummydescriptionRangerSkill4Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 1188 (+12 per level) random physical damage.
+Knocks the target back.
+A crit strike resets the cooldown of Stunning Shot.`),
+                            usageCost: '289 MP',
+                            cooldown: '24s'
                         },
                         type2: {
                             name: 'Sustained Arrow Rain',
                             icon: '../assets/icons/ra_crushshot_custom_b.png',
-                            description: d(`DummydescriptionRangerSkill4Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Deals 914 (+9 per level) random physical damage.
+Knocks the target back.
+A Crit Strike means the next attack skill will also land a Crit Strike.
+Multicast 2 times.`),
+                            usageCost: '289 MP',
+                            cooldown: '24s'
                         },
                         type3: null
                     }
@@ -1386,8 +1439,9 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                 defaultSkill: {
                     name: 'Arrow of Annihilation',
                     icon: '../assets/icons/live_ra_aimshot_g1.png',
-                    description: d(`DummydefaultskillforRangerSkill5.`),
-                    usageCost: '2000 MP',
+                    description: d(`Has a high chance of hitting the target and then deals 2138 physical damage.
+                        Perfect Unerring Arrow`),
+                    usageCost: '423 MP',
                     cooldown: '1m'
                 },
                 rows: {
@@ -1395,16 +1449,18 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                         type1: {
                             name: '(Improved) Arrow of Destruction',
                             icon: '../assets/icons/ra_aimshot_custom_a_up.png',
-                            description: d(`DummydescriptionRangerSkill5Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Has a high chance of hitting the target and then deals 2563 physical damage.
+Removes the target's protective effect.`),
+                            usageCost: '423 MP',
+                            cooldown: '1m10s'
                         },
                         type2: {
                             name: '(Improved) Arrow of Death',
                             icon: '../assets/icons/ra_aimshot_custom_b_up.png',
-                            description: d(`DummydescriptionRangerSkill5Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Has a high chance of hitting the target and then deals 1537 physical damage.
+Multicast 2 times.`),
+                            usageCost: '423 MP',
+                            cooldown: '20s'
                         },
                         type3: null
                     },
@@ -1412,16 +1468,17 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                         type1: {
                             name: 'Arrow of Destruction',
                             icon: '../assets/icons/ra_aimshot_custom_a.png',
-                            description: d(`DummydescriptionRangerSkill5Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Has a high chance of hitting the target and then deals 2136 (+21 per level) physical damage.
+Removes the target's protective effect.`),
+                            usageCost: '423 MP',
+                            cooldown: '1m30s'
                         },
                         type2: {
                             name: 'Arrow of Death',
                             icon: '../assets/icons/ra_aimshot_custom_b.png',
-                            description: d(`DummydescriptionRangerSkill5Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Has a high chance of hitting the target and then deals 1281 (+13 per level) physical damage.`),
+                            usageCost: '423 MP',
+                            cooldown: '30s'
                         },
                         type3: null
                     }
@@ -1436,25 +1493,43 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                 defaultSkill: {
                     name: 'Mau\'s Blessing',
                     icon: '../assets/icons/cbt_ra_sabageroar_g1.png',
-                    description: d(`DummydefaultskillforRangerSkill6.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m'
+                    description: d(`Increases Physical Attack by 600.
+Increases Atk. Speed by 26%.
+Increases Speed by 39%.
+500 DP are used every 3 sec.
+Active Skill.
+Transformation: Perfect Mau.`),
+                    usageCost: '500 DP (every 3s)',
+                    cooldown: '10s'
                 },
                 rows: {
                     improved: {
                         type1: {
                             name: '(Improved) Mau\'s Honour',
                             icon: '../assets/icons/ev_ra_sabageroar_custom_a_up.png',
-                            description: d(`DummydescriptionRangerSkill6Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Increases Physical Attack by 800.
+Increases Accuracy by 2000.
+Increases Evasion by 800.
+Increases Atk. Speed by 30%.
+Increases Speed by 40%.
+500 DP are used every 3 sec.
+Active Skill.`),
+                            usageCost: '500 DP (every 3s)',
+                            cooldown: '10s'
                         },
                         type2: {
                             name: '(Improved) Mau\'s Glory',
                             icon: '../assets/icons/ev_ra_sabageroar_custom_b_up.png',
-                            description: d(`DummydescriptionRangerSkill6Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Removes immobilisation.
+You are immobilised and cannot cause immobilisation.
+Increases Physical Attack by 4000.
+Increases Crit Strike by 4000.
+Increases Resistance to Pull by 1000.
+Reduces Atk Range of Bow by 5m.
+1,000 DP are used every 3 sec.
+Active Skill.`),
+                            usageCost: '1000 DP (every 3s)',
+                            cooldown: '30s'
                         },
                         type3: null
                     },
@@ -1462,16 +1537,29 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                         type1: {
                             name: 'Mau\'s Honour',
                             icon: '../assets/icons/ev_ra_sabageroar_custom_a.png',
-                            description: d(`DummydescriptionRangerSkill6Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`ncreases Physical Attack by 700 (+6 per level).
+Increases Accuracy by 1000.
+Increases Evasion by 500.
+Increases Atk. Speed by 26%.
+Increases Speed by 39%.
+500 DP are used every 3 sec.
+Active Skill.`),
+                            usageCost: '500 DP (every 3s)',
+                            cooldown: '10s'
                         },
                         type2: {
                             name: 'Mau\'s Glory',
                             icon: '../assets/icons/ev_ra_sabageroar_custom_b.png',
-                            description: d(`DummydescriptionRangerSkill6Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s'
+                            description: d(`Removes immobilisation.
+You are immobilised and cannot cause immobilisation.
+Increases Physical Attack by 3000 (+30 per level).
+Increases Crit Strike by 3000.
+Increases Resistance to Pull by 1000.
+Reduces Atk Range of Bow by 7m.
+1,000 DP are used every 3 sec.
+Active Skill.`),
+                            usageCost: '1000 DP (every 3s)',
+                            cooldown: '30s'
                         },
                         type3: null
                     }

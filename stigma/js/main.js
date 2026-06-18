@@ -236,8 +236,21 @@
             .replace(/'/g, '&#39;');
     }
 
+    function formatTooltipInlineValue(value) {
+        return decorateTooltipGrowth(escapeHtml(value || ''));
+    }
+
+    function decorateTooltipGrowth(text) {
+        return String(text || '').replace(/\(([+-])\s*[^)\n]+\)/gi, function(match, sign) {
+            var classes = 'gc-item-tooltip-growth';
+            if (sign === '-') classes += ' is-reduction';
+            if (/per level/i.test(match)) classes += ' is-per-level';
+            return '<span class="' + classes + '">' + match + '</span>';
+        });
+    }
+
     function formatTooltipDescription(value, autoSentenceBreak) {
-        var text = escapeHtml(value || '');
+        var text = formatTooltipInlineValue(value || '');
         return text.replace(/\n/g, '<br>');
     }
 
@@ -254,9 +267,9 @@
         html += '<img src="' + (def.icon) + '" class="gc-item-tooltip-item-icon" alt="">';
         html += '</div>';
         html += '<div class="gc-item-tooltip-meta">';
-        if (def.usageCost) html += '<div class="gc-item-tooltip-meta-line">Usage Cost: ' + escapeHtml(def.usageCost) + '</div>';
-        if (def.cooldown) html += '<div class="gc-item-tooltip-meta-line">Cooldown: ' + escapeHtml(def.cooldown) + '</div>';
-        if (def.castTime) html += '<div class="gc-item-tooltip-meta-line">Cast Time: ' + escapeHtml(def.castTime) + '</div>';
+        if (def.usageCost) html += '<div class="gc-item-tooltip-meta-line">Usage Cost: ' + formatTooltipInlineValue(def.usageCost) + '</div>';
+        if (def.cooldown) html += '<div class="gc-item-tooltip-meta-line">Cooldown: ' + formatTooltipInlineValue(def.cooldown) + '</div>';
+        if (def.castTime) html += '<div class="gc-item-tooltip-meta-line">Cast Time: ' + formatTooltipInlineValue(def.castTime) + '</div>';
         html += '</div>';
         html += '</div>';
         if (def.description) {

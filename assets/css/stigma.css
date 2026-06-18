@@ -315,6 +315,43 @@
     max-width: min(46vw, 360px);
 }
 
+.gc-item-tooltip-growth {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0 1px;
+    padding: 0 5px;
+    border: 1px solid rgba(116, 220, 145, 0.18);
+    border-radius: 6px;
+    background: rgba(68, 130, 86, 0.12);
+    color: #bfeac8;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.gc-item-tooltip-growth::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    background: url('../icons/comp_greater.svg') center / contain no-repeat;
+    opacity: 0.8;
+}
+
+.gc-item-tooltip-growth.is-reduction::before {
+    transform: rotate(180deg);
+}
+
+.gc-item-tooltip-growth.is-per-level {
+    border-color: rgba(147, 234, 173, 0.24);
+    background: rgba(83, 149, 98, 0.16);
+}
+
+.gc-item-tooltip-growth.is-reduction {
+    border-color: rgba(128, 214, 154, 0.22);
+    background: rgba(73, 139, 92, 0.14);
+}
+
 .stigma-panel {
     margin: 8px 0 14px;
     padding: 10px 12px;
