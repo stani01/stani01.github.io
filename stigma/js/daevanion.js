@@ -1146,7 +1146,7 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                     },
                     normal: {
                         type1: {
-                            name: 'Assassin Whirling Slicer',
+                            name: 'Whirling Slicer',
                             icon: '../assets/icons/as_flowingspiner_custom_a.png',
                             description: d(`Deals 1,427 (+13 per level) physical damage after successful evasion and resist magic.
                                 The target suffers the Spin effect.
@@ -1156,7 +1156,7 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                             cooldown: '1m'
                         },
                         type2: {
-                            name: 'Assassin Whirlwind Slash',
+                            name: 'Whirlwind Slash',
                             icon: '../assets/icons/as_flowingspiner_custom_b.png',
                             description: d(`Deals 1,427 (+13 per level) physical damage.
                                 A successful attack reduces the cooldown for Swift Ambush, Dash and Slash and Flash of Speed by 10%.
