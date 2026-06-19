@@ -1230,6 +1230,12 @@
     line-height: 1.35;
 }
 
+.gc-item-tooltip-meta-line + .gc-item-tooltip-meta-line {
+    margin-top: 3px;
+    padding-top: 3px;
+    border-top: 1px solid rgba(175, 137, 66, 0.18);
+}
+
 .gc-item-tooltip-number {
     color: #f7e18b;
 }
@@ -1274,6 +1280,8 @@
 .gc-item-tooltip-table-cell-area {
     width: 145px;
     text-align: center;
+    padding-left: 10px;
+    border-left: 1px solid rgba(175, 137, 66, 0.18);
 }
 
 .gc-item-tooltip-table-row-desc {
@@ -1281,9 +1289,19 @@
 
 .gc-item-tooltip-table-cell-desc {
     padding-top: 10px;
+    position: relative;
     color: rgba(232, 213, 167, 0.96);
     font-size: 0.82em;
     line-height: 1.5;
+}
+
+.gc-item-tooltip-table-cell-desc::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 4px;
+    border-top: 1px solid rgba(175, 137, 66, 0.18);
 }
 
 .gc-item-tooltip-aoe-icon { display: block; margin: 0 auto; }

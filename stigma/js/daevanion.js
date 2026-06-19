@@ -2561,9 +2561,11 @@ Multicast 3 times.`),
                 defaultSkill: {
                     name: 'Weaken Spirit',
                     icon: '../assets/icons/cbt_el_dimisspolymorph_g1.png',
-                    description: d(`DummydefaultskillforSpiritmasterSkill1.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Deals 2263 magical wind damage.
+Deals 665 extra damage if the target is a spirit.`),
+                    usageCost: '498 MP',
+                    cooldown: '12s',
+                    castTime: '2s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -2574,9 +2576,12 @@ Multicast 3 times.`),
                         type1: {
                             name: '(Improved) Decaying Mind',
                             icon: '../assets/icons/el_dimisspolymorph_custom_a_up.png',
-                            description: d(`DummydescriptionSpiritmasterSkill1Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 3571 magical wind damage.
+Deals 798 extra damage if the target is a spirit.
+If you land a Crit Strike, the next skill will also deal a Crit Strike.`),
+                            usageCost: '498 MP',
+                            cooldown: '12s',
+                            castTime: '2s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2585,13 +2590,16 @@ Multicast 3 times.`),
                         type2: {
                             name: '(Improved) Paralysed Mind',
                             icon: '../assets/icons/el_dimisspolymorph_custom_b_up.png',
-                            description: d(`DummydescriptionSpiritmasterSkill1Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 2454 magical wind damage.
+Immobilises the target for 2s.
+Deals 798 extra damage if the target is a spirit.`),
+                            usageCost: '498 MP',
+                            cooldown: '12s',
+                            castTime: '1s',
+                            target: 'Area within a Radius of Target',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '3m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     },
@@ -2599,9 +2607,12 @@ Multicast 3 times.`),
                         type1: {
                             name: 'Decaying Mind',
                             icon: '../assets/icons/el_dimisspolymorph_custom_a.png',
-                            description: d(`DummydescriptionSpiritmasterSkill1Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 2480 (+25) magical wind damage.
+Deals 665 extra damage if the target is a spirit.
+If you land a Crit Strike, the next skill will also deal a Crit Strike.`),
+                            usageCost: '498 MP',
+                            cooldown: '12s',
+                            castTime: '2s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2610,13 +2621,16 @@ Multicast 3 times.`),
                         type2: {
                             name: 'Paralysed Mind',
                             icon: '../assets/icons/el_dimisspolymorph_custom_b.png',
-                            description: d(`DummydescriptionSpiritmasterSkill1Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 2044 (+20) magical wind damage.
+Immobilises the target for 1s. There is only a slight chance this state can be removed.
+Deals 665 extra damage if the target is a spirit.`),
+                            usageCost: '498 MP',
+                            cooldown: '12s',
+                            castTime: '1s',
+                            target: 'Area within a Radius of Target',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '3m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     }
@@ -2631,9 +2645,10 @@ Multicast 3 times.`),
                 defaultSkill: {
                     name: 'Vacuum Choke',
                     icon: '../assets/icons/live_el_vacuumexplosion_g1.png',
-                    description: d(`DummydefaultskillforSpiritmasterSkill2.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Deals 1642 magical wind damage..`),
+                    usageCost: '303 MP',
+                    cooldown: '1s',
+                    castTime: '2s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -2644,20 +2659,25 @@ Multicast 3 times.`),
                         type1: {
                             name: '(Improved) Titanic Vacuum Explosion',
                             icon: '../assets/icons/el_vacuumexplosion_custom_a_up.png',
-                            description: d(`DummydescriptionSpiritmasterSkill2Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 2564 magical wind damage.
+Deals 20% additional damage to the terrified target.`),
+                            usageCost: '303 MP',
+                            cooldown: '1s',
+                            castTime: '2s',
+                            target: 'Area within a Radius of Target',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '7m',
+                            areaIcon: 'targetCircle'
                         },
                         type2: {
                             name: '(Improved) Vacuum Chain Explosion',
                             icon: '../assets/icons/el_vacuumexplosion_custom_b_up.png',
-                            description: d(`DummydescriptionSpiritmasterSkill2Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 1478 magical wind damage.
+Increases movement speed by 40% for 3 seconds.
+Multicast 2 times`),
+                            usageCost: '303 MP',
+                            cooldown: '4s',
+                            castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2669,20 +2689,25 @@ Multicast 3 times.`),
                         type1: {
                             name: 'Titanic Vacuum Explosion',
                             icon: '../assets/icons/el_vacuumexplosion_custom_a.png',
-                            description: d(`DummydescriptionSpiritmasterSkill2Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 2136 (+21) magical wind damage.
+Deals 10% additional damage to the terrified target.`),
+                            usageCost: '303 MP',
+                            cooldown: '1s',
+                            castTime: '2s',
+                            target: 'Area within a Radius of Target',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '7m',
+                            areaIcon: 'targetCircle'
                         },
                         type2: {
                             name: 'Vacuum Chain Explosion',
                             icon: '../assets/icons/el_vacuumexplosion_custom_b.png',
-                            description: d(`DummydescriptionSpiritmasterSkill2Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 1232 (+12) magical wind damage.
+Increases movement speed by 30% for 3 seconds.
+Multicast 2 times`),
+                            usageCost: '303 MP',
+                            cooldown: '4s',
+                            castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2701,9 +2726,11 @@ Multicast 3 times.`),
                 defaultSkill: {
                     name: 'Soul Torrent',
                     icon: '../assets/icons/live_el_soulsteal_g1.png',
-                    description: d(`DummydefaultskillforSpiritmasterSkill3.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Deals 899 magical water damage.
+Multicast 5 times.`),
+                    usageCost: '67 MP',
+                    cooldown: '24s',
+                    castTime: 'Cast Instantly',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -2715,9 +2742,12 @@ Multicast 3 times.`),
                         type2: {
                             name: '(Improved) Boosted Soul Theft',
                             icon: '../assets/icons/el_soulsteal_custom_b_up.png',
-                            description: d(`DummydescriptionSpiritmasterSkill3Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 1791 magical water damage.
+Reduces the cooldown for skills with Weaken Spirit and Elemental Smash by 3 seconds.
+Multicast 3 times`),
+                            usageCost: '67 MP',
+                            cooldown: '20s',
+                            castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2726,9 +2756,12 @@ Multicast 3 times.`),
                         type3: {
                             name: '(Improved) Soul Burn',
                             icon: '../assets/icons/el_soulsteal_custom_c_up.png',
-                            description: d(`DummydescriptionSpiritmasterSkill3Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 1078 magical water damage.
+A hit reduces the cooldown of Dispel Magic, Ignite Aether, Magic Implosion and Magic Explosion by 5 seconds.
+Multicast 5 times`),
+                            usageCost: '67 MP',
+                            cooldown: '30s',
+                            castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2739,9 +2772,13 @@ Multicast 3 times.`),
                         type1: {
                             name: 'Soul Theft',
                             icon: '../assets/icons/el_soulsteal_custom_a.png',
-                            description: d(`DummydescriptionSpiritmasterSkill3Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 899 magical water damage.
+Reduces the cooldown for skills with Weaken Spirit and Elemental Smash by 1 second.
+A crit strike reduces the cooldown by 2 seconds.
+Multicast 5 times`),
+                            usageCost: '67 MP',
+                            cooldown: '24s',
+                            castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2750,9 +2787,12 @@ Multicast 3 times.`),
                         type2: {
                             name: 'Boosted Soul Theft',
                             icon: '../assets/icons/el_soulsteal_custom_b.png',
-                            description: d(`DummydescriptionSpiritmasterSkill3Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 1492 (+14) magical water damage.
+Reduces the cooldown for skills with Weaken Spirit and Elemental Smash by 3 seconds.
+Multicast 3 times`),
+                            usageCost: '67 MP',
+                            cooldown: '24s',
+                            castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2761,9 +2801,12 @@ Multicast 3 times.`),
                         type3: {
                             name: 'Soul Burn',
                             icon: '../assets/icons/el_soulsteal_custom_c.png',
-                            description: d(`DummydescriptionSpiritmasterSkill3Type3normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 899 (+9) magical water damage.
+A crit strike reduces the cooldown of Dispel Magic, Ignite Aether, Magic Implosion and Magic Explosion by 5 seconds.
+Multicast 5 times`),
+                            usageCost: '67 MP',
+                            cooldown: '24s',
+                            castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2781,9 +2824,10 @@ Multicast 3 times.`),
                 defaultSkill: {
                     name: 'Disenchant',
                     icon: '../assets/icons/cbt_el_disenchantment_g1.png',
-                    description: d(`DummydefaultskillforSpiritmasterSkill4.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Removes two big magic buffs from the target..`),
+                    usageCost: '3000 DP',
+                    cooldown: '8m',
+                    castTime: '0.5s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -2794,20 +2838,22 @@ Multicast 3 times.`),
                         type1: {
                             name: '(Improved) Greater Disenchantment',
                             icon: '../assets/icons/el_disenchantment_custom_a_up.png',
-                            description: d(`DummydescriptionSpiritmasterSkill4Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Removes three big magic buffs from the target.`),
+                            usageCost: '3000 DP',
+                            cooldown: '4m',
+                            castTime: '0.5s',
+                            target: 'Area within a Radius of Target',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '25m',
+                            areaIcon: 'targetCircle'
                         },
                         type2: {
                             name: '(Improved) Concentrated Disenchantment',
                             icon: '../assets/icons/el_disenchantment_custom_b_up.png',
-                            description: d(`DummydescriptionSpiritmasterSkill4Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Removes a big magic buffs from the target.`),
+                            usageCost: '2000 DP',
+                            cooldown: '1m30s',
+                            castTime: '0.5s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2819,20 +2865,22 @@ Multicast 3 times.`),
                         type1: {
                             name: 'Greater Disenchantment',
                             icon: '../assets/icons/el_disenchantment_custom_a.png',
-                            description: d(`DummydescriptionSpiritmasterSkill4Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Removes two big magic buffs from the target.`),
+                            usageCost: '3000 DP',
+                            cooldown: '5m (-3s)',
+                            castTime: '0.5s',
+                            target: 'Area within a Radius of Target',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '25m',
+                            areaIcon: 'targetCircle'
                         },
                         type2: {
                             name: 'Concentrated Disenchantment',
                             icon: '../assets/icons/el_disenchantment_custom_b.png',
-                            description: d(`DummydescriptionSpiritmasterSkill4Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Removes a big magic buffs from the target.`),
+                            usageCost: '2000 DP',
+                            cooldown: '2m (-1.2s)',
+                            castTime: '0.5s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2851,9 +2899,19 @@ Multicast 3 times.`),
                 defaultSkill: {
                     name: 'Order: Elemental Discharge',
                     icon: '../assets/icons/el_order_explode_g1.png',
-                    description: d(`DummydefaultskillforSpiritmasterSkill5.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Commands the spirit to use its Attack Skill.
+                        Every spirit can knock back enemies.
+                        Order: Perfect Storm of the Elements.
+
+Water Spirit: Magical Water Damage
+Wind Spirit: Magical Wind Damage
+Earth Spirit: Magical Earth Damage
+Fire Spirit: Magical Fire Damage
+Magma Spirit: Magical Fire Damage
+Tempest Spirit: Magical wind Damage.`),
+                    usageCost: '1007 MP',
+                    cooldown: '3m',
+                    castTime: '1s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -2864,9 +2922,17 @@ Multicast 3 times.`),
                         type1: {
                             name: '(Improved) Command: Elemental Destruction',
                             icon: '../assets/icons/el_order_explode_custom_a_up.png',
-                            description: d(`DummydescriptionSpiritmasterSkill5Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Commands the spirit to use its attack skill.
+
+Water Spirit: Removes Magical Water Damage, Knock-back and Magic Boost
+Wind Spirit: Removes Magical Wind Damage, Knock-back and Magic Boost
+Earth Spirit: Removes Magical Earth Damage, Knock-back and Magic Boost
+Fire Spirit: Removes Magical Fire Damage, Knock-back and Magic Boost
+Magma Spirit: Removes Magical Fire Damage, Knock-back and Magic Boost
+Tempest Spirit: Removes Magical Wind Damage, Knock-back and Magic Boost`),
+                            usageCost: '1258 MP',
+                            cooldown: '1m',
+                            castTime: '1s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2875,9 +2941,17 @@ Multicast 3 times.`),
                         type2: {
                             name: '(Improved) Command: Elemental Wave',
                             icon: '../assets/icons/el_order_explode_custom_b_up.png',
-                            description: d(`DummydescriptionSpiritmasterSkill5Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Commands the spirit to use its attack skill.
+
+Water Spirit: Magical Water Damage, Aether's Hold
+Wind Spirit: Magical Wind Damage, Aether's Hold
+Earth Spirit: Magical Earth Damage, Aether's Hold
+Fire Spirit: Magical Fire Damage, Aether's Hold
+Magma Spirit: Fire Damage, Aether's Hold
+Tempest Spirit: Magical Wind Damage, Aether's Hold`),
+                            usageCost: '1258 MP',
+                            cooldown: '40s',
+                            castTime: '1s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2889,9 +2963,17 @@ Multicast 3 times.`),
                         type1: {
                             name: 'Command: Elemental Destruction',
                             icon: '../assets/icons/el_order_explode_custom_a.png',
-                            description: d(`DummydescriptionSpiritmasterSkill5Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Commands the spirit to use its Attack Skill.
+
+Water Spirit: Removes Magical Water Damage, Knock-back and Magic Boost
+Wind Spirit: Removes Magical Wind Damage, Knock-back and Magic Boost
+Earth Spirit: Removes Magical Earth Damage, Knock-back and Magic Boost
+Fire Spirit: Removes Magical Fire Damage, Knock-back and Magic Boost
+Magma Spirit: Removes Magical Fire Damage, Knock-back and Magic Boost
+Tempest Spirit: Removes Magical Wind Damage, Knock-back and Magic Boost`),
+                            usageCost: '1258 MP',
+                            cooldown: '1m30s (-0.9s)',
+                            castTime: '1s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2900,9 +2982,17 @@ Multicast 3 times.`),
                         type2: {
                             name: 'Command: Elemental Wave',
                             icon: '../assets/icons/el_order_explode_custom_b.png',
-                            description: d(`DummydescriptionSpiritmasterSkill5Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Commands the spirit to use its Attack Skill.
+
+Water Spirit: Magical Water Damage, Aether's Hold
+Wind Spirit: Magical Wind Damage, Aether's Hold
+Earth Spirit: Magical Earth Damage, Aether's Hold
+Fire Spirit: Magical Fire Damage, Aether's Hold
+Magma Spirit: Fire Damage, Aether's Hold
+Tempest Spirit: Magical Wind Damage, Aether's Hold`),
+                            usageCost: '1258 MP',
+                            cooldown: '1m (-0.6s)',
+                            castTime: '1s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -2921,37 +3011,57 @@ Multicast 3 times.`),
                 defaultSkill: {
                     name: 'Nightmare Scream',
                     icon: '../assets/icons/cbt_el_terrorspirit_g1.png',
-                    description: d(`DummydefaultskillforSpiritmasterSkill6.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
-                    target: 'Selected Target',
+                    description: d(`Terrifies the target for 13s-14s.
+Reduces the target's movement speed.
+Increases the target's Magic Defence by 2000.
+Increases the target's Physical Defence by 2000.
+The duration is reduced by 50% when applied to a player.
+Perfect Fear Shriek.`),
+                    usageCost: '1092 MP',
+                    cooldown: '45s',
+                    castTime: '1.5s',
+                    pvpDuration: '50%',
+                    target: 'Area within a Radius of Target',
                     usageDistance: '1m',
-                    area: 'Single Target',
-                    areaIcon: 'targetSingle'
+                    area: '15m',
+                    areaIcon: 'targetCircle'
                 },
                 rows: {
                     improved: {
                         type1: {
                             name: '(Improved) Nightmare Curse',
                             icon: '../assets/icons/el_terrorspirit_custom_a_up.png',
-                            description: d(`DummydescriptionSpiritmasterSkill6Type1improved`),
-                            usageCost: '2000 MP',
+                            description: d(`Terrifies the target for 14s-15s.
+Greatly reduces the target's movement speed.
+Increases the target's Magic Defence by 2000.
+Increases the target's Physical Defence by 2000.
+The probability of resisting this skill is low.
+The duration is reduced by 50% when applied to a player.`),
+                            usageCost: '1092 MP',
                             cooldown: '45s',
-                            target: 'Selected Target',
+                            castTime: '1.5s',
+                            pvpDuration: '50%',
+                            target: 'Area within a Radius of Target',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '15m',
+                            areaIcon: 'targetCircle'
                         },
                         type2: {
                             name: '(Improved) Nightmare Sorrow',
                             icon: '../assets/icons/el_terrorspirit_custom_b_up.png',
-                            description: d(`DummydescriptionSpiritmasterSkill6Type2improved`),
-                            usageCost: '2000 MP',
+                            description: d(`Terrifies the target for 10s-11s.
+Reduces the target's movement speed.
+Increases the target's Magic Defence by 2000.
+Increases the target's Physical Defence by 2000.
+The duration is reduced by 50% when applied to a player.`),
+                            usageCost: '1092 MP',
                             cooldown: '45s',
-                            target: 'Selected Target',
+                            castTime: '0.5s',
+                            pvpDuration: '50%',
+                            target: 'Area within a Radius of Target',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '15m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     },
@@ -2959,24 +3069,37 @@ Multicast 3 times.`),
                         type1: {
                             name: 'Nightmare Curse',
                             icon: '../assets/icons/el_terrorspirit_custom_a.png',
-                            description: d(`DummydescriptionSpiritmasterSkill6Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Terrifies the target for 13s-14s.
+Greatly reduces the target's movement speed.
+Increases the target's Magic Defence by 2000.
+Increases the target's Physical Defence by 2000.
+The probability of resisting this skill is low.
+The duration is reduced by 50% when applied to a player.`),
+                            usageCost: '1092 MP',
+                            cooldown: '1m (-0.6s)',
+                            castTime: '1.5s',
+                            pvpDuration: '50%',
+                            target: 'Area within a Radius of Target',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '15m',
+                            areaIcon: 'targetCircle'
                         },
                         type2: {
                             name: 'Nightmare Sorrow',
                             icon: '../assets/icons/el_terrorspirit_custom_b.png',
-                            description: d(`DummydescriptionSpiritmasterSkill6Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Terrifies the target for 9s-10s.
+Reduces the target's movement speed.
+Increases the target's Magic Defence by 2000.
+Increases the target's Physical Defence by 2000.
+The duration is reduced by 50% when applied to a player.`),
+                            usageCost: '1092 MP',
+                            cooldown: '1m (-0.6s)',
+                            castTime: '0.5s',
+                            pvpDuration: '50%',
+                            target: 'Area within a Radius of Target',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '15m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     }

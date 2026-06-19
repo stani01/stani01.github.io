@@ -296,6 +296,7 @@
         if (def.usageCost) html += '<div class="gc-item-tooltip-meta-line">Usage Cost: ' + formatTooltipInlineValue(def.usageCost) + '</div>';
         if (def.cooldown) html += '<div class="gc-item-tooltip-meta-line">Cooldown: ' + formatTooltipInlineValue(def.cooldown) + '</div>';
         if (def.castTime) html += '<div class="gc-item-tooltip-meta-line">Cast Time: ' + formatTooltipInlineValue(def.castTime) + '</div>';
+        if (def.pvpDuration) html += '<div class="gc-item-tooltip-meta-line">PvP Duration: ' + formatTooltipInlineValue(def.pvpDuration) + '</div>';
         html += '</td>';
         if (showAoe) {
             html += '<td class="gc-item-tooltip-table-cell-area">';
@@ -1197,6 +1198,7 @@
         html += '<div class="stigma-mobile-skill-meta">';
         if (def.cooldown) html += '<div class="stigma-mobile-skill-meta-line">Cooldown: ' + escapeHtml(def.cooldown) + '</div>';
         if (def.castTime) html += '<div class="stigma-mobile-skill-meta-line">Cast Time: ' + escapeHtml(def.castTime) + '</div>';
+        if (def.pvpDuration) html += '<div class="stigma-mobile-skill-meta-line">PvP Duration: ' + escapeHtml(def.pvpDuration) + '</div>';
         html += '</div>';
         if (def.description) html += '<div class="stigma-mobile-skill-description">' + formatTooltipDescription(def.description) + '</div>';
         html += '</div>';
