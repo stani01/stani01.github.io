@@ -143,7 +143,7 @@ After a hit, the cooldowns of skills that inflict Stumble will be reset.`),
 Causes the target to stumble.
 Deals 611 additional damage to the target.
 Also restores HP equal to 150% of the additional damage.
-Max 10,000 HP Absorption.`),
+Max 10000 HP Absorption.`),
                             usageCost: '423 MP',
                             cooldown: '1m',
                             target: 'Area within a Radius of Target 6 People',
@@ -175,7 +175,7 @@ This reduces by another 30% on a critical hit.`),
 Causes the target to stumble.
 Deals 509 additional damage to the target.
 Also restores HP equal to 100% of the additional damage.
-Max 10,000 HP Absorption.`),
+Max 10000 HP Absorption.`),
                             usageCost: '423 MP',
                             cooldown: '1m',
                             target: 'Area within a Radius of Target 6 People',
@@ -213,7 +213,7 @@ Max 10,000 HP Absorption.`),
                             description: d(`Deals 2733 physical damage.
 Restores HP equal to 30% of the damage.
 Reduces Physical Defence by 500 for 30s.
-Max 10,000 HP Absorption.`),
+Max 10000 HP Absorption.`),
                             usageCost: '371 MP',
                             cooldown: '20s',
                             target: 'Immediate Surroundings 6 People',
@@ -243,7 +243,7 @@ Reduces Physical Defence by 8% for 30s.`),
                             description: d(`Deals 2278 (+20) physical damage.
 Restores HP equal to 30% of the damage.
 Reduces Physical Defence by 350 for 30s.
-Max 10,000 HP Absorption.`),
+Max 10000 HP Absorption.`),
                             usageCost: '371 MP',
                             cooldown: '30s',
                             target: 'Immediate Surroundings 6 People',
@@ -841,7 +841,7 @@ The damage you receive is reduced by 50% and partially reflected back for 10s.
 Additionally, nearby enemies are taunted every 3 seconds.
 If the target is a player, their Enmity will be directed at you.`),
                             usageCost: '205 MP',
-                            cooldown: '2m (-1,2s)',
+                            cooldown: '2m (-1.2s)',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -855,7 +855,7 @@ Reduces your damage by 65% for 10s.
 You resist states which restrict movement.
 Restores 2000 HP every 1s.`),
                             usageCost: '205 MP',
-                            cooldown: '2m (-1,2s)',
+                            cooldown: '2m (-1.2s)',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -889,7 +889,7 @@ Restores 2000 HP every 1s.`),
                         type1: {
                             name: '(Improved) Repeated Divine Grasp',
                             icon: '../assets/icons/kn_landsnacher_custom_a_up.png',
-                            description: d(`Deals 1,207 physical damage.
+                            description: d(`Deals 1207 physical damage.
 Drags an enemy directly in front of you and increases Enmity.
 Reduces the target's movement speed for 10s.`),
                             usageCost: '2000 DP',
@@ -903,7 +903,7 @@ Reduces the target's movement speed for 10s.`),
                         type2: {
                             name: '(Improved) Concentrated Divine Grasp',
                             icon: '../assets/icons/kn_landsnacher_custom_b_up.png',
-                            description: d(`Deals 1,207 physical damage.
+                            description: d(`Deals 1207 physical damage.
 Drags an enemy directly in front of you and increases Enmity.
 Reduces the target's movement speed for 10s.
 Resets the cooldown of Capture.`),
@@ -1512,7 +1512,7 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                         type1: {
                             name: 'Whirling Slicer',
                             icon: '../assets/icons/as_flowingspiner_custom_a.png',
-                            description: d(`Deals 1,427 (+13) physical damage after successful evasion and resist magic.
+                            description: d(`Deals 1427 (+13) physical damage after successful evasion and resist magic.
                                 The target suffers the Spin effect.
                                 Reduces the cooldown for Focused Evasion and Aethertwisting by 30%.
                                 A crit strike reduces the cooldown by another 30%.`),
@@ -1526,7 +1526,7 @@ Resets the cooldowns for Beast Leap and Flash of Speed when used.`),
                         type2: {
                             name: 'Whirlwind Slash',
                             icon: '../assets/icons/as_flowingspiner_custom_b.png',
-                            description: d(`Deals 1,427 (+13) physical damage.
+                            description: d(`Deals 1427 (+13) physical damage.
                                 A successful attack reduces the cooldown for Swift Ambush, Dash and Slash and Flash of Speed by 10%.
                                 A crit strike reduces the cooldown by an additional 10%.
                                 Multicast 3 times.`),
@@ -1741,8 +1741,8 @@ Stuns the target for 1s.`),
 You are knocked back 15m.
 Stuns the target for 3s.
 Your next 5 physical attack skills are improved by 30% for 1 min.
-Increases Accuracy by 3,000
-Increases Magical Accuracy by 3,000.`),
+Increases Accuracy by 3000
+Increases Magical Accuracy by 3000.`),
                             usageCost: '69 MP',
                             cooldown: '1m',
                             target: 'Selected Target',
@@ -1776,8 +1776,8 @@ Resets the cooldown of Instant Sprint and Speed of the Wind.`),
 You are knocked back 15m.
 Stuns the target for 2s.
 Your next 5 physical attack skills are improved by 30% for 1 min.
-Increases Accuracy by 2,000
-Increases Magical Accuracy by 2,000.`),
+Increases Accuracy by 2000
+Increases Magical Accuracy by 2000.`),
                             usageCost: '69 MP',
                             cooldown: '1m',
                             target: 'Selected Target',
@@ -2010,7 +2010,7 @@ Increases Physical Attack by 4000.
 Increases Crit Strike by 4000.
 Increases Resistance to Pull by 1000.
 Reduces Atk Range of Bow by 5m.
-1,000 DP are used every 3 sec.
+1000 DP are used every 3 sec.
 Active Skill.`),
                             usageCost: '1000 DP (every 3s)',
                             cooldown: '30s',
@@ -2048,7 +2048,7 @@ Increases Physical Attack by 3000 (+30).
 Increases Crit Strike by 3000.
 Increases Resistance to Pull by 1000.
 Reduces Atk Range of Bow by 7m.
-1,000 DP are used every 3 sec.
+1000 DP are used every 3 sec.
 Active Skill.`),
                             usageCost: '1000 DP (every 3s)',
                             cooldown: '30s',
@@ -2072,7 +2072,7 @@ Active Skill.`),
                 defaultSkill: {
                     name: 'Freezing Wind',
                     icon: '../assets/icons/cbt_wi_hydroimpact_g1.png',
-                    description: d(`Deals 1,425 magical water damage..`),
+                    description: d(`Deals 1425 magical water damage..`),
                     usageCost: '554 MP',
                     cooldown: '2s',
                     target: 'Selected Target',
@@ -2212,7 +2212,7 @@ When attacked, there is a chance the casting time will be reduced by 50%.`),
                             icon: '../assets/icons/wi_manaboost_custom_b.png',
                             description: d(`Reduces spell casting time by 30% for 1m.
 Increases Magic Attack by 500.
-Increases Magical Acc by 4,000.
+Increases Magical Acc by 4000.
 During an attack, there is a chance that the cooldowns for some skills will be reduced by 5%.
 (Hell Flame of Wrath, Glacial Shard, Cyclone Strike, Flame Spray).`),
                             usageCost: '1060 MP',
@@ -2312,7 +2312,7 @@ The probability of resisting this skill is low.`),
                 defaultSkill: {
                     name: 'Big Magma Eruption',
                     icon: '../assets/icons/live_wi_light_stigma_volcanicflame_g1.png',
-                    description: d(`Deals 3,155 magical fire damage after 4s.`),
+                    description: d(`Deals 3155 magical fire damage after 4s.`),
                     usageCost: '1205 MP',
                     cooldown: '30s',
                     castTime: '2s',
@@ -2596,7 +2596,7 @@ Deals 798 extra damage if the target is a spirit.`),
                             usageCost: '498 MP',
                             cooldown: '12s',
                             castTime: '1s',
-                            target: 'Area within a Radius of Target',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
                             area: '3m',
                             areaIcon: 'targetCircle'
@@ -2627,7 +2627,7 @@ Deals 665 extra damage if the target is a spirit.`),
                             usageCost: '498 MP',
                             cooldown: '12s',
                             castTime: '1s',
-                            target: 'Area within a Radius of Target',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
                             area: '3m',
                             areaIcon: 'targetCircle'
@@ -2664,7 +2664,7 @@ Deals 20% additional damage to the terrified target.`),
                             usageCost: '303 MP',
                             cooldown: '1s',
                             castTime: '2s',
-                            target: 'Area within a Radius of Target',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
                             area: '7m',
                             areaIcon: 'targetCircle'
@@ -2694,7 +2694,7 @@ Deals 10% additional damage to the terrified target.`),
                             usageCost: '303 MP',
                             cooldown: '1s',
                             castTime: '2s',
-                            target: 'Area within a Radius of Target',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
                             area: '7m',
                             areaIcon: 'targetCircle'
@@ -2842,7 +2842,7 @@ Multicast 5 times`),
                             usageCost: '3000 DP',
                             cooldown: '4m',
                             castTime: '0.5s',
-                            target: 'Area within a Radius of Target',
+                            target: 'Area within a Radius of Target 24 People',
                             usageDistance: '1m',
                             area: '25m',
                             areaIcon: 'targetCircle'
@@ -2869,7 +2869,7 @@ Multicast 5 times`),
                             usageCost: '3000 DP',
                             cooldown: '5m (-3s)',
                             castTime: '0.5s',
-                            target: 'Area within a Radius of Target',
+                            target: 'Area within a Radius of Target 24 People',
                             usageDistance: '1m',
                             area: '25m',
                             areaIcon: 'targetCircle'
@@ -2955,7 +2955,81 @@ Tempest Spirit: Magical Wind Damage, Aether's Hold`),
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            areaIcon: 'targetSingle',
+                            linkedTooltips: [
+                                {
+                                    spirit: 'fire',
+                                    name: '(Improved) Command: Fire Elemental Wave',
+                                    icon: '../assets/icons/el_order_explode_custom_b_up.png',
+                                    description: `Deals 8033 magical fire damage.
+                                                  Aether's Hold binds the target.`,
+                                    castTime: '0s',
+                                    target: 'Area within a Radius of Target 6 People',
+                                    usageDistance: '10m',
+                                    area: '15m',
+                                    areaIcon: 'targetCircle'
+                                },
+                                {
+                                    spirit: 'water',
+                                    name: '(Improved) Command: Water Elemental Wave',
+                                    icon: '../assets/icons/el_order_explode_custom_b_up.png',
+                                    description: `Deals 6906 magical water damage.
+                                                  Aether's Hold binds the target.`,
+                                    castTime: '0s',
+                                    target: 'Area within a Radius of Target 6 People',
+                                    usageDistance: '10m',
+                                    area: '15m',
+                                    areaIcon: 'targetCircle'
+                                },
+                                {
+                                    spirit: 'wind',
+                                    name: '(Improved) Command: Wind Elemental Wave',
+                                    icon: '../assets/icons/el_order_explode_custom_b_up.png',
+                                    description: `Deals 7256 magical wind damage.
+                                                  Aether's Hold binds the target.`,
+                                    castTime: '0s',
+                                    target: 'Area within a Radius of Target 6 People',
+                                    usageDistance: '10m',
+                                    area: '15m',
+                                    areaIcon: 'targetCircle'
+                                },
+                                {
+                                    spirit: 'earth',
+                                    name: '(Improved) Command: Earth Elemental Wave',
+                                    icon: '../assets/icons/el_order_explode_custom_b_up.png',
+                                    description: `Deals 7406 magical earth damage.
+                                                  Aether's Hold binds the target.`,
+                                    castTime: '0s',
+                                    target: 'Area within a Radius of Target 6 People',
+                                    usageDistance: '10m',
+                                    area: '15m',
+                                    areaIcon: 'targetCircle'
+                                },
+                                {
+                                    spirit: 'tempest',
+                                    name: '(Improved) Command: Storm Elemental Wave',
+                                    icon: '../assets/icons/el_order_explode_custom_b_up.png',
+                                    description: `Deals 8447 magical wind damage.
+                                                  Aether's Hold binds the target.`,
+                                    castTime: '0s',
+                                    target: 'Area within a Radius of Target 6 People',
+                                    usageDistance: '10m',
+                                    area: '15m',
+                                    areaIcon: 'targetCircle'
+                                },
+                                {
+                                    spirit: 'magma',
+                                    name: '(Improved) Command: Lava Elemental Wave',
+                                    icon: '../assets/icons/el_order_explode_custom_b_up.png',
+                                    description: `Deals 8447 magical fire damage.
+                                                  Aether's Hold binds the target.`,
+                                    castTime: '0s',
+                                    target: 'Area within a Radius of Target 6 People',
+                                    usageDistance: '10m',
+                                    area: '15m',
+                                    areaIcon: 'targetCircle'
+                                }
+                            ]
                         },
                         type3: null
                     },

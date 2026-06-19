@@ -7,6 +7,16 @@
     var daevanionUsedByClass = {};
     var stigmaActiveTab = 'stigma';
     var isDaevanionWarningCollapsed = false;
+    var activeSpiritKey = 'fire';
+
+    var SPIRIT_OPTIONS = [
+        { key: 'water', label: 'Water', icon: '../assets/icons/cbt_el_light_summon_waterelemental_g1.png' },
+        { key: 'wind', label: 'Wind', icon: '../assets/icons/cbt_el_light_summon_windelemental_g1.png' },
+        { key: 'earth', label: 'Earth', icon: '../assets/icons/cbt_el_light_summon_earthelemental_g1.png' },
+        { key: 'fire', label: 'Fire', icon: '../assets/icons/cbt_el_light_summon_fireelemental_g1.png' },
+        { key: 'magma', label: 'Magma', icon: '../assets/icons/cbt_el_dark_summon_magmaelemental_g1.png' },
+        { key: 'tempest', label: 'Tempest', icon: '../assets/icons/cbt_el_light_summon_tempestelemental_g1.png' }
+    ];
 
     // Tuned to the current stigma board background artwork.
     var STIGMA_LAYOUT = {
@@ -251,9 +261,9 @@
 
     function decorateTooltipGrowth(text) {
         return String(text || '').replace(/\(([+-])\s*[^)\n]+\)/gi, function(match, sign) {
+            if (/per level/i.test(match)) return match;
             var classes = 'gc-item-tooltip-growth';
             if (sign === '-') classes += ' is-reduction';
-            if (/per level/i.test(match)) classes += ' is-per-level';
             var cleanText = match.replace(/[()]/g, '');
             return '<span class="' + classes + '">' + cleanText + '</span>';
         });
@@ -262,6 +272,65 @@
     function formatTooltipDescription(value, autoSentenceBreak) {
         var text = formatTooltipInlineValue(value || '');
         return text.replace(/\n/g, '<br>');
+    }
+
+    function normalizeSpiritKey(value) {
+        var key = String(value || '').toLowerCase();
+        for (var i = 0; i < SPIRIT_OPTIONS.length; i++) {
+            if (SPIRIT_OPTIONS[i].key === key) return key;
+        }
+        return 'fire';
+    }
+
+    function inferSpiritKeyFromLinkedTooltip(item) {
+        if (!item || typeof item !== 'object') return null;
+        var text = [item.key, item.name, item.description].filter(Boolean).join(' ').toLowerCase();
+        if (!text) return null;
+
+        var matches = [];
+        SPIRIT_OPTIONS.forEach(function(option) {
+            var rx = new RegExp('\\b' + option.key + '\\b', 'i');
+            if (rx.test(text)) matches.push(option.key);
+        });
+        return matches.length === 1 ? matches[0] : null;
+    }
+
+    function matchesActiveSpirit(linkedDef) {
+        if (selectedClass !== 'spiritmaster' || !linkedDef || typeof linkedDef !== 'object') return true;
+
+        var explicitKey = normalizeSpiritKey(linkedDef.spirit || linkedDef.spiritKey || linkedDef.spiritType || '');
+        if (linkedDef.spirit || linkedDef.spiritKey || linkedDef.spiritType) {
+            return explicitKey === activeSpiritKey;
+        }
+
+        var spiritList = linkedDef.spirits || linkedDef.onlyForSpirits;
+        if (Array.isArray(spiritList) && spiritList.length) {
+            for (var i = 0; i < spiritList.length; i++) {
+                if (normalizeSpiritKey(spiritList[i]) === activeSpiritKey) return true;
+            }
+            return false;
+        }
+
+        var inferred = inferSpiritKeyFromLinkedTooltip(linkedDef);
+        if (inferred) return inferred === activeSpiritKey;
+        return true;
+    }
+
+    function renderSpiritSelectorControls() {
+        if (selectedClass !== 'spiritmaster') return '';
+
+        var html = '<div class="stigma-spirit-selector-wrap">';
+        html += '<div class="stigma-spirit-selector-label">Select spirit</div>';
+        html += '<div class="stigma-spirit-selector" aria-label="Spirit selection">';
+        SPIRIT_OPTIONS.forEach(function(option) {
+            var isSelected = activeSpiritKey === option.key;
+            html += '<button type="button" class="stigma-spirit-btn' + (isSelected ? ' is-active' : '') + '" onclick="StigmaApp.setSpiritFilter(\'' + option.key + '\')" aria-label="' + escapeHtml(option.label + ' Spirit') + '" title="' + escapeHtml(option.label + ' Spirit') + '">';
+            html += '<img src="' + option.icon + '" alt="' + escapeHtml(option.label) + '">';
+            html += '</button>';
+        });
+        html += '</div>';
+        html += '</div>';
+        return html;
     }
 
     function renderStigmaTooltipCard(def, opts) {
@@ -319,7 +388,9 @@
     function buildStigmaTooltipHtml(def, opts) {
         if (!def) return '';
         var entries = [def];
-        if (Array.isArray(def.linkedTooltips)) entries = entries.concat(def.linkedTooltips);
+        if (Array.isArray(def.linkedTooltips)) {
+            entries = entries.concat(def.linkedTooltips.filter(matchesActiveSpirit));
+        }
         if (entries.length <= 1) return renderStigmaTooltipCard(entries[0], opts);
         return '<div class="stigma-tooltip-grid">' + entries.map(function(item) { return renderStigmaTooltipCard(item, opts); }).join('') + '</div>';
     }
@@ -593,9 +664,12 @@
         // html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pvp" onclick="StigmaApp.applyDaevanionPresetBuild(\'pvp\')" aria-label="Developer\'s PvP build" title="Developer\'s PvP build">';
         // html += '<img src="../assets/icons/icon_pvp.png" alt="PVP">';
         // html += '</button>';
+        html += '<div class="stigma-share-spirit-stack">';
         html += '<button type="button" class="stigma-preset-btn stigma-share-btn daevanion-share-btn" onclick="StigmaApp.shareCurrentDaevanionBuild()" aria-label="Share current daevanion build" title="Share current daevanion build">';
         html += '<span class="stigma-share-label">Share Build 🔗</span>';
         html += '</button>';
+        html += renderSpiritSelectorControls();
+        html += '</div>';
         html += '</div>';
         html += '<button class="gc-reset-btn" onclick="StigmaApp.resetClassDaevanion()" aria-label="Reset current class daevanion selection" title="Reset current class daevanion selection" data-tooltip-html="' + escapeHtml(buildActionTooltipHtml('Reset Daevanion', 'Resets selected daevanion skills for the current class.')) + '">↺</button>';
         html += '</div>';
@@ -920,7 +994,8 @@
                 buildsByClass: buildsByClass,
                 daevanionUsedByClass: daevanionUsedByClass,
                 stigmaActiveTab: stigmaActiveTab,
-                isDaevanionWarningCollapsed: isDaevanionWarningCollapsed
+                isDaevanionWarningCollapsed: isDaevanionWarningCollapsed,
+                activeSpiritKey: activeSpiritKey
             }));
         } catch (e) {
             // Ignore private mode / quota failures.
@@ -944,6 +1019,10 @@
 
             if (typeof parsed.isDaevanionWarningCollapsed === 'boolean') {
                 isDaevanionWarningCollapsed = parsed.isDaevanionWarningCollapsed;
+            }
+
+            if (parsed.activeSpiritKey) {
+                activeSpiritKey = normalizeSpiritKey(parsed.activeSpiritKey);
             }
 
             if (parsed.buildsByClass && typeof parsed.buildsByClass === 'object') {
@@ -1311,6 +1390,10 @@
         html += '<button type="button" class="stigma-preset-btn stigma-share-btn" onclick="StigmaApp.shareCurrentBuild()" aria-label="Share current setup" title="Share current setup">';
         html += '<span class="stigma-share-label">Share Build 🔗</span>';
         html += '</button>';
+        var spiritControls = renderSpiritSelectorControls();
+        if (spiritControls) {
+            html += '<div class="stigma-spirit-selector-row">' + spiritControls + '</div>';
+        }
         html += '</div>';
         html += '<button class="gc-reset-btn" onclick="StigmaApp.resetClassStigmas()" aria-label="Reset current class stigmas" title="Reset current class stigmas" data-tooltip-html="' + escapeHtml(buildActionTooltipHtml('Reset Build', 'Clears the current class stigma selection and restores an empty board.')) + '">↺</button>';
         html += '</div>';
@@ -1355,6 +1438,15 @@
             ensureDaevanionClassState(className);
             saveState();
             renderClassSelector();
+            renderBuilder();
+            renderDaevanionBuilder();
+        },
+
+        setSpiritFilter: function(spiritKey) {
+            var next = normalizeSpiritKey(spiritKey);
+            if (activeSpiritKey === next) return;
+            activeSpiritKey = next;
+            saveState();
             renderBuilder();
             renderDaevanionBuilder();
         },

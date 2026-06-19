@@ -79,6 +79,7 @@
 .warning-box img {
     height: 2em;
     width: auto;
+    position: relative;
     vertical-align: middle;
     margin: 0 4px;
 }
@@ -90,6 +91,7 @@
 
 .daevanion-panel {
     overflow: visible;
+    position: relative;
 }
 
 .daevanion-table-wrap {
@@ -114,7 +116,6 @@
 }
 
 .daevanion-table th {
-    text-transform: uppercase;
     font-size: 0.74rem;
     letter-spacing: 0.05em;
     color: #d8c495;
@@ -273,6 +274,65 @@
     margin-right: auto;
 }
 
+.stigma-share-spirit-stack {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.stigma-spirit-selector {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.stigma-spirit-selector-wrap {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.stigma-spirit-selector-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(224, 210, 180, 0.82);
+}
+
+.stigma-spirit-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(190, 160, 90, 0.35);
+    border-radius: 7px;
+    background: rgba(12, 14, 21, 0.7);
+    padding: 3px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.stigma-spirit-btn:hover,
+.stigma-spirit-btn:focus-visible {
+    border-color: rgba(245, 212, 132, 0.8);
+    background: rgba(24, 28, 42, 0.9);
+    transform: translateY(-1px);
+}
+
+.stigma-spirit-btn.is-active {
+    border-color: rgba(135, 214, 255, 0.9);
+    box-shadow: 0 0 0 1px rgba(135, 214, 255, 0.35) inset;
+    background: rgba(26, 45, 66, 0.72);
+}
+
+.stigma-spirit-btn img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+}
+
 .daevanion-builder-head .stigma-preset-btn {
     display: inline-flex;
     align-items: center;
@@ -304,15 +364,34 @@
     margin: 0;
 }
 
+.daevanion-panel .daevanion-builder-head {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    margin-bottom: 0;
+    padding-right: 0;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.daevanion-panel .daevanion-builder-head .stigma-preset-actions,
+.daevanion-panel .daevanion-builder-head .gc-reset-btn {
+    pointer-events: auto;
+}
+
 .stigma-tooltip-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
+    align-items: start;
 }
 
 .stigma-tooltip-grid .gc-item-tooltip-card {
-    width: 320px;
-    max-width: min(46vw, 360px);
+    width: 360px;
+    max-width: min(48vw, 400px);
+    height: auto;
+    align-self: start;
 }
 
 .gc-item-tooltip-growth {
@@ -677,6 +756,7 @@
 
 #stigma-builder .stigma-panel {
     overflow: visible;
+    position: relative;
 }
 
 #stigma-builder .stigma-builder-head {
@@ -694,6 +774,14 @@
     align-items: center;
     gap: 8px;
     margin-right: auto;
+    flex-wrap: wrap;
+}
+
+#stigma-builder .stigma-spirit-selector-row {
+    flex-basis: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: 2px;
 }
 
 #stigma-builder .stigma-preset-btn {
@@ -750,6 +838,22 @@
 #stigma-builder .stigma-builder-head .gc-reset-btn {
     right: 4px;
     margin: 0;
+}
+
+#stigma-builder .stigma-panel > .stigma-builder-head {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    margin-bottom: 0;
+    padding-right: 0;
+    z-index: 3;
+    pointer-events: none;
+}
+
+#stigma-builder .stigma-panel > .stigma-builder-head .stigma-preset-actions,
+#stigma-builder .stigma-panel > .stigma-builder-head .gc-reset-btn {
+    pointer-events: auto;
 }
 
 #stigma-builder .stigma-two-col {
@@ -1115,6 +1219,17 @@
 
 @media (max-width: 768px) {
 
+    .daevanion-panel .daevanion-builder-head,
+    #stigma-builder .stigma-panel > .stigma-builder-head {
+        position: relative;
+        top: auto;
+        left: auto;
+        right: auto;
+        margin-bottom: 12px;
+        padding-right: 4px;
+        pointer-events: auto;
+    }
+
     #stigma-tab-bar {
         width: 100%;
     }
@@ -1138,6 +1253,12 @@
 
     .daevanion-used-name {
         font-size: 0.78rem;
+    }
+
+    .stigma-spirit-btn {
+        width: 28px;
+        height: 28px;
+        padding: 2px;
     }
 
     #stigma-builder .stigma-two-col {
