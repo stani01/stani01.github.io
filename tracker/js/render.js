@@ -211,11 +211,12 @@ function renderDucatTab(container, tabData) {
     if (activeChar) {
         DUCAT_INSTANCES.forEach(function(instance) {
             var runs = getDucatRuns(instance.id, activeChar.id);
+            var isMaxed = runs >= instance.maxRuns;
 
             html += '    <div class="tracker-instance-card">';
             html += '        <div class="tracker-instance-name">' + instance.name + '</div>';
             html += '        <div class="tracker-instance-subtitle">Max runs: ' + instance.maxRuns + '</div>';
-            html += '        <div class="tracker-runs-input">';
+            html += '        <div class="tracker-runs-input' + (isMaxed ? ' is-maxed' : '') + '">';
             html += '            <button class="tracker-btn-minus" onclick="TK.decrementRuns(\'' + instance.id + '\')">−</button>';
             html += '            <input type="number" class="tracker-runs-value" id="runs-' + instance.id + '" ';
             html += '                   value="' + runs + '" min="0" max="' + instance.maxRuns + '" ';
@@ -357,4 +358,10 @@ function activateTab(tabId) {
 function updateInputValue(instanceId, newValue) {
     var input = document.getElementById('runs-' + instanceId);
     if (input) input.value = newValue;
+
+    var instance = DUCAT_INSTANCES.find(function(i) { return i.id === instanceId; });
+    var wrapper = input ? input.closest('.tracker-runs-input') : null;
+    if (wrapper && instance) {
+        wrapper.classList.toggle('is-maxed', newValue >= instance.maxRuns);
+    }
 }

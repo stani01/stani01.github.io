@@ -557,6 +557,12 @@
     padding: 8px;
 }
 
+.tracker-runs-input.is-maxed {
+    opacity: 0.45;
+    filter: grayscale(0.6);
+    border-color: rgba(100, 150, 255, 0.15);
+}
+
 .tracker-btn-minus,
 .tracker-btn-plus {
     flex-shrink: 0;
