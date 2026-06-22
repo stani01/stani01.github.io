@@ -721,7 +721,80 @@ var GC_STIGMA_REGISTRY = {
                 { key: 'commandBurnToAshes', name: '(Improved) Command: Burn-to-Ashes', icon: '../assets/icons/live_el_a_stigma_order_ethereruption_g1.png', cooldown: '37s', castTime: '2s', description: 'Water Spirit: Magical Water Damage.\nWind Spirit: Magical Wind Damage.\nEarth Spirit: Magical Earth Damage.\nFire Spirit: Magical Fire Damage.\nMagma Spirit: Magical Earth Damage.\nTempest Spirit: Magical Water Damage.' },
                 { key: 'cycloneOfWrath', name: '(Improved) Cyclone of Wrath', icon: '../assets/icons/live_el_a_stigma_stormblade_g1.png', cooldown: '8s', castTime: '2s', description: 'Deals 1086 magical wind damage.\nDeals 886 additional damage every 2s for 8s.' },
                 { key: 'witheringGloom', name: '(Improved) Withering Gloom', icon: '../assets/icons/live_el_a_enervationcurse_g1.png', cooldown: '1m3s', castTime: '2s', description: 'Reduces the target\'s maximum HP and MP by 5000 for 30s.\nReduces the target\'s recovery by 15%.\nMP regeneration is not possible.\nThe effect cannot be removed.' },
-                { key: 'commandWallOfProtection', name: '(Improved) Command: Wall of Protection', icon: '../assets/icons/cbt_el_a_order_elementalfield_g1.png', cooldown: '43s', castTime: '0.8s', description: 'Commands the spirit to use its magical buff.\nWater Spirit: Increases Magical Accuracy and Resist Magic.\nWind Spirit: Increases Accuracy and Evasion.\nEarth Spirit: HP regeneration, removes physical and mental altered states.\nFire Spirit: Increases Physical Attack and reflects damage.\nMagma Spirit: Increases Physical Attack and removes physical and mental altered states.\nTempest Spirit: Increases Physical Attack and removes physical and mental altered states.' },
+                { key: 'commandWallOfProtection', name: '(Improved) Command: Wall of Protection', icon: '../assets/icons/cbt_el_a_order_elementalfield_g1.png', cooldown: '43s', castTime: '0.8s', description: 'Commands the spirit to use its magical buff.\nWater Spirit: Increases Magical Accuracy and Resist Magic.\nWind Spirit: Increases Accuracy and Evasion.\nEarth Spirit: HP regeneration, removes physical and mental altered states.\nFire Spirit: Increases Physical Attack and reflects damage.\nMagma Spirit: Increases Physical Attack and removes physical and mental altered states.\nTempest Spirit: Increases Physical Attack and removes physical and mental altered states.',
+                    linkedTooltips: [{
+                                spirit: 'fire',
+                                name: '(Improved) Command: Fire Wall Wave',
+                                icon: '../assets/icons/cbt_el_a_order_elementalfield_g1.png',
+                                description: `Reflects 100 damage for 1m.
+                                Increases Physical Attack by 360.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '1m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'water',
+                                name: '(Improved) Command: Water Wall of Protection',
+                                icon: '../assets/icons/cbt_el_a_order_elementalfield_g1.png',
+                                description: `Increases Magical Acc by 270 for 30s.
+                                Increases Magic Resist by 260.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '1m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'wind',
+                                name: '(Improved) Command: Wind Wall of Protection',
+                                icon: '../assets/icons/cbt_el_a_order_elementalfield_g1.png',
+                                description: `Increases Accuracy by 400 for 30s.
+                                                Increases Evasion by 700.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '1m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'earth',
+                                name: '(Improved) Command: Earth Wall of Protection',
+                                icon: '../assets/icons/cbt_el_a_order_elementalfield_g1.png',
+                                description: `Restores allies' HP.
+                                                Removes altered physical and mental states.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '1m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'tempest',
+                                name: '(Improved) Command: Storm Wall of Protection',
+                                icon: '../assets/icons/cbt_el_a_order_elementalfield_g1.png',
+                                description: `Increases Physical Attack by 360 for 30s.
+                                                Removes altered physical and mental states.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '1m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'magma',
+                                name: '(Improved) Command: Lava Wall of Protection',
+                                icon: '../assets/icons/cbt_el_a_order_elementalfield_g1.png',
+                                description: `Increases Physical Attack by 360 for 30s.
+                                                Removes altered physical and mental states.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '1m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            }]
+                 },
                 { key: 'cloakingWord', name: '(Improved) Cloaking Word', icon: '../assets/icons/live_el_a_escape_g1.png', cooldown: '21s', castTime: '0.5s', description: 'Puts the target in normal stealth mode for 30s.\nReduces movement speed.\nNot available in battle.' }
             ],
             blue: [

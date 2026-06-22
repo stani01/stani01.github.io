@@ -2072,7 +2072,7 @@ Active Skill.`),
                 defaultSkill: {
                     name: 'Freezing Wind',
                     icon: '../assets/icons/cbt_wi_hydroimpact_g1.png',
-                    description: d(`Deals 1425 magical water damage..`),
+                    description: d(`Deals 1425 magical water damage.`),
                     usageCost: '554 MP',
                     cooldown: '2s',
                     target: 'Selected Target',
@@ -2645,7 +2645,7 @@ Deals 665 extra damage if the target is a spirit.`),
                 defaultSkill: {
                     name: 'Vacuum Choke',
                     icon: '../assets/icons/live_el_vacuumexplosion_g1.png',
-                    description: d(`Deals 1642 magical wind damage..`),
+                    description: d(`Deals 1642 magical wind damage.`),
                     usageCost: '303 MP',
                     cooldown: '1s',
                     castTime: '2s',
@@ -2824,7 +2824,7 @@ Multicast 5 times`),
                 defaultSkill: {
                     name: 'Disenchant',
                     icon: '../assets/icons/cbt_el_disenchantment_g1.png',
-                    description: d(`Removes two big magic buffs from the target..`),
+                    description: d(`Removes two big magic buffs from the target.`),
                     usageCost: '3000 DP',
                     cooldown: '8m',
                     castTime: '0.5s',
@@ -2936,7 +2936,85 @@ Tempest Spirit: Removes Magical Wind Damage, Knock-back and Magic Boost`),
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            areaIcon: 'targetSingle',
+                            linkedTooltips: [{
+                                spirit: 'fire',
+                                name: '(Improved) Command: Fire Elemental Destruction',
+                                icon: '../assets/icons/el_order_explode_custom_a_up.png',
+                                description: `Deals 8033 magical fire damage.
+                                            Knocks the target back.
+                                            Also removes the target's Magic Boost.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'water',
+                                name: '(Improved) Command: Water Elemental Destruction',
+                                icon: '../assets/icons/el_order_explode_custom_a_up.png',
+                                description: `Deals 6906 magical water damage.
+                                            Knocks the target back.
+                                            Also removes the target's Magic Boost.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'wind',
+                                name: '(Improved) Command: Wind Elemental Destruction',
+                                icon: '../assets/icons/el_order_explode_custom_a_up.png',
+                                description: `Deals 7256 magical wind damage.
+                                            Knocks the target back.
+                                            Also removes the target's Magic Boost.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'earth',
+                                name: '(Improved) Command: Earth Elemental Destruction',
+                                icon: '../assets/icons/el_order_explode_custom_a_up.png',
+                                description: `Deals 7406 magical earth damage.
+                                            Knocks the target back.
+                                            Also removes the target's Magic Boost.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'tempest',
+                                name: '(Improved) Command: Storm Elemental Destruction',
+                                icon: '../assets/icons/el_order_explode_custom_a_up.png',
+                                description: `Deals 8447 magical wind damage.
+                                            Knocks the target back.
+                                            Also removes the target's Magic Boost.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'magma',
+                                name: '(Improved) Command: Lava Elemental Destruction',
+                                icon: '../assets/icons/el_order_explode_custom_a_up.png',
+                                description: `Deals 8447 magical fire damage.
+                                            Knocks the target back.
+                                            Also removes the target's Magic Boost.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            }]
                         },
                         type2: {
                             name: '(Improved) Command: Elemental Wave',
@@ -2956,80 +3034,78 @@ Tempest Spirit: Magical Wind Damage, Aether's Hold`),
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle',
-                            linkedTooltips: [
-                                {
-                                    spirit: 'fire',
-                                    name: '(Improved) Command: Fire Elemental Wave',
-                                    icon: '../assets/icons/el_order_explode_custom_b_up.png',
-                                    description: `Deals 8033 magical fire damage.
-                                                  Aether's Hold binds the target.`,
-                                    castTime: '0s',
-                                    target: 'Area within a Radius of Target 6 People',
-                                    usageDistance: '10m',
-                                    area: '15m',
-                                    areaIcon: 'targetCircle'
-                                },
-                                {
-                                    spirit: 'water',
-                                    name: '(Improved) Command: Water Elemental Wave',
-                                    icon: '../assets/icons/el_order_explode_custom_b_up.png',
-                                    description: `Deals 6906 magical water damage.
-                                                  Aether's Hold binds the target.`,
-                                    castTime: '0s',
-                                    target: 'Area within a Radius of Target 6 People',
-                                    usageDistance: '10m',
-                                    area: '15m',
-                                    areaIcon: 'targetCircle'
-                                },
-                                {
-                                    spirit: 'wind',
-                                    name: '(Improved) Command: Wind Elemental Wave',
-                                    icon: '../assets/icons/el_order_explode_custom_b_up.png',
-                                    description: `Deals 7256 magical wind damage.
-                                                  Aether's Hold binds the target.`,
-                                    castTime: '0s',
-                                    target: 'Area within a Radius of Target 6 People',
-                                    usageDistance: '10m',
-                                    area: '15m',
-                                    areaIcon: 'targetCircle'
-                                },
-                                {
-                                    spirit: 'earth',
-                                    name: '(Improved) Command: Earth Elemental Wave',
-                                    icon: '../assets/icons/el_order_explode_custom_b_up.png',
-                                    description: `Deals 7406 magical earth damage.
-                                                  Aether's Hold binds the target.`,
-                                    castTime: '0s',
-                                    target: 'Area within a Radius of Target 6 People',
-                                    usageDistance: '10m',
-                                    area: '15m',
-                                    areaIcon: 'targetCircle'
-                                },
-                                {
-                                    spirit: 'tempest',
-                                    name: '(Improved) Command: Storm Elemental Wave',
-                                    icon: '../assets/icons/el_order_explode_custom_b_up.png',
-                                    description: `Deals 8447 magical wind damage.
-                                                  Aether's Hold binds the target.`,
-                                    castTime: '0s',
-                                    target: 'Area within a Radius of Target 6 People',
-                                    usageDistance: '10m',
-                                    area: '15m',
-                                    areaIcon: 'targetCircle'
-                                },
-                                {
-                                    spirit: 'magma',
-                                    name: '(Improved) Command: Lava Elemental Wave',
-                                    icon: '../assets/icons/el_order_explode_custom_b_up.png',
-                                    description: `Deals 8447 magical fire damage.
-                                                  Aether's Hold binds the target.`,
-                                    castTime: '0s',
-                                    target: 'Area within a Radius of Target 6 People',
-                                    usageDistance: '10m',
-                                    area: '15m',
-                                    areaIcon: 'targetCircle'
-                                }
-                            ]
+                            linkedTooltips: [{
+                                spirit: 'fire',
+                                name: '(Improved) Command: Fire Elemental Wave',
+                                icon: '../assets/icons/el_order_explode_custom_b_up.png',
+                                description: `Deals 8033 magical fire damage.
+                                                Aether's Hold binds the target.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'water',
+                                name: '(Improved) Command: Water Elemental Wave',
+                                icon: '../assets/icons/el_order_explode_custom_b_up.png',
+                                description: `Deals 6906 magical water damage.
+                                                Aether's Hold binds the target.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'wind',
+                                name: '(Improved) Command: Wind Elemental Wave',
+                                icon: '../assets/icons/el_order_explode_custom_b_up.png',
+                                description: `Deals 7256 magical wind damage.
+                                                Aether's Hold binds the target.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'earth',
+                                name: '(Improved) Command: Earth Elemental Wave',
+                                icon: '../assets/icons/el_order_explode_custom_b_up.png',
+                                description: `Deals 7406 magical earth damage.
+                                                Aether's Hold binds the target.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'tempest',
+                                name: '(Improved) Command: Storm Elemental Wave',
+                                icon: '../assets/icons/el_order_explode_custom_b_up.png',
+                                description: `Deals 8447 magical wind damage.
+                                                Aether's Hold binds the target.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'magma',
+                                name: '(Improved) Command: Lava Elemental Wave',
+                                icon: '../assets/icons/el_order_explode_custom_b_up.png',
+                                description: `Deals 8447 magical fire damage.
+                                                Aether's Hold binds the target.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            }]
                         },
                         type3: null
                     },
@@ -3051,7 +3127,85 @@ Tempest Spirit: Removes Magical Wind Damage, Knock-back and Magic Boost`),
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            areaIcon: 'targetSingle',
+                            linkedTooltips: [{
+                                spirit: 'fire',
+                                name: 'Command: Fire Elemental Destruction',
+                                icon: '../assets/icons/el_order_explode_custom_a.png',
+                                description: `Deals 6976 magical fire damage.
+                                            Knocks the target back.
+                                            Also removes the target's Magic Boost.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'water',
+                                name: 'Command: Water Elemental Destruction',
+                                icon: '../assets/icons/el_order_explode_custom_a.png',
+                                description: `Deals 5996 magical water damage.
+                                            Knocks the target back.
+                                            Also removes the target's Magic Boost.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'wind',
+                                name: 'Command: Wind Elemental Destruction',
+                                icon: '../assets/icons/el_order_explode_custom_a.png',
+                                description: `Deals 6300 magical wind damage.
+                                            Knocks the target back.
+                                            Also removes the target's Magic Boost.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'earth',
+                                name: 'Command: Earth Elemental Destruction',
+                                icon: '../assets/icons/el_order_explode_custom_a.png',
+                                description: `Deals 6430 magical earth damage.
+                                            Knocks the target back.
+                                            Also removes the target's Magic Boost.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'tempest',
+                                name: 'Command: Storm Elemental Destruction',
+                                icon: '../assets/icons/el_order_explode_custom_a.png',
+                                description: `Deals 7336 magical wind damage.
+                                            Knocks the target back.
+                                            Also removes the target's Magic Boost.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'magma',
+                                name: 'Command: Lava Elemental Destruction',
+                                icon: '../assets/icons/el_order_explode_custom_a.png',
+                                description: `Deals 7336 magical fire damage.
+                                            Knocks the target back.
+                                            Also removes the target's Magic Boost.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            }]
                         },
                         type2: {
                             name: 'Command: Elemental Wave',
@@ -3070,7 +3224,79 @@ Tempest Spirit: Magical Wind Damage, Aether's Hold`),
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            areaIcon: 'targetSingle',
+                            linkedTooltips: [{
+                                spirit: 'fire',
+                                name: 'Command: Fire Elemental Wave',
+                                icon: '../assets/icons/el_order_explode_custom_b.png',
+                                description: `Deals 6976 magical fire damage.
+                                                Aether's Hold binds the target.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'water',
+                                name: 'Command: Water Elemental Wave',
+                                icon: '../assets/icons/el_order_explode_custom_b.png',
+                                description: `Deals 5996 magical water damage.
+                                                Aether's Hold binds the target.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'wind',
+                                name: 'Command: Wind Elemental Wave',
+                                icon: '../assets/icons/el_order_explode_custom_b.png',
+                                description: `Deals 6300 magical wind damage.
+                                                Aether's Hold binds the target.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'earth',
+                                name: 'Command: Earth Elemental Wave',
+                                icon: '../assets/icons/el_order_explode_custom_b.png',
+                                description: `Deals 6430 magical earth damage.
+                                                Aether's Hold binds the target.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'tempest',
+                                name: 'Command: Storm Elemental Wave',
+                                icon: '../assets/icons/el_order_explode_custom_b.png',
+                                description: `Deals 7336 magical wind damage.
+                                                Aether's Hold binds the target.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            },
+                            {
+                                spirit: 'magma',
+                                name: 'Command: Lava Elemental Wave',
+                                icon: '../assets/icons/el_order_explode_custom_b.png',
+                                description: `Deals 7336 magical fire damage.
+                                                Aether's Hold binds the target.`,
+                                castTime: '0s',
+                                target: 'Area within a Radius of Target 6 People',
+                                usageDistance: '10m',
+                                area: '15m',
+                                areaIcon: 'targetCircle'
+                            }]
                         },
                         type3: null
                     }
@@ -3190,10 +3416,12 @@ The duration is reduced by 50% when applied to a player.`),
                 defaultSkill: {
                     name: 'Immortal Shroud',
                     icon: '../assets/icons/live_pr_invinsiblewall_g1.png',
-                    description: d(`DummydefaultskillforClericSkill1.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
-                    target: 'Selected Target',
+                    description: d(`Confers a protective shield for 4s.
+Grants up to 9500 protection.`),
+                    usageCost: '882 MP',
+                    castTime: 'Cast Instantly',
+                    cooldown: '1m30s',
+                    target: 'Self',
                     usageDistance: '1m',
                     area: 'Single Target',
                     areaIcon: 'targetSingle'
@@ -3203,10 +3431,12 @@ The duration is reduced by 50% when applied to a player.`),
                         type1: {
                             name: '(Improved) Indestructible Shield Wall',
                             icon: '../assets/icons/pr_invinsiblewall_custom_a_up.png',
-                            description: d(`DummydescriptionClericSkill1Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Confers a protective shield for 12s.
+Grants up to 28000 protection.`),
+                            usageCost: '882 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '1m30s',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -3214,9 +3444,12 @@ The duration is reduced by 50% when applied to a player.`),
                         type2: {
                             name: '(Improved) Indestructible Protective Shield',
                             icon: '../assets/icons/pr_invinsiblewall_custom_b_up.png',
-                            description: d(`DummydescriptionClericSkill1Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Confers a protective shield for 8s.
+Grants up to 15000 protection.
+When used on a target, it protects both you and your target.`),
+                            usageCost: '882 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '1m',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -3228,10 +3461,12 @@ The duration is reduced by 50% when applied to a player.`),
                         type1: {
                             name: 'Indestructible Shield Wall',
                             icon: '../assets/icons/pr_invinsiblewall_custom_a.png',
-                            description: d(`DummydescriptionClericSkill1Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Confers a protective shield for 8s.
+Grants up to 19000 (+190) protection.`),
+                            usageCost: '882 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '1m30s',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -3239,9 +3474,12 @@ The duration is reduced by 50% when applied to a player.`),
                         type2: {
                             name: 'Indestructible Protective Shield',
                             icon: '../assets/icons/pr_invinsiblewall_custom_b.png',
-                            description: d(`DummydescriptionClericSkill1Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Confers a protective shield for 4s.
+Grants up to 9500 (+95) protection.
+When used on a target, it protects both you and your target.`),
+                            usageCost: '882 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '1m',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -3260,10 +3498,12 @@ The duration is reduced by 50% when applied to a player.`),
                 defaultSkill: {
                     name: 'Salvation',
                     icon: '../assets/icons/cbt_pr_secretprecept_g1.png',
-                    description: d(`DummydefaultskillforClericSkill2.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
-                    target: 'Selected Target',
+                    description: d(`Restores 25000 HP.
+Restores 15000 of MP.`),
+                    usageCost: '3000 DP',
+                    castTime: 'Cast Instantly',
+                    cooldown: '3m',
+                    target: 'Self',
                     usageDistance: '1m',
                     area: 'Single Target',
                     areaIcon: 'targetSingle'
@@ -3273,10 +3513,13 @@ The duration is reduced by 50% when applied to a player.`),
                         type1: {
                             name: '(Improved) Swift Intervention',
                             icon: '../assets/icons/pr_secretprecept_custom_a_up.png',
-                            description: d(`DummydescriptionClericSkill2Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Restores 35000 HP.
+Restores 18000 of MP.
+Resets the cooldowns of Sage's Wisdom and Amplification.`),
+                            usageCost: '3000 DP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '2m',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -3284,10 +3527,14 @@ The duration is reduced by 50% when applied to a player.`),
                         type2: {
                             name: '(Improved) Guarding Intervention',
                             icon: '../assets/icons/pr_secretprecept_custom_b_up.png',
-                            description: d(`DummydescriptionClericSkill2Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Restores 20000 HP.
+Restores 12000 of MP.
+Increases Block by 3000 for 10s.
+Increases Magic Resist by 3000.`),
+                            usageCost: '3000 DP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '1m30s',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -3298,10 +3545,13 @@ The duration is reduced by 50% when applied to a player.`),
                         type1: {
                             name: 'Swift Intervention',
                             icon: '../assets/icons/pr_secretprecept_custom_a.png',
-                            description: d(`DummydescriptionClericSkill2Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Restores 25000 (+500) HP.
+Restores 15000 (+150) of MP.
+Resets the cooldown of Sage's Wisdom.`),
+                            usageCost: '3000 DP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '2m',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -3309,10 +3559,14 @@ The duration is reduced by 50% when applied to a player.`),
                         type2: {
                             name: 'Guarding Intervention',
                             icon: '../assets/icons/pr_secretprecept_custom_b.png',
-                            description: d(`DummydescriptionClericSkill2Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Restores 15000 HP.
+Restores 10000 (+100) of MP.
+Increases Block by 2000 (+20) for 10s.
+Increases Magic Resist by 2000 (+20).`),
+                            usageCost: '3000 DP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '1m45s',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -3330,9 +3584,10 @@ The duration is reduced by 50% when applied to a player.`),
                 defaultSkill: {
                     name: 'Flash of Recovery',
                     icon: '../assets/icons/cbt_pr_firstaid_g1.png',
-                    description: d(`DummydefaultskillforClericSkill3.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Restores 4122 HP.`),
+                    usageCost: '558 MP',
+                    castTime: 'Cast Instantly',
+                    cooldown: '30s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -3343,9 +3598,14 @@ The duration is reduced by 50% when applied to a player.`),
                         type1: {
                             name: '(Improved) Ray of Restoration',
                             icon: '../assets/icons/pr_firstaid_custom_a_up.png',
-                            description: d(`DummydescriptionClericSkill3Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Restores 4946 HP.
+Removes magic debuffs from the target.
+Confers a protective shield for 10s.
+Grants up to 7000 protection.
+Reduces the cooldown for Ripple of Purification and Splendour of Purification by 10 seconds when the corresponding skill is used.`),
+                            usageCost: '558 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '30s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -3354,13 +3614,15 @@ The duration is reduced by 50% when applied to a player.`),
                         type2: {
                             name: '(Improved) Restoration Strike',
                             icon: '../assets/icons/pr_firstaid_custom_b_up.png',
-                            description: d(`DummydescriptionClericSkill3Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Restores 4946 HP.
+After using the skill, the casting time of magic recovery skills is reduced by 80% for 3 seconds.`),
+                            usageCost: '558 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '30s',
+                            target: 'Group Member',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '25m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     },
@@ -3368,9 +3630,14 @@ The duration is reduced by 50% when applied to a player.`),
                         type1: {
                             name: 'Ray of Restoration',
                             icon: '../assets/icons/pr_firstaid_custom_a.png',
-                            description: d(`DummydescriptionClericSkill3Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Restores 4122 (+40) HP.
+Removes magic debuffs from the target.
+Confers a protective shield for 10s.
+Grants up to 5000 protection.
+Reduces the cooldown for Ripple of Purification and Splendour of Purification by 10 seconds when the corresponding skill is used.`),
+                            usageCost: '558 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '30s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -3379,13 +3646,15 @@ The duration is reduced by 50% when applied to a player.`),
                         type2: {
                             name: 'Restoration Strike',
                             icon: '../assets/icons/pr_firstaid_custom_b.png',
-                            description: d(`DummydescriptionClericSkill3Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Restores 4122 (+40) HP.
+After using the skill, the casting time of magic recovery skills is reduced by 80% for 2 seconds.`),
+                            usageCost: '558 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '30s',
+                            target: 'Group Member',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '25m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     }
@@ -3400,9 +3669,10 @@ The duration is reduced by 50% when applied to a player.`),
                 defaultSkill: {
                     name: 'Divine Spark',
                     icon: '../assets/icons/cbt_pr_divinespark_g1.png',
-                    description: d(`DummydefaultskillforClericSkill4.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Deals 2571 magical wind damage..`),
+                    usageCost: '297 MP',
+                    castTime: 'Cast Instantly',
+                    cooldown: '14s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -3413,9 +3683,12 @@ The duration is reduced by 50% when applied to a player.`),
                         type1: {
                             name: '(Improved) Discharge Paralysis',
                             icon: '../assets/icons/pr_divinespark_custom_a_up.png',
-                            description: d(`DummydescriptionClericSkill4Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 3703 magical wind damage.
+Paralyses the target for 2s.
+A hit reduces the cooldown for Paralysing Blow by 11 seconds.`),
+                            usageCost: '297 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '14s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -3424,9 +3697,12 @@ The duration is reduced by 50% when applied to a player.`),
                         type2: {
                             name: '(Improved) Chain Discharge',
                             icon: '../assets/icons/pr_divinespark_custom_b_up.png',
-                            description: d(`DummydescriptionClericSkill4Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 3085 magical wind damage.
+A hit reduces the cooldown for Call Lightning by 6 seconds.
+Multicast 2 times.`),
+                            usageCost: '297 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '14s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -3438,9 +3714,12 @@ The duration is reduced by 50% when applied to a player.`),
                         type1: {
                             name: 'Discharge Paralysis',
                             icon: '../assets/icons/pr_divinespark_custom_a.png',
-                            description: d(`DummydescriptionClericSkill4Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 3085 (+30) magical wind damage.
+Paralyses the target for 1.5 seconds.
+A hit reduces the cooldown for Paralysing Blow by 7 seconds.`),
+                            usageCost: '297 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '14s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -3449,9 +3728,12 @@ The duration is reduced by 50% when applied to a player.`),
                         type2: {
                             name: 'Chain Discharge',
                             icon: '../assets/icons/pr_divinespark_custom_b.png',
-                            description: d(`DummydescriptionClericSkill4Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 2571 (+25) magical wind damage.
+A hit reduces the cooldown for Call Lightning by 3 seconds.
+Multicast 2 times.`),
+                            usageCost: '297 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '14s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -3470,9 +3752,10 @@ The duration is reduced by 50% when applied to a player.`),
                 defaultSkill: {
                     name: 'Divine Touch',
                     icon: '../assets/icons/cbt_pr_divinetouch_g1.png',
-                    description: d(`DummydefaultskillforClericSkill5.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Deals 1263 magical wind damage..`),
+                    usageCost: '232 MP',
+                    castTime: 'Cast Instantly',
+                    cooldown: '14s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -3484,20 +3767,25 @@ The duration is reduced by 50% when applied to a player.`),
                         type2: {
                             name: '(Improved) Boosted Thunder',
                             icon: '../assets/icons/pr_divinetouch_custom_b_up.png',
-                            description: d(`DummydescriptionClericSkill5Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 1664 magical wind damage.
+Stuns the target for 2s.`),
+                            usageCost: '232 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '14s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '5m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: {
                             name: '(Improved) Chain Lightning',
                             icon: '../assets/icons/pr_divinetouch_custom_c_up.png',
-                            description: d(`DummydescriptionClericSkill5Type3improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 757 magical wind damage.
+Deals additional damage when the target is stunned or its movement speed is reduced.
+Multicast 3 times`),
+                            usageCost: '232 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '14s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -3508,31 +3796,38 @@ The duration is reduced by 50% when applied to a player.`),
                         type1: {
                             name: 'Thunder',
                             icon: '../assets/icons/pr_soniceruption_custom_a.png',
-                            description: d(`DummydescriptionClericSkill5Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 1263 magical wind damage.
+Stuns the target for 0.5 seconds.`),
+                            usageCost: '232 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '14s',
+                            target: 'Area within a Radius of Target 6 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '5m',
+                            areaIcon: 'targetCircle'
                         },
                         type2: {
                             name: 'Boosted Thunder',
                             icon: '../assets/icons/pr_divinetouch_custom_b.png',
-                            description: d(`DummydescriptionClericSkill5Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 1387 (+13) magical wind damage.
+Stuns the target for 1s.`),
+                            usageCost: '232 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '14s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '5m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: {
                             name: 'Chain Lightning',
                             icon: '../assets/icons/pr_divinetouch_custom_c.png',
-                            description: d(`DummydescriptionClericSkill5Type3normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 631 (+6) magical wind damage.
+Deals more damage when the target is stunned.
+Multicast 3 times`),
+                            usageCost: '232 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '14s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -3550,9 +3845,10 @@ The duration is reduced by 50% when applied to a player.`),
                 defaultSkill: {
                     name: 'Light of Recovery',
                     icon: '../assets/icons/cbt_pr_emergentheal_g1.png',
-                    description: d(`DummydefaultskillforClericSkill6.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Restores 1969 HP..`),
+                    usageCost: '338 MP',
+                    castTime: '1s',
+                    cooldown: '2s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -3563,9 +3859,12 @@ The duration is reduced by 50% when applied to a player.`),
                         type1: {
                             name: '(Improved) Miracle Healing',
                             icon: '../assets/icons/pr_emergentheal_custom_a_up.png',
-                            description: d(`DummydescriptionClericSkill6Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Restores 853 HP.
+Increases healing by 7%.
+Multicast 3 times`),
+                            usageCost: '338 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '4s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -3574,13 +3873,14 @@ The duration is reduced by 50% when applied to a player.`),
                         type2: {
                             name: '(Improved) Hand of Healing',
                             icon: '../assets/icons/pr_emergentheal_custom_b_up.png',
-                            description: d(`DummydescriptionClericSkill6Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Restores 2363 HP.`),
+                            usageCost: '338 MP',
+                            castTime: '1s',
+                            cooldown: '2s',
+                            target: 'Area within a Radius of Target 6 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '7m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     },
@@ -3588,9 +3888,12 @@ The duration is reduced by 50% when applied to a player.`),
                         type1: {
                             name: 'Miracle Healing',
                             icon: '../assets/icons/pr_emergentheal_custom_a.png',
-                            description: d(`DummydescriptionClericSkill6Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Restores 711 (+7) HP.
+Increases healing by 5%.
+Multicast 3 times`),
+                            usageCost: '338 MP',
+                            castTime: 'Cast Instantly',
+                            cooldown: '4s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -3599,13 +3902,14 @@ The duration is reduced by 50% when applied to a player.`),
                         type2: {
                             name: 'Hand of Healing',
                             icon: '../assets/icons/pr_emergentheal_custom_b.png',
-                            description: d(`DummydescriptionClericSkill6Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Restores 1969 (+20) HP.`),
+                            usageCost: '338 MP',
+                            castTime: '1s',
+                            cooldown: '2s',
+                            target: 'Area within a Radius of Target 6 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '5m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     }
