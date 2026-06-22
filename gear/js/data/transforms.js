@@ -329,14 +329,14 @@ function getMinionStats(m1Key, m2Key) {
         if (m2.type === 'hyperion') {
             // Synergy: Both are Hyperion
             if (m1.variant === m2.variant) {
-                stats[m1.variant + 'Defense'] += 380;
+                stats[m1.variant + 'Defence'] += 380;
             } else {
                 stats.pveDefence += 190;
                 stats.pvpDefence += 190;
             }
         } else {
             // Solo: Only Main is Hyperion
-            stats[m1.variant + 'Defense'] += 190;
+            stats[m1.variant + 'Defence'] += 190;
         }
     }
 
