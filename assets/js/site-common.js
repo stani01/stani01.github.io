@@ -6,7 +6,7 @@
     'use strict';
 
     // Bump this value on deploys that should force users onto fresh HTML/CSS/JS.
-    var ASSET_CACHE_VERSION = '22.06.2026.05`';
+    var ASSET_CACHE_VERSION = '22.06.2026.06`';
     var ASSET_VERSION_STORAGE_KEY = 'aionToolsAssetVersion';
     var ASSET_VERSION_RELOAD_KEY = 'aionToolsAssetReload_' + ASSET_CACHE_VERSION;
     var currentScript = document.currentScript || null;
