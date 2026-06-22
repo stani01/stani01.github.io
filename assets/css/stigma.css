@@ -1461,6 +1461,41 @@
     padding: 18px;
     max-height: 80vh;
     overflow-y: auto;
+
+    scrollbar-width: thin;
+    scrollbar-color: rgba(190,160,90,.55) rgba(255,255,255,.05);
+}
+
+.stigma-mobile-modal-dialog::-webkit-scrollbar {
+    width: 8px;
+}
+
+.stigma-mobile-modal-dialog::-webkit-scrollbar-track {
+    background: rgba(255,255,255,.05);
+    border-radius: 8px;
+    margin: 6px 0;
+}
+
+.stigma-mobile-modal-dialog::-webkit-scrollbar-thumb {
+    background: rgba(190,160,90,.5);
+    border-radius: 8px;
+}
+
+.stigma-mobile-modal-dialog::-webkit-scrollbar-thumb:hover {
+    background: rgba(214,184,110,.72);
+}
+
+/* Stack linked tooltip cards vertically inside the mobile modal (main on top, linked below). */
+.stigma-mobile-dialog-content .stigma-tooltip-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stigma-mobile-dialog-content .stigma-tooltip-grid .gc-item-tooltip-card,
+.stigma-mobile-dialog-content > .gc-item-tooltip-card {
+    width: 100%;
+    max-width: 100%;
 }
 
 .stigma-mobile-close {
@@ -1528,6 +1563,13 @@
         border-radius: 12px;
         padding: 12px;
         margin-bottom: 12px;
+    }
+
+    .stigma-mobile-skill-card-linked {
+        margin-left: 16px;
+        margin-top: -4px;
+        border-left: 2px solid rgba(190,160,90,.5);
+        background: rgba(190,160,90,0.06);
     }
 
     .stigma-mobile-skill-card-header {

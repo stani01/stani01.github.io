@@ -1277,9 +1277,11 @@
         return html;
     }
 
-    function renderMobileSkillDetailCard(def) {
+    function renderMobileSkillDetailCard(def, isLinked) {
         if (!def) return '';
-        var html = '<div class="stigma-mobile-skill-card">';
+        var cls = 'stigma-mobile-skill-card';
+        if (isLinked) cls += ' stigma-mobile-skill-card-linked';
+        var html = '<div class="' + cls + '">';
         html += '<div class="stigma-mobile-skill-card-header">';
         html += '<img src="' + def.icon + '" class="stigma-mobile-skill-icon" alt="">';
         html += '<div class="stigma-mobile-skill-title">' + escapeHtml(def.name) + '</div>';
@@ -1294,6 +1296,17 @@
         return html;
     }
 
+    function renderMobileSkillDetailEntry(def) {
+        if (!def) return '';
+        var html = renderMobileSkillDetailCard(def, false);
+        if (Array.isArray(def.linkedTooltips)) {
+            def.linkedTooltips.filter(matchesActiveSpirit).forEach(function(linked) {
+                html += renderMobileSkillDetailCard(linked, true);
+            });
+        }
+        return html;
+    }
+
     function renderSkillDetailsForClass(className) {
         var cfg = getStigmaConfig(className);
         if (!cfg) return '<div class="stigma-mobile-empty">No skills available for this class.</div>';
@@ -1305,7 +1318,7 @@
             html += '<div class="stigma-mobile-group">';
             html += '<div class="stigma-mobile-group-label">' + escapeHtml(label) + '</div>';
             defs.forEach(function(def) {
-                html += renderMobileSkillDetailCard(def);
+                html += renderMobileSkillDetailEntry(def);
             });
             html += '</div>';
         });
@@ -1818,7 +1831,7 @@
             if (legendTrigger && !e.target.closest('#stigma-mobile-modal')) {
                 openStigmaTooltipModal(
                     legendTrigger.getAttribute('data-tooltip-html'),
-                    legendTrigger.getAttribute('data-tooltip-title') || legendTrigger.getAttribute('aria-label')
+                    'Skill Details'
                 );
                 return;
             }
