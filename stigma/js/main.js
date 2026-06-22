@@ -652,7 +652,15 @@
         html += '<button type="button" class="daevanion-warning-mini-toggle" aria-expanded="' + (warningExpanded ? 'true' : 'false') + '" aria-label="Show warning" title="Show warning" onclick="StigmaApp.toggleDaevanionWarning()">i</button>';
         html += '<div class="warning-box daevanion-warning-box">';
         html += '<button type="button" class="daevanion-warning-close" aria-label="Hide warning" title="Hide warning" onclick="StigmaApp.toggleDaevanionWarning()">✕</button>';
-        html += '<div class="daevanion-warning-content">🚧 Daevanion tooltip descriptions are under construction. Placeholder data is shown until the page is complete.🚧<br>🚧 Found a discrepancy? Let us know!🚧 Finalized classes so far: <img src="../assets/icons/gladiator.png"></img><img src="../assets/icons/templar.png"></img><img src="../assets/icons/assassin.png"></img><img src="../assets/icons/ranger.png"></img><img src="../assets/icons/sorcerer.png"></img><img src="../assets/icons/spiritmaster.png"></img></div>';
+        html += '<div class="daevanion-warning-content">🚧Daevanion tooltip descriptions are under construction. Placeholder data is shown until the page is complete.🚧<br>🚧Found a discrepancy? Let us know!🚧'
+        html += '<br>🚧Finalized classes so far: <img src="../assets/icons/gladiator.png"></img>'
+        html += '<img src="../assets/icons/templar.png"></img>'
+        html += '<img src="../assets/icons/assassin.png"></img>'
+        html += '<img src="../assets/icons/ranger.png"></img>'
+        html += '<img src="../assets/icons/sorcerer.png"></img>'
+        html += '<img src="../assets/icons/spiritmaster.png"></img>'
+        html += '<img src="../assets/icons/cleric.png"></img>'
+        html += '🚧</div>';
         html += '</div>';
         html += '</div>';
         html += '<div class="stigma-panel daevanion-panel">';
