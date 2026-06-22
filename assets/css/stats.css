@@ -138,11 +138,6 @@ h1 {
     padding: 10px 0;
 }
 
-.result-val.error {
-    color: #ff6b6b;
-    font-size: 1.1em;
-}
-
 /* Result container (label + value) */
 .result-container {
     display: flex;

@@ -269,7 +269,7 @@
         });
     }
 
-    function formatTooltipDescription(value, autoSentenceBreak) {
+    function formatTooltipDescription(value) {
         var text = formatTooltipInlineValue(value || '');
         return text.replace(/\n/g, '<br>');
     }
@@ -333,9 +333,8 @@
         return html;
     }
 
-    function renderStigmaTooltipCard(def, opts) {
+    function renderStigmaTooltipCard(def) {
         if (!def) return '';
-        var autoSentenceBreak = !opts || opts.autoSentenceBreak !== false;
         var aoeType = def.areaIcon;
         var aoeText = def.area;
         var showAoe = (aoeType !== undefined || aoeText !== undefined);
@@ -377,7 +376,7 @@
         html += '</tr>';
         if (def.description) {
             html += '<tr class="gc-item-tooltip-table-row-desc">';
-            html += '<td class="gc-item-tooltip-table-cell-desc" colspan="3">' + formatTooltipDescription(def.description, autoSentenceBreak) + '</td>';
+            html += '<td class="gc-item-tooltip-table-cell-desc" colspan="3">' + formatTooltipDescription(def.description) + '</td>';
             html += '</tr>';
         }
         html += '</table>';
@@ -385,14 +384,14 @@
         return html;
     }
 
-    function buildStigmaTooltipHtml(def, opts) {
+    function buildStigmaTooltipHtml(def) {
         if (!def) return '';
         var entries = [def];
         if (Array.isArray(def.linkedTooltips)) {
             entries = entries.concat(def.linkedTooltips.filter(matchesActiveSpirit));
         }
-        if (entries.length <= 1) return renderStigmaTooltipCard(entries[0], opts);
-        return '<div class="stigma-tooltip-grid">' + entries.map(function(item) { return renderStigmaTooltipCard(item, opts); }).join('') + '</div>';
+        if (entries.length <= 1) return renderStigmaTooltipCard(entries[0]);
+        return '<div class="stigma-tooltip-grid">' + entries.map(function(item) { return renderStigmaTooltipCard(item); }).join('') + '</div>';
     }
 
     function buildActionTooltipHtml(title, description) {
@@ -561,7 +560,7 @@
         if (isSelected) cls += ' is-selected';
 
         var title = def ? (def.name + ' | ' + (def.cooldown || '-') + ' | ' + (def.description || '')) : 'Locked';
-        var tooltipHtml = def ? buildStigmaTooltipHtml(def, { autoSentenceBreak: false }) : buildActionTooltipHtml('Locked', 'This slot is locked.');
+        var tooltipHtml = def ? buildStigmaTooltipHtml(def) : buildActionTooltipHtml('Locked', 'This slot is locked.');
         var icon = def ? def.icon : (window.DAEVANION_LOCKED_ICON || '../assets/icons/locked_daevanion.png');
 
         var html = '<button type="button" class="' + cls + '" aria-label="' + escapeHtml(title) + '" data-tooltip-title="' + escapeHtml(def ? def.name : 'Locked') + '" data-tooltip-html="' + escapeHtml(tooltipHtml) + '"';
@@ -584,7 +583,7 @@
         }
 
         var def = selected.def;
-        var tooltipHtml = buildStigmaTooltipHtml(def, { autoSentenceBreak: false });
+        var tooltipHtml = buildStigmaTooltipHtml(def);
         var title = def.name + ' | ' + (def.cooldown || '-') + ' | ' + (def.description || '');
         var html = '<div class="daevanion-used-skill gc-item-tooltip-trigger" aria-label="' + escapeHtml(title) + '" data-tooltip-title="' + escapeHtml(def.name) + '" data-tooltip-html="' + escapeHtml(tooltipHtml) + '">';
         html += '<span class="daevanion-used-icon-wrap">';
@@ -676,10 +675,13 @@
         html += '<button type="button" class="stigma-preset-btn stigma-share-btn daevanion-share-btn" onclick="StigmaApp.shareCurrentDaevanionBuild()" aria-label="Share current daevanion build" title="Share current daevanion build">';
         html += '<span class="stigma-share-label">Share Build 🔗</span>';
         html += '</button>';
-        html += renderSpiritSelectorControls();
         html += '</div>';
         html += '</div>';
         html += '<button class="gc-reset-btn" onclick="StigmaApp.resetClassDaevanion()" aria-label="Reset current class daevanion selection" title="Reset current class daevanion selection" data-tooltip-html="' + escapeHtml(buildActionTooltipHtml('Reset Daevanion', 'Resets selected daevanion skills for the current class.')) + '">↺</button>';
+        var daevanionSpiritControls = renderSpiritSelectorControls();
+        if (daevanionSpiritControls) {
+            html += '<div class="stigma-spirit-selector-row">' + daevanionSpiritControls + '</div>';
+        }
         html += '</div>';
         html += '<div class="daevanion-table-wrap">';
         html += '<table class="daevanion-table">';
@@ -1398,12 +1400,12 @@
         html += '<button type="button" class="stigma-preset-btn stigma-share-btn" onclick="StigmaApp.shareCurrentBuild()" aria-label="Share current setup" title="Share current setup">';
         html += '<span class="stigma-share-label">Share Build 🔗</span>';
         html += '</button>';
+        html += '</div>';
+        html += '<button class="gc-reset-btn" onclick="StigmaApp.resetClassStigmas()" aria-label="Reset current class stigmas" title="Reset current class stigmas" data-tooltip-html="' + escapeHtml(buildActionTooltipHtml('Reset Build', 'Clears the current class stigma selection and restores an empty board.')) + '">↺</button>';
         var spiritControls = renderSpiritSelectorControls();
         if (spiritControls) {
             html += '<div class="stigma-spirit-selector-row">' + spiritControls + '</div>';
         }
-        html += '</div>';
-        html += '<button class="gc-reset-btn" onclick="StigmaApp.resetClassStigmas()" aria-label="Reset current class stigmas" title="Reset current class stigmas" data-tooltip-html="' + escapeHtml(buildActionTooltipHtml('Reset Build', 'Clears the current class stigma selection and restores an empty board.')) + '">↺</button>';
         html += '</div>';
 
         html += '<div class="stigma-two-col">';
@@ -1436,6 +1438,71 @@
         html += '</div>';
         
         el.innerHTML = html;
+    }
+
+    function copyTextFallback(text) {
+        var ta;
+        try {
+            ta = document.createElement('textarea');
+            ta.style.position = 'fixed';
+            ta.style.top = 0;
+            ta.style.left = 0;
+            ta.style.width = '2em';
+            ta.style.height = '2em';
+            ta.style.padding = 0;
+            ta.style.border = 'none';
+            ta.style.outline = 'none';
+            ta.style.boxShadow = 'none';
+            ta.style.background = 'transparent';
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            var ok = document.execCommand('copy');
+            document.body.removeChild(ta);
+            return !!ok;
+        } catch (e) {
+            try { if (ta && ta.parentNode) ta.parentNode.removeChild(ta); } catch (e2) {}
+            return false;
+        }
+    }
+
+    function flashShareButton(btn) {
+        if (!btn) return;
+        btn.classList.remove('copied');
+        // force reflow to restart animation
+        btn.offsetWidth;
+        btn.classList.add('copied');
+        setTimeout(function() {
+            btn.classList.remove('copied');
+        }, 1500);
+    }
+
+    function copyShareUrl(shareUrl, btn) {
+        function onSuccess() {
+            if (typeof showShareToast === 'function') showShareToast('✓ Link copied to clipboard!');
+            flashShareButton(btn);
+            var labelEl = btn ? btn.querySelector('.stigma-share-label') : null;
+            var original = labelEl ? labelEl.textContent : null;
+            if (labelEl) {
+                labelEl.textContent = 'Link copied ✓';
+                setTimeout(function() {
+                    if (labelEl) labelEl.textContent = original;
+                }, 1500);
+            }
+        }
+        function onFailure() {
+            if (typeof showShareToast === 'function') showShareToast('Could not copy link', true);
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(shareUrl).then(onSuccess).catch(function() {
+                if (copyTextFallback(shareUrl)) onSuccess();
+                else onFailure();
+            });
+        } else {
+            if (copyTextFallback(shareUrl)) onSuccess();
+            else onFailure();
+        }
     }
 
     window.StigmaApp = {
@@ -1513,91 +1580,8 @@
             var baseUrl = window.location.href.split('?')[0];
             var shareUrl = baseUrl + '?stigma=' + encodeURIComponent(code);
 
-            function fallbackCopy(text) {
-                try {
-                    var ta = document.createElement('textarea');
-                    ta.style.position = 'fixed';
-                    ta.style.top = 0;
-                    ta.style.left = 0;
-                    ta.style.width = '2em';
-                    ta.style.height = '2em';
-                    ta.style.padding = 0;
-                    ta.style.border = 'none';
-                    ta.style.outline = 'none';
-                    ta.style.boxShadow = 'none';
-                    ta.style.background = 'transparent';
-                    ta.value = text;
-                    document.body.appendChild(ta);
-                    ta.select();
-                    var ok = document.execCommand('copy');
-                    document.body.removeChild(ta);
-                    return !!ok;
-                } catch (e) {
-                    try { if (ta && ta.parentNode) ta.parentNode.removeChild(ta); } catch (e2) {}
-                    return false;
-                }
-            }
-
             var btn = document.querySelector('.stigma-preset-actions .stigma-share-btn') || document.querySelector('.stigma-share-btn');
-
-            function animateButton() {
-                if (!btn) return;
-                btn.classList.remove('copied');
-                // force reflow to restart animation
-                // eslint-disable-next-line no-unused-expressions
-                btn.offsetWidth;
-                btn.classList.add('copied');
-                setTimeout(function() {
-                    btn.classList.remove('copied');
-                }, 1500);
-            }
-
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(shareUrl).then(function() {
-                    if (typeof showShareToast === 'function') showShareToast('✓ Link copied to clipboard!');
-                    animateButton();
-                    var labelEl = btn ? btn.querySelector('.stigma-share-label') : null;
-                    var original = labelEl ? labelEl.textContent : null;
-                    if (labelEl) {
-                        labelEl.textContent = 'Link copied ✓';
-                        setTimeout(function() {
-                            if (labelEl) labelEl.textContent = original;
-                        }, 1500);
-                    }
-                }).catch(function() {
-                    var ok = fallbackCopy(shareUrl);
-                    if (ok) {
-                        if (typeof showShareToast === 'function') showShareToast('✓ Link copied to clipboard!');
-                        animateButton();
-                        var labelEl = btn ? btn.querySelector('.stigma-share-label') : null;
-                        var original = labelEl ? labelEl.textContent : null;
-                        if (labelEl) {
-                            labelEl.textContent = 'Link copied ✓';
-                            setTimeout(function() {
-                                if (labelEl) labelEl.textContent = original;
-                            }, 1500);
-                        }
-                    } else {
-                        if (typeof showShareToast === 'function') showShareToast('Could not copy link', true);
-                    }
-                });
-            } else {
-                var ok = fallbackCopy(shareUrl);
-                if (ok) {
-                    if (typeof showShareToast === 'function') showShareToast('✓ Link copied to clipboard!');
-                    animateButton();
-                    var labelEl = btn ? btn.querySelector('.stigma-share-label') : null;
-                    var original = labelEl ? labelEl.textContent : null;
-                    if (labelEl) {
-                        labelEl.textContent = 'Link copied ✓';
-                        setTimeout(function() {
-                            if (labelEl) labelEl.textContent = original;
-                        }, 1500);
-                    }
-                } else {
-                    if (typeof showShareToast === 'function') showShareToast('Could not copy link', true);
-                }
-            }
+            copyShareUrl(shareUrl, btn);
         },
 
         openSkillLegendMobile: function() {
@@ -1694,65 +1678,8 @@
             var baseUrl = window.location.href.split('?')[0];
             var shareUrl = baseUrl + '?daevanion=' + encodeURIComponent(code);
 
-            function fallbackCopy(text) {
-                try {
-                    var ta = document.createElement('textarea');
-                    ta.style.position = 'fixed';
-                    ta.style.top = 0;
-                    ta.style.left = 0;
-                    ta.style.width = '2em';
-                    ta.style.height = '2em';
-                    ta.style.padding = 0;
-                    ta.style.border = 'none';
-                    ta.style.outline = 'none';
-                    ta.style.boxShadow = 'none';
-                    ta.style.background = 'transparent';
-                    ta.value = text;
-                    document.body.appendChild(ta);
-                    ta.select();
-                    var ok = document.execCommand('copy');
-                    document.body.removeChild(ta);
-                    return !!ok;
-                } catch (e) {
-                    try { if (ta && ta.parentNode) ta.parentNode.removeChild(ta); } catch (e2) {}
-                    return false;
-                }
-            }
-
             var btn = document.querySelector('.daevanion-builder-head .daevanion-share-btn') || document.querySelector('.daevanion-share-btn');
-
-            function animateButton() {
-                if (!btn) return;
-                btn.classList.remove('copied');
-                btn.offsetWidth;
-                btn.classList.add('copied');
-                setTimeout(function() {
-                    btn.classList.remove('copied');
-                }, 1500);
-            }
-
-            function onCopySuccess() {
-                if (typeof showShareToast === 'function') showShareToast('✓ Link copied to clipboard!');
-                animateButton();
-                var labelEl = btn ? btn.querySelector('.stigma-share-label') : null;
-                var original = labelEl ? labelEl.textContent : null;
-                if (labelEl) {
-                    labelEl.textContent = 'Link copied ✓';
-                    setTimeout(function() {
-                        if (labelEl) labelEl.textContent = original;
-                    }, 1500);
-                }
-            }
-
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(shareUrl).then(onCopySuccess).catch(function() {
-                    if (fallbackCopy(shareUrl)) onCopySuccess();
-                    else if (typeof showShareToast === 'function') showShareToast('Could not copy link', true);
-                });
-            } else {
-                if (fallbackCopy(shareUrl)) onCopySuccess();
-                else if (typeof showShareToast === 'function') showShareToast('Could not copy link', true);
-            }
+            copyShareUrl(shareUrl, btn);
         },
 
         applyVisionLegendFirstCombo: function(goldKey, blueAKey, blueBKey) {

@@ -261,6 +261,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    flex-wrap: wrap;
     position: relative;
     min-height: 28px;
     margin-bottom: 12px;
@@ -272,6 +273,13 @@
     align-items: center;
     gap: 8px;
     margin-right: auto;
+}
+
+.daevanion-builder-head .stigma-spirit-selector-row {
+    flex-basis: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: 6px;
 }
 
 .stigma-share-spirit-stack {
@@ -360,7 +368,8 @@
 }
 
 .daevanion-builder-head .gc-reset-btn {
-    right: 4px;
+    position: static;
+    transform: none;
     margin: 0;
 }
 
@@ -376,6 +385,7 @@
 }
 
 .daevanion-panel .daevanion-builder-head .stigma-preset-actions,
+.daevanion-panel .daevanion-builder-head .stigma-spirit-selector-wrap,
 .daevanion-panel .daevanion-builder-head .gc-reset-btn {
     pointer-events: auto;
 }
@@ -763,6 +773,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    flex-wrap: wrap;
     position: relative;
     min-height: 28px;
     margin-bottom: 12px;
@@ -836,7 +847,8 @@
 }
 
 #stigma-builder .stigma-builder-head .gc-reset-btn {
-    right: 4px;
+    position: static;
+    transform: none;
     margin: 0;
 }
 
@@ -852,6 +864,7 @@
 }
 
 #stigma-builder .stigma-panel > .stigma-builder-head .stigma-preset-actions,
+#stigma-builder .stigma-panel > .stigma-builder-head .stigma-spirit-selector-wrap,
 #stigma-builder .stigma-panel > .stigma-builder-head .gc-reset-btn {
     pointer-events: auto;
 }

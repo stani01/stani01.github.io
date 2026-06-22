@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f0c29">
+    <meta name="robots" content="noindex">
+    <title>Redirecting… | Atreia Hub</title>
+    <link rel="shortcut icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="icon" href="https://assets.playnccdn.com/common/aion.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <script>
+        // Send any unknown path back to the homepage immediately.
+        (function () {
+            var target = '/';
+            if (window.location.pathname !== target) {
+                window.location.replace(target);
+            }
+        })();
+    </script>
+    <noscript>
+        <meta http-equiv="refresh" content="0; url=/">
+    </noscript>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .redirect-card {
+            padding: 24px;
+        }
+        .redirect-card h1 {
+            margin: 0 0 8px;
+        }
+        .redirect-card a {
+            color: #f5d484;
+        }
+    </style>
+</head>
+<body class="page-index">
+    <div class="redirect-card">
+        <h1>Page not found</h1>
+        <p>Redirecting you to the <a href="/">Atreia Hub homepage</a>…</p>
+    </div>
+</body>
+</html>
