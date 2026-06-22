@@ -31,7 +31,7 @@ var FS_TIER = {
 var FS_DEF = {
     'physical-plate':   { high: [2229, 1911], low: [1620, 1387] },
     'magical-plate':    { high: [2229, 1911], low: [1620, 1387] },
-    'physical-chain':   { high: [2166, 1676], low: [1574, 1435] },
+    'physical-chain':   { high: [2166, 1974], low: [1574, 1435] },
     'magical-chain':    { high: [2101, 2038], low: [1527, 1481] },
     'physical-leather': { high: [2038, 2101], low: [1481, 1527] },
     'magical-leather':  { high: [1974, 2166], low: [1435, 1574] },
