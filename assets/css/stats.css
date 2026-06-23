@@ -149,6 +149,182 @@ h1 {
     background: rgba(255, 199, 120, 0.08);
 }
 
+/* ------------------------------------------------------------------ */
+/* Skill hover tooltip (mirrors the daevanion gc-item-tooltip card)   */
+/* ------------------------------------------------------------------ */
+.gc-global-item-tooltip {
+    position: fixed;
+    z-index: 12050;
+    width: auto;
+    max-width: min(96vw, 760px);
+    pointer-events: none;
+    display: none;
+    opacity: 0;
+    transform: translateY(3px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.gc-global-item-tooltip-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.gc-item-tooltip-card {
+    background: linear-gradient(180deg, rgba(17, 18, 24, 0.98) 0%, rgba(10, 11, 16, 0.98) 100%);
+    border: 1px solid rgba(218, 184, 102, 0.42);
+    border-radius: 7px;
+    padding: 10px;
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.55);
+    width: 360px;
+    max-width: min(92vw, 400px);
+}
+
+.gc-item-tooltip-item-icons {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+}
+
+.gc-item-tooltip-item-icon-back,
+.gc-item-tooltip-item-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 42px;
+    height: 42px;
+    transform: translate(-50%, -50%);
+}
+
+.gc-item-tooltip-item-icon-back {
+    opacity: 0.42;
+}
+
+.gc-item-tooltip-item-icon {
+    object-fit: contain;
+}
+
+.gc-item-tooltip-meta-line {
+    color: rgba(232, 213, 167, 0.88);
+    font-size: 0.73em;
+    line-height: 1.35;
+}
+
+.gc-item-tooltip-meta-line + .gc-item-tooltip-meta-line {
+    margin-top: 3px;
+    padding-top: 3px;
+    border-top: 1px solid rgba(175, 137, 66, 0.18);
+}
+
+.gc-item-tooltip-number {
+    color: #f7e18b;
+}
+
+.gc-item-tooltip-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+.gc-item-tooltip-table-cell-title {
+    padding-bottom: 10px;
+    color: #f4e1a0;
+    font-size: 0.88em;
+    font-weight: 700;
+    text-align: left;
+}
+
+.gc-item-tooltip-table-cell-icon,
+.gc-item-tooltip-table-cell-meta {
+    vertical-align: top;
+    padding: 4px 4px 0 4px;
+}
+
+.gc-item-tooltip-table-cell-area {
+    vertical-align: top;
+    padding: 4px 4px 0 4px;
+    width: 145px;
+    text-align: center;
+    padding-left: 10px;
+    border-left: 1px solid rgba(175, 137, 66, 0.18);
+}
+
+.gc-item-tooltip-aoe-title {
+    font-size: 11px;
+    color: #e6d8b2;
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.gc-item-tooltip-aoe-icon {
+    display: block;
+    margin: 0 auto;
+}
+
+.gc-item-tooltip-aoe-meters {
+    font-size: 11px;
+    color: #ccc;
+    margin-top: 2px;
+}
+
+.gc-item-tooltip-table-cell-icon {
+    width: 55px;
+    min-width: 55px;
+    max-width: 55px;
+    text-align: center;
+    padding-right: 0;
+    overflow: hidden;
+}
+
+.gc-item-tooltip-table-cell-meta {
+    width: auto;
+}
+
+.gc-item-tooltip-table-cell-desc {
+    padding-top: 10px;
+    position: relative;
+    color: rgba(232, 213, 167, 0.96);
+    font-size: 0.82em;
+    line-height: 1.5;
+}
+
+.gc-item-tooltip-table-cell-desc::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 4px;
+    border-top: 1px solid rgba(175, 137, 66, 0.18);
+}
+
+.gc-item-tooltip-growth {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0 1px;
+    padding: 0 5px;
+    border: 1px solid rgba(116, 220, 145, 0.18);
+    border-radius: 6px;
+    background: rgba(68, 130, 86, 0.12);
+    color: #bfeac8;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.gc-item-tooltip-growth::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    background: url('../icons/comp_greater.svg') center / contain no-repeat;
+    opacity: 0.8;
+}
+
+.gc-item-tooltip-growth.is-reduction::before {
+    transform: rotate(180deg);
+}
+
 .odian-field {
     display: flex;
     flex-direction: column;

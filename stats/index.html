@@ -219,6 +219,17 @@ const ODIAN_CLASS_DATA = {
 //   `extraStats`: array of strings for fixed bonuses that do NOT scale
 //      (e.g. ['+1500 Weapon Attack']), shown as chips.
 //   Legacy single-stat buffs may instead use `stat` + `base` + `perLevel` (still supported).
+// Any skill may also carry an optional `tip` object for the hover tooltip:
+//   { description, cooldown, castTime, target, usageDistance, usageCost, pvpDuration,
+//     area, areaIcon }.
+//   `areaIcon` is one of 'targetConic' | 'targetCircle' | 'targetSingle' | 'targetRect'
+//   and `area` is the range text (e.g. '8m'); together they render the
+//   "Area of application" cell like the daevanion tooltip.
+//   The `description` may use tokens that the tool fills in dynamically so the
+//   "+X per level" growth always matches the calculator:
+//     {base} {perLevel}        -> main hit's +0 value / enchant per level
+//     {dotBase} {dotPerLevel}  -> DoT (or first extra) value / enchant per level
+//   Skills without a `tip` show a clearly-marked placeholder tooltip for now.
 const DUMMY_ODIAN_ICON = '../assets/icons/cbt_fi_abysalrage_g1.png';
 const ODIAN_SKILLS = {
   gladiator: [
@@ -250,7 +261,14 @@ const ODIAN_SKILLS = {
     { name: 'dummyTemp12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
   ],
   assassin: [
-    { name: 'Swift Edge', icon: DUMMY_ODIAN_ICON, base: 1072, type: 'damage' },
+    { name: 'Swift Edge', icon: "../assets/icons/cbt_sc_swiftedge_g1.png", base: 1072, type: 'damage', 
+    tip: {description: 'Deals {base} (+{perLevel} per level) physical damage.',usageCost: '0 MP',
+                    cooldown: '5s',
+                    castTime: 'Cast Instantly',
+                    target: 'Selected Target',
+                    usageDistance: '1m',
+                    area: 'Single Target',
+                    areaIcon: 'targetSingle' } },
     { name: 'Fang Strike', icon: DUMMY_ODIAN_ICON, base: 939, type: 'damage' },
     { name: 'Ambush Attack', icon: DUMMY_ODIAN_ICON, base: 1010, type: 'damage', dot: 2195 },
     { name: 'Assassination', icon: DUMMY_ODIAN_ICON, base: 725, type: 'damage', dot: 1760 },
@@ -473,11 +491,11 @@ function renderOdianSkills() {
       const index = tier.start + offset;
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = 'odian-skill-btn'
+      button.className = 'odian-skill-btn gc-item-tooltip-trigger'
         + (index === odianSelectedSkillIndex ? ' selected' : '')
         + (skill.type === 'buff' ? ' is-buff' : '');
-      button.title = skill.name + (skill.type === 'buff' ? ' (Buff)' : '');
       button.setAttribute('aria-label', skill.name);
+      button.setAttribute('data-tooltip-html', buildOdianTooltipHtml(skill));
       button.innerHTML = '<img src="' + skill.icon + '" alt="' + skill.name + '">';
       button.onclick = function() { selectOdianSkill(index); };
       row.appendChild(button);
@@ -874,6 +892,216 @@ function formatOdianNumber(value) {
   return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
 
+/* ------------------------------------------------------------------ */
+/* Odian skill tooltip (mirrors the daevanion gc-item-tooltip hover)  */
+/* ------------------------------------------------------------------ */
+
+function escapeOdianHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function highlightOdianTooltipNumbers(text) {
+  return String(text || '').replace(/[0-9]+(?:\.[0-9]+)?/g, function(match, offset, source) {
+    if (offset >= 2 && source[offset - 2] === '&' && source[offset - 1] === '#') return match;
+    return '<span class="gc-item-tooltip-number">' + match + '</span>';
+  });
+}
+
+function decorateOdianTooltipGrowth(text) {
+  return String(text || '').replace(/\(([+-])\s*[^)\n]+\)/gi, function(match, sign) {
+    if (/per level/i.test(match)) return match;
+    var classes = 'gc-item-tooltip-growth';
+    if (sign === '-') classes += ' is-reduction';
+    var cleanText = match.replace(/[()]/g, '');
+    return '<span class="' + classes + '">' + cleanText + '</span>';
+  });
+}
+
+function formatOdianTooltipValue(value) {
+  return highlightOdianTooltipNumbers(decorateOdianTooltipGrowth(escapeOdianHtml(value || '')));
+}
+
+function formatOdianTooltipDescription(value) {
+  return formatOdianTooltipValue(value || '').replace(/\n/g, '<br>');
+}
+
+// Enchant-per-level for a damage component's +0 base, using the current class KP
+// (the same formula the calculator uses: ROUNDUP(base/(kp+0.02) * 0.02) * kp).
+function getOdianComponentPerLevel(base) {
+  if (typeof base !== 'number') return null;
+  const classData = ODIAN_CLASS_DATA[odianSelectedClass] || ODIAN_CLASS_DATA.gladiator;
+  const kpMultiplier = classData.kp / 100;
+  return projectOdianDamage(base, 0, 1, kpMultiplier).enchantPerLevel;
+}
+
+// Replace tooltip template tokens with values computed by the tool, so the
+// "+X per level" growth always matches the calculator instead of being hardcoded:
+//   {base} / {perLevel}        -> main hit's +0 value / enchant per level
+//   {dotBase} / {dotPerLevel}  -> the skill's DoT (or first extra) value / per level
+function applyOdianTooltipTokens(text, skill) {
+  if (!text) return text;
+  const mainBase = (typeof skill.base === 'number') ? skill.base : null;
+  const mainPer = getOdianComponentPerLevel(mainBase);
+
+  // First secondary component: legacy `dot`, else first `extras` entry.
+  let secBase = null;
+  if (typeof skill.dot === 'number') secBase = skill.dot;
+  else if (Array.isArray(skill.extras) && skill.extras.length && typeof skill.extras[0].base === 'number') secBase = skill.extras[0].base;
+  const secPer = getOdianComponentPerLevel(secBase);
+
+  return text
+    .replace(/\{base\}/g, mainBase !== null ? formatOdianNumber(mainBase) : '')
+    .replace(/\{perLevel\}/g, mainPer !== null ? formatOdianNumber(mainPer) : '')
+    .replace(/\{dotBase\}/g, secBase !== null ? formatOdianNumber(secBase) : '')
+    .replace(/\{dotPerLevel\}/g, secPer !== null ? formatOdianNumber(secPer) : '');
+}
+
+// Build the hover tooltip card for an Odian skill. Skills that don't yet have
+// real tooltip data fall back to clearly-marked dummy/placeholder content.
+function buildOdianTooltipHtml(skill) {
+  if (!skill) return '';
+  const tip = skill.tip || {};
+  const hasRealData = !!(skill.tip);
+
+  const description = applyOdianTooltipTokens(
+    tip.description || (hasRealData ? '' : 'Placeholder tooltip — real skill details coming soon.'),
+    skill
+  );
+
+  // Optional area-of-application cell (same icons as the daevanion tooltip).
+  const aoeIconMap = {
+    'targetConic': '../assets/icons/targetConic.png',
+    'targetCircle': '../assets/icons/targetCircle.png',
+    'targetSingle': '../assets/icons/targetSingle.png',
+    'targetRect': '../assets/icons/targetRect.png'
+  };
+  const showAoe = (tip.areaIcon !== undefined || tip.area !== undefined);
+  const aoeIcon = tip.areaIcon ? (aoeIconMap[tip.areaIcon] || aoeIconMap['targetConic']) : '';
+
+  let html = '<div class="gc-item-tooltip-card">';
+  html += '<table class="gc-item-tooltip-table">';
+  html += '<tr class="gc-item-tooltip-table-row-title">';
+  html += '<td class="gc-item-tooltip-table-cell-title" colspan="3">' + escapeOdianHtml(skill.name || '') + (skill.type === 'buff' ? ' (Buff)' : '') + '</td>';
+  html += '</tr>';
+  html += '<tr class="gc-item-tooltip-table-row-meta">';
+  html += '<td class="gc-item-tooltip-table-cell-icon">';
+  html += '<div class="gc-item-tooltip-item-icons">';
+  html += '<img src="../assets/icons/icon_frame_2.png" class="gc-item-tooltip-item-icon-back" alt="">';
+  html += '<img src="' + escapeOdianHtml(skill.icon || '') + '" class="gc-item-tooltip-item-icon" alt="">';
+  html += '</div>';
+  html += '</td>';
+  html += '<td class="gc-item-tooltip-table-cell-meta"' + (showAoe ? '' : ' colspan="2"') + '>';
+  if (tip.target) html += '<div class="gc-item-tooltip-meta-line">Target: ' + formatOdianTooltipValue(tip.target) + '</div>';
+  if (tip.usageDistance) html += '<div class="gc-item-tooltip-meta-line">Usage distance: ' + formatOdianTooltipValue(tip.usageDistance) + '</div>';
+  if (tip.usageCost) html += '<div class="gc-item-tooltip-meta-line">Usage Cost: ' + formatOdianTooltipValue(tip.usageCost) + '</div>';
+  if (tip.cooldown) html += '<div class="gc-item-tooltip-meta-line">Cooldown: ' + formatOdianTooltipValue(tip.cooldown) + '</div>';
+  html += '<div class="gc-item-tooltip-meta-line">Cast Time: ' + formatOdianTooltipValue(tip.castTime || 'Cast Instantly') + '</div>';
+  if (tip.pvpDuration) html += '<div class="gc-item-tooltip-meta-line">PvP Duration: ' + formatOdianTooltipValue(tip.pvpDuration) + '</div>';
+  html += '</td>';
+  if (showAoe) {
+    html += '<td class="gc-item-tooltip-table-cell-area">';
+    html += '<div class="gc-item-tooltip-aoe-title">Area of application</div>';
+    if (aoeIcon) html += '<img class="gc-item-tooltip-aoe-icon" src="' + aoeIcon + '" alt="Area of application">';
+    if (tip.area) html += '<div class="gc-item-tooltip-aoe-meters">' + formatOdianTooltipValue(tip.area) + '</div>';
+    html += '</td>';
+  }
+  html += '</tr>';
+  if (description) {
+    html += '<tr class="gc-item-tooltip-table-row-desc">';
+    html += '<td class="gc-item-tooltip-table-cell-desc" colspan="3">' + formatOdianTooltipDescription(description) + '</td>';
+    html += '</tr>';
+  }
+  html += '</table>';
+  html += '</div>';
+  return html;
+}
+
+function initOdianTooltips() {
+  let tooltipEl = document.getElementById('gc-global-item-tooltip');
+  if (!tooltipEl) {
+    tooltipEl = document.createElement('div');
+    tooltipEl.id = 'gc-global-item-tooltip';
+    tooltipEl.className = 'gc-global-item-tooltip';
+    document.body.appendChild(tooltipEl);
+  }
+  let activeTrigger = null;
+
+  function canHover() {
+    return !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+  }
+
+  function position(trigger) {
+    if (!trigger || tooltipEl.style.display !== 'block') return;
+    const margin = 8;
+    const rect = trigger.getBoundingClientRect();
+    const tipW = tooltipEl.offsetWidth;
+    const tipH = tooltipEl.offsetHeight;
+    let top = rect.top - tipH - margin;
+    if (top < margin) top = rect.bottom + margin;
+    let left = rect.left + (rect.width / 2) - (tipW / 2);
+    const minLeft = margin;
+    const maxLeft = window.innerWidth - tipW - margin;
+    if (left < minLeft) left = minLeft;
+    if (left > maxLeft) left = Math.max(minLeft, maxLeft);
+    tooltipEl.style.top = top + 'px';
+    tooltipEl.style.left = left + 'px';
+  }
+
+  function show(trigger) {
+    const html = trigger.getAttribute('data-tooltip-html');
+    if (!html) return;
+    activeTrigger = trigger;
+    tooltipEl.innerHTML = html;
+    tooltipEl.style.display = 'block';
+    tooltipEl.classList.add('gc-global-item-tooltip-visible');
+    position(trigger);
+  }
+
+  function hide() {
+    activeTrigger = null;
+    tooltipEl.classList.remove('gc-global-item-tooltip-visible');
+    tooltipEl.style.display = 'none';
+    tooltipEl.innerHTML = '';
+  }
+
+  document.addEventListener('mouseover', function(e) {
+    if (!canHover()) return;
+    const trigger = e.target.closest('.gc-item-tooltip-trigger[data-tooltip-html]');
+    if (!trigger) return;
+    if (activeTrigger === trigger) { position(trigger); return; }
+    show(trigger);
+  });
+
+  document.addEventListener('mouseout', function(e) {
+    if (!activeTrigger) return;
+    const leftTrigger = e.target.closest('.gc-item-tooltip-trigger[data-tooltip-html]');
+    if (!leftTrigger || leftTrigger !== activeTrigger) return;
+    if (e.relatedTarget && activeTrigger.contains(e.relatedTarget)) return;
+    hide();
+  });
+
+  document.addEventListener('focusin', function(e) {
+    if (!canHover()) return;
+    const trigger = e.target.closest('.gc-item-tooltip-trigger[data-tooltip-html]');
+    if (trigger) show(trigger);
+  });
+
+  document.addEventListener('focusout', function(e) {
+    const trigger = e.target.closest('.gc-item-tooltip-trigger[data-tooltip-html]');
+    if (!trigger) return;
+    if (e.relatedTarget && trigger.contains(e.relatedTarget)) return;
+    hide();
+  });
+
+  window.addEventListener('scroll', hide, true);
+  window.addEventListener('resize', function() { if (activeTrigger) position(activeTrigger); });
+}
+
 // Collapse/expand the "work in progress" notice above the Odian card.
 function toggleOdianWarning() {
   const wrap = document.getElementById('odianWarningWrap');
@@ -1038,6 +1266,7 @@ function loadSession() {
       window.addEventListener('DOMContentLoaded', function() {
         initOdianEnchantCalculator();
         initOdianWarning();
+        initOdianTooltips();
         loadSession();
         calculate();
       });
