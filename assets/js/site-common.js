@@ -6,7 +6,7 @@
     'use strict';
 
     // Bump this value on deploys that should force users onto fresh HTML/CSS/JS.
-    var ASSET_CACHE_VERSION = '23.06.2026.02`';
+    var ASSET_CACHE_VERSION = '23.06.2026.03`';
     var ASSET_VERSION_STORAGE_KEY = 'aionToolsAssetVersion';
     var ASSET_VERSION_RELOAD_KEY = 'aionToolsAssetReload_' + ASSET_CACHE_VERSION;
     var currentScript = document.currentScript || null;
@@ -165,8 +165,9 @@
         }
         html += '</div>';
         html += '<div class="copyright">';
-        html += '\u00A9 <span id="copyright-year"></span> <a href="/stan/"><strong>15TAN</strong></a> - Atreia Hub<br>';
-        html += 'Tools and calculators for AION Retail 8.x';
+        html += '\u00A9 <span id="copyright-year"></span> <a href="/stan/" target="_blank" rel="noopener"><strong>15TAN</strong></a> - Atreia Hub<br>';
+        html += 'Tools and calculators for AION Retail 8.x<br>';
+        html += 'Special thanks to <a href="https://myaion.eu/Player/1692" target="_blank" rel="noopener"><strong>Horri</strong></a> for inspiration and support behind these tools'
         html += '</div>';
         html += '<div class="disclaimer">';
         html += 'This website is a non-commercial fan project. AION and all related images/assets are trademarks or registered trademarks of NCSoft Corporation and Gameforge. All rights reserved.';

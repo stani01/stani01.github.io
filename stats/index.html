@@ -58,65 +58,73 @@
         </div>
       </div>
 
-      <div class="result-box stats-calculator stats-calculator-wide">
-        <div>🔮 ODIAN ENCHANT TOOLTIP FINDER</div>
+      <div class="result-box stats-calculator stats-calculator-wide odian-card">
+        <div class="odian-head">🔮 Odian Enchant Tooltip Finder</div>
 
-        <div class="odian-layout">
-          <div class="odian-input-panel">
-            <div class="input-group">
-              <label>Class (Power/Knowledge)</label>
-              <div id="odianClassSelector" class="odian-class-selector"></div>
-            </div>
+        <div class="odian-warning-wrap is-open" id="odianWarningWrap">
+          <button type="button" class="odian-warning-mini-toggle" aria-expanded="true" aria-label="Show notice" title="Show notice" onclick="toggleOdianWarning()">i</button>
+          <div class="warning-box odian-warning-box">
+            <button type="button" class="odian-warning-close" aria-label="Hide notice" title="Hide notice" onclick="toggleOdianWarning()">✕</button>
+            <div class="odian-warning-content">🚧 We're still filling in the per-skill data for each class. Until it's complete, you can use the manual tooltip input below to project any skill. 🚧<br>🚧 Found a wrong or missing value? Let us know! 🚧</div>
+          </div>
+        </div>
 
-            <div class="input-group odian-tooltip-group">
-              <label for="odianTooltipInput">Current Skill Tooltip</label>
-              <input type="text" id="odianTooltipInput" value="" placeholder="e.g. 5001" oninput="calculate(); saveSession()" onblur="validateOdianTooltipInput(); calculate(); saveSession()">
-            </div>
+        <div class="odian-controls">
+          <div class="odian-field">
+            <span class="odian-field-label">Class</span>
+            <div id="odianClassSelector" class="odian-class-selector"></div>
+          </div>
 
-            <div class="stats-grid-odian odian-level-row">
-              <div class="input-group">
-                <label for="odianCurrentLevelTrigger">Current Enchant Level</label>
-                <div class="odian-level-picker" data-select-id="odianCurrentLevel">
-                  <button type="button" id="odianCurrentLevelTrigger" class="odian-level-trigger" aria-haspopup="listbox" aria-expanded="false">
-                    <span class="odian-level-trigger-text">+0</span>
-                  </button>
-                  <div class="odian-level-menu" id="odianCurrentLevelMenu" role="listbox" aria-labelledby="odianCurrentLevelTrigger"></div>
-                  <select id="odianCurrentLevel" class="odian-native-select" oninput="calculate(); saveSession()" onchange="calculate(); saveSession()"></select>
-                </div>
+          <div class="odian-field">
+            <span class="odian-field-label">Odian Skill <span class="odian-field-hint">(or enter tooltip manually below)</span></span>
+            <div id="odianSkillSelector" class="odian-skill-selector"></div>
+          </div>
+
+          <div id="odianInputsContainer" class="odian-inputs"></div>
+
+          <div class="odian-input-row odian-level-row">
+            <div class="odian-field">
+              <label class="odian-field-label" for="odianCurrentLevelTrigger">Current Level</label>
+              <div class="odian-level-picker" data-select-id="odianCurrentLevel">
+                <button type="button" id="odianCurrentLevelTrigger" class="odian-level-trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="odian-level-trigger-text">+0</span>
+                </button>
+                <div class="odian-level-menu" id="odianCurrentLevelMenu" role="listbox" aria-labelledby="odianCurrentLevelTrigger"></div>
+                <select id="odianCurrentLevel" class="odian-native-select" oninput="calculate(); saveSession()" onchange="calculate(); saveSession()"></select>
               </div>
+            </div>
 
-              <div class="input-group">
-                <label for="odianTargetLevelTrigger">Show Tooltip For Level</label>
-                <div class="odian-level-picker" data-select-id="odianTargetLevel">
-                  <button type="button" id="odianTargetLevelTrigger" class="odian-level-trigger" aria-haspopup="listbox" aria-expanded="false">
-                    <span class="odian-level-trigger-text">+26</span>
-                  </button>
-                  <div class="odian-level-menu" id="odianTargetLevelMenu" role="listbox" aria-labelledby="odianTargetLevelTrigger"></div>
-                  <select id="odianTargetLevel" class="odian-native-select" oninput="calculate(); saveSession()" onchange="calculate(); saveSession()"></select>
-                </div>
+            <div class="odian-field">
+              <label class="odian-field-label" for="odianTargetLevelTrigger">Target Level</label>
+              <div class="odian-level-picker" data-select-id="odianTargetLevel">
+                <button type="button" id="odianTargetLevelTrigger" class="odian-level-trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="odian-level-trigger-text">+26</span>
+                </button>
+                <div class="odian-level-menu" id="odianTargetLevelMenu" role="listbox" aria-labelledby="odianTargetLevelTrigger"></div>
+                <select id="odianTargetLevel" class="odian-native-select" oninput="calculate(); saveSession()" onchange="calculate(); saveSession()"></select>
               </div>
             </div>
           </div>
+        </div>
 
-          <div class="odian-results-panel">
-            <span class="odian-results-label">Results</span>
-            <div class="result-container odian-result-grid">
-              <div class="odian-result-item">
-                <span class="result-label">Class KP</span>
-                <div class="result-val valid odian-result-small" id="odianClassPowerResult">--</div>
-              </div>
-              <div class="odian-result-item">
-                <span class="result-label">Base Dmg</span>
-                <div class="result-val valid odian-result-small" id="odianBaseDamageResult">--</div>
-              </div>
-              <div class="odian-result-item">
-                <span class="result-label">Enchant / Lv</span>
-                <div class="result-val valid odian-result-small" id="odianEnchantPerLevelResult">--</div>
-              </div>
-              <div class="odian-result-item odian-result-highlight">
-                <span class="result-label">Target Tooltip</span>
-                <div class="result-val valid" id="odianProjectedTooltipResult">--</div>
-              </div>
+        <div class="odian-output">
+          <div class="odian-hero">
+            <span class="odian-hero-label" id="odianHeroLabel">Projected Tooltip</span>
+            <div class="odian-hero-value" id="odianProjectedTooltipResult">--</div>
+            <div class="odian-extra-stats" id="odianExtraStats" hidden></div>
+          </div>
+          <div class="odian-stats">
+            <div class="odian-stat">
+              <span class="odian-stat-label" id="odianClassPowerLabel">Class Power</span>
+              <span class="odian-stat-value" id="odianClassPowerResult">--</span>
+            </div>
+            <div class="odian-stat">
+              <span class="odian-stat-label" id="odianBaseLabel">Base Dmg</span>
+              <span class="odian-stat-value" id="odianBaseDamageResult">--</span>
+            </div>
+            <div class="odian-stat">
+              <span class="odian-stat-label">Enchant / Lv</span>
+              <span class="odian-stat-value" id="odianEnchantPerLevelResult">--</span>
             </div>
           </div>
         </div>
@@ -181,21 +189,212 @@ function calculate() {
 }
 
 const ODIAN_CLASS_DATA = {
-  gladiator: { kp: 115, label: 'Gladiator', icon: '../assets/icons/gladiator.png' },
-  templar: { kp: 115, label: 'Templar', icon: '../assets/icons/templar.png' },
-  assassin: { kp: 110, label: 'Assassin', icon: '../assets/icons/assassin.png' },
-  ranger: { kp: 100, label: 'Ranger', icon: '../assets/icons/ranger.png' },
-  sorcerer: { kp: 120, label: 'Sorcerer', icon: '../assets/icons/sorcerer.png' },
-  spiritmaster: { kp: 115, label: 'Spiritmaster', icon: '../assets/icons/spiritmaster.png' },
-  cleric: { kp: 105, label: 'Cleric', icon: '../assets/icons/cleric.png' },
-  chanter: { kp: 110, label: 'Chanter', icon: '../assets/icons/chanter.png' },
-  gunner: { kp: 100, label: 'Gunner', icon: '../assets/icons/gunner.png' },
-  aethertech: { kp: 105, label: 'Aethertech', icon: '../assets/icons/aethertech.png' },
-  bard: { kp: 110, label: 'Bard', icon: '../assets/icons/bard.png' },
-  painter: { kp: 100, label: 'Painter', icon: '../assets/icons/painter.png' }
+  gladiator: { kp: 115, label: 'Gladiator', icon: '../assets/icons/gladiator.png', attr: 'power', dotLabel: 'Additional Damage' },
+  templar: { kp: 115, label: 'Templar', icon: '../assets/icons/templar.png', attr: 'power', dotLabel: 'Additional Damage' },
+  assassin: { kp: 110, label: 'Assassin', icon: '../assets/icons/assassin.png', attr: 'power', dotLabel: 'Additional Damage' },
+  ranger: { kp: 100, label: 'Ranger', icon: '../assets/icons/ranger.png', attr: 'power', dotLabel: 'Additional Damage' },
+  sorcerer: { kp: 120, label: 'Sorcerer', icon: '../assets/icons/sorcerer.png', attr: 'knowledge', dotLabel: 'DoT' },
+  spiritmaster: { kp: 115, label: 'Spiritmaster', icon: '../assets/icons/spiritmaster.png', attr: 'knowledge', dotLabel: 'DoT' },
+  cleric: { kp: 105, label: 'Cleric', icon: '../assets/icons/cleric.png', attr: 'knowledge', dotLabel: 'DoT' },
+  chanter: { kp: 110, label: 'Chanter', icon: '../assets/icons/chanter.png', attr: 'power', dotLabel: 'Additional Damage' },
+  gunner: { kp: 100, label: 'Gunner', icon: '../assets/icons/gunner.png', attr: 'knowledge', dotLabel: 'Additional Damage' },
+  aethertech: { kp: 105, label: 'Aethertech', icon: '../assets/icons/aethertech.png', attr: 'knowledge', dotLabel: 'Additional Damage' },
+  bard: { kp: 110, label: 'Bard', icon: '../assets/icons/bard.png', attr: 'knowledge', dotLabel: 'DoT' },
+  painter: { kp: 100, label: 'Painter', icon: '../assets/icons/painter.png', attr: 'power', dotLabel: 'Additional Damage' }
+};
+
+// Per-class Odian skills.
+// type: 'damage' uses the KP-based formula (needs `base`).
+//   A damage skill may also carry one or more SECONDARY components (a DoT, an
+//   additional-damage hit, etc.). Each is enchanted by the SAME formula as the
+//   main tooltip and shown as its own editable input + projected chip:
+//     `extras`: array of { label: 'DoT' | 'Additional Damage' | ..., base: <+0 value> }.
+//        Use this when a skill has additional damage, or BOTH a DoT and add. dmg.
+//     `dot`: legacy shorthand for a single secondary component whose label comes
+//        from the class's `dotLabel` (e.g. 'DoT'). Equivalent to one `extras` entry.
+// type: 'buff' grants flat stats and is fully data-driven (no KP).
+//   `scalingStats`: array of stats that grow per enchant level, each
+//      { stat: 'Physical Defence', base: 139, perLevel: 3 } -> value = base + level * perLevel.
+//      Buffs may scale several stats at once (e.g. Call Mech: P.Def +3/lvl & Parry +8/lvl).
+//   `extraStats`: array of strings for fixed bonuses that do NOT scale
+//      (e.g. ['+1500 Weapon Attack']), shown as chips.
+//   Legacy single-stat buffs may instead use `stat` + `base` + `perLevel` (still supported).
+const DUMMY_ODIAN_ICON = '../assets/icons/cbt_fi_abysalrage_g1.png';
+const ODIAN_SKILLS = {
+  gladiator: [
+    { name: 'dummyGlad1', icon: DUMMY_ODIAN_ICON, base: 1058, type: 'damage', dot: 320 },
+    { name: 'dummyGlad2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
+    { name: 'dummyGlad3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
+    { name: 'dummyGlad4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
+    { name: 'dummyGlad5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
+    { name: 'dummyGlad6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
+    { name: 'dummyGlad7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
+    { name: 'dummyGlad8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
+    { name: 'dummyGlad9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
+    { name: 'dummyGlad10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
+    { name: 'dummyGlad11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
+    { name: 'dummyGlad12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+  ],
+  templar: [
+    { name: 'dummyTemp1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
+    { name: 'dummyTemp2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
+    { name: 'dummyTemp3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
+    { name: 'dummyTemp4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
+    { name: 'dummyTemp5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
+    { name: 'dummyTemp6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
+    { name: 'dummyTemp7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
+    { name: 'dummyTemp8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
+    { name: 'dummyTemp9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
+    { name: 'dummyTemp10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
+    { name: 'dummyTemp11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
+    { name: 'dummyTemp12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+  ],
+  assassin: [
+    { name: 'Swift Edge', icon: DUMMY_ODIAN_ICON, base: 1072, type: 'damage' },
+    { name: 'Fang Strike', icon: DUMMY_ODIAN_ICON, base: 939, type: 'damage' },
+    { name: 'Ambush Attack', icon: DUMMY_ODIAN_ICON, base: 1010, type: 'damage', dot: 2195 },
+    { name: 'Assassination', icon: DUMMY_ODIAN_ICON, base: 725, type: 'damage', dot: 1760 },
+    { name: 'Beast Leap', icon: DUMMY_ODIAN_ICON, base: 557, type: 'damage' },
+    { name: 'Counter Attack', icon: DUMMY_ODIAN_ICON, base: 701, type: 'damage' },
+    { name: 'Massacre', icon: DUMMY_ODIAN_ICON, base: 1303, type: 'damage', dot: 99 },
+    { name: 'Binding Rune', icon: DUMMY_ODIAN_ICON, base: 779, type: 'damage' },
+    { name: 'Soul Splitter', icon: DUMMY_ODIAN_ICON, base: 1451, type: 'damage' },
+    { name: 'All-Seeing Eye', icon: DUMMY_ODIAN_ICON, base: 30, type: 'buff', perLevel: 2 },
+    { name: 'Devotion', icon: '../assets/icons/cbt_sc_invokepower_g1.png', base: 450, type: 'buff', scalingStats: [{ stat: 'Physical Attack', base: 450, perLevel: 10 }, { stat: 'Weapon Attack', base: 1500, perLevel: 50 }]},
+    { name: 'Flurry', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'buff', perLevel: 10, extraStats: ['+1500 Weapon attack'] }
+  ],
+  ranger: [
+    { name: 'dummyRang1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
+    { name: 'dummyRang2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
+    { name: 'dummyRang3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
+    { name: 'dummyRang4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
+    { name: 'dummyRang5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
+    { name: 'dummyRang6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
+    { name: 'dummyRang7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
+    { name: 'dummyRang8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
+    { name: 'dummyRang9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
+    { name: 'dummyRang10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
+    { name: 'Devotion', icon: '../assets/icons/cbt_sc_invokepower_g1.png', type: 'buff', scalingStats: [{ stat: 'Physical Attack', base: 450, perLevel: 10 }], extraStats: ['+1500 Weapon Attack'] },
+    { name: 'dummyRang12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+  ],
+  sorcerer: [
+    { name: 'dummySorc1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
+    { name: 'dummySorc2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
+    { name: 'dummySorc3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
+    { name: 'dummySorc4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
+    { name: 'dummySorc5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
+    { name: 'dummySorc6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
+    { name: 'dummySorc7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
+    { name: 'dummySorc8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
+    { name: 'dummySorc9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
+    { name: 'dummySorc10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
+    { name: 'Vaizel Gift', icon: '../assets/icons/cbt_wi_arcaneboost_g1.png', type: 'buff', scalingStats: [{ stat: 'Additional PvE Attack', base: 500, perLevel: 10 }], extraStats: ['+25% Casting Time', '-20% MP Consumption'] },
+    { name: 'dummySorc12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+  ],
+  spiritmaster: [
+    { name: 'dummySpirit1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
+    { name: 'dummySpirit2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
+    { name: 'dummySpirit3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
+    { name: 'dummySpirit4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
+    { name: 'dummySpirit5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
+    { name: 'dummySpirit6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
+    { name: 'dummySpirit7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
+    { name: 'dummySpirit8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
+    { name: 'dummySpirit9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
+    { name: 'dummySpirit10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
+    { name: 'dummySpirit11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
+    { name: 'dummySpirit12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+  ],
+  cleric: [
+    { name: 'dummyCleric1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
+    { name: 'dummyCleric2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
+    { name: 'dummyCleric3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
+    { name: 'dummyCleric4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
+    { name: 'dummyCleric5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
+    { name: 'dummyCleric6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
+    { name: 'dummyCleric7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
+    { name: 'dummyCleric8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
+    { name: 'dummyCleric9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
+    { name: 'dummyCleric10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
+    { name: 'Amplification', icon: '../assets/icons/live_pr_prepareholywar_g1.png', type: 'buff', scalingStats: [{ stat: 'Magic Attack', base: 700, perLevel: 14 }], extraStats: ['+1100 Healing Boost', 'Restores 5628 MP'] },
+    { name: 'dummyCleric12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 14 }
+  ],
+  chanter: [
+    { name: 'dummyChant1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
+    { name: 'dummyChant2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
+    { name: 'dummyChant3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
+    { name: 'dummyChant4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
+    { name: 'dummyChant5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
+    { name: 'dummyChant6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
+    { name: 'dummyChant7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
+    { name: 'dummyChant8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
+    { name: 'dummyChant9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
+    { name: 'dummyChant10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
+    { name: 'dummyChant11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
+    { name: 'dummyChant12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+  ],
+  gunner: [
+    { name: 'dummyGun1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
+    { name: 'dummyGun2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
+    { name: 'dummyGun3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
+    { name: 'dummyGun4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
+    { name: 'dummyGun5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
+    { name: 'dummyGun6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
+    { name: 'dummyGun7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
+    { name: 'dummyGun8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
+    { name: 'dummyGun9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
+    { name: 'dummyGun10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
+    { name: 'dummyGun11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
+    { name: 'dummyGun12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+  ],
+  aethertech: [
+    { name: 'dummyAether1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
+    { name: 'dummyAether2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
+    { name: 'dummyAether3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
+    { name: 'dummyAether4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
+    { name: 'dummyAether5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
+    { name: 'dummyAether6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
+    { name: 'dummyAether7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
+    { name: 'dummyAether8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
+    { name: 'dummyAether9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
+    { name: 'dummyAether10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
+    { name: 'Call Mech', icon: '../assets/icons/ri_summonarmor_g1.png', type: 'buff', scalingStats: [{ stat: 'Physical Defence', base: 139, perLevel: 3 }, { stat: 'Parry', base: 403, perLevel: 8 }], extraStats: ['+200 All Altered State Resist', '+272 Magical Accuracy', '+4m Attack Range'] },
+    { name: 'dummyAether12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+  ],
+  bard: [
+    { name: 'dummyBard1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
+    { name: 'dummyBard2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
+    { name: 'dummyBard3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
+    { name: 'dummyBard4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
+    { name: 'dummyBard5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
+    { name: 'dummyBard6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
+    { name: 'dummyBard7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
+    { name: 'dummyBard8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
+    { name: 'dummyBard9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
+    { name: 'dummyBard10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
+    { name: 'dummyBard11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
+    { name: 'dummyBard12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+  ],
+  painter: [
+    { name: 'dummyPaint1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
+    { name: 'dummyPaint2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
+    { name: 'dummyPaint3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
+    { name: 'dummyPaint4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
+    { name: 'dummyPaint5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
+    { name: 'dummyPaint6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
+    { name: 'dummyPaint7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
+    { name: 'dummyPaint8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
+    { name: 'dummyPaint9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
+    { name: 'dummyPaint10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
+    { name: 'dummyPaint11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
+    { name: 'dummyPaint12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+  ]
 };
 
 let odianSelectedClass = 'gladiator';
+let odianSelectedSkillIndex = null;
+// Current value of each tooltip input, keyed by component ('main', 'dot', ...).
+let odianInputValues = {};
 const ODIAN_LEVEL_SELECT_IDS = ['odianCurrentLevel', 'odianTargetLevel'];
 
 function initOdianEnchantCalculator() {
@@ -237,6 +436,215 @@ function initOdianEnchantCalculator() {
     button.onclick = function() { selectOdianClass(classKey); };
     classSelectorEl.appendChild(button);
   });
+
+  renderOdianSkills();
+  renderOdianInputs();
+}
+
+function renderOdianSkills() {
+  const wrap = document.getElementById('odianSkillSelector');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const skills = ODIAN_SKILLS[odianSelectedClass] || [];
+
+  // Skills are authored in color order: 4 red, then 4 blue, then 4 green.
+  // Group them into colored tiers so the selector reads at a glance.
+  const tiers = [
+    { name: 'Carmine', icon: '../assets/icons/icon_item_equip_odian_red_03.png', start: 0, end: 4 },
+    { name: 'Azure', icon: '../assets/icons/icon_item_equip_odian_blue_03.png', start: 4, end: 8 },
+    { name: 'Jade', icon: '../assets/icons/icon_item_equip_odian_green_03.png', start: 8, end: 12 }
+  ];
+
+  tiers.forEach(function(tier) {
+    const tierSkills = skills.slice(tier.start, tier.end);
+    if (!tierSkills.length) return;
+
+    const group = document.createElement('div');
+    group.className = 'odian-skill-group odian-skill-group-' + tier.name.toLowerCase();
+
+    const header = document.createElement('div');
+    header.className = 'odian-skill-group-head';
+    header.innerHTML = '<img src="' + tier.icon + '" alt="' + tier.name + ' Odian"><span>' + tier.name + '</span>';
+    group.appendChild(header);
+
+    const row = document.createElement('div');
+    row.className = 'odian-skill-row';
+    tierSkills.forEach(function(skill, offset) {
+      const index = tier.start + offset;
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'odian-skill-btn'
+        + (index === odianSelectedSkillIndex ? ' selected' : '')
+        + (skill.type === 'buff' ? ' is-buff' : '');
+      button.title = skill.name + (skill.type === 'buff' ? ' (Buff)' : '');
+      button.setAttribute('aria-label', skill.name);
+      button.innerHTML = '<img src="' + skill.icon + '" alt="' + skill.name + '">';
+      button.onclick = function() { selectOdianSkill(index); };
+      row.appendChild(button);
+    });
+    group.appendChild(row);
+    wrap.appendChild(group);
+  });
+}
+
+function selectOdianSkill(index) {
+  const skills = ODIAN_SKILLS[odianSelectedClass] || [];
+  const skill = skills[index];
+  if (!skill) return;
+
+  // Clicking the already-selected skill toggles back to manual free-input mode.
+  if (odianSelectedSkillIndex === index) {
+    odianSelectedSkillIndex = null;
+    odianInputValues = {};
+    renderOdianSkills();
+    renderOdianInputs();
+    calculate();
+    saveSession();
+    return;
+  }
+
+  odianSelectedSkillIndex = index;
+
+  // Prefill each component input with its +0 base value and reset current level.
+  odianInputValues = {};
+  getOdianComponents(skill).forEach(function(component) {
+    if (typeof component.base === 'number') {
+      odianInputValues[component.key] = String(component.base);
+    }
+  });
+  const currentLevelEl = document.getElementById('odianCurrentLevel');
+  if (currentLevelEl) currentLevelEl.value = '0';
+  syncOdianLevelDropdowns();
+
+  renderOdianSkills();
+  renderOdianInputs();
+  calculate();
+  saveSession();
+}
+
+function getOdianSelectedSkill() {
+  if (odianSelectedSkillIndex === null) return null;
+  const skills = ODIAN_SKILLS[odianSelectedClass] || [];
+  return skills[odianSelectedSkillIndex] || null;
+}
+
+// The display name for a damage skill's secondary component, per class
+// (e.g. 'DoT' for some classes, 'Additional Damage' for others).
+function getOdianDotLabel() {
+  const classData = ODIAN_CLASS_DATA[odianSelectedClass] || ODIAN_CLASS_DATA.gladiator;
+  return classData.dotLabel || 'DoT';
+}
+
+// Build the list of editable tooltip inputs for a skill.
+// No skill -> a single generic manual input.
+// Buff -> none (buffs are fully data-driven from base/perLevel).
+// Damage -> the main tooltip plus an input per secondary component (DoT,
+//   additional damage, ...). A skill may have several at once. Each component
+//   carries its own display label so they're never ambiguous.
+function getOdianComponents(skill) {
+  if (!skill) {
+    return [{ key: 'main', label: 'Current Skill Tooltip', base: null }];
+  }
+  if (skill.type === 'buff') return [];
+
+  const components = [{ key: 'main', label: skill.name, base: skill.base }];
+
+  // Legacy single-DoT shorthand: label comes from the class's `dotLabel`.
+  if (typeof skill.dot === 'number') {
+    components.push({ key: 'dot', label: skill.name + ' (' + getOdianDotLabel() + ')', base: skill.dot });
+  }
+
+  // Flexible per-skill secondary components (DoT and/or additional damage, etc.).
+  if (Array.isArray(skill.extras)) {
+    skill.extras.forEach(function(extra, i) {
+      if (!extra || typeof extra.base !== 'number') return;
+      const extraLabel = extra.label || getOdianDotLabel();
+      components.push({ key: 'extra' + i, label: skill.name + ' (' + extraLabel + ')', chipLabel: extraLabel, base: extra.base });
+    });
+  }
+
+  return components;
+}
+
+// Render the dynamic tooltip inputs for the current skill into their container.
+function renderOdianInputs() {
+  const container = document.getElementById('odianInputsContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const skill = getOdianSelectedSkill();
+
+  // Buffs have no editable inputs, but still show the skill name as a label.
+  if (skill && skill.type === 'buff') {
+    container.hidden = false;
+    const field = document.createElement('div');
+    field.className = 'odian-field';
+    const label = document.createElement('span');
+    label.className = 'odian-field-label';
+    label.textContent = skill.name;
+    field.appendChild(label);
+    container.appendChild(field);
+    return;
+  }
+
+  const components = getOdianComponents(skill);
+  if (!components.length) { container.hidden = true; return; }
+  container.hidden = false;
+
+  components.forEach(function(component) {
+    const inputId = 'odianInput_' + component.key;
+    const field = document.createElement('div');
+    field.className = 'odian-field';
+
+    const label = document.createElement('label');
+    label.className = 'odian-field-label';
+    label.setAttribute('for', inputId);
+    label.textContent = component.label;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = inputId;
+    input.className = 'odian-input';
+    input.placeholder = (typeof component.base === 'number') ? ('e.g. ' + component.base) : 'e.g. 5001';
+    input.value = (odianInputValues[component.key] !== undefined) ? odianInputValues[component.key] : '';
+    input.oninput = function() {
+      odianInputValues[component.key] = input.value;
+      calculate();
+      saveSession();
+    };
+    input.onblur = function() {
+      validateOdianInput(input);
+      odianInputValues[component.key] = input.value;
+      calculate();
+      saveSession();
+    };
+
+    field.appendChild(label);
+    field.appendChild(input);
+    container.appendChild(field);
+  });
+}
+
+// Normalise a buff's enchant-scaling stats into a [{ stat, base, perLevel }] array,
+// supporting both the new `scalingStats` array and the legacy stat/base/perLevel fields.
+function getOdianScalingStats(skill) {
+  if (skill && Array.isArray(skill.scalingStats)) return skill.scalingStats;
+  if (skill && typeof skill.perLevel === 'number') {
+    return [{ stat: skill.stat, base: skill.base, perLevel: skill.perLevel }];
+  }
+  return [];
+}
+
+// Project a damage tooltip from one enchant level to another using the KP formula.
+// Per-level enchant = ROUNDUP(baseDamage * 0.02, 0) * KP multiplier.
+function projectOdianDamage(tooltip, fromLevel, toLevel, kpMultiplier) {
+  const baseDamage = tooltip / (kpMultiplier + 0.02);
+  const enchantPerLevel = Math.ceil(baseDamage * 0.02) * kpMultiplier;
+  return {
+    baseDamage: baseDamage,
+    enchantPerLevel: enchantPerLevel,
+    projected: tooltip + (toLevel - fromLevel) * enchantPerLevel
+  };
 }
 
 function initOdianLevelDropdowns() {
@@ -315,6 +723,8 @@ function closeOdianLevelDropdowns(exceptSelectId) {
 function selectOdianClass(classKey) {
   if (!ODIAN_CLASS_DATA[classKey]) return;
   odianSelectedClass = classKey;
+  odianSelectedSkillIndex = null;
+  odianInputValues = {};
 
   const buttons = document.querySelectorAll('.odian-class-btn');
   buttons.forEach(function(btn) {
@@ -325,12 +735,13 @@ function selectOdianClass(classKey) {
     if (selectedIndex >= 0 && buttons[selectedIndex]) buttons[selectedIndex].classList.add('selected');
   }
 
+  renderOdianSkills();
+  renderOdianInputs();
   calculate();
   saveSession();
 }
 
 function calculateOdianEnchantTooltip() {
-  const tooltipInputEl = document.getElementById('odianTooltipInput');
   const currentLevelEl = document.getElementById('odianCurrentLevel');
   const targetLevelEl = document.getElementById('odianTargetLevel');
 
@@ -339,33 +750,150 @@ function calculateOdianEnchantTooltip() {
   const enchantPerLevelEl = document.getElementById('odianEnchantPerLevelResult');
   const projectedTooltipEl = document.getElementById('odianProjectedTooltipResult');
 
-  if (!tooltipInputEl || !currentLevelEl || !targetLevelEl || !classPowerEl || !baseDamageEl || !enchantPerLevelEl || !projectedTooltipEl) {
+  if (!currentLevelEl || !targetLevelEl || !classPowerEl || !baseDamageEl || !enchantPerLevelEl || !projectedTooltipEl) {
     return;
   }
 
   const classData = ODIAN_CLASS_DATA[odianSelectedClass] || ODIAN_CLASS_DATA.gladiator;
   const kp = classData.kp;
   const kpMultiplier = kp / 100;
-  classPowerEl.textContent = kp;
 
-  const tooltipInput = parseExpression(tooltipInputEl.value.trim());
+  const skill = getOdianSelectedSkill();
+  const isBuff = skill && skill.type === 'buff';
+
+  // Buffs scale independently of KP, but still show it for reference.
+  classPowerEl.textContent = kp;
+  const classPowerLabelEl = document.getElementById('odianClassPowerLabel');
+  if (classPowerLabelEl) {
+    classPowerLabelEl.textContent = classData.attr === 'knowledge' ? 'Class Knowledge' : 'Class Power';
+  }
+
+  // Buffs grant a flat stat bonus, not a damage tooltip, so relabel the output.
+  const heroLabelEl = document.getElementById('odianHeroLabel');
+  const baseLabelEl = document.getElementById('odianBaseLabel');
+  if (heroLabelEl) heroLabelEl.textContent = isBuff ? 'Projected Stat' : 'Projected Tooltip';
+  if (baseLabelEl) baseLabelEl.textContent = isBuff ? 'Base Value' : 'Base Dmg';
+
   const currentLevel = parseInt(currentLevelEl.value, 10);
   const targetLevel = parseInt(targetLevelEl.value, 10);
+  const extraStatsEl = document.getElementById('odianExtraStats');
 
-  if (isNaN(tooltipInput) || tooltipInput <= 0 || isNaN(currentLevel) || isNaN(targetLevel)) {
-    baseDamageEl.textContent = '--';
-    enchantPerLevelEl.textContent = '--';
-    projectedTooltipEl.textContent = '--';
+  // ---- Buff path: fully data-driven, supports multiple scaling stats ----
+  if (isBuff) {
+    const scaling = getOdianScalingStats(skill);
+    if (isNaN(targetLevel) || !scaling.length) {
+      baseDamageEl.textContent = '--';
+      enchantPerLevelEl.textContent = '--';
+      projectedTooltipEl.textContent = '--';
+      if (extraStatsEl) { extraStatsEl.innerHTML = ''; extraStatsEl.hidden = true; }
+      return;
+    }
+
+    // Each scaling stat value at the target enchant level = base + level * perLevel.
+    const primary = scaling[0];
+    const primaryValue = primary.base + targetLevel * primary.perLevel;
+
+    baseDamageEl.textContent = formatOdianNumber(primary.base);
+    enchantPerLevelEl.textContent = formatOdianNumber(primary.perLevel);
+
+    const primaryStat = primary.stat
+      ? '<span class="odian-hero-stat">' + primary.stat + '</span>'
+      : '';
+    projectedTooltipEl.innerHTML = '<span class="odian-hero-num">+' + formatOdianNumber(primaryValue) + '</span>' + primaryStat;
+
+    if (extraStatsEl) {
+      // Additional scaling stats (computed at target level) + fixed bonuses.
+      const chips = scaling.slice(1).map(function(s) {
+        return '+' + formatOdianNumber(s.base + targetLevel * s.perLevel) + (s.stat ? ' ' + s.stat : '');
+      });
+      if (Array.isArray(skill.extraStats)) chips.push.apply(chips, skill.extraStats);
+      if (chips.length) {
+        extraStatsEl.innerHTML = chips.map(function(text) {
+          return '<span class="odian-extra-chip">' + text + '</span>';
+        }).join('');
+        extraStatsEl.hidden = false;
+      } else {
+        extraStatsEl.innerHTML = '';
+        extraStatsEl.hidden = true;
+      }
+    }
     return;
   }
 
-  const baseDamage = Math.round(tooltipInput / (kpMultiplier + 0.02));
-  const enchantPerLevel = Math.round(baseDamage * 0.02) * kpMultiplier;
-  const projectedTooltip = Math.round(tooltipInput + (targetLevel - currentLevel) * enchantPerLevel);
+  // ---- Damage path: projects each component's tooltip from current to target level ----
+  const components = getOdianComponents(skill);
+  const fromLevel = isNaN(currentLevel) ? 0 : currentLevel;
 
-  baseDamageEl.textContent = String(baseDamage.toLocaleString());
-  enchantPerLevelEl.textContent = String(Math.round(enchantPerLevel).toLocaleString());
-  projectedTooltipEl.textContent = String(projectedTooltip.toLocaleString());
+  // The main tooltip drives the hero output and the stat readouts.
+  const mainTooltip = parseExpression((odianInputValues.main || '').trim());
+
+  if (isNaN(mainTooltip) || mainTooltip <= 0 || isNaN(targetLevel)) {
+    baseDamageEl.textContent = '--';
+    enchantPerLevelEl.textContent = '--';
+    projectedTooltipEl.textContent = '--';
+    if (extraStatsEl) { extraStatsEl.innerHTML = ''; extraStatsEl.hidden = true; }
+    return;
+  }
+
+  // Keep full precision through the whole chain; only round/format for display.
+  // Rounding each intermediate (and feeding it into the next step) compounds the
+  // error and pushes the projected tooltip off by a fraction (e.g. 1238.688 -> 1239).
+  const main = projectOdianDamage(mainTooltip, fromLevel, targetLevel, kpMultiplier);
+
+  baseDamageEl.textContent = formatOdianNumber(main.baseDamage);
+  enchantPerLevelEl.textContent = formatOdianNumber(main.enchantPerLevel);
+  projectedTooltipEl.innerHTML = '<span class="odian-hero-num">' + formatOdianNumber(main.projected) + '</span>';
+
+  // Any extra components (e.g. a DoT) are enchanted with the same formula and
+  // shown as chips, each from its own current tooltip value.
+  if (extraStatsEl) {
+    const chips = [];
+    components.forEach(function(component) {
+      if (component.key === 'main') return;
+      const value = parseExpression((odianInputValues[component.key] || '').trim());
+      if (isNaN(value) || value <= 0) return;
+      const projected = projectOdianDamage(value, fromLevel, targetLevel, kpMultiplier);
+      const chipLabel = component.chipLabel || (component.key === 'dot' ? getOdianDotLabel() : component.label);
+      chips.push(chipLabel + ': ' + formatOdianNumber(projected.projected));
+    });
+    if (chips.length) {
+      extraStatsEl.innerHTML = chips.map(function(text) {
+        return '<span class="odian-extra-chip">' + text + '</span>';
+      }).join('');
+      extraStatsEl.hidden = false;
+    } else {
+      extraStatsEl.innerHTML = '';
+      extraStatsEl.hidden = true;
+    }
+  }
+}
+
+function formatOdianNumber(value) {
+  // Show up to 2 decimals (trailing zeros trimmed) so precise values like
+  // 1238.69 are visible instead of being rounded up to a misleading integer.
+  return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+// Collapse/expand the "work in progress" notice above the Odian card.
+function toggleOdianWarning() {
+  const wrap = document.getElementById('odianWarningWrap');
+  if (!wrap) return;
+  const isOpen = wrap.classList.toggle('is-open');
+  wrap.classList.toggle('is-collapsed', !isOpen);
+  const toggle = wrap.querySelector('.odian-warning-mini-toggle');
+  if (toggle) toggle.setAttribute('aria-expanded', String(isOpen));
+  try { localStorage.setItem('stats-odian-warning-collapsed', isOpen ? '0' : '1'); } catch (e) {}
+}
+
+function initOdianWarning() {
+  const wrap = document.getElementById('odianWarningWrap');
+  if (!wrap) return;
+  let collapsed = false;
+  try { collapsed = localStorage.getItem('stats-odian-warning-collapsed') === '1'; } catch (e) {}
+  wrap.classList.toggle('is-open', !collapsed);
+  wrap.classList.toggle('is-collapsed', collapsed);
+  const toggle = wrap.querySelector('.odian-warning-mini-toggle');
+  if (toggle) toggle.setAttribute('aria-expanded', String(!collapsed));
 }
 
 function calculateCritPercentage() {
@@ -450,8 +978,7 @@ function validateAccuracyInput() {
     }
 }
 
-function validateOdianTooltipInput() {
-  const el = document.getElementById('odianTooltipInput');
+function validateOdianInput(el) {
   if (!el) return;
   const val = parseExpression(el.value);
   if (!isNaN(val)) {
@@ -464,10 +991,11 @@ function saveSession() {
         critStat: document.getElementById('critStat').value,
         yourResist: document.getElementById('yourResist').value,
     enemyAccuracy: document.getElementById('enemyAccuracy').value,
-    odianTooltipInput: document.getElementById('odianTooltipInput') ? document.getElementById('odianTooltipInput').value : '',
+    odianInputValues: odianInputValues,
     odianCurrentLevel: document.getElementById('odianCurrentLevel') ? document.getElementById('odianCurrentLevel').value : '0',
     odianTargetLevel: document.getElementById('odianTargetLevel') ? document.getElementById('odianTargetLevel').value : '26',
-    odianSelectedClass: odianSelectedClass
+    odianSelectedClass: odianSelectedClass,
+    odianSelectedSkillIndex: odianSelectedSkillIndex
     };
     localStorage.setItem('stats-page-state', JSON.stringify(state));
 }
@@ -480,7 +1008,6 @@ function loadSession() {
             if (state.critStat) document.getElementById('critStat').value = state.critStat;
             if (state.yourResist) document.getElementById('yourResist').value = state.yourResist;
             if (state.enemyAccuracy) document.getElementById('enemyAccuracy').value = state.enemyAccuracy;
-            if (state.odianTooltipInput && document.getElementById('odianTooltipInput')) document.getElementById('odianTooltipInput').value = state.odianTooltipInput;
             if (state.odianCurrentLevel && document.getElementById('odianCurrentLevel')) document.getElementById('odianCurrentLevel').value = state.odianCurrentLevel;
             if (state.odianTargetLevel && document.getElementById('odianTargetLevel')) document.getElementById('odianTargetLevel').value = state.odianTargetLevel;
             syncOdianLevelDropdowns();
@@ -488,6 +1015,18 @@ function loadSession() {
               odianSelectedClass = state.odianSelectedClass;
               selectOdianClass(odianSelectedClass);
             }
+            // Restore the selected skill after the class (selectOdianClass clears it).
+            const odianSkills = ODIAN_SKILLS[odianSelectedClass] || [];
+            if (typeof state.odianSelectedSkillIndex === 'number' && odianSkills[state.odianSelectedSkillIndex]) {
+              odianSelectedSkillIndex = state.odianSelectedSkillIndex;
+              renderOdianSkills();
+            }
+            // Restore the per-component input values, then rebuild the inputs to show them.
+            if (state.odianInputValues && typeof state.odianInputValues === 'object') {
+              odianInputValues = state.odianInputValues;
+            }
+            renderOdianInputs();
+            syncOdianLevelDropdowns();
             calculate();
         } catch (e) {
             console.error('Failed to load session:', e);
@@ -498,6 +1037,7 @@ function loadSession() {
 // Load saved state on page load
       window.addEventListener('DOMContentLoaded', function() {
         initOdianEnchantCalculator();
+        initOdianWarning();
         loadSession();
         calculate();
       });

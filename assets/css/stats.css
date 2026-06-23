@@ -64,119 +64,355 @@ h1 {
     grid-column: 1 / -1;
 }
 
-.odian-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.85fr);
-    gap: 16px;
-    margin-top: 14px;
-    align-items: stretch;
+/* ===== Odian Enchant Finder (redesigned) ===== */
+.odian-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-start;
 }
 
-.odian-input-panel,
-.odian-results-panel {
+.odian-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: left;
+    margin-top: 4px;
+}
+
+/* Work-in-progress notice (mirrors the daevanion warning box) */
+.odian-warning-wrap {
+    margin: 10px 0 4px;
+    text-align: left;
+}
+
+.odian-warning-mini-toggle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 199, 120, 0.45);
+    background: rgba(50, 23, 23, 0.95);
+    color: #ffd58e;
+    font-weight: 700;
+    font-size: 0.78rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+}
+
+.odian-warning-mini-toggle:hover {
+    background: rgba(100, 35, 35, 0.95);
+}
+
+.odian-warning-wrap.is-open .odian-warning-mini-toggle {
+    display: none;
+}
+
+.odian-warning-wrap.is-collapsed .odian-warning-box {
+    display: none;
+}
+
+.warning-box {
+    background: #2a1a1a;
+    border-left: 4px solid var(--warning);
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+    font-size: 0.92em;
+    line-height: 1.6;
+}
+
+.odian-warning-box {
+    position: relative;
+    margin: 0;
+    padding-right: 40px;
+}
+
+.odian-warning-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border: 1px solid rgba(255, 199, 120, 0.35);
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.18);
+    color: #ffd8a0;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.odian-warning-close:hover {
+    background: rgba(255, 199, 120, 0.08);
+}
+
+.odian-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     min-width: 0;
 }
 
-.odian-input-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px;
-    background: linear-gradient(180deg, rgba(15, 20, 28, 0.55), rgba(10, 14, 20, 0.6));
-    border: 1px solid rgba(96, 112, 138, 0.16);
-    border-radius: 12px;
-}
-
-.odian-input-panel .input-group {
-    margin-bottom: 0;
-}
-
-.odian-input-panel input[type="text"] {
-    max-width: none;
-}
-
-.odian-results-panel {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-}
-
-.odian-results-label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 0.8em;
-    color: var(--accent);
+.odian-field-label {
+    font-size: 0.72em;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+    color: #8ea0be;
 }
 
-.stats-grid-odian,
-.odian-level-row {
+.odian-input-row {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 12px;
-    margin-top: 0;
     align-items: end;
 }
 
-.odian-tooltip-group {
-    margin-bottom: 0;
+.odian-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
+.odian-inputs .odian-field {
+    flex: 1 1 200px;
+}
+
+.odian-input {
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 14px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.95em;
+    font-family: 'Courier New', monospace;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.odian-input::placeholder {
+    color: #5f6b7d;
+}
+
+.odian-input:focus {
+    outline: none;
+    background: rgba(0, 0, 0, 0.6);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(77, 184, 255, 0.12);
+}
+
+.odian-level-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.odian-input,
+.odian-level-trigger {
+    box-sizing: border-box;
+    height: 44px;
+}
+
+/* Class chips */
 .odian-class-selector {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
 }
 
 .odian-class-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
-    background: rgba(12, 16, 22, 0.78);
-    border: 1px solid rgba(122, 138, 166, 0.22);
-    border-radius: 8px;
+    width: 38px;
+    height: 38px;
+    background: rgba(12, 16, 22, 0.7);
+    border: 1px solid rgba(122, 138, 166, 0.2);
+    border-radius: 10px;
     padding: 0;
     cursor: pointer;
-    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .odian-class-btn img {
-    width: 20px;
-    height: 20px;
-    border-radius: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
     flex: 0 0 auto;
+    filter: saturate(0.85);
+    transition: filter 0.15s ease;
 }
 
 .odian-class-btn:hover {
-    border-color: var(--accent);
-    background: rgba(16, 22, 30, 0.95);
+    border-color: rgba(77, 184, 255, 0.5);
+    background: rgba(18, 26, 36, 0.95);
+    transform: translateY(-1px);
 }
 
 .odian-class-btn.selected {
     border-color: var(--accent);
-    background: rgba(27, 56, 81, 0.95);
-    box-shadow: 0 0 0 1px rgba(77, 184, 255, 0.12);
+    background: linear-gradient(180deg, rgba(36, 70, 100, 0.95), rgba(20, 40, 60, 0.95));
+    box-shadow: 0 0 0 1px rgba(77, 184, 255, 0.25), 0 6px 14px rgba(0, 0, 0, 0.3);
 }
 
+.odian-class-btn.selected img {
+    filter: saturate(1.1);
+}
+
+/* Field hint */
+.odian-field-hint {
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    color: #6b7a90;
+    font-size: 0.92em;
+}
+
+/* Skill icon grid */
+.odian-skill-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* Colored tier (red / blue / green), 4 skills each */
+.odian-skill-group {
+    flex: 1 1 180px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid rgba(122, 138, 166, 0.18);
+    border-top-width: 2px;
+    border-radius: 10px;
+    background: rgba(12, 16, 22, 0.4);
+}
+
+.odian-skill-group-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9fb0cc;
+}
+
+.odian-skill-group-head img {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+}
+
+.odian-skill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.odian-skill-group-red {
+    border-top-color: rgba(255, 99, 99, 0.65);
+}
+
+.odian-skill-group-red .odian-skill-group-head {
+    color: #ff8d8d;
+}
+
+.odian-skill-group-blue {
+    border-top-color: rgba(77, 160, 255, 0.65);
+}
+
+.odian-skill-group-blue .odian-skill-group-head {
+    color: #8cc4ff;
+}
+
+.odian-skill-group-green {
+    border-top-color: rgba(110, 214, 122, 0.65);
+}
+
+.odian-skill-group-green .odian-skill-group-head {
+    color: #93e3a0;
+}
+
+.odian-skill-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: rgba(12, 16, 22, 0.7);
+    border: 1px solid rgba(122, 138, 166, 0.2);
+    border-radius: 10px;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.odian-skill-btn img {
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+    flex: 0 0 auto;
+    filter: saturate(0.85);
+    transition: filter 0.15s ease;
+}
+
+.odian-skill-btn:hover {
+    border-color: rgba(77, 184, 255, 0.5);
+    background: rgba(18, 26, 36, 0.95);
+    transform: translateY(-1px);
+}
+
+.odian-skill-btn.selected {
+    border-color: var(--accent);
+    background: linear-gradient(180deg, rgba(36, 70, 100, 0.95), rgba(20, 40, 60, 0.95));
+    box-shadow: 0 0 0 1px rgba(77, 184, 255, 0.25), 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+.odian-skill-btn.selected img {
+    filter: saturate(1.1);
+}
+
+.odian-skill-btn.is-buff::after {
+    content: 'B';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 14px;
+    text-align: center;
+    color: #0c121a;
+    background: linear-gradient(180deg, #9be37a, #5fb84b);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+/* Custom level dropdown */
 .odian-level-picker {
     position: relative;
     width: 100%;
-    max-width: none;
 }
 
 .odian-level-trigger {
     width: 100%;
-    min-height: 40px;
-    padding: 9px 30px 9px 12px;
+    min-height: 44px;
+    padding: 10px 32px 10px 14px;
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid var(--border-dim);
-    border-radius: 5px;
-    color: #dce4f2;
-    font-size: 0.9em;
+    border-radius: 8px;
+    color: #e6ecf6;
+    font-size: 0.95em;
+    font-weight: 600;
     line-height: 1.2;
     text-align: left;
     cursor: pointer;
@@ -184,28 +420,23 @@ h1 {
     position: relative;
 }
 
-.odian-level-trigger::before,
 .odian-level-trigger::after {
     content: '';
     position: absolute;
-    right: 11px;
-    width: 5px;
-    height: 5px;
-    border-right: 1.5px solid #89a6c5;
-    border-bottom: 1.5px solid #89a6c5;
-    pointer-events: none;
-    transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.odian-level-trigger::before {
-    top: calc(50% - 5px);
+    right: 14px;
+    top: calc(50% - 4px);
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid #89a6c5;
+    border-bottom: 2px solid #89a6c5;
     transform: rotate(45deg);
+    pointer-events: none;
+    transition: transform 0.15s ease, top 0.15s ease;
 }
 
-.odian-level-trigger::after {
-    top: calc(50% - 1px);
+.odian-level-picker.open .odian-level-trigger::after {
     transform: rotate(-135deg);
-    opacity: 0;
+    top: calc(50% - 2px);
 }
 
 .odian-level-picker.open .odian-level-trigger,
@@ -214,15 +445,7 @@ h1 {
     outline: none;
     background: rgba(0, 0, 0, 0.6);
     border-color: var(--accent);
-    box-shadow: 0 0 6px rgba(77, 184, 255, 0.2);
-}
-
-.odian-level-picker.open .odian-level-trigger::before {
-    opacity: 0;
-}
-
-.odian-level-picker.open .odian-level-trigger::after {
-    opacity: 1;
+    box-shadow: 0 0 0 3px rgba(77, 184, 255, 0.12);
 }
 
 .odian-level-menu {
@@ -230,14 +453,14 @@ h1 {
     top: calc(100% + 6px);
     left: 0;
     width: 100%;
-    max-height: 164px;
+    max-height: 200px;
     overflow-y: auto;
-    background: rgba(8, 11, 16, 0.98);
-    border: 1px solid rgba(77, 184, 255, 0.18);
+    background: rgba(10, 14, 20, 0.99);
+    border: 1px solid rgba(77, 184, 255, 0.2);
     border-radius: 8px;
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.36);
-    padding: 4px;
-    z-index: 25;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.45);
+    padding: 5px;
+    z-index: 30;
     display: none;
 }
 
@@ -250,22 +473,23 @@ h1 {
     border: 0;
     background: transparent;
     color: #cdd7e8;
-    font-size: 0.9em;
-    line-height: 1.15;
+    font-size: 0.92em;
+    font-weight: 500;
+    line-height: 1.2;
     text-align: left;
-    padding: 8px 10px;
-    border-radius: 5px;
+    padding: 9px 11px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background 0.12s ease, color 0.12s ease;
 }
 
 .odian-level-option:hover {
-    background: rgba(77, 184, 255, 0.12);
+    background: rgba(77, 184, 255, 0.14);
     color: #ffffff;
 }
 
 .odian-level-option.selected {
-    background: rgba(77, 184, 255, 0.18);
+    background: rgba(77, 184, 255, 0.22);
     color: #ffffff;
 }
 
@@ -293,87 +517,119 @@ h1 {
     display: none;
 }
 
-.odian-result-grid {
+/* Output area */
+.odian-output {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: stretch;
-    gap: 10px;
-    margin-top: 0;
-    width: 100%;
-    min-width: 0;
-    flex: 1;
-    padding: 12px;
-    background: linear-gradient(160deg, rgba(16, 22, 31, 0.95), rgba(9, 13, 19, 0.97));
-    border: 1px solid rgba(96, 112, 138, 0.2);
-    border-radius: 12px;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 14px;
+    margin-top: 20px;
 }
 
-.odian-result-item {
-    position: relative;
-    overflow: hidden;
-    background: rgba(20, 27, 37, 0.9);
-    border: 1px solid rgba(106, 120, 146, 0.16);
-    border-radius: 10px;
-    padding: 12px 10px;
-    min-width: 0;
-    min-height: 84px;
+.odian-hero {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 18px 16px;
+    background: linear-gradient(160deg, rgba(26, 48, 70, 0.95), rgba(13, 24, 36, 0.97));
+    border: 1px solid rgba(77, 184, 255, 0.4);
+    border-radius: 14px;
     text-align: center;
-    transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-.odian-result-item:hover {
-    border-color: rgba(122, 138, 166, 0.4);
-    transform: translateY(-1px);
-}
-
-.odian-result-highlight {
-    border-color: rgba(77, 184, 255, 0.55);
-    background: linear-gradient(165deg, rgba(23, 42, 60, 0.96), rgba(13, 23, 34, 0.97));
-}
-
-.odian-result-highlight::before {
+.odian-hero::before {
     content: '';
     position: absolute;
     inset: 0 0 auto 0;
-    height: 2px;
-    background: linear-gradient(90deg, rgba(77, 184, 255, 0.9), rgba(150, 220, 255, 0.5));
+    height: 3px;
+    background: linear-gradient(90deg, rgba(77, 184, 255, 0.9), rgba(150, 220, 255, 0.4));
 }
 
-.odian-result-grid .result-label {
-    font-size: 0.62em;
-    line-height: 1.1;
-    margin-bottom: 6px;
-    color: #8ea0be;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+.odian-hero-label {
+    font-size: 0.72em;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #9fb6d4;
 }
 
-.odian-result-item .result-val {
-    margin: 0;
-    padding: 0;
-}
-
-.odian-result-small {
-    font-size: 1.15em;
-    font-weight: 700;
-    color: #f4f8ff;
-    line-height: 1.1;
-    word-break: break-word;
-    letter-spacing: 0;
-}
-
-#odianProjectedTooltipResult {
-    font-size: 1.15em;
+.odian-hero-value {
+    font-size: 2.2em;
     font-weight: 800;
     color: var(--accent);
-    line-height: 1.1;
+    line-height: 1.05;
+    letter-spacing: 0.01em;
     word-break: break-word;
-    letter-spacing: 0;
+}
+
+.odian-hero-num {
+    font-size: 1em;
+}
+
+.odian-hero-stat {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.34em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9fb6d4;
+}
+
+.odian-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.odian-stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(20, 27, 37, 0.85);
+    border: 1px solid rgba(106, 120, 146, 0.18);
+    border-radius: 10px;
+}
+
+.odian-stat-label {
+    font-size: 0.74em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8ea0be;
+}
+
+.odian-stat-value {
+    font-size: 1.05em;
+    font-weight: 700;
+    color: #f4f8ff;
+    font-family: 'Courier New', monospace;
+}
+
+/* Extra buff stats (fixed bonuses shown as subtle chips inside the hero) */
+.odian-extra-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.odian-extra-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 0.68em;
+    font-weight: 600;
+    color: #aac4e6;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(122, 160, 210, 0.22);
+    border-radius: 999px;
 }
 
 /* Input group styling */
@@ -574,37 +830,27 @@ h1 {
         padding: 20px 15px;
     }
 
-    .odian-layout {
+    .odian-output {
         grid-template-columns: 1fr;
-        gap: 14px;
+        gap: 12px;
     }
 
-    .stats-grid-odian,
-    .odian-level-row {
-        grid-template-columns: 1fr;
+    .odian-input-row {
+        grid-template-columns: 1fr 1fr;
     }
 
-    .odian-result-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-        padding: 10px;
-    }
-
-    .odian-level-picker {
-        max-width: 100%;
+    .odian-hero-value {
+        font-size: 1.9em;
     }
 
     .odian-class-btn {
-        width: 28px;
-        height: 28px;
+        width: 34px;
+        height: 34px;
     }
 
-    #odianProjectedTooltipResult {
-        font-size: 0.94em;
-    }
-
-    .odian-result-small {
-        font-size: 0.86em;
+    .odian-class-btn img {
+        width: 20px;
+        height: 20px;
     }
 
     h1 {
