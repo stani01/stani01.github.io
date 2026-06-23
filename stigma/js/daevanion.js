@@ -4427,12 +4427,13 @@ Increases Resist Fear by 500 (+10).`),
             {
                 key: 'gunnerSkill1',
                 defaultSkill: {
-                    name: 'Gunner Skill 1 Default',
+                    name: 'Magic Force',
                     icon: '../assets/icons/live_gu_magicalstrength_g1.png',
-                    description: d(`DummydefaultskillforGunnerSkill1.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
-                    target: 'Selected Target',
+                    description: d(`Increases Magic Attack by 550 for 2m.
+Increases Atk. Speed by 15%.`),
+                    usageCost: '3000 DP',
+                    cooldown: '2m',
+                    target: 'Self',
                     usageDistance: '1m',
                     area: 'Single Target',
                     areaIcon: 'targetSingle'
@@ -4442,11 +4443,13 @@ Increases Resist Fear by 500 (+10).`),
                         type1: {
                             name: '(Improved) Magic\'s Blessing',
                             icon: '../assets/icons/gu_magicalstrength_custom_a_up.png',
-                            description: d(`DummydescriptionGunnerSkill1Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Increases Magic Attack by 700 for 2m.
+Increases Atk. Speed by 15%.
+Increases Magical Acc by 800.`),
+                            usageCost: '3000 DP',
+                            cooldown: '2m',
                             castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -4454,11 +4457,12 @@ Increases Resist Fear by 500 (+10).`),
                         type2: {
                             name: '(Improved) Focused Magic',
                             icon: '../assets/icons/gu_magicalstrength_custom_b_up.png',
-                            description: d(`DummydescriptionGunnerSkill1Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Increases Magic Attack by 1200 for 15s.
+Increases Atk. Speed by 15%.`),
+                            usageCost: '3000 DP',
+                            cooldown: '2m',
                             castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -4469,11 +4473,13 @@ Increases Resist Fear by 500 (+10).`),
                         type1: {
                             name: 'Magic\'s Blessing',
                             icon: '../assets/icons/gu_magicalstrength_custom_a.png',
-                            description: d(`DummydescriptionGunnerSkill1Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Increases Magic Attack by 600 (+6) for 2m.
+Increases Atk. Speed by 15%.
+Increases Magical Acc by 500.`),
+                            usageCost: '3000 DP',
+                            cooldown: '2m',
                             castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -4481,11 +4487,12 @@ Increases Resist Fear by 500 (+10).`),
                         type2: {
                             name: 'Focused Magic',
                             icon: '../assets/icons/gu_magicalstrength_custom_b.png',
-                            description: d(`DummydescriptionGunnerSkill1Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Increases Magic Attack by 1000 (+10) for 12s.
+Increases Atk. Speed by 15%.`),
+                            usageCost: '3000 DP',
+                            cooldown: '2m',
                             castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -4503,10 +4510,12 @@ Increases Resist Fear by 500 (+10).`),
                 defaultSkill: {
                     name: 'Insert Magic Projectile',
                     icon: '../assets/icons/live_gu_firechainreload_g1.png',
-                    description: d(`DummydefaultskillforGunnerSkill2.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
-                    target: 'Selected Target',
+                    description: d(`Resets the cooldown of Pistol Shot.
+Resets the cooldown of Headshot.
+Resets the cooldown of Soul Shot.`),
+                    usageCost: '126 MP',
+                    cooldown: '24s',
+                    target: 'Self',
                     usageDistance: '1m',
                     area: 'Single Target',
                     areaIcon: 'targetSingle'
@@ -4516,11 +4525,11 @@ Increases Resist Fear by 500 (+10).`),
                         type1: {
                             name: '(Improved) Load Cannonball',
                             icon: '../assets/icons/gu_firechainreload_custom_a_up.png',
-                            description: d(`DummydescriptionGunnerSkill2Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Resets the cooldown of Concentrated Cannon Shot, Snow Projectile, Frost Cannon, Restraint Cannon, Shock Cannon and Spirit Cannon.`),
+                            usageCost: '126 MP',
+                            cooldown: '35s',
                             castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -4528,11 +4537,15 @@ Increases Resist Fear by 500 (+10).`),
                         type2: {
                             name: '(Improved) Load Magic Projectile',
                             icon: '../assets/icons/gu_firechainreload_custom_b_up.png',
-                            description: d(`DummydescriptionGunnerSkill2Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Resets the cooldown of Pistol Shot.
+Resets the cooldown of Headshot.
+Resets the cooldown of Soul Shot.
+Resets the cooldown of Enhance Magic Projectile.
+Resets the cooldown of Flight Instinct.`),
+                            usageCost: '126 MP',
+                            cooldown: '19s',
                             castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -4543,11 +4556,14 @@ Increases Resist Fear by 500 (+10).`),
                         type1: {
                             name: 'Load Cannonball',
                             icon: '../assets/icons/gu_firechainreload_custom_a.png',
-                            description: d(`DummydescriptionGunnerSkill2Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Resets the cooldown of Concentrated Cannon Shot.
+Resets the cooldown of Snow Projectile.
+Resets the cooldown of Frost Cannon.
+Resets the cooldown of Restraint Cannon.`),
+                            usageCost: '126 MP',
+                            cooldown: '1m (-0.6s)',
                             castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -4555,11 +4571,15 @@ Increases Resist Fear by 500 (+10).`),
                         type2: {
                             name: 'Load Magic Projectile',
                             icon: '../assets/icons/gu_firechainreload_custom_b.png',
-                            description: d(`DummydescriptionGunnerSkill2Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Resets the cooldown of Pistol Shot.
+Resets the cooldown of Headshot.
+Resets the cooldown of Soul Shot.
+Resets the cooldown of Enhance Magic Projectile.
+Resets the cooldown of Flight Instinct.`),
+                            usageCost: '126 MP',
+                            cooldown: '24s (-0.24s)',
                             castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -4577,9 +4597,10 @@ Increases Resist Fear by 500 (+10).`),
                 defaultSkill: {
                     name: 'Headshot',
                     icon: '../assets/icons/live_gu_foreheadsnipe_g1.png',
-                    description: d(`DummydefaultskillforGunnerSkill3.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Deals 1239 magical earth damage.
+Knocks the target back.`),
+                    usageCost: '160 MP',
+                    cooldown: '20s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -4590,21 +4611,25 @@ Increases Resist Fear by 500 (+10).`),
                         type1: {
                             name: '(Improved) Fire Head Throughshot',
                             icon: '../assets/icons/gu_foreheadsnipe_custom_a_up.png',
-                            description: d(`DummydescriptionGunnerSkill3Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 2566 magical earth damage.
+After a hit, the cooldown of Between the Eyes is reset.
+Knocks the target back.`),
+                            usageCost: '160 MP',
+                            cooldown: '12s',
                             castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '3x25m',
+                            areaIcon: 'targetRect'
                         },
                         type2: {
                             name: '(Improved) Concentrated Headshot',
                             icon: '../assets/icons/gu_foreheadsnipe_custom_b_up.png',
-                            description: d(`DummydescriptionGunnerSkill3Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 1486 magical earth damage.
+Increases your attack speed by 30% for 10 seconds.
+Attack skills deal crit strikes 4 times.`),
+                            usageCost: '160 MP',
+                            cooldown: '20s',
                             castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
@@ -4617,21 +4642,24 @@ Increases Resist Fear by 500 (+10).`),
                         type1: {
                             name: 'Fire Head Throughshot',
                             icon: '../assets/icons/gu_foreheadsnipe_custom_a.png',
-                            description: d(`DummydescriptionGunnerSkill3Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 2138 (+21) magical earth damage.
+Knocks the target back.`),
+                            usageCost: '160 MP',
+                            cooldown: '12s',
                             castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '3x25m',
+                            areaIcon: 'targetRect'
                         },
                         type2: {
                             name: 'Concentrated Headshot',
                             icon: '../assets/icons/gu_foreheadsnipe_custom_b.png',
-                            description: d(`DummydescriptionGunnerSkill3Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 1239 (+12) magical earth damage.
+Increases your attack speed by 30% for 7 seconds.
+Attack skills deal crit strikes 3 times.`),
+                            usageCost: '160 MP',
+                            cooldown: '20s',
                             castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
@@ -4651,22 +4679,23 @@ Increases Resist Fear by 500 (+10).`),
                 defaultSkill: {
                     name: 'Snow Projectile',
                     icon: '../assets/icons/live_gu_iceballcannon_g1.png',
-                    description: d(`DummydefaultskillforGunnerSkill4.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
-                    target: 'Selected Target',
+                    description: d(`Deals 1641 magical water damage.`),
+                    usageCost: '575 MP',
+                    cooldown: '36s',
+                    target: 'Area within a Radius of Target 6 People',
                     usageDistance: '1m',
-                    area: 'Single Target',
-                    areaIcon: 'targetSingle'
+                    area: '5m',
+                    areaIcon: 'targetCircle'
                 },
                 rows: {
                     improved: {
                         type1: {
                             name: '(Improved) Paralysing Projectile',
                             icon: '../assets/icons/gu_iceballcannon_custom_a_up.png',
-                            description: d(`DummydescriptionGunnerSkill4Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 2361 magical water damage.
+If the target is in a shocked state, it will be paralysed for 2.5 seconds.`),
+                            usageCost: '575 MP',
+                            cooldown: '50s',
                             castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
@@ -4676,14 +4705,14 @@ Increases Resist Fear by 500 (+10).`),
                         type2: {
                             name: '(Improved) Binding Projectile',
                             icon: '../assets/icons/gu_iceballcannon_custom_b_up.png',
-                            description: d(`DummydescriptionGunnerSkill4Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            description: d(`Deals 1969 magical water damage.
+Reduces the target's movement speed.`),
+                            usageCost: '575 MP',
+                            cooldown: '16s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '5m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     },
@@ -4691,9 +4720,10 @@ Increases Resist Fear by 500 (+10).`),
                         type1: {
                             name: 'Paralysing Projectile',
                             icon: '../assets/icons/gu_iceballcannon_custom_a.png',
-                            description: d(`DummydescriptionGunnerSkill4Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 1967 (+19) magical water damage.
+If the target is in a shock state, it will be paralysed for 2 seconds.`),
+                            usageCost: '575 MP',
+                            cooldown: '50s',
                             castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
@@ -4703,14 +4733,14 @@ Increases Resist Fear by 500 (+10).`),
                         type2: {
                             name: 'Binding Projectile',
                             icon: '../assets/icons/gu_iceballcannon_custom_b.png',
-                            description: d(`DummydescriptionGunnerSkill4Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            description: d(`Deals 1641 (+16) magical water damage.
+Reduces the target's movement speed.`),
+                            usageCost: '575 MP',
+                            cooldown: '24s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '5m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     }
@@ -4725,9 +4755,11 @@ Increases Resist Fear by 500 (+10).`),
                 defaultSkill: {
                     name: 'Restoration Volley',
                     icon: '../assets/icons/live_gu_drainattack_g1.png',
-                    description: d(`DummydefaultskillforGunnerSkill5.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Deals 1178 magical fire damage.
+Restores 1050 HP.
+Multicast 3 times.`),
+                    usageCost: '291 MP',
+                    cooldown: '1m30s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -4739,9 +4771,13 @@ Increases Resist Fear by 500 (+10).`),
                         type2: {
                             name: '(Improved) Boosted Rapid Fire of Restoration',
                             icon: '../assets/icons/gu_drainattack_custom_b_up.png',
-                            description: d(`DummydescriptionGunnerSkill5Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 1413 magical fire damage.
+Restores 3000 HP.
+Reduces the cooldown for Materialised Magic Form by 10%.
+Restores an additional 2500 HP if you land a Crit Strike.
+Multicast 3 times`),
+                            usageCost: '291 MP',
+                            cooldown: '1m30s',
                             castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
@@ -4751,9 +4787,12 @@ Increases Resist Fear by 500 (+10).`),
                         type3: {
                             name: '(Improved) Gun Salute',
                             icon: '../assets/icons/gu_drainattack_custom_c_up.png',
-                            description: d(`DummydescriptionGunnerSkill5Type3improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 2827 magical fire damage.
+Restores 20000 HP.
+Reduces the cooldown for Materialised Magic Form by 20%.
+You also evade a physical attack.`),
+                            usageCost: '291 MP',
+                            cooldown: '1m30s',
                             castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
@@ -4765,9 +4804,13 @@ Increases Resist Fear by 500 (+10).`),
                         type1: {
                             name: 'Rapid Fire of Restoration',
                             icon: '../assets/icons/gu_drainattack_custom_a.png',
-                            description: d(`DummydescriptionGunnerSkill5Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 1178 magical fire damage.
+Restores 1500 HP.
+Reduces the cooldown for Materialised Magic Form by 10%.
+Restores an additional 2500 HP if you land a Crit Strike.
+Multicast 3 times`),
+                            usageCost: '291 MP',
+                            cooldown: '1m30s',
                             castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
@@ -4777,9 +4820,13 @@ Increases Resist Fear by 500 (+10).`),
                         type2: {
                             name: 'Boosted Rapid Fire of Restoration',
                             icon: '../assets/icons/gu_drainattack_custom_b.png',
-                            description: d(`DummydescriptionGunnerSkill5Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 1178 (+11) magical fire damage.
+Restores 2000 HP.
+Reduces the cooldown for Materialised Magic Form by 10%.
+Restores an additional 2500 HP if you land a Crit Strike.
+Multicast 3 times`),
+                            usageCost: '291 MP',
+                            cooldown: '1m30s',
                             castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
@@ -4789,9 +4836,12 @@ Increases Resist Fear by 500 (+10).`),
                         type3: {
                             name: 'Gun Salute',
                             icon: '../assets/icons/gu_drainattack_custom_c.png',
-                            description: d(`DummydescriptionGunnerSkill5Type3normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 2356 (+22) magical fire damage.
+Restores 15000 HP.
+Reduces the cooldown for Materialised Magic Form by 20%.
+You also evade a physical attack.`),
+                            usageCost: '291 MP',
+                            cooldown: '1m30s',
                             castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
@@ -4810,9 +4860,11 @@ Increases Resist Fear by 500 (+10).`),
                 defaultSkill: {
                     name: 'Concentrated Cannon Shot',
                     icon: '../assets/icons/live_gu_snipingshot_g1.png',
-                    description: d(`DummydefaultskillforGunnerSkill6.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Deals 1600 magical earth damage.
+Multicast 2 times
+Perfect Aimed Cannon Shot.`),
+                    usageCost: '317 MP',
+                    cooldown: '7s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -4821,23 +4873,25 @@ Increases Resist Fear by 500 (+10).`),
                 rows: {
                     improved: {
                         type1: {
-                            name: '(Improved) Gunner Skill 6 Type 1',
+                            name: '(Improved) Concentrated Bombardment',
                             icon: '../assets/icons/gu_snipingshot_custom_a_up.png',
-                            description: d(`DummydescriptionGunnerSkill6Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 4800 magical earth damage.`),
+                            usageCost: '317 MP',
+                            cooldown: '30s',
                             castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '15m',
+                            areaIcon: 'targetConic'
                         },
                         type2: {
-                            name: '(Improved) Gunner Skill 6 Type 2',
+                            name: '(Improved) Concentrated Chain Shot',
                             icon: '../assets/icons/gu_snipingshot_custom_b_up.png',
-                            description: d(`DummydescriptionGunnerSkill6Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 2300 magical earth damage.
+Deals additional damage when the target's movement speed is reduced.
+Multicast 3 times`),
+                            usageCost: '317 MP',
+                            cooldown: '7s',
                             castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
@@ -4848,23 +4902,24 @@ Increases Resist Fear by 500 (+10).`),
                     },
                     normal: {
                         type1: {
-                            name: 'Gunner Skill 6 Type 1',
+                            name: 'Concentrated Bombardment',
                             icon: '../assets/icons/gu_snipingshot_custom_a.png',
-                            description: d(`DummydescriptionGunnerSkill6Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 4000 (+38) magical earth damage.`),
+                            usageCost: '317 MP',
+                            cooldown: '30s',
                             castTime: 'Cast Instantly',
-                            target: 'Selected Target',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '15m',
+                            areaIcon: 'targetConic'
                         },
                         type2: {
-                            name: 'Gunner Skill 6 Type 2',
+                            name: 'Concentrated Chain Shot',
                             icon: '../assets/icons/gu_snipingshot_custom_b.png',
-                            description: d(`DummydescriptionGunnerSkill6Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 1917 (+15) magical earth damage.
+Multicast 3 times`),
+                            usageCost: '317 MP',
+                            cooldown: '7s',
                             castTime: 'Cast Instantly',
                             target: 'Selected Target',
                             usageDistance: '1m',
