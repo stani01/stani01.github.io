@@ -274,6 +274,11 @@
         return text.replace(/\n/g, '<br>');
     }
 
+    function getEffectiveCastTime(def) {
+        if (!def) return 'Cast Instantly';
+        return def.castTime || 'Cast Instantly';
+    }
+
     function normalizeSpiritKey(value) {
         var key = String(value || '').toLowerCase();
         for (var i = 0; i < SPIRIT_OPTIONS.length; i++) {
@@ -363,7 +368,7 @@
         if (def.usageDistance) html += '<div class="gc-item-tooltip-meta-line">Usage distance: ' + formatTooltipInlineValue(def.usageDistance) + '</div>';
         if (def.usageCost) html += '<div class="gc-item-tooltip-meta-line">Usage Cost: ' + formatTooltipInlineValue(def.usageCost) + '</div>';
         if (def.cooldown) html += '<div class="gc-item-tooltip-meta-line">Cooldown: ' + formatTooltipInlineValue(def.cooldown) + '</div>';
-        if (def.castTime) html += '<div class="gc-item-tooltip-meta-line">Cast Time: ' + formatTooltipInlineValue(def.castTime) + '</div>';
+        html += '<div class="gc-item-tooltip-meta-line">Cast Time: ' + formatTooltipInlineValue(getEffectiveCastTime(def)) + '</div>';
         if (def.pvpDuration) html += '<div class="gc-item-tooltip-meta-line">PvP Duration: ' + formatTooltipInlineValue(def.pvpDuration) + '</div>';
         html += '</td>';
         if (showAoe) {
@@ -652,8 +657,7 @@
         html += '<div class="warning-box daevanion-warning-box">';
         html += '<button type="button" class="daevanion-warning-close" aria-label="Hide warning" title="Hide warning" onclick="StigmaApp.toggleDaevanionWarning()">✕</button>';
         html += '<div class="daevanion-warning-content">🚧Daevanion tooltip descriptions are under construction. Placeholder data is shown until the page is complete.🚧<br>🚧Found a discrepancy? Let us know!🚧'
-        html += '<br>🚧Classes with missing descriptions so far: <img src="../assets/icons/gunner.png"></img>'
-        html += '<img src="../assets/icons/aethertech.png"></img>'
+        html += '<br>🚧Classes with missing descriptions so far: '
         html += '<img src="../assets/icons/bard.png"></img>'
         html += '<img src="../assets/icons/painter.png"></img>'
         html += '🚧</div>';
@@ -1285,7 +1289,7 @@
         html += '</div>';
         html += '<div class="stigma-mobile-skill-meta">';
         if (def.cooldown) html += '<div class="stigma-mobile-skill-meta-line">Cooldown: ' + escapeHtml(def.cooldown) + '</div>';
-        if (def.castTime) html += '<div class="stigma-mobile-skill-meta-line">Cast Time: ' + escapeHtml(def.castTime) + '</div>';
+        html += '<div class="stigma-mobile-skill-meta-line">Cast Time: ' + escapeHtml(getEffectiveCastTime(def)) + '</div>';
         if (def.pvpDuration) html += '<div class="stigma-mobile-skill-meta-line">PvP Duration: ' + escapeHtml(def.pvpDuration) + '</div>';
         html += '</div>';
         if (def.description) html += '<div class="stigma-mobile-skill-description">' + formatTooltipDescription(def.description) + '</div>';
