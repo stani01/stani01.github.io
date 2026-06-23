@@ -60,6 +60,322 @@ h1 {
     margin-bottom: 16px;
 }
 
+.stats-calculator-wide {
+    grid-column: 1 / -1;
+}
+
+.odian-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.85fr);
+    gap: 16px;
+    margin-top: 14px;
+    align-items: stretch;
+}
+
+.odian-input-panel,
+.odian-results-panel {
+    min-width: 0;
+}
+
+.odian-input-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    background: linear-gradient(180deg, rgba(15, 20, 28, 0.55), rgba(10, 14, 20, 0.6));
+    border: 1px solid rgba(96, 112, 138, 0.16);
+    border-radius: 12px;
+}
+
+.odian-input-panel .input-group {
+    margin-bottom: 0;
+}
+
+.odian-input-panel input[type="text"] {
+    max-width: none;
+}
+
+.odian-results-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.odian-results-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.8em;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.stats-grid-odian,
+.odian-level-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 0;
+    align-items: end;
+}
+
+.odian-tooltip-group {
+    margin-bottom: 0;
+}
+
+.odian-class-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.odian-class-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: rgba(12, 16, 22, 0.78);
+    border: 1px solid rgba(122, 138, 166, 0.22);
+    border-radius: 8px;
+    padding: 0;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.odian-class-btn img {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    flex: 0 0 auto;
+}
+
+.odian-class-btn:hover {
+    border-color: var(--accent);
+    background: rgba(16, 22, 30, 0.95);
+}
+
+.odian-class-btn.selected {
+    border-color: var(--accent);
+    background: rgba(27, 56, 81, 0.95);
+    box-shadow: 0 0 0 1px rgba(77, 184, 255, 0.12);
+}
+
+.odian-level-picker {
+    position: relative;
+    width: 100%;
+    max-width: none;
+}
+
+.odian-level-trigger {
+    width: 100%;
+    min-height: 40px;
+    padding: 9px 30px 9px 12px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-dim);
+    border-radius: 5px;
+    color: #dce4f2;
+    font-size: 0.9em;
+    line-height: 1.2;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    position: relative;
+}
+
+.odian-level-trigger::before,
+.odian-level-trigger::after {
+    content: '';
+    position: absolute;
+    right: 11px;
+    width: 5px;
+    height: 5px;
+    border-right: 1.5px solid #89a6c5;
+    border-bottom: 1.5px solid #89a6c5;
+    pointer-events: none;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.odian-level-trigger::before {
+    top: calc(50% - 5px);
+    transform: rotate(45deg);
+}
+
+.odian-level-trigger::after {
+    top: calc(50% - 1px);
+    transform: rotate(-135deg);
+    opacity: 0;
+}
+
+.odian-level-picker.open .odian-level-trigger,
+.odian-level-trigger:hover,
+.odian-level-trigger:focus {
+    outline: none;
+    background: rgba(0, 0, 0, 0.6);
+    border-color: var(--accent);
+    box-shadow: 0 0 6px rgba(77, 184, 255, 0.2);
+}
+
+.odian-level-picker.open .odian-level-trigger::before {
+    opacity: 0;
+}
+
+.odian-level-picker.open .odian-level-trigger::after {
+    opacity: 1;
+}
+
+.odian-level-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 100%;
+    max-height: 164px;
+    overflow-y: auto;
+    background: rgba(8, 11, 16, 0.98);
+    border: 1px solid rgba(77, 184, 255, 0.18);
+    border-radius: 8px;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.36);
+    padding: 4px;
+    z-index: 25;
+    display: none;
+}
+
+.odian-level-picker.open .odian-level-menu {
+    display: block;
+}
+
+.odian-level-option {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: #cdd7e8;
+    font-size: 0.9em;
+    line-height: 1.15;
+    text-align: left;
+    padding: 8px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.odian-level-option:hover {
+    background: rgba(77, 184, 255, 0.12);
+    color: #ffffff;
+}
+
+.odian-level-option.selected {
+    background: rgba(77, 184, 255, 0.18);
+    color: #ffffff;
+}
+
+.odian-level-menu::-webkit-scrollbar {
+    width: 8px;
+}
+
+.odian-level-menu::-webkit-scrollbar-track {
+    background: rgba(15, 20, 28, 0.9);
+    border-radius: 999px;
+}
+
+.odian-level-menu::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(77, 184, 255, 0.45), rgba(50, 104, 150, 0.9));
+    border-radius: 999px;
+    border: 1px solid rgba(12, 18, 24, 0.8);
+}
+
+.odian-level-menu {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(77, 184, 255, 0.65) rgba(15, 20, 28, 0.9);
+}
+
+.odian-native-select {
+    display: none;
+}
+
+.odian-result-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 0;
+    width: 100%;
+    min-width: 0;
+    flex: 1;
+    padding: 12px;
+    background: linear-gradient(160deg, rgba(16, 22, 31, 0.95), rgba(9, 13, 19, 0.97));
+    border: 1px solid rgba(96, 112, 138, 0.2);
+    border-radius: 12px;
+}
+
+.odian-result-item {
+    position: relative;
+    overflow: hidden;
+    background: rgba(20, 27, 37, 0.9);
+    border: 1px solid rgba(106, 120, 146, 0.16);
+    border-radius: 10px;
+    padding: 12px 10px;
+    min-width: 0;
+    min-height: 84px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+
+.odian-result-item:hover {
+    border-color: rgba(122, 138, 166, 0.4);
+    transform: translateY(-1px);
+}
+
+.odian-result-highlight {
+    border-color: rgba(77, 184, 255, 0.55);
+    background: linear-gradient(165deg, rgba(23, 42, 60, 0.96), rgba(13, 23, 34, 0.97));
+}
+
+.odian-result-highlight::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(77, 184, 255, 0.9), rgba(150, 220, 255, 0.5));
+}
+
+.odian-result-grid .result-label {
+    font-size: 0.62em;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    color: #8ea0be;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.odian-result-item .result-val {
+    margin: 0;
+    padding: 0;
+}
+
+.odian-result-small {
+    font-size: 1.15em;
+    font-weight: 700;
+    color: #f4f8ff;
+    line-height: 1.1;
+    word-break: break-word;
+    letter-spacing: 0;
+}
+
+#odianProjectedTooltipResult {
+    font-size: 1.15em;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1.1;
+    word-break: break-word;
+    letter-spacing: 0;
+}
+
 /* Input group styling */
 .stats-calculator .input-group {
     margin-bottom: 14px;
@@ -68,8 +384,8 @@ h1 {
 
 .stats-calculator label {
     display: block;
-    margin-bottom: 8px;
-    font-size: 0.88em;
+    margin-bottom: 6px;
+    font-size: 0.8em;
     color: #999;
     font-weight: 500;
     text-transform: uppercase;
@@ -256,6 +572,39 @@ h1 {
 @media (max-width: 768px) {
     .container {
         padding: 20px 15px;
+    }
+
+    .odian-layout {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .stats-grid-odian,
+    .odian-level-row {
+        grid-template-columns: 1fr;
+    }
+
+    .odian-result-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .odian-level-picker {
+        max-width: 100%;
+    }
+
+    .odian-class-btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    #odianProjectedTooltipResult {
+        font-size: 0.94em;
+    }
+
+    .odian-result-small {
+        font-size: 0.86em;
     }
 
     h1 {

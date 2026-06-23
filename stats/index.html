@@ -57,6 +57,70 @@
           <div class="result-val valid" id="resistEvadeResult">--</div>
         </div>
       </div>
+
+      <div class="result-box stats-calculator stats-calculator-wide">
+        <div>🔮 ODIAN ENCHANT TOOLTIP FINDER</div>
+
+        <div class="odian-layout">
+          <div class="odian-input-panel">
+            <div class="input-group">
+              <label>Class (Power/Knowledge)</label>
+              <div id="odianClassSelector" class="odian-class-selector"></div>
+            </div>
+
+            <div class="input-group odian-tooltip-group">
+              <label for="odianTooltipInput">Current Skill Tooltip</label>
+              <input type="text" id="odianTooltipInput" value="" placeholder="e.g. 5001" oninput="calculate(); saveSession()" onblur="validateOdianTooltipInput(); calculate(); saveSession()">
+            </div>
+
+            <div class="stats-grid-odian odian-level-row">
+              <div class="input-group">
+                <label for="odianCurrentLevelTrigger">Current Enchant Level</label>
+                <div class="odian-level-picker" data-select-id="odianCurrentLevel">
+                  <button type="button" id="odianCurrentLevelTrigger" class="odian-level-trigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="odian-level-trigger-text">+0</span>
+                  </button>
+                  <div class="odian-level-menu" id="odianCurrentLevelMenu" role="listbox" aria-labelledby="odianCurrentLevelTrigger"></div>
+                  <select id="odianCurrentLevel" class="odian-native-select" oninput="calculate(); saveSession()" onchange="calculate(); saveSession()"></select>
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label for="odianTargetLevelTrigger">Show Tooltip For Level</label>
+                <div class="odian-level-picker" data-select-id="odianTargetLevel">
+                  <button type="button" id="odianTargetLevelTrigger" class="odian-level-trigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="odian-level-trigger-text">+26</span>
+                  </button>
+                  <div class="odian-level-menu" id="odianTargetLevelMenu" role="listbox" aria-labelledby="odianTargetLevelTrigger"></div>
+                  <select id="odianTargetLevel" class="odian-native-select" oninput="calculate(); saveSession()" onchange="calculate(); saveSession()"></select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="odian-results-panel">
+            <span class="odian-results-label">Results</span>
+            <div class="result-container odian-result-grid">
+              <div class="odian-result-item">
+                <span class="result-label">Class KP</span>
+                <div class="result-val valid odian-result-small" id="odianClassPowerResult">--</div>
+              </div>
+              <div class="odian-result-item">
+                <span class="result-label">Base Dmg</span>
+                <div class="result-val valid odian-result-small" id="odianBaseDamageResult">--</div>
+              </div>
+              <div class="odian-result-item">
+                <span class="result-label">Enchant / Lv</span>
+                <div class="result-val valid odian-result-small" id="odianEnchantPerLevelResult">--</div>
+              </div>
+              <div class="odian-result-item odian-result-highlight">
+                <span class="result-label">Target Tooltip</span>
+                <div class="result-val valid" id="odianProjectedTooltipResult">--</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- How It Works Section -->
@@ -65,12 +129,18 @@
       <div class="info-content">
         <div class="info-group">
           <h3>📊 Crit Hit Chance</h3>
-          <p>Formula: <code>(170 × Crit Stat) ÷ (24000 + Crit Stat)</code></p>
+          <p>Formula: <code>(170 x Crit Stat) ÷ (24000 + Crit Stat)</code></p>
           <p>Determines your base chance to land a critical hit. Capped at 100%.</p>
         </div>
         <div class="info-group">
+          <h3>📊 Odian Enchant</h3>
+          <p>Base Formula: <code>ROUND(Skill Tooltip / ((Power or Knowledge / 100) + 0.02), 0)</code></p>
+          <p>Enchant Formula: <code>ROUND(Base Damage x 0.02, 0) x (Power or Knowledge / 100)</code></p>
+          <p>Lets you project the tooltip from your current enchant level to any target level from +0 to +26.</p>
+        </div>
+        <div class="info-group">
           <h3>🛡️ Resist/Evade Percentage</h3>
-          <p>Formula: <code>(120 × Effective Resist) ÷ (24000 + Effective Resist)</code></p>
+          <p>Formula: <code>(120 x Effective Resist) ÷ (24000 + Effective Resist)</code></p>
           <p><strong>Effective Resist</strong> = Your Resist/Evasion - Enemy Accuracy</p>
           <ul>
             <li><strong>Magic Resist</strong> reduces the ability to hit from <strong>Magic Accuracy</strong> attacks (a.k.a. resisting the hit - 0 dmg)</li>
@@ -107,6 +177,195 @@ function parseExpression(input) {
 function calculate() {
     calculateCritPercentage();
     calculateResistEvadePercentage();
+  calculateOdianEnchantTooltip();
+}
+
+const ODIAN_CLASS_DATA = {
+  gladiator: { kp: 115, label: 'Gladiator', icon: '../assets/icons/gladiator.png' },
+  templar: { kp: 115, label: 'Templar', icon: '../assets/icons/templar.png' },
+  assassin: { kp: 110, label: 'Assassin', icon: '../assets/icons/assassin.png' },
+  ranger: { kp: 100, label: 'Ranger', icon: '../assets/icons/ranger.png' },
+  sorcerer: { kp: 120, label: 'Sorcerer', icon: '../assets/icons/sorcerer.png' },
+  spiritmaster: { kp: 115, label: 'Spiritmaster', icon: '../assets/icons/spiritmaster.png' },
+  cleric: { kp: 105, label: 'Cleric', icon: '../assets/icons/cleric.png' },
+  chanter: { kp: 110, label: 'Chanter', icon: '../assets/icons/chanter.png' },
+  gunner: { kp: 100, label: 'Gunner', icon: '../assets/icons/gunner.png' },
+  aethertech: { kp: 105, label: 'Aethertech', icon: '../assets/icons/aethertech.png' },
+  bard: { kp: 110, label: 'Bard', icon: '../assets/icons/bard.png' },
+  painter: { kp: 100, label: 'Painter', icon: '../assets/icons/painter.png' }
+};
+
+let odianSelectedClass = 'gladiator';
+const ODIAN_LEVEL_SELECT_IDS = ['odianCurrentLevel', 'odianTargetLevel'];
+
+function initOdianEnchantCalculator() {
+  const currentLevelEl = document.getElementById('odianCurrentLevel');
+  const targetLevelEl = document.getElementById('odianTargetLevel');
+  const classSelectorEl = document.getElementById('odianClassSelector');
+
+  if (!currentLevelEl || !targetLevelEl || !classSelectorEl) return;
+
+  currentLevelEl.innerHTML = '';
+  targetLevelEl.innerHTML = '';
+
+  for (let level = 0; level <= 26; level++) {
+    const currentOption = document.createElement('option');
+    currentOption.value = String(level);
+    currentOption.textContent = '+' + level;
+    currentLevelEl.appendChild(currentOption);
+
+    const targetOption = document.createElement('option');
+    targetOption.value = String(level);
+    targetOption.textContent = '+' + level;
+    targetLevelEl.appendChild(targetOption);
+  }
+
+  currentLevelEl.value = '0';
+  targetLevelEl.value = '26';
+  initOdianLevelDropdowns();
+  syncOdianLevelDropdowns();
+
+  classSelectorEl.innerHTML = '';
+  Object.keys(ODIAN_CLASS_DATA).forEach(function(classKey) {
+    const classData = ODIAN_CLASS_DATA[classKey];
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'odian-class-btn' + (classKey === odianSelectedClass ? ' selected' : '');
+    button.title = classData.label;
+    button.setAttribute('aria-label', classData.label);
+    button.innerHTML = '<img src="' + classData.icon + '" alt="' + classData.label + '">';
+    button.onclick = function() { selectOdianClass(classKey); };
+    classSelectorEl.appendChild(button);
+  });
+}
+
+function initOdianLevelDropdowns() {
+  ODIAN_LEVEL_SELECT_IDS.forEach(function(selectId) {
+    const selectEl = document.getElementById(selectId);
+    const pickerEl = document.querySelector('.odian-level-picker[data-select-id="' + selectId + '"]');
+    if (!selectEl || !pickerEl) return;
+
+    const menuEl = pickerEl.querySelector('.odian-level-menu');
+    const triggerEl = pickerEl.querySelector('.odian-level-trigger');
+    if (!menuEl || !triggerEl) return;
+
+    menuEl.innerHTML = '';
+    Array.from(selectEl.options).forEach(function(option) {
+      const optionBtn = document.createElement('button');
+      optionBtn.type = 'button';
+      optionBtn.className = 'odian-level-option';
+      optionBtn.setAttribute('role', 'option');
+      optionBtn.dataset.value = option.value;
+      optionBtn.textContent = option.textContent;
+      optionBtn.onclick = function() {
+        selectEl.value = option.value;
+        syncOdianLevelDropdowns();
+        closeOdianLevelDropdowns();
+        calculate();
+        saveSession();
+      };
+      menuEl.appendChild(optionBtn);
+    });
+
+    triggerEl.onclick = function() {
+      const isOpen = pickerEl.classList.contains('open');
+      closeOdianLevelDropdowns(selectId);
+      if (!isOpen) pickerEl.classList.add('open');
+      triggerEl.setAttribute('aria-expanded', String(!isOpen));
+    };
+  });
+}
+
+function syncOdianLevelDropdowns() {
+  ODIAN_LEVEL_SELECT_IDS.forEach(function(selectId) {
+    const selectEl = document.getElementById(selectId);
+    const pickerEl = document.querySelector('.odian-level-picker[data-select-id="' + selectId + '"]');
+    if (!selectEl || !pickerEl) return;
+
+    const triggerTextEl = pickerEl.querySelector('.odian-level-trigger-text');
+    const triggerEl = pickerEl.querySelector('.odian-level-trigger');
+    if (triggerTextEl) {
+      const selectedOption = selectEl.options[selectEl.selectedIndex];
+      triggerTextEl.textContent = selectedOption ? selectedOption.textContent : '--';
+    }
+
+    const optionEls = pickerEl.querySelectorAll('.odian-level-option');
+    optionEls.forEach(function(optionEl) {
+      const isSelected = optionEl.dataset.value === selectEl.value;
+      optionEl.classList.toggle('selected', isSelected);
+      optionEl.setAttribute('aria-selected', String(isSelected));
+    });
+
+    if (triggerEl) triggerEl.setAttribute('aria-expanded', String(pickerEl.classList.contains('open')));
+  });
+}
+
+function closeOdianLevelDropdowns(exceptSelectId) {
+  const pickerEls = document.querySelectorAll('.odian-level-picker');
+  pickerEls.forEach(function(pickerEl) {
+    const shouldKeepOpen = exceptSelectId && pickerEl.dataset.selectId === exceptSelectId && pickerEl.classList.contains('open');
+    if (!shouldKeepOpen) {
+      pickerEl.classList.remove('open');
+      const triggerEl = pickerEl.querySelector('.odian-level-trigger');
+      if (triggerEl) triggerEl.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
+
+function selectOdianClass(classKey) {
+  if (!ODIAN_CLASS_DATA[classKey]) return;
+  odianSelectedClass = classKey;
+
+  const buttons = document.querySelectorAll('.odian-class-btn');
+  buttons.forEach(function(btn) {
+    btn.classList.remove('selected');
+  });
+  if (buttons.length) {
+    const selectedIndex = Object.keys(ODIAN_CLASS_DATA).indexOf(classKey);
+    if (selectedIndex >= 0 && buttons[selectedIndex]) buttons[selectedIndex].classList.add('selected');
+  }
+
+  calculate();
+  saveSession();
+}
+
+function calculateOdianEnchantTooltip() {
+  const tooltipInputEl = document.getElementById('odianTooltipInput');
+  const currentLevelEl = document.getElementById('odianCurrentLevel');
+  const targetLevelEl = document.getElementById('odianTargetLevel');
+
+  const classPowerEl = document.getElementById('odianClassPowerResult');
+  const baseDamageEl = document.getElementById('odianBaseDamageResult');
+  const enchantPerLevelEl = document.getElementById('odianEnchantPerLevelResult');
+  const projectedTooltipEl = document.getElementById('odianProjectedTooltipResult');
+
+  if (!tooltipInputEl || !currentLevelEl || !targetLevelEl || !classPowerEl || !baseDamageEl || !enchantPerLevelEl || !projectedTooltipEl) {
+    return;
+  }
+
+  const classData = ODIAN_CLASS_DATA[odianSelectedClass] || ODIAN_CLASS_DATA.gladiator;
+  const kp = classData.kp;
+  const kpMultiplier = kp / 100;
+  classPowerEl.textContent = kp;
+
+  const tooltipInput = parseExpression(tooltipInputEl.value.trim());
+  const currentLevel = parseInt(currentLevelEl.value, 10);
+  const targetLevel = parseInt(targetLevelEl.value, 10);
+
+  if (isNaN(tooltipInput) || tooltipInput <= 0 || isNaN(currentLevel) || isNaN(targetLevel)) {
+    baseDamageEl.textContent = '--';
+    enchantPerLevelEl.textContent = '--';
+    projectedTooltipEl.textContent = '--';
+    return;
+  }
+
+  const baseDamage = Math.round(tooltipInput / (kpMultiplier + 0.02));
+  const enchantPerLevel = Math.round(baseDamage * 0.02) * kpMultiplier;
+  const projectedTooltip = Math.round(tooltipInput + (targetLevel - currentLevel) * enchantPerLevel);
+
+  baseDamageEl.textContent = String(baseDamage.toLocaleString());
+  enchantPerLevelEl.textContent = String(Math.round(enchantPerLevel).toLocaleString());
+  projectedTooltipEl.textContent = String(projectedTooltip.toLocaleString());
 }
 
 function calculateCritPercentage() {
@@ -191,11 +450,24 @@ function validateAccuracyInput() {
     }
 }
 
+function validateOdianTooltipInput() {
+  const el = document.getElementById('odianTooltipInput');
+  if (!el) return;
+  const val = parseExpression(el.value);
+  if (!isNaN(val)) {
+    el.value = Math.max(0, Math.min(99999999, Math.round(val)));
+  }
+}
+
 function saveSession() {
     const state = {
         critStat: document.getElementById('critStat').value,
         yourResist: document.getElementById('yourResist').value,
-        enemyAccuracy: document.getElementById('enemyAccuracy').value
+    enemyAccuracy: document.getElementById('enemyAccuracy').value,
+    odianTooltipInput: document.getElementById('odianTooltipInput') ? document.getElementById('odianTooltipInput').value : '',
+    odianCurrentLevel: document.getElementById('odianCurrentLevel') ? document.getElementById('odianCurrentLevel').value : '0',
+    odianTargetLevel: document.getElementById('odianTargetLevel') ? document.getElementById('odianTargetLevel').value : '26',
+    odianSelectedClass: odianSelectedClass
     };
     localStorage.setItem('stats-page-state', JSON.stringify(state));
 }
@@ -208,6 +480,14 @@ function loadSession() {
             if (state.critStat) document.getElementById('critStat').value = state.critStat;
             if (state.yourResist) document.getElementById('yourResist').value = state.yourResist;
             if (state.enemyAccuracy) document.getElementById('enemyAccuracy').value = state.enemyAccuracy;
+            if (state.odianTooltipInput && document.getElementById('odianTooltipInput')) document.getElementById('odianTooltipInput').value = state.odianTooltipInput;
+            if (state.odianCurrentLevel && document.getElementById('odianCurrentLevel')) document.getElementById('odianCurrentLevel').value = state.odianCurrentLevel;
+            if (state.odianTargetLevel && document.getElementById('odianTargetLevel')) document.getElementById('odianTargetLevel').value = state.odianTargetLevel;
+            syncOdianLevelDropdowns();
+            if (state.odianSelectedClass && ODIAN_CLASS_DATA[state.odianSelectedClass]) {
+              odianSelectedClass = state.odianSelectedClass;
+              selectOdianClass(odianSelectedClass);
+            }
             calculate();
         } catch (e) {
             console.error('Failed to load session:', e);
@@ -216,7 +496,19 @@ function loadSession() {
 }
 
 // Load saved state on page load
-window.addEventListener('DOMContentLoaded', loadSession);
+      window.addEventListener('DOMContentLoaded', function() {
+        initOdianEnchantCalculator();
+        loadSession();
+        calculate();
+      });
+
+      document.addEventListener('click', function(event) {
+        if (!event.target.closest('.odian-level-picker')) closeOdianLevelDropdowns();
+      });
+
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') closeOdianLevelDropdowns();
+      });
 
 
 </script>
