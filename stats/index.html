@@ -62,7 +62,7 @@
         <div class="odian-head">🔮 Odian Enchant Tooltip Finder</div>
 
         <div class="odian-warning-wrap is-open" id="odianWarningWrap">
-          <button type="button" class="odian-warning-mini-toggle" aria-expanded="true" aria-label="Show notice" title="Show notice" onclick="toggleOdianWarning()">i</button>
+          <button type="button" class="odian-warning-mini-toggle" aria-expanded="true" aria-label="Show warning" title="Show warning" onclick="toggleOdianWarning()">i</button>
           <div class="warning-box odian-warning-box">
             <button type="button" class="odian-warning-close" aria-label="Hide notice" title="Hide notice" onclick="toggleOdianWarning()">✕</button>
             <div class="odian-warning-content">🚧 We're still filling in the per-skill data for each class. Until it's complete, you can use the manual tooltip input below to project any skill. 🚧<br>🚧 Found a wrong or missing value? Let us know! 🚧</div>
@@ -233,32 +233,32 @@ const ODIAN_CLASS_DATA = {
 const DUMMY_ODIAN_ICON = '../assets/icons/cbt_fi_abysalrage_g1.png';
 const ODIAN_SKILLS = {
   gladiator: [
-    { name: 'dummyGlad1', icon: DUMMY_ODIAN_ICON, base: 1058, type: 'damage', dot: 320 },
-    { name: 'dummyGlad2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
-    { name: 'dummyGlad3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
-    { name: 'dummyGlad4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
-    { name: 'dummyGlad5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
-    { name: 'dummyGlad6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
-    { name: 'dummyGlad7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
-    { name: 'dummyGlad8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
-    { name: 'dummyGlad9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
-    { name: 'dummyGlad10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
-    { name: 'dummyGlad11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
-    { name: 'dummyGlad12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+    { name: 'Cleave', icon: DUMMY_ODIAN_ICON, base: 593, type: 'damage' },
+    { name: 'Robust Blow', icon: DUMMY_ODIAN_ICON, base: 841, type: 'damage' },
+    { name: 'Repeated Body Smash', icon: DUMMY_ODIAN_ICON, base: 682, type: 'damage' },
+    { name: 'Springing Slice', icon: DUMMY_ODIAN_ICON, base: 1198, type: 'damage' },
+    { name: 'Aerial Lockdown', icon: DUMMY_ODIAN_ICON, base: 725, type: 'damage' },
+    { name: 'Wrathful Strike', icon: DUMMY_ODIAN_ICON, base: 1075, type: 'damage' },
+    { name: 'Explosion of Wrath', icon: DUMMY_ODIAN_ICON, base: 2250, type: 'damage' },
+    { name: 'Seismic Billow', icon: DUMMY_ODIAN_ICON, base: 1056, type: 'damage' },
+    { name: 'Counter Leach', icon: DUMMY_ODIAN_ICON, base: 1067, type: 'damage' },
+    { name: 'Fury Absorption', icon: DUMMY_ODIAN_ICON, base: 1104, type: 'damage' },
+    { name: 'Hard Charge', icon: DUMMY_ODIAN_ICON, base: 10, type: 'buff', perLevel: 0.2 },
+    { name: 'Strenghen Wings', icon: DUMMY_ODIAN_ICON, base: 7, type: 'buff', perLevel: 0.2 }
   ],
   templar: [
-    { name: 'dummyTemp1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
-    { name: 'dummyTemp2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
-    { name: 'dummyTemp3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
-    { name: 'dummyTemp4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
-    { name: 'dummyTemp5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
-    { name: 'dummyTemp6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
-    { name: 'dummyTemp7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
-    { name: 'dummyTemp8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
-    { name: 'dummyTemp9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
-    { name: 'dummyTemp10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
-    { name: 'dummyTemp11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
-    { name: 'dummyTemp12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+    { name: 'Dazing Severe Blow', icon: DUMMY_ODIAN_ICON, base: 886, type: 'damage' },
+    { name: 'Robust Blow', icon: DUMMY_ODIAN_ICON, base: 841, type: 'damage' },
+    { name: 'Wrath Strike', icon: DUMMY_ODIAN_ICON, base: 917, type: 'damage' },
+    { name: 'Judgment Blow', icon: DUMMY_ODIAN_ICON, base: 1546, type: 'damage' },
+    { name: 'Shield Counter', icon: DUMMY_ODIAN_ICON, base: 858, type: 'damage' },
+    { name: 'Swinging Shield Counter', icon: DUMMY_ODIAN_ICON, base: 686, type: 'damage' },
+    { name: 'Sword Wind', icon: DUMMY_ODIAN_ICON, base: 1195, type: 'damage' },
+    { name: 'Judgment', icon: DUMMY_ODIAN_ICON, base: 1095, type: 'damage' },
+    { name: 'Hard Charge', icon: DUMMY_ODIAN_ICON, base: 10, type: 'buff', perLevel: 0.2  },
+    { name: 'Panoply of Protection', icon: DUMMY_ODIAN_ICON, base: 15000, type: 'buff', perLevel: 300 },
+    { name: 'Empyrean Armour', icon: DUMMY_ODIAN_ICON, base: 350, type: 'buff', perLevel: 10 },
+    { name: 'Prayer of Freedom', icon: DUMMY_ODIAN_ICON, base: 7, type: 'buff', perLevel: 0.2 }
   ],
   assassin: [
     { name: 'Swift Edge', icon: "../assets/icons/cbt_sc_swiftedge_g1.png", base: 1072, type: 'damage', 
@@ -277,135 +277,135 @@ const ODIAN_SKILLS = {
     { name: 'Massacre', icon: DUMMY_ODIAN_ICON, base: 1303, type: 'damage', dot: 99 },
     { name: 'Binding Rune', icon: DUMMY_ODIAN_ICON, base: 779, type: 'damage' },
     { name: 'Soul Splitter', icon: DUMMY_ODIAN_ICON, base: 1451, type: 'damage' },
-    { name: 'All-Seeing Eye', icon: DUMMY_ODIAN_ICON, base: 30, type: 'buff', perLevel: 2 },
+    { name: 'All-Seeing Eye', icon: DUMMY_ODIAN_ICON, base: 30, type: 'buff', perLevel: 0.6 },
     { name: 'Devotion', icon: '../assets/icons/cbt_sc_invokepower_g1.png', base: 450, type: 'buff', scalingStats: [{ stat: 'Physical Attack', base: 450, perLevel: 10 }, { stat: 'Weapon Attack', base: 1500, perLevel: 50 }]},
-    { name: 'Flurry', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'buff', perLevel: 10, extraStats: ['+1500 Weapon attack'] }
+    { name: 'Flurry', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'buff', perLevel: 50, extraStats: ['+1500 Weapon attack', '+20% Attack Speed'] }
   ],
   ranger: [
-    { name: 'dummyRang1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
-    { name: 'dummyRang2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
-    { name: 'dummyRang3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
-    { name: 'dummyRang4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
-    { name: 'dummyRang5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
-    { name: 'dummyRang6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
-    { name: 'dummyRang7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
-    { name: 'dummyRang8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
-    { name: 'dummyRang9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
-    { name: 'dummyRang10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
-    { name: 'Devotion', icon: '../assets/icons/cbt_sc_invokepower_g1.png', type: 'buff', scalingStats: [{ stat: 'Physical Attack', base: 450, perLevel: 10 }], extraStats: ['+1500 Weapon Attack'] },
-    { name: 'dummyRang12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+    { name: 'Deadshot', icon: DUMMY_ODIAN_ICON, base: 627, type: 'damage' },
+    { name: 'Swift Shot', icon: DUMMY_ODIAN_ICON, base: 1006, type: 'damage' },
+    { name: 'Strenghening Eye', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'buff', perLevel: 5 },
+    { name: 'Griffonix Arrow', icon: DUMMY_ODIAN_ICON, base: 1501, type: 'damage' },
+    { name: 'Entangling Shot', icon: DUMMY_ODIAN_ICON, base: 493, type: 'damage' },
+    { name: 'Final Storm Attack', icon: DUMMY_ODIAN_ICON, base: 1256, type: 'damage' },
+    { name: 'Arrow Strike', icon: DUMMY_ODIAN_ICON, base: 607, type: 'damage' },
+    { name: 'Stunning Shot', icon: DUMMY_ODIAN_ICON, base: 1294, type: 'damage' },
+    { name: 'Ascended Soul Arrow', icon: DUMMY_ODIAN_ICON, base: 1335, type: 'damage' },
+    { name: 'All-Seeing Eye', icon: DUMMY_ODIAN_ICON, base: 30, type: 'buff', perLevel: 0.6 },
+    { name: 'Devotion', icon: '../assets/icons/cbt_sc_invokepower_g1.png', base: 450, type: 'buff', perLevel: 10, stat: 'Physical Attack', extraStats: ['+1500 Weapon Attack'] },
+    { name: 'Speed of the Wind', icon: DUMMY_ODIAN_ICON, base: 300, type: 'buff', perLevel: 6 }
   ],
   sorcerer: [
-    { name: 'dummySorc1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
-    { name: 'dummySorc2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
-    { name: 'dummySorc3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
-    { name: 'dummySorc4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
-    { name: 'dummySorc5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
-    { name: 'dummySorc6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
-    { name: 'dummySorc7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
-    { name: 'dummySorc8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
-    { name: 'dummySorc9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
-    { name: 'dummySorc10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
-    { name: 'Vaizel Gift', icon: '../assets/icons/cbt_wi_arcaneboost_g1.png', type: 'buff', scalingStats: [{ stat: 'Additional PvE Attack', base: 500, perLevel: 10 }], extraStats: ['+25% Casting Time', '-20% MP Consumption'] },
-    { name: 'dummySorc12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+    { name: 'Flame Harpoon', icon: DUMMY_ODIAN_ICON, base: 1328, type: 'damage' },
+    { name: 'Ember', icon: DUMMY_ODIAN_ICON, base: 1581, type: 'damage' },
+    { name: 'Fiery Roller', icon: DUMMY_ODIAN_ICON, base: 4628, type: 'damage' },
+    { name: 'Hell Flame of Wrath', icon: DUMMY_ODIAN_ICON, base: 5522, type: 'damage', extras: [{ label: 'Additional Damage', base: 514 }] },
+    { name: 'Winter Binding', icon: DUMMY_ODIAN_ICON, base: 177, type: 'damage' }, // winter binding is also inreasing duration by 0.6 / level
+    { name: 'Blaze', icon: DUMMY_ODIAN_ICON, base: 909, type: 'damage' },
+    { name: 'Flame Cage', icon: DUMMY_ODIAN_ICON, base: 362, type: 'damage', dot: 365 },
+    { name: 'Flame Fusion', icon: DUMMY_ODIAN_ICON, base: 869, type: 'damage' },
+    { name: 'Frozen Shock', icon: DUMMY_ODIAN_ICON, base: 739, type: 'damage' },
+    { name: 'Graspbreaker', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
+    { name: 'Vaizel Gift', icon: '../assets/icons/cbt_wi_arcaneboost_g1.png', base: 500, type: 'buff', perLevel: 10, stat: 'Additional PvE Attack', extraStats: ['+25% Casting Time', '-20% MP Consumption'] },
+    { name: 'Stone Skin', icon: DUMMY_ODIAN_ICON, base: 8000, type: 'buff', perLevel: 90 }
   ],
   spiritmaster: [
-    { name: 'dummySpirit1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
-    { name: 'dummySpirit2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
-    { name: 'dummySpirit3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
-    { name: 'dummySpirit4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
-    { name: 'dummySpirit5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
-    { name: 'dummySpirit6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
-    { name: 'dummySpirit7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
-    { name: 'dummySpirit8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
-    { name: 'dummySpirit9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
-    { name: 'dummySpirit10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
-    { name: 'dummySpirit11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
-    { name: 'dummySpirit12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+    { name: 'Erosion', icon: DUMMY_ODIAN_ICON, base: 525, type: 'damage', dot: 363 },
+    { name: 'Summon Wind Servant', icon: DUMMY_ODIAN_ICON, base: 513, type: 'damage' },
+    { name: 'Magic Explosion', icon: DUMMY_ODIAN_ICON, base: 1109, type: 'damage', dot: 1291 },
+    { name: 'Elemental Smash', icon: DUMMY_ODIAN_ICON, base: 2061, type: 'damage' },
+    { name: 'Root of Enervation', icon: DUMMY_ODIAN_ICON, base: 11, type: 'buff', perLevel: 0.3 }, // Root of Enervation is 10 - 12 sec, we use 11 sec as base
+    { name: 'Stone Shock', icon: DUMMY_ODIAN_ICON, base: 578, type: 'damage' },
+    { name: 'Sandblaster', icon: DUMMY_ODIAN_ICON, base: 288, type: 'damage', dot: 317 },
+    { name: 'Ignite Aether', icon: DUMMY_ODIAN_ICON, base: 861, type: 'damage', extras: [{ label: 'Additional Damage', base: 861 }] },
+    { name: 'Replenish Element', icon: DUMMY_ODIAN_ICON, base: 20, type: 'buff', perLevel: 1 },
+    { name: 'Illusion Pact', icon: DUMMY_ODIAN_ICON, base: 20, type: 'buff', perLevel: 0.4 },
+    { name: 'Backdraft', icon: DUMMY_ODIAN_ICON, base: 1323, type: 'damage' },
+    { name: 'Stone Skin', icon: DUMMY_ODIAN_ICON, base: 8000, type: 'buff', perLevel: 90 }
   ],
   cleric: [
-    { name: 'dummyCleric1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
-    { name: 'dummyCleric2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
-    { name: 'dummyCleric3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
-    { name: 'dummyCleric4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
-    { name: 'dummyCleric5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
-    { name: 'dummyCleric6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
-    { name: 'dummyCleric7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
-    { name: 'dummyCleric8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
-    { name: 'dummyCleric9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
-    { name: 'dummyCleric10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
-    { name: 'Amplification', icon: '../assets/icons/live_pr_prepareholywar_g1.png', type: 'buff', scalingStats: [{ stat: 'Magic Attack', base: 700, perLevel: 14 }], extraStats: ['+1100 Healing Boost', 'Restores 5628 MP'] },
-    { name: 'dummyCleric12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 14 }
+    { name: 'Punishing Earth', icon: DUMMY_ODIAN_ICON, base: 875, type: 'damage' },
+    { name: 'Shocking Thunderbolt Strike', icon: DUMMY_ODIAN_ICON, base: 620, type: 'damage' },
+    { name: 'Amplification', icon: '../assets/icons/live_pr_prepareholywar_g1.png', base: 700, type: 'buff', perLevel: 14, stat: 'Magic Attack', extraStats: ['+1100 Healing Boost', 'Restores 5628 MP'] }, // Amplification has multiple attributes: Magic attack +14, HB +22 / level, MP +113 / level
+    { name: 'Power Smash Strike', icon: DUMMY_ODIAN_ICON, base: 1663, type: 'damage' },
+    { name: 'Chastise', icon: DUMMY_ODIAN_ICON, base: 411, type: 'damage', dot: 411 },
+    { name: 'Infernal Blaze', icon: DUMMY_ODIAN_ICON, base: 884, type: 'damage' },
+    { name: 'Earths Wrath', icon: DUMMY_ODIAN_ICON, base: 561, type: 'damage', dot: 771 },
+    { name: 'Slashing Wind', icon: DUMMY_ODIAN_ICON, base: 882, type: 'damage' },
+    { name: 'Healing Light', icon: DUMMY_ODIAN_ICON, base: 1990, type: 'buff', perLevel: 40 },
+    { name: 'Splendor of Recovery', icon: DUMMY_ODIAN_ICON, base: 4977, type: 'buff', perLevel: 100 },
+    { name: 'Blessed Shield', icon: DUMMY_ODIAN_ICON, base: 5900, type: 'buff', perLevel: 118 }, // Blessed Shield has multipe attributes: Protection +118 /level, Mana +110 / level and Mana dot +11/level
+    { name: 'Prayer of Resistance', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'buff', perLevel: 10 }
   ],
   chanter: [
-    { name: 'dummyChant1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
-    { name: 'dummyChant2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
-    { name: 'dummyChant3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
-    { name: 'dummyChant4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
-    { name: 'dummyChant5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
-    { name: 'dummyChant6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
-    { name: 'dummyChant7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
-    { name: 'dummyChant8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
-    { name: 'dummyChant9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
-    { name: 'dummyChant10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
-    { name: 'dummyChant11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
-    { name: 'dummyChant12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+    { name: 'Booming Strike', icon: DUMMY_ODIAN_ICON, base: 405, type: 'damage', extraStats: ['Physical Defence -3%'] },
+    { name: 'Hallowed Strike', icon: DUMMY_ODIAN_ICON, base: 675, type: 'damage' },
+    { name: 'Split Strike', icon: DUMMY_ODIAN_ICON, base: 668, type: 'damage' },
+    { name: 'Vehemence Strike', icon: DUMMY_ODIAN_ICON, base: 741, type: 'damage' },
+    { name: 'Backshock', icon: DUMMY_ODIAN_ICON, base: 912, type: 'damage' },
+    { name: 'Pentacle Shock', icon: DUMMY_ODIAN_ICON, base: 816, type: 'damage' },
+    { name: 'Parrying Strike', icon: DUMMY_ODIAN_ICON, base: 740, type: 'damage' },
+    { name: 'Divine Curtain', icon: DUMMY_ODIAN_ICON, base: 4000, type: 'buff', perLevel: 100 },
+    { name: 'Cross Shield', icon: DUMMY_ODIAN_ICON, base: 350, type: 'buff', perLevel: 7 },
+    { name: 'Healing Light', icon: DUMMY_ODIAN_ICON, base: 1990, type: 'buff', perLevel: 10 },
+    { name: 'Stamina Restoration', icon: DUMMY_ODIAN_ICON, base: 6081, type: 'buff', perLevel: 122, extraStats: ['Healing Boost +300'] },
+    { name: 'Magic Acceleration', icon: DUMMY_ODIAN_ICON, base: 15, type: 'buff', perLevel: 0.3 }
   ],
   gunner: [
-    { name: 'dummyGun1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
-    { name: 'dummyGun2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
-    { name: 'dummyGun3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
-    { name: 'dummyGun4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
-    { name: 'dummyGun5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
-    { name: 'dummyGun6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
-    { name: 'dummyGun7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
-    { name: 'dummyGun8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
-    { name: 'dummyGun9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
-    { name: 'dummyGun10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
-    { name: 'dummyGun11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
-    { name: 'dummyGun12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+    { name: 'Pistol Shot', icon: DUMMY_ODIAN_ICON, base: 914, type: 'damage' },
+    { name: 'Fire Cannon', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' }, // Fire Cannon LVL 1, 2, 3 - all of them has different dmg/level, i need to test this ingame
+    { name: 'Repeated Volley', icon: DUMMY_ODIAN_ICON, base: 1041, type: 'damage' },
+    { name: 'Heavy Projectile', icon: DUMMY_ODIAN_ICON, base: 1050, type: 'damage', extras: [{ label: 'Additional Damage', base: 227 }] },
+    { name: 'Weakpoint Shot', icon: DUMMY_ODIAN_ICON, base: 1268, type: 'damage' },
+    { name: 'Aimed Weakpoint Shot', icon: DUMMY_ODIAN_ICON, base: 1166, type: 'damage' },
+    { name: 'Projectile of Silence', icon: DUMMY_ODIAN_ICON, base: 411, type: 'damage' },
+    { name: 'Disrupter Shot', icon: DUMMY_ODIAN_ICON, base: 768, type: 'damage' },
+    { name: 'Soul Shot', icon: DUMMY_ODIAN_ICON, base: 764, type: 'damage' }, // Restores MP also
+    { name: 'Soul Volley', icon: DUMMY_ODIAN_ICON, base: 757, type: 'damage' }, // Restores MP also
+    { name: 'Rapid Soul Fire', icon: DUMMY_ODIAN_ICON, base: 1098, type: 'damage' }, // Restores MP also
+    { name: 'Materialised Magic Form', icon: DUMMY_ODIAN_ICON, base: 25000, type: 'buff', perLevel: 10 }
   ],
   aethertech: [
-    { name: 'dummyAether1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
-    { name: 'dummyAether2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
-    { name: 'dummyAether3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
-    { name: 'dummyAether4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
-    { name: 'dummyAether5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
-    { name: 'dummyAether6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
-    { name: 'dummyAether7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
-    { name: 'dummyAether8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
-    { name: 'dummyAether9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
-    { name: 'dummyAether10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
+    { name: 'Burning Cannon Shot', icon: DUMMY_ODIAN_ICON, base: 2055, type: 'damage' },
+    { name: 'Flame of Demolition', icon: DUMMY_ODIAN_ICON, base: 2426, type: 'damage' },
+    { name: 'Sprint Strike', icon: DUMMY_ODIAN_ICON, base: 1410, type: 'damage' },
+    { name: 'Vampiric Strike', icon: DUMMY_ODIAN_ICON, base: 1140, type: 'damage' },
+    { name: 'Bludgeon', icon: DUMMY_ODIAN_ICON, base: 915, type: 'damage' },
+    { name: 'Cooling Wave', icon: DUMMY_ODIAN_ICON, base: 1148, type: 'damage' },
+    { name: 'Collapsing Smash', icon: DUMMY_ODIAN_ICON, base: 684, type: 'damage', scalingStats: [{ stat: 'Physical Defence Reduction', base: 412, perLevel: 8, stat: 'Magical Defence Reduction', base: 412, perLevel: 8}] },
+    { name: 'Strong Attack', icon: DUMMY_ODIAN_ICON, base: 1310, type: 'damage', extras: [{ label: 'Additional Damage', base: 251 }] },
+    { name: 'Emergency Upkeep', icon: DUMMY_ODIAN_ICON, base: 4000, type: 'buff', perLevel: 100 },
+    { name: 'Rapid Recharge', icon: DUMMY_ODIAN_ICON, base: 15120, type: 'buff', perLevel: 302, extraStats: ['MP: 7080'] },
     { name: 'Call Mech', icon: '../assets/icons/ri_summonarmor_g1.png', type: 'buff', scalingStats: [{ stat: 'Physical Defence', base: 139, perLevel: 3 }, { stat: 'Parry', base: 403, perLevel: 8 }], extraStats: ['+200 All Altered State Resist', '+272 Magical Accuracy', '+4m Attack Range'] },
-    { name: 'dummyAether12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+    { name: 'Surge of Glory', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
   ],
   bard: [
-    { name: 'dummyBard1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
-    { name: 'dummyBard2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
-    { name: 'dummyBard3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
-    { name: 'dummyBard4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
-    { name: 'dummyBard5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
-    { name: 'dummyBard6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
-    { name: 'dummyBard7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
-    { name: 'dummyBard8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
-    { name: 'dummyBard9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
-    { name: 'dummyBard10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
-    { name: 'dummyBard11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
-    { name: 'dummyBard12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+    { name: 'Sound of the Breeze', icon: DUMMY_ODIAN_ICON, base: 911, type: 'damage' },
+    { name: 'Chilling Harmony', icon: DUMMY_ODIAN_ICON, base: 1293, type: 'damage' },
+    { name: 'Wind Harmony', icon: DUMMY_ODIAN_ICON, base: 2721, type: 'damage', scalingStats: [{ stat: 'Magical Accuracy', base: 270, perLevel: 3 }, { stat: 'Physical Attack', base: 121, perLevel: 3 }] },
+    { name: 'Tsunami Requiem', icon: DUMMY_ODIAN_ICON, base: 2501, type: 'damage' },
+    { name: 'Acute Grating Sounds', icon: DUMMY_ODIAN_ICON, base: 922, type: 'damage' },
+    { name: 'Loud Bang', icon: DUMMY_ODIAN_ICON, base: 473, type: 'damage' },
+    { name: 'Soul Harmony', icon: DUMMY_ODIAN_ICON, base: 1267, type: 'damage' },
+    { name: 'Sea Variation', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' }, // Has multiple levels Lvl1, 2 ,3 have to test it ingame
+    { name: 'Melody of Reflection', icon: DUMMY_ODIAN_ICON, base: 3164, type: 'buff', perLevel: 63 }, // Recovers Additional mana as dot also 1539 / 2 sec - +31 / level
+    { name: 'Mild Echo', icon: DUMMY_ODIAN_ICON, base: 1438, type: 'buff', perLevel: 30, extraStats: ['MP: 3620'] },
+    { name: 'Shield Melody', icon: DUMMY_ODIAN_ICON, base: 8000, type: 'buff', perLevel: 75 },
+    { name: 'Cheery Melody', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'buff', perLevel: 20 }
   ],
   painter: [
-    { name: 'dummyPaint1', icon: DUMMY_ODIAN_ICON, base: 1000, type: 'damage' },
-    { name: 'dummyPaint2', icon: DUMMY_ODIAN_ICON, base: 1100, type: 'damage' },
-    { name: 'dummyPaint3', icon: DUMMY_ODIAN_ICON, base: 1200, type: 'damage' },
-    { name: 'dummyPaint4', icon: DUMMY_ODIAN_ICON, base: 1300, type: 'damage' },
-    { name: 'dummyPaint5', icon: DUMMY_ODIAN_ICON, base: 1400, type: 'damage' },
-    { name: 'dummyPaint6', icon: DUMMY_ODIAN_ICON, base: 1500, type: 'damage' },
-    { name: 'dummyPaint7', icon: DUMMY_ODIAN_ICON, base: 1600, type: 'damage' },
-    { name: 'dummyPaint8', icon: DUMMY_ODIAN_ICON, base: 1700, type: 'damage' },
-    { name: 'dummyPaint9', icon: DUMMY_ODIAN_ICON, base: 1800, type: 'damage' },
-    { name: 'dummyPaint10', icon: DUMMY_ODIAN_ICON, base: 1900, type: 'damage' },
-    { name: 'dummyPaint11', icon: DUMMY_ODIAN_ICON, base: 500, type: 'buff', perLevel: 10 },
-    { name: 'dummyPaint12', icon: DUMMY_ODIAN_ICON, base: 600, type: 'buff', perLevel: 10 }
+    { name: 'Colour Rocket', icon: DUMMY_ODIAN_ICON, base: 1129, type: 'damage' },
+    { name: 'Retreat', icon: DUMMY_ODIAN_ICON, base: 1517, type: 'damage' },
+    { name: 'Colour Grenade', icon: DUMMY_ODIAN_ICON, base: 1454, type: 'damage' },
+    { name: 'Punishment Strap', icon: DUMMY_ODIAN_ICON, base: 3238, type: 'damage' },
+    { name: 'Sour Dye', icon: DUMMY_ODIAN_ICON, base: 1590, type: 'damage' },
+    { name: 'Powerful Shot', icon: DUMMY_ODIAN_ICON, base: 1969, type: 'damage' },
+    { name: 'Blow', icon: DUMMY_ODIAN_ICON, base: 3897, type: 'damage', extraStats: ['Healing Boost -400'] },
+    { name: 'Instant Petrification', icon: DUMMY_ODIAN_ICON, base: 3, type: 'buff', perLevel: 0.1 },
+    { name: 'Target Lock', icon: DUMMY_ODIAN_ICON, base: 10, type: 'buff', perLevel: 0.2 },
+    { name: 'Time Binding', icon: DUMMY_ODIAN_ICON, base: 10, type: 'buff', perLevel: 0.2 },
+    { name: 'Portrait of Closure', icon: DUMMY_ODIAN_ICON, base: 10, type: 'buff', perLevel: 0.7 },
+    { name: 'Colourful Tunnel', icon: DUMMY_ODIAN_ICON, base: 20, type: 'buff', perLevel: 0.4 }
   ]
 };
 
