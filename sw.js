@@ -31,7 +31,14 @@ self.addEventListener('fetch', function (event) {
         var url = new URL(req.url);
         var path = url.pathname;
         var isAsset = path.endsWith('.js') || path.endsWith('.css');
-        if (isAsset) {
+
+        // Treat page navigations (HTML documents) as network-first too, so inline
+        // scripts/markup are refreshed on deploy instead of lingering behind the
+        // CDN/browser HTML cache. Falls back to cache when offline.
+        var isNavigation = req.mode === 'navigate'
+            || (req.headers.get('accept') || '').indexOf('text/html') !== -1;
+
+        if (isAsset || isNavigation) {
             event.respondWith(
                 fetch(req, { cache: 'reload' }).then(function (resp) {
                     // Update cache asynchronously

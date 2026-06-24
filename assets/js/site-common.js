@@ -6,7 +6,7 @@
     'use strict';
 
     // Bump this value on deploys that should force users onto fresh HTML/CSS/JS.
-    var ASSET_CACHE_VERSION = '24.06.2026.02`';
+    var ASSET_CACHE_VERSION = '24.06.2026.03`';
     var ASSET_VERSION_STORAGE_KEY = 'aionToolsAssetVersion';
     var ASSET_VERSION_RELOAD_KEY = 'aionToolsAssetReload_' + ASSET_CACHE_VERSION;
     var currentScript = document.currentScript || null;
@@ -78,9 +78,32 @@
 
     // Service worker-based update flow: network-first for JS/CSS and automatic
     // page reload when a new service worker takes control.
+    //
+    // The registration URL carries the asset version (?v=...) so that bumping
+    // ASSET_CACHE_VERSION alone is enough to trigger the full update flow. The
+    // browser only re-installs a worker when the script URL/bytes change; since
+    // sw.js itself is byte-identical between deploys, without this query the
+    // update (install -> skipWaiting -> controllerchange -> reload) would never
+    // fire and new assets would only appear on a later navigation.
+    // `updateViaCache: 'none'` ensures the SW script is always fetched fresh
+    // from the network rather than the HTTP cache.
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(function (reg) {
-            if (reg.waiting) {
+        var swUrl = '/sw.js?v=' + encodeURIComponent(ASSET_CACHE_VERSION);
+
+        // Guard against the reload loop: controllerchange fires once when the new
+        // worker takes control; reload exactly once.
+        var isReloadingForUpdate = false;
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+            if (isReloadingForUpdate) return;
+            isReloadingForUpdate = true;
+            try { window.location.reload(); } catch (e) { /* ignore */ }
+        });
+
+        navigator.serviceWorker.register(swUrl, { scope: '/', updateViaCache: 'none' }).then(function (reg) {
+            // Proactively check for an update on every load.
+            try { reg.update(); } catch (e) { /* ignore */ }
+
+            if (reg.waiting && navigator.serviceWorker.controller) {
                 showAssetUpdateToast();
                 reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             }
@@ -97,10 +120,6 @@
             });
         }).catch(function () {
             // Service worker registration failed; continue without it.
-        });
-
-        navigator.serviceWorker.addEventListener('controllerchange', function () {
-            try { window.location.reload(); } catch (e) { /* ignore */ }
         });
 
         navigator.serviceWorker.addEventListener('message', function (e) {

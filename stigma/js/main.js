@@ -514,6 +514,14 @@
         return origin + tabHomePath(tab);
     }
 
+    // Which tool's page we're currently on, inferred from the URL path.
+    function pathTab() {
+        var path = (window.location.pathname || '').toLowerCase();
+        if (path.indexOf('/daevanion') !== -1) return 'daevanion';
+        if (path.indexOf('/stigma') !== -1) return 'stigma';
+        return null;
+    }
+
     function activateStigmaTab(tabKey) {
         stigmaActiveTab = (tabKey === 'daevanion') ? 'daevanion' : 'stigma';
 
@@ -543,7 +551,7 @@
     }
 
     function syncTabUrl() {
-        if (!window.history || !window.history.replaceState) return;
+        if (!window.history) return;
 
         // A share code belongs to a single tab. Once the user moves to the other
         // tab it's no longer relevant, so drop it from the URL.
@@ -558,6 +566,17 @@
             ? '?=' + encodeURIComponent(pendingShareCode)
             : '';
 
+        // Legacy links may carry a code for the OTHER tool than the page they
+        // landed on (e.g. an old /stigma/?daevanion=CODE before /daevanion/
+        // existed). Hard-redirect to the correct dedicated page so the path,
+        // nav highlight and loaded scripts all line up.
+        var here = pathTab();
+        if (here && here !== stigmaActiveTab) {
+            window.location.replace(canonicalTabUrl(stigmaActiveTab) + search + (window.location.hash || ''));
+            return;
+        }
+
+        if (!window.history.replaceState) return;
         var nextUrl = tabHomePath(stigmaActiveTab) + search + (window.location.hash || '');
         var currentUrl = window.location.pathname + window.location.search + (window.location.hash || '');
         if (nextUrl !== currentUrl) {
@@ -566,15 +585,10 @@
     }
 
     function initStigmaTabs() {
-        var tabBar = document.getElementById('stigma-tab-bar');
-        if (!tabBar) return;
-        tabBar.addEventListener('click', function(e) {
-            var btn = e.target.closest('.gc-tab');
-            if (!btn) return;
-            var tab = btn.getAttribute('data-tab');
-            if (!tab || tab === stigmaActiveTab) return;
-            activateStigmaTab(tab);
-        });
+        // Tabs are now plain navigation links (anchors to /stigma/ and /daevanion/),
+        // so there is no in-page switching to wire up. Each page renders its own
+        // builder; the active tab is derived from the URL path on load. Kept as a
+        // no-op so the init sequence stays self-documenting.
     }
 
     function renderDaevanionCell(def, isSelected, extraClasses, clickHandler) {

@@ -3106,6 +3106,7 @@
     transition: color 0.2s, border-color 0.2s;
     letter-spacing: 0.3px;
     white-space: nowrap;
+    text-decoration: none;
 }
 
 .gc-tab-icon {
