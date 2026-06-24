@@ -9,6 +9,11 @@
     var isDaevanionWarningCollapsed = false;
     var activeSpiritKey = 'fire';
 
+    // Currently-shared build code reflected in the URL as the compact "?=CODE"
+    // param. Tied to one tab; cleared once the user navigates to the other tab.
+    var pendingShareCode = null;
+    var pendingShareTab = null;
+
     var SPIRIT_OPTIONS = [
         { key: 'water', label: 'Water', icon: '../assets/icons/cbt_el_light_summon_waterelemental_g1.png' },
         { key: 'wind', label: 'Wind', icon: '../assets/icons/cbt_el_light_summon_windelemental_g1.png' },
@@ -492,6 +497,23 @@
         return fallback && fallbackDef ? { row: fallback.row, type: fallback.type, def: fallbackDef } : null;
     }
 
+    // Each tab lives at its own clean URL (/stigma/ and /daevanion/) so it can be
+    // linked, bookmarked and reloaded directly. Both paths serve the SAME page and
+    // shared scripts; only the default tab differs.
+    var STIGMA_TAB_PATH = { stigma: '/stigma/', daevanion: '/daevanion/' };
+    var STIGMA_TAB_TITLE = { stigma: 'Stigma Skills', daevanion: 'Daevanion Skills' };
+
+    function tabHomePath(tab) {
+        return STIGMA_TAB_PATH[tab] || STIGMA_TAB_PATH.stigma;
+    }
+
+    // Absolute URL to a tab's canonical page, used for shareable links so they
+    // always point at /stigma/ or /daevanion/ regardless of the current page.
+    function canonicalTabUrl(tab) {
+        var origin = window.location.origin || (window.location.protocol + '//' + window.location.host);
+        return origin + tabHomePath(tab);
+    }
+
     function activateStigmaTab(tabKey) {
         stigmaActiveTab = (tabKey === 'daevanion') ? 'daevanion' : 'stigma';
 
@@ -507,40 +529,36 @@
         var activePanel = document.getElementById('tab-' + stigmaActiveTab);
         if (activePanel) activePanel.classList.add('gc-tab-panel-active');
 
+        // Keep the document title and heading in sync so both entry pages (and
+        // in-place tab switches) read correctly.
+        var title = STIGMA_TAB_TITLE[stigmaActiveTab];
+        if (title) {
+            document.title = title;
+            var heading = document.querySelector('.container > h1');
+            if (heading) heading.textContent = title;
+        }
+
         syncTabUrl();
         saveState();
     }
 
-    function buildUrlWithParams(params) {
-        var parts = [];
-        params.forEach(function(value, key) {
-            if (key === 'daevanion' && value === '') {
-                parts.push('daevanion');
-            } else {
-                parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
-            }
-        });
-        var query = parts.length ? ('?' + parts.join('&')) : '';
-        return window.location.pathname + query + (window.location.hash || '');
-    }
-
     function syncTabUrl() {
-        if (typeof URLSearchParams === 'undefined' || !window.history || !window.history.replaceState) return;
+        if (!window.history || !window.history.replaceState) return;
 
-        var params = new URLSearchParams(window.location.search);
-        var hasDaevanionShareCode = params.has('daevanion') && !!params.get('daevanion');
-
-        if (stigmaActiveTab === 'daevanion') {
-            if (!hasDaevanionShareCode) {
-                params.set('daevanion', '');
-            }
-        } else {
-            if (params.has('daevanion') && !params.get('daevanion')) {
-                params.delete('daevanion');
-            }
+        // A share code belongs to a single tab. Once the user moves to the other
+        // tab it's no longer relevant, so drop it from the URL.
+        if (pendingShareCode && stigmaActiveTab !== pendingShareTab) {
+            pendingShareCode = null;
+            pendingShareTab = null;
         }
 
-        var nextUrl = buildUrlWithParams(params);
+        // Compact share format: the path identifies the tool, so the code rides
+        // as an unnamed query param -> /stigma/?=CODE and /daevanion/?=CODE.
+        var search = (pendingShareCode && stigmaActiveTab === pendingShareTab)
+            ? '?=' + encodeURIComponent(pendingShareCode)
+            : '';
+
+        var nextUrl = tabHomePath(stigmaActiveTab) + search + (window.location.hash || '');
         var currentUrl = window.location.pathname + window.location.search + (window.location.hash || '');
         if (nextUrl !== currentUrl) {
             window.history.replaceState(null, '', nextUrl);
@@ -959,6 +977,11 @@
             var params = new URLSearchParams(window.location.search);
             var applied = false;
 
+            // The page path determines the default tab (/stigma/ vs /daevanion/).
+            var path = (window.location.pathname || '').toLowerCase();
+            if (path.indexOf('/daevanion') !== -1) stigmaActiveTab = 'daevanion';
+            else if (path.indexOf('/stigma') !== -1) stigmaActiveTab = 'stigma';
+
             if (params.has('tab')) {
                 var tabParam = (params.get('tab') || '').toLowerCase();
                 if (tabParam === 'daevanion') stigmaActiveTab = 'daevanion';
@@ -970,24 +993,60 @@
                 stigmaActiveTab = 'daevanion';
             }
 
+            var onDaevanionPath = path.indexOf('/daevanion') !== -1;
+
+            // New compact share format: ?=CODE. The tool is inferred from the path
+            // (stigma vs daevanion) since the param itself is unnamed.
+            var compactCode = params.get('');
+            if (compactCode) {
+                if (onDaevanionPath) {
+                    var decodedCompactDaev = decodeShortDaevanionShare(compactCode);
+                    if (decodedCompactDaev) {
+                        selectedClass = decodedCompactDaev.className;
+                        daevanionUsedByClass[selectedClass] = decodedCompactDaev.used;
+                        stigmaActiveTab = 'daevanion';
+                        pendingShareCode = compactCode;
+                        pendingShareTab = 'daevanion';
+                        applied = true;
+                    }
+                } else {
+                    var decodedCompactStig = decodeShortStigmaShare(compactCode);
+                    if (decodedCompactStig) {
+                        selectedClass = decodedCompactStig.className;
+                        buildsByClass[selectedClass] = decodedCompactStig.build;
+                        stigmaActiveTab = 'stigma';
+                        pendingShareCode = compactCode;
+                        pendingShareTab = 'stigma';
+                        applied = true;
+                    }
+                }
+            }
+
+            // Legacy explicit formats (?daevanion=CODE / ?stigma=CODE). Still decoded
+            // for backwards compatibility, then rewritten to the compact URL via the
+            // pendingShare* values picked up by syncTabUrl().
             var daevanionCode = params.get('daevanion');
-            if (daevanionCode) {
+            if (!applied && daevanionCode) {
                 var decodedDaevanion = decodeShortDaevanionShare(daevanionCode);
                 if (decodedDaevanion) {
                     selectedClass = decodedDaevanion.className;
                     daevanionUsedByClass[selectedClass] = decodedDaevanion.used;
                     stigmaActiveTab = 'daevanion';
+                    pendingShareCode = daevanionCode;
+                    pendingShareTab = 'daevanion';
                     applied = true;
                 }
             }
 
             var stigmaCode = params.get('stigma');
-            if (stigmaCode) {
+            if (!applied && stigmaCode) {
                 var decodedStigma = decodeShortStigmaShare(stigmaCode);
                 if (decodedStigma) {
                     selectedClass = decodedStigma.className;
                     buildsByClass[selectedClass] = decodedStigma.build;
-                    if (!applied) stigmaActiveTab = 'stigma';
+                    stigmaActiveTab = 'stigma';
+                    pendingShareCode = stigmaCode;
+                    pendingShareTab = 'stigma';
                     applied = true;
                 }
             }
@@ -1591,8 +1650,7 @@
             var code = encodeShortStigmaShare(selectedClass, build);
             if (!code) return;
 
-            var baseUrl = window.location.href.split('?')[0];
-            var shareUrl = baseUrl + '?stigma=' + encodeURIComponent(code);
+            var shareUrl = canonicalTabUrl('stigma') + '?=' + encodeURIComponent(code);
 
             var btn = document.querySelector('.stigma-preset-actions .stigma-share-btn') || document.querySelector('.stigma-share-btn');
             copyShareUrl(shareUrl, btn);
@@ -1689,8 +1747,7 @@
             var code = encodeShortDaevanionShare(selectedClass, daevanionUsedByClass[selectedClass]);
             if (!code) return;
 
-            var baseUrl = window.location.href.split('?')[0];
-            var shareUrl = baseUrl + '?daevanion=' + encodeURIComponent(code);
+            var shareUrl = canonicalTabUrl('daevanion') + '?=' + encodeURIComponent(code);
 
             var btn = document.querySelector('.daevanion-builder-head .daevanion-share-btn') || document.querySelector('.daevanion-share-btn');
             copyShareUrl(shareUrl, btn);

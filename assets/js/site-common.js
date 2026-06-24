@@ -6,7 +6,7 @@
     'use strict';
 
     // Bump this value on deploys that should force users onto fresh HTML/CSS/JS.
-    var ASSET_CACHE_VERSION = '24.06.2026.01`';
+    var ASSET_CACHE_VERSION = '24.06.2026.02`';
     var ASSET_VERSION_STORAGE_KEY = 'aionToolsAssetVersion';
     var ASSET_VERSION_RELOAD_KEY = 'aionToolsAssetReload_' + ASSET_CACHE_VERSION;
     var currentScript = document.currentScript || null;
@@ -117,7 +117,7 @@
 
     /* -- 1. Top navigation bar -- */
     var NAV_ITEMS = [
-        { label: 'Homepage',              href: '/' },
+        { label: 'Homepage',               href: '/' },
         { label: 'Magical Boost Calendar', href: '/calendar/' },
         { label: 'Retail EU Scheduler',    href: '/scheduler/' },
         { label: 'Damage Calculator',      href: '/calculator/' },
@@ -125,7 +125,8 @@
         { label: 'Gear Compare',           href: '/gear/' },
         { label: 'Statistics Finder',      href: '/stats/' },
         { label: 'Progress Tracker',       href: '/tracker/' },
-        { label: 'Stigma Builder',         href: '/stigma/' },
+        { label: 'Stigma Skills',          href: '/stigma/' },
+        { label: 'Daevanion Skills',       href: '/daevanion/' },
         { label: 'Aion Translator',        href: '/translator/' }
     ];
     var _pathParts = window.location.pathname.split('/').filter(function(p) { return p !== ''; });
