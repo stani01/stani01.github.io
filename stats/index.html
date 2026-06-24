@@ -212,12 +212,17 @@ const ODIAN_CLASS_DATA = {
 //        Use this when a skill has additional damage, or BOTH a DoT and add. dmg.
 //     `dot`: legacy shorthand for a single secondary component whose label comes
 //        from the class's `dotLabel` (e.g. 'DoT'). Equivalent to one `extras` entry.
+//   A damage skill may ALSO carry `scalingStats` (see below) for secondary stats
+//   that grow FLAT per enchant level instead of via the KP formula
+//   (e.g. Collapsing Smash's defence reduction, Winter Binding's bind duration).
 // type: 'buff' grants flat stats and is fully data-driven (no KP).
 //   `scalingStats`: array of stats that grow per enchant level, each
 //      { stat: 'Physical Defence', base: 139, perLevel: 3 } -> value = base + level * perLevel.
 //      Buffs may scale several stats at once (e.g. Call Mech: P.Def +3/lvl & Parry +8/lvl).
-//   `extraStats`: array of strings for fixed bonuses that do NOT scale
-//      (e.g. ['+1500 Weapon Attack']), shown as chips.
+//      A stat may add `baseMax` (+ optional `unit`) for a RANGE (e.g. 10 ~ 12s),
+//      or omit `base` to show only the per-level enchant gain (e.g. bind duration).
+//   `extraStats`: array of strings for fixed bonuses that do NOT scale / are not
+//      enchanted (e.g. ['+1500 Weapon Attack', 'Restores MP']), shown as chips.
 //   Legacy single-stat buffs may instead use `stat` + `base` + `perLevel` (still supported).
 // Any skill may also carry an optional `tip` object for the hover tooltip:
 //   { description, cooldown, castTime, target, usageDistance, usageCost, pvpDuration,
@@ -300,7 +305,7 @@ const ODIAN_SKILLS = {
     { name: 'Ember', icon: "../assets/icons/wi_chainburn_g1.png", base: 1581, type: 'damage' },
     { name: 'Fiery Roller', icon: "../assets/icons/cbt_wi_meteor_g1.png", base: 4628, type: 'damage' },
     { name: 'Hell Flame of Wrath', icon: "../assets/icons/wi_magicalflame_g1.png", base: 5522, type: 'damage', extras: [{ label: 'Additional Damage', base: 514 }] },
-    { name: 'Winter Binding', icon: "../assets/icons/cbt_wi_frozenfield_g1.png", base: 177, type: 'damage' }, // winter binding is also inreasing duration by 0.6 / level
+    { name: 'Winter Binding', icon: "../assets/icons/cbt_wi_frozenfield_g1.png", base: 177, type: 'damage', scalingStats: [{ stat: 'Bind Duration', perLevel: 0.6, unit: 's' }] },
     { name: 'Blaze', icon: "../assets/icons/cbt_ma_ignicburn_g1.png", base: 909, type: 'damage' },
     { name: 'Flame Cage', icon: "../assets/icons/cbt_wi_flamecage_g5.png", base: 362, type: 'damage', dot: 365 },
     { name: 'Flame Fusion', icon: "../assets/icons/cbt_wi_meltdown_g1.png", base: 869, type: 'damage' },
@@ -314,14 +319,14 @@ const ODIAN_SKILLS = {
     { name: 'Summon Wind Servant', icon: "../assets/icons/cbt_el_light_slave_windservent_g1.png", base: 513, type: 'damage' },
     { name: 'Magic Explosion', icon: "../assets/icons/live_el_dispelexplosion_g1.png", base: 1109, type: 'damage', dot: 1291 },
     { name: 'Elemental Smash', icon: "../assets/icons/el_elementalstrike_g1.png", base: 2061, type: 'damage' },
-    { name: 'Root of Enervation', icon: "../assets/icons/cbt_el_slow_g1.png", base: 10, type: 'buff', perLevel: 0.3, stat: 'Reduces the target\'s attack speed',
-    tip: {description: 'Reduces the target\'s attack speed for 10 - 12 (+0.3 per level).',usageCost: '295 MP',
+    { name: 'Root of Enervation', icon: "../assets/icons/cbt_el_slow_g1.png", base: 10, baseMax: 12, unit: 's', type: 'buff', perLevel: 0.3, stat: 'Attack Speed Reduction Duration',
+    tip: {description: 'Reduces the target\'s attack speed for {base} ~ {baseMax}s (+{perLevel} per level).',usageCost: '295 MP',
                     cooldown: '10s',
                     castTime: 'Cast Instantly',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
-                    areaIcon: 'targetSingle' } }, // Root of Enervation is 10 - 12 sec, we use 11 sec as base
+                    areaIcon: 'targetSingle' } }, // Root of Enervation lasts 10 ~ 12s, both bounds grow +0.3/level
     { name: 'Stone Shock', icon: "../assets/icons/cbt_el_stoneshock_g1.png", base: 578, type: 'damage' },
     { name: 'Sandblaster', icon: "../assets/icons/cbt_el_areacage_g1.png", base: 288, type: 'damage', dot: 317 },
     { name: 'Ignite Aether', icon: "../assets/icons/cbt_el_enchantmentburst_g1.png", base: 861, type: 'damage', extras: [{ label: 'Additional Damage', base: 861 }] },
@@ -367,9 +372,9 @@ const ODIAN_SKILLS = {
     { name: 'Aimed Weakpoint Shot', icon: "../assets/icons/live_gu_aimingstrike_g1.png", base: 1166, type: 'damage' },
     { name: 'Projectile of Silence', icon: "../assets/icons/live_gu_silenceshot_g1.png", base: 411, type: 'damage' },
     { name: 'Disrupter Shot', icon: "../assets/icons/live_gu_cracksnipe_g1.png", base: 768, type: 'damage' },
-    { name: 'Soul Shot', icon: "../assets/icons/live_gu_mentalicfirechain_g1.png", base: 764, type: 'damage' }, // Restores MP also
-    { name: 'Soul Volley', icon: "../assets/icons/live_gu_breakingfirechain_g1.png", base: 757, type: 'damage' }, // Restores MP also
-    { name: 'Rapid Soul Fire', icon: "../assets/icons/live_gu_mentalicrapidfire_g1.png", base: 1098, type: 'damage' }, // Restores MP also
+    { name: 'Soul Shot', icon: "../assets/icons/live_gu_mentalicfirechain_g1.png", base: 764, type: 'damage', extraStats: ['Restores MP'] },
+    { name: 'Soul Volley', icon: "../assets/icons/live_gu_breakingfirechain_g1.png", base: 757, type: 'damage', extraStats: ['Restores MP'] },
+    { name: 'Rapid Soul Fire', icon: "../assets/icons/live_gu_mentalicrapidfire_g1.png", base: 1098, type: 'damage', extraStats: ['Restores MP'] },
     { name: 'Materialised Magic Form', icon: "../assets/icons/live_en_formwall_g1.png", base: 25000, type: 'buff', perLevel: 10 }
   ],
   aethertech: [
@@ -379,7 +384,7 @@ const ODIAN_SKILLS = {
     { name: 'Vampiric Wave', icon: "../assets/icons/ri_drainingnet_g1.png", base: 1140, type: 'damage' },
     { name: 'Bludgeon', icon: "../assets/icons/ri_rightjab_g1.png", base: 915, type: 'damage' },
     { name: 'Cooling Wave', icon: "../assets/icons/ri_forwardattack_g1.png", base: 1148, type: 'damage' },
-    { name: 'Collapsing Smash', icon: "../assets/icons/ri_weakeningattack_g1.png", base: 684, type: 'damage', scalingStats: [{ stat: 'Physical Defence Reduction', base: 412, perLevel: 8, stat: 'Magical Defence Reduction', base: 412, perLevel: 8}] },
+    { name: 'Collapsing Smash', icon: "../assets/icons/ri_weakeningattack_g1.png", base: 684, type: 'damage', scalingStats: [{ stat: 'Physical Defence Reduction', base: 412, perLevel: 8 }, { stat: 'Magical Defence Reduction', base: 412, perLevel: 8 }] },
     { name: 'Strong Attack', icon: "../assets/icons/ri_powerjab_g1.png", base: 1310, type: 'damage', extras: [{ label: 'Additional Damage', base: 251 }] },
     { name: 'Emergency Upkeep', icon: "../assets/icons/ri_instantthrust_g1.png", base: 4000, type: 'buff', perLevel: 100 },
     { name: 'Rapid Recharge', icon: "../assets/icons/ri_rapidcharge_g1.png", base: 15120, type: 'buff', perLevel: 302, extraStats: ['MP: 7080'] },
@@ -652,10 +657,13 @@ function renderOdianInputs() {
 
 // Normalise a buff's enchant-scaling stats into a [{ stat, base, perLevel }] array,
 // supporting both the new `scalingStats` array and the legacy stat/base/perLevel fields.
+// A stat may also carry `baseMax` (+ optional `unit`) to describe a RANGE value
+// (e.g. a 10 ~ 12s debuff). The range's lower and upper bounds both grow by
+// `perLevel`, so at +N it becomes (base + N*perLevel) ~ (baseMax + N*perLevel).
 function getOdianScalingStats(skill) {
   if (skill && Array.isArray(skill.scalingStats)) return skill.scalingStats;
   if (skill && typeof skill.perLevel === 'number') {
-    return [{ stat: skill.stat, base: skill.base, perLevel: skill.perLevel }];
+    return [{ stat: skill.stat, base: skill.base, baseMax: skill.baseMax, perLevel: skill.perLevel, unit: skill.unit }];
   }
   return [];
 }
@@ -815,21 +823,25 @@ function calculateOdianEnchantTooltip() {
     }
 
     // Each scaling stat value at the target enchant level = base + level * perLevel.
+    // Range stats (with `baseMax`) project both bounds, e.g. a 10 ~ 12s debuff
+    // becomes 16 ~ 18s at +20 instead of a misleading flat "+16".
     const primary = scaling[0];
-    const primaryValue = primary.base + targetLevel * primary.perLevel;
+    const primaryIsRange = typeof primary.baseMax === 'number';
 
-    baseDamageEl.textContent = formatOdianNumber(primary.base);
+    baseDamageEl.textContent = primaryIsRange
+      ? formatOdianNumber(primary.base) + ' ~ ' + formatOdianNumber(primary.baseMax)
+      : formatOdianNumber(primary.base);
     enchantPerLevelEl.textContent = formatOdianNumber(primary.perLevel);
 
     const primaryStat = primary.stat
       ? '<span class="odian-hero-stat">' + primary.stat + '</span>'
       : '';
-    projectedTooltipEl.innerHTML = '<span class="odian-hero-num">+' + formatOdianNumber(primaryValue) + '</span>' + primaryStat;
+    projectedTooltipEl.innerHTML = '<span class="odian-hero-num">' + formatOdianScalingValue(primary, targetLevel) + '</span>' + primaryStat;
 
     if (extraStatsEl) {
       // Additional scaling stats (computed at target level) + fixed bonuses.
       const chips = scaling.slice(1).map(function(s) {
-        return '+' + formatOdianNumber(s.base + targetLevel * s.perLevel) + (s.stat ? ' ' + s.stat : '');
+        return formatOdianScalingValue(s, targetLevel) + (s.stat ? ' ' + s.stat : '');
       });
       if (Array.isArray(skill.extraStats)) chips.push.apply(chips, skill.extraStats);
       if (chips.length) {
@@ -881,6 +893,14 @@ function calculateOdianEnchantTooltip() {
       const chipLabel = component.chipLabel || (component.key === 'dot' ? getOdianDotLabel() : component.label);
       chips.push(chipLabel + ': ' + formatOdianNumber(projected.projected));
     });
+    // Secondary stats that scale flat per enchant level (NOT via the KP formula),
+    // e.g. Collapsing Smash's defence reduction. Projected like buff scaling stats.
+    getOdianScalingStats(skill).forEach(function(s) {
+      chips.push(formatOdianScalingValue(s, targetLevel) + (s.stat ? ' ' + s.stat : ''));
+    });
+    // Fixed secondary effects (e.g. a flat debuff or MP restore) that don't scale
+    // with the KP formula, shown as static chips alongside the projected ones.
+    if (skill && Array.isArray(skill.extraStats)) chips.push.apply(chips, skill.extraStats);
     if (chips.length) {
       extraStatsEl.innerHTML = chips.map(function(text) {
         return '<span class="odian-extra-chip">' + text + '</span>';
@@ -897,6 +917,22 @@ function formatOdianNumber(value) {
   // Show up to 2 decimals (trailing zeros trimmed) so precise values like
   // 1238.69 are visible instead of being rounded up to a misleading integer.
   return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+// Projected display for a buff scaling stat at a given enchant level.
+// Range stats (with `baseMax`) render as an absolute "lo ~ hi<unit>" (e.g.
+// "16 ~ 18s") because the meaningful value is the resulting duration, not a
+// flat additive total. Plain stats keep the "+value" form. Stats without a
+// numeric `base` (only a per-level growth) show the enchant-added amount alone.
+function formatOdianScalingValue(stat, level) {
+  const unit = stat.unit || '';
+  if (typeof stat.baseMax === 'number' && typeof stat.base === 'number') {
+    const lo = stat.base + level * stat.perLevel;
+    const hi = stat.baseMax + level * stat.perLevel;
+    return formatOdianNumber(lo) + ' ~ ' + formatOdianNumber(hi) + unit;
+  }
+  const base = typeof stat.base === 'number' ? stat.base : 0;
+  return '+' + formatOdianNumber(base + level * stat.perLevel) + unit;
 }
 
 /* ------------------------------------------------------------------ */
@@ -950,8 +986,21 @@ function getOdianComponentPerLevel(base) {
 // "+X per level" growth always matches the calculator instead of being hardcoded:
 //   {base} / {perLevel}        -> main hit's +0 value / enchant per level
 //   {dotBase} / {dotPerLevel}  -> the skill's DoT (or first extra) value / per level
+//   {baseMax}                  -> upper bound of a range stat (buffs only)
+// For buffs the tokens resolve from the primary scaling stat (base/baseMax/perLevel)
+// instead of the KP damage formula, which only applies to damage skills.
 function applyOdianTooltipTokens(text, skill) {
   if (!text) return text;
+
+  // Buffs scale by flat per-level stats, not the KP damage formula.
+  if (skill.type === 'buff') {
+    const primary = getOdianScalingStats(skill)[0] || {};
+    return text
+      .replace(/\{base\}/g, typeof primary.base === 'number' ? formatOdianNumber(primary.base) : '')
+      .replace(/\{baseMax\}/g, typeof primary.baseMax === 'number' ? formatOdianNumber(primary.baseMax) : '')
+      .replace(/\{perLevel\}/g, typeof primary.perLevel === 'number' ? formatOdianNumber(primary.perLevel) : '');
+  }
+
   const mainBase = (typeof skill.base === 'number') ? skill.base : null;
   const mainPer = getOdianComponentPerLevel(mainBase);
 

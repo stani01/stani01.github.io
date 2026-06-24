@@ -3646,7 +3646,7 @@ After using the skill, the casting time of magic recovery skills is reduced by 8
                 defaultSkill: {
                     name: 'Divine Spark',
                     icon: '../assets/icons/cbt_pr_divinespark_g1.png',
-                    description: d(`Deals 2571 magical wind damage..`),
+                    description: d(`Deals 2571 magical wind damage.`),
                     usageCost: '297 MP',
                     cooldown: '14s',
                     target: 'Selected Target',
@@ -3724,7 +3724,7 @@ Multicast 2 times.`),
                 defaultSkill: {
                     name: 'Divine Touch',
                     icon: '../assets/icons/cbt_pr_divinetouch_g1.png',
-                    description: d(`Deals 1263 magical wind damage..`),
+                    description: d(`Deals 1263 magical wind damage.`),
                     usageCost: '232 MP',
                     cooldown: '14s',
                     target: 'Selected Target',
@@ -3811,7 +3811,7 @@ Multicast 3 times`),
                 defaultSkill: {
                     name: 'Light of Recovery',
                     icon: '../assets/icons/cbt_pr_emergentheal_g1.png',
-                    description: d(`Restores 1969 HP..`),
+                    description: d(`Restores 1969 HP.`),
                     usageCost: '338 MP',
                     castTime: '1s',
                     cooldown: '2s',
@@ -5430,9 +5430,10 @@ Active Skill`),
                 defaultSkill: {
                     name: 'Harmony of Destruction',
                     icon: '../assets/icons/live_ba_songofmentalic_g1.png',
-                    description: d(`DummydefaultskillforBardSkill1.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Deals 982 magical wind damage.
+Reduces MP by 5%.`),
+                    usageCost: '754 MP',
+                    cooldown: '14s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -5443,9 +5444,11 @@ Active Skill`),
                         type1: {
                             name: '(Improved) Ironclad Tank Harmony',
                             icon: '../assets/icons/ba_songofmentalic_custom_a_up.png',
-                            description: d(`DummydescriptionBardSkill1Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 1533 magical damage.
+Reduces MP by 10%.
+Increases resistance to shock states by 250.`),
+                            usageCost: '754 MP',
+                            cooldown: '14s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5454,13 +5457,14 @@ Active Skill`),
                         type2: {
                             name: '(Improved) Harmony of Vengeance',
                             icon: '../assets/icons/ba_songofmentalic_custom_b_up.png',
-                            description: d(`DummydescriptionBardSkill1Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 1533 magical damage.
+Stuns the target for 1 second.`),
+                            usageCost: '754 MP',
+                            cooldown: '14s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '3m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     },
@@ -5468,9 +5472,11 @@ Active Skill`),
                         type1: {
                             name: 'Ironclad Tank Harmony',
                             icon: '../assets/icons/ba_songofmentalic_custom_a.png',
-                            description: d(`DummydescriptionBardSkill1Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 982 (+9) magical damage.
+Reduces MP by 5%.
+Increases resistance to shock states by 150.`),
+                            usageCost: '754 MP',
+                            cooldown: '14s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5479,13 +5485,14 @@ Active Skill`),
                         type2: {
                             name: 'Harmony of Vengeance',
                             icon: '../assets/icons/ba_songofmentalic_custom_b.png',
-                            description: d(`DummydescriptionBardSkill1Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 982 (+9) magic damage.
+Stuns the target for 1s.`),
+                            usageCost: '754 MP',
+                            cooldown: '14s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '3m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     }
@@ -5500,9 +5507,11 @@ Active Skill`),
                 defaultSkill: {
                     name: 'Gentle Echo',
                     icon: '../assets/icons/live_ar_songofheal_g1.png',
-                    description: d(`DummydefaultskillforBardSkill2.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Restores 1175 HP.
+Restores 3434 MP.`),
+                    usageCost: '446 MP',
+                    castTime: '1s',
+                    cooldown: '6s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -5513,9 +5522,12 @@ Active Skill`),
                         type1: {
                             name: '(Improved) Soft Resonance',
                             icon: '../assets/icons/ba_songofheal_custom_a_up.png',
-                            description: d(`DummydescriptionBardSkill2Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Restores 1410 HP.
+Restores 3434 MP.
+Increases the target's attack speed by 25% for 3 seconds.
+Reduces the casting time by 25%.`),
+                            usageCost: '446 MP',
+                            cooldown: '6s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5524,13 +5536,16 @@ Active Skill`),
                         type2: {
                             name: '(Improved) Soft Reverb',
                             icon: '../assets/icons/ba_songofheal_custom_b_up.png',
-                            description: d(`DummydescriptionBardSkill2Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Restores 1410 HP.
+Restores 3434 MP.
+Increases the target's recovery by 18% for 5 seconds.`),
+                            usageCost: '446 MP',
+                            castTime: '1s',
+                            cooldown: '6s',
+                            target: 'Area within a Radius of Target 6 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '25m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     },
@@ -5538,9 +5553,12 @@ Active Skill`),
                         type1: {
                             name: 'Soft Resonance',
                             icon: '../assets/icons/ba_songofheal_custom_a.png',
-                            description: d(`DummydescriptionBardSkill2Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Restores 1175 (+12) HP.
+Restores 3434 MP.
+Increases the target's attack speed by 20% for 3 seconds.
+Reduces the casting time by 20%.`),
+                            usageCost: '446 MP',
+                            cooldown: '6s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5549,13 +5567,16 @@ Active Skill`),
                         type2: {
                             name: 'Soft Reverb',
                             icon: '../assets/icons/ba_songofheal_custom_b.png',
-                            description: d(`DummydescriptionBardSkill2Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Restores 1175 (+12) HP.
+Restores 3434 MP.
+Increases the target's recovery by 15% for 5 seconds.`),
+                            usageCost: '446 MP',
+                            castTime: '1s',
+                            cooldown: '6s',
+                            target: 'Area within a Radius of Target 6 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '25m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     }
@@ -5570,9 +5591,9 @@ Active Skill`),
                 defaultSkill: {
                     name: 'Symphony of Wrath',
                     icon: '../assets/icons/live_ba_songofanger_g1.png',
-                    description: d(`DummydefaultskillforBardSkill3.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Deals 3567 magical fire damage.`),
+                    usageCost: '3000 DP',
+                    cooldown: '2m',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -5583,9 +5604,9 @@ Active Skill`),
                         type1: {
                             name: '(Improved) Symphony of Rage',
                             icon: '../assets/icons/ba_songofanger_custom_a_up.png',
-                            description: d(`DummydescriptionBardSkill3Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 6697 magical fire damage.`),
+                            usageCost: '3000 DP',
+                            cooldown: '2m',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5594,9 +5615,10 @@ Active Skill`),
                         type2: {
                             name: '(Improved) Aether Symphony',
                             icon: '../assets/icons/ba_songofanger_custom_b_up.png',
-                            description: d(`DummydescriptionBardSkill3Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 5350 magical fire damage.
+Reduces MP by 50%.`),
+                            usageCost: '3000 DP',
+                            cooldown: '1m30s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5608,9 +5630,9 @@ Active Skill`),
                         type1: {
                             name: 'Symphony of Rage',
                             icon: '../assets/icons/ba_songofanger_custom_a.png',
-                            description: d(`DummydescriptionBardSkill3Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 5349 (+52) magical fire damage.`),
+                            usageCost: '3000 DP',
+                            cooldown: '2m',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5619,9 +5641,10 @@ Active Skill`),
                         type2: {
                             name: 'Aether Symphony',
                             icon: '../assets/icons/ba_songofanger_custom_b.png',
-                            description: d(`DummydescriptionBardSkill3Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Deals 4279 (+41) magical fire damage.
+Reduces MP by 30%.`),
+                            usageCost: '3000 DP',
+                            cooldown: '1m45s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5640,8 +5663,16 @@ Active Skill`),
                 defaultSkill: {
                     name: 'Illusion Variation',
                     icon: '../assets/icons/live_ba_requiem_g1.png',
-                    description: d(`DummydefaultskillforBardSkill4.`),
-                    usageCost: '2000 MP',
+                    description: d(`Level 1 - 1.5s
+Deals 958 magical fire damage.
+─────────────────────────────────────
+Level 2 - 1.5s
+Deals 2049 magical fire damage.
+─────────────────────────────────────
+Level 3 - 7s
+Deals 6204 magical fire damage.`),
+                    usageCost: '778 MP',
+                    castTime: '1s',
                     cooldown: '1m',
                     target: 'Selected Target',
                     usageDistance: '1m',
@@ -5653,9 +5684,15 @@ Active Skill`),
                         type1: {
                             name: '(Improved) Illusion Ensemble',
                             icon: '../assets/icons/ba_requiem_1_custom_a_up.png',
-                            description: d(`DummydescriptionBardSkill4Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Level 1 - 1.5s
+Deals 2459 magical fire damage.
+─────────────────────────────────────
+Level 2 - 5s
+Deals 7444 magical fire damage.
+Knocks the target back.`),
+                            usageCost: '778 MP',
+                            castTime: '1s',
+                            cooldown: '1m',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5664,9 +5701,23 @@ Active Skill`),
                         type2: {
                             name: '(Improved) Illusion Symphony',
                             icon: '../assets/icons/ba_requiem_1_custom_b_up.png',
-                            description: d(`DummydescriptionBardSkill4Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Level 1 - 1.5s
+Deals 1379 magical fire damage.
+Resets the cooldown of the Tsunami Requiem.
+The next skills carried out deliver crit strikes.
+─────────────────────────────────────
+Level 2 - 1.5s
+Deals 2951 magical fire damage.
+Resets the cooldown of the Tsunami Requiem.
+The next skills carried out deliver crit strikes.
+─────────────────────────────────────
+Level 3 - 7s
+Deals 8934 magical fire damage.
+Resets the cooldown of the Tsunami Requiem.
+The next skills carried out deliver crit strikes.`),
+                            usageCost: '778 MP',
+                            castTime: '1s',
+                            cooldown: '30s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5678,9 +5729,15 @@ Active Skill`),
                         type1: {
                             name: 'Illusion Ensemble',
                             icon: '../assets/icons/ba_requiem_1_custom_a.png',
-                            description: d(`DummydescriptionBardSkill4Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Level 1 - 1.5s
+Deals 2049 (+20) magical fire damage.
+─────────────────────────────────────
+Level 2 - 5s
+Deals 6204 (+61) magical fire damage.
+Knocks the target back.`),
+                            usageCost: '778 MP',
+                            castTime: '1s',
+                            cooldown: '1m',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5689,9 +5746,23 @@ Active Skill`),
                         type2: {
                             name: 'Illusion Symphony',
                             icon: '../assets/icons/ba_requiem_1_custom_b.png',
-                            description: d(`DummydescriptionBardSkill4Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`Level 1 - 1.5s
+Deals 1149 (+12) magical fire damage.
+If the target is sleeping, the cooldown for Tsunami Requiem is reset.
+The next skills carried out deliver crit strikes.
+─────────────────────────────────────
+Level 2 - 1.5s
+Deals 2459 (+25) magical fire damage.
+If the target is sleeping, the cooldown for Tsunami Requiem is reset.
+The next skills carried out deliver crit strikes.
+─────────────────────────────────────
+Level 3 - 7s
+Deals 7443 (+73) magical fire damage.
+If the target is sleeping, the cooldown for Tsunami Requiem is reset.
+The next skills carried out deliver crit strikes.`),
+                            usageCost: '778 MP',
+                            castTime: '1s',
+                            cooldown: '40s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5710,9 +5781,13 @@ Active Skill`),
                 defaultSkill: {
                     name: 'Storm Requiem',
                     icon: '../assets/icons/live_ba_songofgust_g1.png',
-                    description: d(`DummydefaultskillforBardSkill5.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`Deals 1952 magical wind damage.
+Knocks the target back.
+Deals 440 additional damage when the target is stunned.
+Perfect Gust Requiem.`),
+                    usageCost: '427 MP',
+                    castTime: '1s',
+                    cooldown: '16s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -5724,59 +5799,67 @@ Active Skill`),
                         type2: {
                             name: '(Improved) Boosted Storm Variation',
                             icon: '../assets/icons/ba_songofgust_custom_b_up.png',
-                            description: d(`DummydescriptionBardSkill5Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 2131 magical wind damage.
+Aether's Hold binds the target for 2.5 seconds.`),
+                            usageCost: '426 MP',
+                            castTime: '1s',
+                            cooldown: '16s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '5m',
+                            areaIcon: 'targetcircle'
                         },
                         type3: {
                             name: '(Improved) Storm Harmony',
                             icon: '../assets/icons/ba_songofgust_custom_c_up.png',
-                            description: d(`DummydescriptionBardSkill5Type3improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 3198 magical wind damage.`),
+                            usageCost: '426 MP',
+                            castTime: '0.5s',
+                            cooldown: '12s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '6m',
+                            areaIcon: 'targetcircle'
                         }
                     },
                     normal: {
                         type1: {
                             name: 'Storm Variation',
                             icon: '../assets/icons/ba_songofgust_custom_a.png',
-                            description: d(`DummydescriptionBardSkill5Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 1776 magical wind damage.
+Aether's Hold binds the target for 2 seconds.`),
+                            usageCost: '426 MP',
+                            castTime: '1s',
+                            cooldown: '16s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '5m',
+                            areaIcon: 'targetcircle'
                         },
                         type2: {
                             name: 'Boosted Storm Variation',
                             icon: '../assets/icons/ba_songofgust_custom_b.png',
-                            description: d(`DummydescriptionBardSkill5Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 1776 (+17) magical wind damage.
+Aether's Hold binds the target for 2 seconds.`),
+                            usageCost: '426 MP',
+                            castTime: '1s',
+                            cooldown: '16s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '5m',
+                            areaIcon: 'targetcircle'
                         },
                         type3: {
                             name: 'Storm Harmony',
                             icon: '../assets/icons/ba_songofgust_custom_c.png',
-                            description: d(`DummydescriptionBardSkill5Type3normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 2665 (+26) magical wind damage.`),
+                            usageCost: '426 MP',
+                            castTime: '0.5s',
+                            cooldown: '12s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '6m',
+                            areaIcon: 'targetcircle'
                         }
                     }
                 },
@@ -5790,10 +5873,13 @@ Active Skill`),
                 defaultSkill: {
                     name: 'Snowflower Melody',
                     icon: '../assets/icons/live_ba_sanctuary_g1.png',
-                    description: d(`DummydefaultskillforBardSkill6.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
-                    target: 'Selected Target',
+                    description: d(`Confers a protective shield for 30 seconds.
+Grants up to 5000 protection.
+Restores 4500 HP.
+Restores 403 MP every 3s.`),
+                    usageCost: '177 MP',
+                    cooldown: '3m',
+                    target: 'Self',
                     usageDistance: '1m',
                     area: 'Single Target',
                     areaIcon: 'targetSingle'
@@ -5803,24 +5889,33 @@ Active Skill`),
                         type1: {
                             name: '(Improved) Purifying Snowflower Melody',
                             icon: '../assets/icons/ba_sanctuary_custom_a_up.png',
-                            description: d(`DummydescriptionBardSkill6Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Confers a protective shield for 30 seconds.
+Grants up to 15000 protection.
+Restores 10000 HP.
+Regenerates 1209 MP every 3s.
+Also has a 50% chance of removing magical debuffs when landing a hit while using a protective shield.`),
+                            usageCost: '177 MP',
+                            cooldown: '1m30s',
+                            target: 'Area within a Radius of Self 6 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '20m',
+                            areaIcon: 'targetCircle'
                         },
                         type2: {
                             name: '(Improved) Protective Snowflower Melody',
                             icon: '../assets/icons/ba_sanctuary_custom_b_up.png',
-                            description: d(`DummydescriptionBardSkill6Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Confers a protective shield for 30 seconds.
+Grants up to 15000 protection.
+Restores 10000 HP.
+Regenerates 1209 MP every 3s.
+Increases resistance to shock states by 300.
+Increases Add. PvP Def. by 500.`),
+                            usageCost: '177 MP',
+                            cooldown: '1m30s',
+                            target: 'Area within a Radius of Self 6 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '20m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     },
@@ -5828,24 +5923,33 @@ Active Skill`),
                         type1: {
                             name: 'Purifying Snowflower Melody',
                             icon: '../assets/icons/ba_sanctuary_custom_a.png',
-                            description: d(`DummydescriptionBardSkill6Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Confers a protective shield for 30 seconds.
+Grants up to 12000 (+100) protection.
+Restores 6000 HP.
+Regenerates 1209 MP every 3s.
+Also has a 20% chance of removing magical debuffs when landing a hit while using a protective shield.`),
+                            usageCost: '177 MP',
+                            cooldown: '1m30s',
+                            target: 'Area within a Radius of Self 6 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '20m',
+                            areaIcon: 'targetCircle'
                         },
                         type2: {
                             name: 'Protective Snowflower Melody',
                             icon: '../assets/icons/ba_sanctuary_custom_b.png',
-                            description: d(`DummydescriptionBardSkill6Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Confers a protective shield for 30 seconds.
+Grants up to 12000 (+100) protection.
+Restores 6000 HP.
+Regenerates 1209 MP every 3s.
+Increases resistance to shock states by 300.
+Increases Add. PvP Def. by 300.`),
+                            usageCost: '177 MP',
+                            cooldown: '1m30s',
+                            target: 'Area within a Radius of Self 6 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '20m',
+                            areaIcon: 'targetCircle'
                         },
                         type3: null
                     }
@@ -5862,9 +5966,11 @@ Active Skill`),
                 defaultSkill: {
                     name: 'Band of Rage',
                     icon: '../assets/icons/pa_paintshooter_g1.png',
-                    description: d(`DummydefaultskillforPainterSkill1.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`For the duration of the movement, has a high probability of hitting the target and deals 1772 physical damage.
+Small probability of a Crit Strike.`),
+                    usageCost: '0 MP',
+                    castTime: '0.5s',
+                    cooldown: '10s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -5875,9 +5981,11 @@ Active Skill`),
                         type1: {
                             name: '(Improved) Band of Fierceness',
                             icon: '../assets/icons/pa_paintshooter_custom_a_up.png',
-                            description: d(`DummydescriptionPainterSkill1Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`For the duration of the movement, has a high probability of hitting the target and deals 2791 physical damage.
+Small probability of a Crit Strike.`),
+                            usageCost: '0 MP',
+                            castTime: '0.5s',
+                            cooldown: '10s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5886,9 +5994,12 @@ Active Skill`),
                         type2: {
                             name: '(Improved) Band of Forbearance',
                             icon: '../assets/icons/pa_paintshooter_custom_b_up.png',
-                            description: d(`DummydescriptionPainterSkill1Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`For the duration of the movement, has a high probability of hitting the target and deals 2148 physical damage.
+Increases physical and magic defence by 2,000 for 10 seconds.
+Small probability of a Crit Strike.`),
+                            usageCost: '0 MP',
+                            castTime: '0.5s',
+                            cooldown: '10s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5900,9 +6011,11 @@ Active Skill`),
                         type1: {
                             name: 'Band of Rage',
                             icon: '../assets/icons/pa_paintshooter_custom_a.png',
-                            description: d(`DummydescriptionPainterSkill1Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`For the duration of the movement, has a high probability of hitting the target and deals 2326 (+23) physical damage.
+Small probability of a Crit Strike.`),
+                            usageCost: '0 MP',
+                            castTime: '0.5s',
+                            cooldown: '10s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5911,9 +6024,12 @@ Active Skill`),
                         type2: {
                             name: 'Band of Forbearance',
                             icon: '../assets/icons/pa_paintshooter_custom_b.png',
-                            description: d(`DummydescriptionPainterSkill1Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`For the duration of the movement, has a high probability of hitting the target and deals 1790 (+18) physical damage.
+Increases your physical and magic defence by 1,500 for 7s.
+Small probability of a Crit Strike.`),
+                            usageCost: '0 MP',
+                            castTime: '0.5s',
+                            cooldown: '10s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5932,9 +6048,11 @@ Active Skill`),
                 defaultSkill: {
                     name: 'Time Holding',
                     icon: '../assets/icons/pa_viscidpaintshooter_g1.png',
-                    description: d(`DummydefaultskillforPainterSkill2.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`The target's movement speed is reduced while the skill is active.
+Deals 777 physical damage.`),
+                    usageCost: '119 MP',
+                    castTime: '0.5s',
+                    cooldown: '20s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -5945,9 +6063,12 @@ Active Skill`),
                         type1: {
                             name: '(Improved) Gravity Binding',
                             icon: '../assets/icons/pa_viscidpaintshooter_custom_a_up.png',
-                            description: d(`DummydescriptionPainterSkill2Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`The target's movement speed is significantly reduced while the skill is active.
+Deals 1399 physical damage.
+Reduces movement speed more than Time Holding.`),
+                            usageCost: '119 MP',
+                            castTime: '0.5s',
+                            cooldown: '20s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5956,9 +6077,11 @@ Active Skill`),
                         type2: {
                             name: '(Improved) Time Binding',
                             icon: '../assets/icons/pa_viscidpaintshooter_custom_b_up.png',
-                            description: d(`DummydescriptionPainterSkill2Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`The target is immobilised while the skill is active.
+Deals 1118 physical damage.`),
+                            usageCost: '119 MP',
+                            castTime: '0.5s',
+                            cooldown: '20s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5970,9 +6093,13 @@ Active Skill`),
                         type1: {
                             name: 'Gravity Binding',
                             icon: '../assets/icons/pa_viscidpaintshooter_custom_a.png',
-                            description: d(`DummydescriptionPainterSkill2Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`The target's movement speed is reduced while the skill is active.
+Deals 777 physical damage.
+Reduces movement speed more than Time Holding.
+The duration increases by 0.3 seconds with each enchantment.`),
+                            usageCost: '119 MP',
+                            castTime: '0.5s',
+                            cooldown: '20s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -5981,9 +6108,12 @@ Active Skill`),
                         type2: {
                             name: 'Time Binding',
                             icon: '../assets/icons/pa_viscidpaintshooter_custom_b.png',
-                            description: d(`DummydescriptionPainterSkill2Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`The target is immobilised while the skill is active.
+Deals 777 physical damage.
+The duration increases by 0.3 seconds with each enchantment.`),
+                            usageCost: '119 MP',
+                            castTime: '0.5s',
+                            cooldown: '20s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -6002,37 +6132,39 @@ Active Skill`),
                 defaultSkill: {
                     name: 'Colour Immersion',
                     icon: '../assets/icons/pa_sprinklepaint_g1.png',
-                    description: d(`DummydefaultskillforPainterSkill3.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
-                    target: 'Selected Target',
+                    description: d(`Deals 1131 physical damage..`),
+                    usageCost: '415 MP',
+                    cooldown: '12s',
+                    target: 'Area within a Radius of Target 8 People',
                     usageDistance: '1m',
-                    area: 'Single Target',
-                    areaIcon: 'targetSingle'
+                    area: '15m',
+                    areaIcon: 'targetConic'
                 },
                 rows: {
                     improved: {
                         type1: {
                             name: '(Improved) Sustained Colour Immersion',
                             icon: '../assets/icons/pa_sprinklepaint_custom_a_up.png',
-                            description: d(`DummydescriptionPainterSkill3Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 3292 physical damage.
+Multicast 2 times`),
+                            usageCost: '415 MP',
+                            cooldown: '12s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '15m',
+                            areaIcon: 'targetConic'
                         },
                         type2: {
                             name: '(Improved) Colour Explosion',
                             icon: '../assets/icons/pa_sprinklepaint_custom_b_up.png',
-                            description: d(`DummydescriptionPainterSkill3Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 2776 physical damage.
+Knocks the target back.`),
+                            usageCost: '415 MP',
+                            cooldown: '12s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '15m',
+                            areaIcon: 'targetConic'
                         },
                         type3: null
                     },
@@ -6040,24 +6172,26 @@ Active Skill`),
                         type1: {
                             name: 'Sustained Colour Immersion',
                             icon: '../assets/icons/pa_sprinklepaint_custom_a.png',
-                            description: d(`DummydescriptionPainterSkill3Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 2743 (+27) physical damage.
+Multicast 2 times`),
+                            usageCost: '415 MP',
+                            cooldown: '12s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '15m',
+                            areaIcon: 'targetConic'
                         },
                         type2: {
                             name: 'Colour Explosion',
                             icon: '../assets/icons/pa_sprinklepaint_custom_b.png',
-                            description: d(`DummydescriptionPainterSkill3Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Deals 2314 (+23) physical damage.
+Knocks the target back.`),
+                            usageCost: '415 MP',
+                            cooldown: '12s',
+                            target: 'Area within a Radius of Target 8 People',
                             usageDistance: '1m',
-                            area: 'Single Target',
-                            areaIcon: 'targetSingle'
+                            area: '15m',
+                            areaIcon: 'targetConic'
                         },
                         type3: null
                     }
@@ -6072,9 +6206,10 @@ Active Skill`),
                 defaultSkill: {
                     name: 'Surprise Attack',
                     icon: '../assets/icons/pa_scaringatk_g1.png',
-                    description: d(`DummydefaultskillforPainterSkill4.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
+                    description: d(`You get behind the target and deal 1350 physical damage to it.
+Stuns the target for 3s.`),
+                    usageCost: '370 MP',
+                    cooldown: '40s',
                     target: 'Selected Target',
                     usageDistance: '1m',
                     area: 'Single Target',
@@ -6085,9 +6220,10 @@ Active Skill`),
                         type1: {
                             name: '(Improved) Sudden Smash',
                             icon: '../assets/icons/pa_scaringatk_custom_a_up.png',
-                            description: d(`DummydescriptionPainterSkill4Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`You get behind the target and deal 3805 physical damage to it.
+Stuns the target for 3s.`),
+                            usageCost: '370 MP',
+                            cooldown: '40s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -6096,9 +6232,10 @@ Active Skill`),
                         type2: {
                             name: '(Improved) Shocking Blast',
                             icon: '../assets/icons/pa_scaringatk_custom_b_up.png',
-                            description: d(`DummydescriptionPainterSkill4Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`You get behind the target and deal 1620 physical damage to it.
+Stuns the target for 4s.`),
+                            usageCost: '370 MP',
+                            cooldown: '24s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -6110,9 +6247,10 @@ Active Skill`),
                         type1: {
                             name: 'Sudden Smash',
                             icon: '../assets/icons/pa_scaringatk_custom_a.png',
-                            description: d(`DummydescriptionPainterSkill4Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`You get behind the target and deal 3171 (+31) physical damage to it.
+Stuns the target for 3s.`),
+                            usageCost: '370 MP',
+                            cooldown: '40s',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -6121,9 +6259,10 @@ Active Skill`),
                         type2: {
                             name: 'Shocking Blast',
                             icon: '../assets/icons/pa_scaringatk_custom_b.png',
-                            description: d(`DummydescriptionPainterSkill4Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
+                            description: d(`You get behind the target and deal 1350 physical damage to it.
+Stuns the target for 4s.`),
+                            usageCost: '370 MP',
+                            cooldown: '30s (-0.3)',
                             target: 'Selected Target',
                             usageDistance: '1m',
                             area: 'Single Target',
@@ -6142,10 +6281,12 @@ Active Skill`),
                 defaultSkill: {
                     name: 'Portrait of Resurrection',
                     icon: '../assets/icons/pa_paintcovering_g1.png',
-                    description: d(`DummydefaultskillforPainterSkill5.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
-                    target: 'Selected Target',
+                    description: d(`Protects you from dying if you are exposed to hits which do not exceed a certain level for 10 minutes.
+Increases Physical Defence by 338.
+A maximum of 20,000 HP are restored while the protection against dying lasts.`),
+                    usageCost: '254 MP',
+                    cooldown: '10m',
+                    target: 'Self',
                     usageDistance: '1m',
                     area: 'Single Target',
                     areaIcon: 'targetSingle'
@@ -6155,10 +6296,12 @@ Active Skill`),
                         type1: {
                             name: '(Improved) Colour of Transcendence',
                             icon: '../assets/icons/pa_paintcovering_custom_a_up.png',
-                            description: d(`DummydescriptionPainterSkill5Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Protects you from dying if you are exposed to hits which do not exceed a certain level for 10 minutes.
+Increases Physical Defence by 450.
+A maximum of 60,000 HP are restored while the protection against dying lasts.`),
+                            usageCost: '237 MP',
+                            cooldown: '8m',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -6166,10 +6309,13 @@ Active Skill`),
                         type2: {
                             name: '(Improved) Colour of Resistance',
                             icon: '../assets/icons/pa_paintcovering_custom_b_up.png',
-                            description: d(`DummydescriptionPainterSkill5Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Protects you from dying if you are exposed to hits which do not exceed a certain level for 10 minutes.
+Increases Physical Defence by 600.
+A maximum of 45,000 HP are restored while the protection against dying lasts.
+Glaze Coating remains active while the protection against dying lasts.`),
+                            usageCost: '237 MP',
+                            cooldown: '8m',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -6180,10 +6326,12 @@ Active Skill`),
                         type1: {
                             name: 'Colour of Transcendence',
                             icon: '../assets/icons/pa_paintcovering_custom_a.png',
-                            description: d(`DummydescriptionPainterSkill5Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Protects you from dying if you are exposed to hits which do not exceed a certain level for 10 minutes.
+Increases Physical Defence by 338.
+A maximum of 35,000 HP are restored while the protection against dying lasts.`),
+                            usageCost: '237 MP',
+                            cooldown: '10m (-6s)',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -6191,10 +6339,13 @@ Active Skill`),
                         type2: {
                             name: 'Colour of Resistance',
                             icon: '../assets/icons/pa_paintcovering_custom_b.png',
-                            description: d(`DummydescriptionPainterSkill5Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Protects you from dying if you are exposed to hits which do not exceed a certain level for 10 minutes.
+Increases Physical Defence by 338.
+A maximum of 20,000 HP are restored while the protection against dying lasts.
+Glaze Coating while the protection against dying lasts.`),
+                            usageCost: '237 MP',
+                            cooldown: '10m (-6s)',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -6202,10 +6353,12 @@ Active Skill`),
                         type3: {
                             name: 'Colour of Agility',
                             icon: '../assets/icons/pa_paintcovering_custom_c.png',
-                            description: d(`DummydescriptionPainterSkill5Type3normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Protects you from dying if you are exposed to hits which do not exceed a certain level for 10 minutes.
+Increases Physical Defence by 338.
+A maximum of 20,000 HP are restored while the protection against dying lasts.`),
+                            usageCost: '237 MP',
+                            cooldown: '5m',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -6222,10 +6375,12 @@ Active Skill`),
                 defaultSkill: {
                     name: 'Colour Boost',
                     icon: '../assets/icons/pa_paintshower_g1.png',
-                    description: d(`DummydefaultskillforPainterSkill6.`),
-                    usageCost: '2000 MP',
-                    cooldown: '1m',
-                    target: 'Selected Target',
+                    description: d(`Increases Physical Attack by 500 for 30s.
+Increases Atk. Speed by 30%.
+Increases Crit Strike by 2000.`),
+                    usageCost: '3000 DP',
+                    cooldown: '2m',
+                    target: 'Self',
                     usageDistance: '1m',
                     area: 'Single Target',
                     areaIcon: 'targetSingle'
@@ -6233,23 +6388,28 @@ Active Skill`),
                 rows: {
                     improved: {
                         type1: {
-                            name: '(Improved) Painter Skill 6 Type 1',
+                            name: '(Improved) Precision Colour Boost',
                             icon: '../assets/icons/pa_paintshower_custom_a_up.png',
-                            description: d(`DummydescriptionPainterSkill6Type1improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Increases Physical Attack by 700 for 30s.
+Increases Atk. Speed by 30%.
+Increases Crit Strike by 2000.
+Increases Accuracy by 1000.`),
+                            usageCost: '3000 DP',
+                            cooldown: '2m',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
                         },
                         type2: {
-                            name: '(Improved) Painter Skill 6 Type 2',
+                            name: '(Improved) Attack Colour Boost',
                             icon: '../assets/icons/pa_paintshower_custom_b_up.png',
-                            description: d(`DummydescriptionPainterSkill6Type2improved`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Increases Physical Attack by 2000 for 10s.
+Increases Atk. Speed by 30%.
+Increases Crit Strike by 2000.`),
+                            usageCost: '3000 DP',
+                            cooldown: '2m',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
@@ -6258,23 +6418,28 @@ Active Skill`),
                     },
                     normal: {
                         type1: {
-                            name: 'Painter Skill 6 Type 1',
+                            name: 'Precision Colour Boost',
                             icon: '../assets/icons/pa_paintshower_custom_a.png',
-                            description: d(`DummydescriptionPainterSkill6Type1normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Increases Physical Attack by 600 (+6) for 30s.
+Increases Atk. Speed by 30%.
+Increases Crit Strike by 2000.
+Increases Accuracy by 600.`),
+                            usageCost: '3000 DP',
+                            cooldown: '2m',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'
                         },
                         type2: {
-                            name: 'Painter Skill 6 Type 2',
+                            name: 'Attack Colour Boost',
                             icon: '../assets/icons/pa_paintshower_custom_b.png',
-                            description: d(`DummydescriptionPainterSkill6Type2normal`),
-                            usageCost: '2000 MP',
-                            cooldown: '45s',
-                            target: 'Selected Target',
+                            description: d(`Increases Physical Attack by 1500 (+15) for 8s.
+Increases Atk. Speed by 30%.
+Increases Crit Strike by 2000.`),
+                            usageCost: '3000 DP',
+                            cooldown: '2m',
+                            target: 'Self',
                             usageDistance: '1m',
                             area: 'Single Target',
                             areaIcon: 'targetSingle'

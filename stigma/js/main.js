@@ -651,19 +651,19 @@
 
         var usedColMinWidth = getDaevanionUsedColumnMinWidth();
 
-        var warningExpanded = !isDaevanionWarningCollapsed;
-        var html = '<div class="daevanion-warning-wrap' + (warningExpanded ? ' is-open' : ' is-collapsed') + '">';
-        html += '<button type="button" class="daevanion-warning-mini-toggle" aria-expanded="' + (warningExpanded ? 'true' : 'false') + '" aria-label="Show warning" title="Show warning" onclick="StigmaApp.toggleDaevanionWarning()">i</button>';
-        html += '<div class="warning-box daevanion-warning-box">';
-        html += '<button type="button" class="daevanion-warning-close" aria-label="Hide warning" title="Hide warning" onclick="StigmaApp.toggleDaevanionWarning()">✕</button>';
-        html += '<div class="daevanion-warning-content">🚧Daevanion tooltip descriptions are under construction. Placeholder data is shown until the page is complete.🚧<br>🚧Found a discrepancy? Let us know!🚧'
-        html += '<br>🚧Classes with missing descriptions so far: '
-        html += '<img src="../assets/icons/bard.png"></img>'
-        html += '<img src="../assets/icons/painter.png"></img>'
-        html += '🚧</div>';
-        html += '</div>';
-        html += '</div>';
-        html += '<div class="stigma-panel daevanion-panel">';
+        //var warningExpanded = !isDaevanionWarningCollapsed;
+        //var html = '<div class="daevanion-warning-wrap' + (warningExpanded ? ' is-open' : ' is-collapsed') + '">';
+        // html += '<button type="button" class="daevanion-warning-mini-toggle" aria-expanded="' + (warningExpanded ? 'true' : 'false') + '" aria-label="Show warning" title="Show warning" onclick="StigmaApp.toggleDaevanionWarning()">i</button>';
+        // html += '<div class="warning-box daevanion-warning-box">';
+        // html += '<button type="button" class="daevanion-warning-close" aria-label="Hide warning" title="Hide warning" onclick="StigmaApp.toggleDaevanionWarning()">✕</button>';
+        // html += '<div class="daevanion-warning-content">🚧Daevanion tooltip descriptions are under construction. Placeholder data is shown until the page is complete.🚧<br>🚧Found a discrepancy? Let us know!🚧'
+        // html += '<br>🚧Classes with missing descriptions so far: '
+        // html += '<img src="../assets/icons/bard.png"></img>'
+        // html += '<img src="../assets/icons/painter.png"></img>'
+        // html += '🚧</div>';
+        // html += '</div>';
+        // html += '</div>';
+        var html = '<div class="stigma-panel daevanion-panel">';
         html += '<div class="stigma-builder-head daevanion-builder-head">';
         html += '<div class="stigma-preset-actions">';
         // html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pve" onclick="StigmaApp.applyDaevanionPresetBuild(\'pve\')" aria-label="Developer\'s PvE build" title="Developer\'s PvE build">';
