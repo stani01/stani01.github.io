@@ -243,11 +243,11 @@ const ODIAN_SKILLS = {
     { name: 'Repeated Body Smash', icon: "../assets/icons/live_fi_tripleslash_g1.png", base: 682, type: 'damage' },
     { name: 'Springing Slice', icon: "../assets/icons/live_fi_jumpingcut_g1.png", base: 1198, type: 'damage' },
     { name: 'Aerial Lockdown', icon: "../assets/icons/cbt_fi_raisingimpact_g1.png", base: 725, type: 'damage' },
-    { name: 'Wrathful Strike', icon: "../assets/icons/cbt_fi_robustcrash_g1.png", base: 1075, type: 'damage' },
+    { name: 'Wrathful Strike', icon: "../assets/icons/cbt_fi_robustcrash_g1.png", base: 917, type: 'damage' },
     { name: 'Explosion of Wrath', icon: "../assets/icons/live_fi_rageburst_g1.png", base: 2250, type: 'damage' },
     { name: 'Seismic Billow', icon: "../assets/icons/cbt_fi_seismicbillow_g1.png", base: 1056, type: 'damage' },
     { name: 'Counter Leach', icon: "../assets/icons/live_fi_counterdrain_g1.png", base: 1067, type: 'damage' },
-    { name: 'Fury Absorption', icon: "../assets/icons/live_fi_seismicdrain_g1.png", base: 1104, type: 'damage' },
+    { name: 'Fury Absorption', icon: "../assets/icons/live_fi_seismicdrain_g1.png", base: 1106, type: 'damage' },
     { name: 'Hard Charge', icon: "../assets/icons/cbt_wa_dash_g1.png", base: 10, type: 'buff', perLevel: 0.2 },
     { name: 'Strengthen Wings', icon: "../assets/icons/cbt_fi_energywing_g1.png", base: 7, type: 'buff', perLevel: 0.2 }
   ],
@@ -378,11 +378,11 @@ const ODIAN_SKILLS = {
     { name: 'Materialised Magic Form', icon: "../assets/icons/live_en_formwall_g1.png", base: 25000, type: 'buff', perLevel: 10 }
   ],
   aethertech: [
-    { name: 'Burning Cannon Shot', icon: "../assets/icons/ri_directfire_g1.png", base: 2055, type: 'damage' },
-    { name: 'Flame of Demolition', icon: "../assets/icons/ri_angrypunch_g1.png", base: 2426, type: 'damage' },
+    { name: 'Burning Cannon Shot', icon: "../assets/icons/ri_directfire_g1.png", base: 2056, type: 'damage' },
+    { name: 'Flame of Demolition', icon: "../assets/icons/ri_angrypunch_g1.png", base: 2427, type: 'damage' },
     { name: 'Sprint Strike', icon: "../assets/icons/ri_chargeattack_g1.png", base: 1410, type: 'damage' },
-    { name: 'Vampiric Wave', icon: "../assets/icons/ri_drainingnet_g1.png", base: 1140, type: 'damage' },
-    { name: 'Bludgeon', icon: "../assets/icons/ri_rightjab_g1.png", base: 915, type: 'damage' },
+    { name: 'Vampiric Wave', icon: "../assets/icons/ri_drainingnet_g1.png", base: 1141, type: 'damage' },
+    { name: 'Bludgeon', icon: "../assets/icons/ri_rightjab_g1.png", base: 916, type: 'damage' },
     { name: 'Cooling Wave', icon: "../assets/icons/ri_forwardattack_g1.png", base: 1148, type: 'damage' },
     { name: 'Collapsing Smash', icon: "../assets/icons/ri_weakeningattack_g1.png", base: 684, type: 'damage', scalingStats: [{ stat: 'Physical Defence Reduction', base: 412, perLevel: 8 }, { stat: 'Magical Defence Reduction', base: 412, perLevel: 8 }] },
     { name: 'Strong Attack', icon: "../assets/icons/ri_powerjab_g1.png", base: 1310, type: 'damage', extras: [{ label: 'Additional Damage', base: 251 }] },
@@ -727,7 +727,7 @@ function projectOdianDamage(tooltip, fromLevel, toLevel, kpMultiplier) {
   return {
     baseDamage: baseDamage,
     enchantPerLevel: enchantPerLevel,
-    projected: computeOdianIngameBase(superbaseDamage, kpMultiplier) + (toLevel * enchantPerLevel)
+    projected: Math.round(tooltip + (toLevel - fromLevel) * enchantPerLevel)
   };
 }
 
