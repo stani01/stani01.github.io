@@ -142,8 +142,8 @@
         </div>
         <div class="info-group">
           <h3>🔮 Odian Enchant</h3>
-          <p>Base Formula: <code>ROUND(Skill Tooltip / ((Power or Knowledge / 100) + 0.02), 0)</code></p>
-          <p>Enchant Formula: <code>ROUND(Base Damage x 0.02, 0) x (Power or Knowledge / 100)</code></p>
+          <p>Ingame Base Formula: <code>ROUNDDOWN(Superbase Damage x (Power or Knowledge / 100), 0) + ROUND(Superbase Damage x (Power or Knowledge / 100) x 0.02, 0)</code></p>
+          <p>Enchant Formula: <code>ROUNDUP(Superbase Damage x 0.02, 0) x (Power or Knowledge / 100)</code></p>
           <p>Lets you project the tooltip from your current enchant level to any target level from +0 to +26.</p>
         </div>
         <div class="info-group">
@@ -535,11 +535,14 @@ function selectOdianSkill(index) {
 
   odianSelectedSkillIndex = index;
 
-  // Prefill each component input with its +0 base value and reset current level.
+  // Prefill each component input with its +0 INGAME tooltip value (derived from
+  // the DB's superbase) and reset current level.
   odianInputValues = {};
+  const classData = ODIAN_CLASS_DATA[odianSelectedClass] || ODIAN_CLASS_DATA.gladiator;
+  const kpMultiplier = classData.kp / 100;
   getOdianComponents(skill).forEach(function(component) {
     if (typeof component.base === 'number') {
-      odianInputValues[component.key] = String(component.base);
+      odianInputValues[component.key] = String(computeOdianIngameBase(component.base, kpMultiplier));
     }
   });
   const currentLevelEl = document.getElementById('odianCurrentLevel');
@@ -635,7 +638,13 @@ function renderOdianInputs() {
     input.type = 'text';
     input.id = inputId;
     input.className = 'odian-input';
-    input.placeholder = (typeof component.base === 'number') ? ('e.g. ' + component.base) : 'e.g. 5001';
+    if (typeof component.base === 'number' && skill) {
+      const classData = ODIAN_CLASS_DATA[odianSelectedClass] || ODIAN_CLASS_DATA.gladiator;
+      const kpMultiplier = classData.kp / 100;
+      input.placeholder = 'e.g. ' + computeOdianIngameBase(component.base, kpMultiplier);
+    } else {
+      input.placeholder = 'e.g. 5001';
+    }
     input.value = (odianInputValues[component.key] !== undefined) ? odianInputValues[component.key] : '';
     input.oninput = function() {
       odianInputValues[component.key] = input.value;
@@ -668,15 +677,57 @@ function getOdianScalingStats(skill) {
   return [];
 }
 
-// Project a damage tooltip from one enchant level to another using the KP formula.
-// Per-level enchant = ROUNDUP(baseDamage * 0.02, 0) * KP multiplier.
+function computeOdianIngameBase(superbaseDamage, kpMultiplier) {
+  return Math.floor(superbaseDamage * kpMultiplier) + Math.round(superbaseDamage * kpMultiplier * 0.02);
+}
+
+function computeOdianEnchantPerLevel(superbaseDamage, kpMultiplier) {
+  return Math.ceil(superbaseDamage * 0.02) * kpMultiplier;
+}
+
+function projectOdianTooltipFromSuperbase(superbaseDamage, level, kpMultiplier) {
+  return computeOdianIngameBase(superbaseDamage, kpMultiplier) + (level * computeOdianEnchantPerLevel(superbaseDamage, kpMultiplier));
+}
+
+function solveOdianSuperbase(tooltip, fromLevel, kpMultiplier) {
+  const normalizedLevel = Number.isFinite(fromLevel) ? fromLevel : 0;
+  const approx = tooltip / (kpMultiplier * (1.02 + (normalizedLevel * 0.02)));
+  const seed = Math.max(1, Math.round(approx));
+
+  let bestSuperbase = seed;
+  let bestDiff = Number.POSITIVE_INFINITY;
+  let windowSize = 250;
+
+  for (let pass = 0; pass < 5; pass += 1) {
+    const min = Math.max(1, seed - windowSize);
+    const max = seed + windowSize;
+
+    for (let candidate = min; candidate <= max; candidate += 1) {
+      const predicted = projectOdianTooltipFromSuperbase(candidate, normalizedLevel, kpMultiplier);
+      const diff = Math.abs(predicted - tooltip);
+      if (diff < bestDiff || (diff === bestDiff && candidate < bestSuperbase)) {
+        bestDiff = diff;
+        bestSuperbase = candidate;
+      }
+    }
+
+    if (bestDiff === 0) break;
+    windowSize *= 2;
+  }
+
+  return bestSuperbase;
+}
+
+// Project a damage tooltip from one enchant level to another using the tested
+// superbase/in-game formulas.
 function projectOdianDamage(tooltip, fromLevel, toLevel, kpMultiplier) {
-  const baseDamage = tooltip / (kpMultiplier + 0.02);
-  const enchantPerLevel = Math.ceil(baseDamage * 0.02) * kpMultiplier;
+  const superbaseDamage = solveOdianSuperbase(tooltip, fromLevel, kpMultiplier);
+  const baseDamage = computeOdianIngameBase(superbaseDamage, kpMultiplier);
+  const enchantPerLevel = computeOdianEnchantPerLevel(superbaseDamage, kpMultiplier);
   return {
     baseDamage: baseDamage,
     enchantPerLevel: enchantPerLevel,
-    projected: tooltip + (toLevel - fromLevel) * enchantPerLevel
+    projected: computeOdianIngameBase(superbaseDamage, kpMultiplier) + (toLevel * enchantPerLevel)
   };
 }
 
@@ -973,13 +1024,13 @@ function formatOdianTooltipDescription(value) {
   return formatOdianTooltipValue(value || '').replace(/\n/g, '<br>');
 }
 
-// Enchant-per-level for a damage component's +0 base, using the current class KP
-// (the same formula the calculator uses: ROUNDUP(base/(kp+0.02) * 0.02) * kp).
-function getOdianComponentPerLevel(base) {
-  if (typeof base !== 'number') return null;
+// Enchant-per-level for a damage component's superbase from ODIAN_SKILLS,
+// using the current class KP and the same rounding logic as the main calculator.
+function getOdianComponentPerLevel(superbase) {
+  if (typeof superbase !== 'number') return null;
   const classData = ODIAN_CLASS_DATA[odianSelectedClass] || ODIAN_CLASS_DATA.gladiator;
   const kpMultiplier = classData.kp / 100;
-  return projectOdianDamage(base, 0, 1, kpMultiplier).enchantPerLevel;
+  return computeOdianEnchantPerLevel(superbase, kpMultiplier);
 }
 
 // Replace tooltip template tokens with values computed by the tool, so the
@@ -1001,14 +1052,19 @@ function applyOdianTooltipTokens(text, skill) {
       .replace(/\{perLevel\}/g, typeof primary.perLevel === 'number' ? formatOdianNumber(primary.perLevel) : '');
   }
 
-  const mainBase = (typeof skill.base === 'number') ? skill.base : null;
-  const mainPer = getOdianComponentPerLevel(mainBase);
+  const classData = ODIAN_CLASS_DATA[odianSelectedClass] || ODIAN_CLASS_DATA.gladiator;
+  const kpMultiplier = classData.kp / 100;
+
+  const mainSuperbase = (typeof skill.base === 'number') ? skill.base : null;
+  const mainBase = mainSuperbase !== null ? computeOdianIngameBase(mainSuperbase, kpMultiplier) : null;
+  const mainPer = getOdianComponentPerLevel(mainSuperbase);
 
   // First secondary component: legacy `dot`, else first `extras` entry.
-  let secBase = null;
-  if (typeof skill.dot === 'number') secBase = skill.dot;
-  else if (Array.isArray(skill.extras) && skill.extras.length && typeof skill.extras[0].base === 'number') secBase = skill.extras[0].base;
-  const secPer = getOdianComponentPerLevel(secBase);
+  let secSuperbase = null;
+  if (typeof skill.dot === 'number') secSuperbase = skill.dot;
+  else if (Array.isArray(skill.extras) && skill.extras.length && typeof skill.extras[0].base === 'number') secSuperbase = skill.extras[0].base;
+  const secBase = secSuperbase !== null ? computeOdianIngameBase(secSuperbase, kpMultiplier) : null;
+  const secPer = getOdianComponentPerLevel(secSuperbase);
 
   return text
     .replace(/\{base\}/g, mainBase !== null ? formatOdianNumber(mainBase) : '')
