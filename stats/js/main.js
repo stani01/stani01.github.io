@@ -77,28 +77,48 @@ const ODIAN_SKILLS = {
     { name: 'Robust Blow', icon: "../assets/icons/cbt_wa_robustblow_g1.png", base: 841, type: 'damage' },
     { name: 'Repeated Body Smash', icon: "../assets/icons/live_fi_tripleslash_g1.png", base: 682, type: 'damage' },
     { name: 'Springing Slice', icon: "../assets/icons/live_fi_jumpingcut_g1.png", base: 1198, type: 'damage' },
+    { name: 'Large-scale Forced Landing', icon: '../assets/icons/odi_dropimpact.png', base: 2251, type: 'damage', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s healing by 30% for 5 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s additional PvP attack and PvE attack by 500 for 5 sec.\nThe effect cannot be removed.', target: 'Area within a Radius of Target 10 People', usageCost: 'MP 126', castTime: 'Cast Instantly', cooldown: '15s',
+      usageDistance: '1m',
+      area: '10m',
+      areaIcon: 'targetCircle'
+     } },
     { name: 'Aerial Lockdown', icon: "../assets/icons/cbt_fi_raisingimpact_g1.png", base: 725, type: 'damage' },
     { name: 'Wrathful Strike', icon: "../assets/icons/cbt_fi_robustcrash_g1.png", base: 917, type: 'damage' },
     { name: 'Explosion of Wrath', icon: "../assets/icons/live_fi_rageburst_g1.png", base: 2250, type: 'damage' },
     { name: 'Seismic Billow', icon: "../assets/icons/cbt_fi_seismicbillow_g1.png", base: 1056, type: 'damage' },
+    { name: 'Whirling Blow', icon: '../assets/icons/odi_jumpattack.png', base: 2200, type: 'damage', tip: { description: 'DetailsToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s additional PvP and PvE defence by 500 for 8 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s evasion, resist magic, block and parry by 1,200 for 8 sec.\nThe effect cannot be removed.', target: 'Selected Target',  usageCost: 'MP 143', castTime: 'Cast Instantly', cooldown: '30s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle' } },
     { name: 'Counter Leach', icon: "../assets/icons/live_fi_counterdrain_g1.png", base: 1067, type: 'damage' },
     { name: 'Fury Absorption', icon: "../assets/icons/live_fi_seismicdrain_g1.png", base: 1106, type: 'damage' },
     { name: 'Hard Charge', icon: "../assets/icons/cbt_wa_dash_g1.png", base: 10, type: 'buff', perLevel: 0.2 },
-    { name: 'Strengthen Wings', icon: "../assets/icons/cbt_fi_energywing_g1.png", base: 7, type: 'buff', perLevel: 0.2 }
+    { name: 'Strengthen Wings', icon: "../assets/icons/cbt_fi_energywing_g1.png", base: 7, type: 'buff', perLevel: 0.2 },
+    { name: 'Concentrated Protection', icon: '../assets/icons/odi_parryfocus.png', type: 'buff', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the cooldown for Remove Shock by 10 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s cooldown for Carmine and Azure Odian skills by 10%.', target: 'Self', usageCost: 'MP 133', castTime: 'Cast Instantly', cooldown: '24s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle'} },
   ],
   templar: [
     { name: 'Dazing Severe Blow', icon: "../assets/icons/cbt_kn_weaponbreak_g1.png", base: 886, type: 'damage' },
     { name: 'Robust Blow', icon: "../assets/icons/cbt_wa_robustblow_g1.png", base: 841, type: 'damage' },
     { name: 'Wrath Strike', icon: "../assets/icons/cbt_kn_shineblade_g1.png", base: 917, type: 'damage' },
     { name: 'Judgment Blow', icon: "../assets/icons/live_kn_slashdown_g1.png", base: 1546, type: 'damage' },
+    { name: 'Annihilating Blow', icon: '../assets/icons/odi_godjudgement.png', base: 1600, type: 'damage', tip: { description: 'Deals 1600 physical damage.\nStuns the target for 2s.\nIf the caster has a +5 Enchantment, reduces the target\'s healing by 30% for 5 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s additional PvP attack and PvE attack by 500 for 5 sec.\nThe effect cannot be removed.', target: 'Selected Target', usageCost: 'MP 260', castTime: 'Cast Instantly', cooldown: '40s' } },
     { name: 'Shield Counter', icon: "../assets/icons/cbt_wa_avengingcrash_g1.png", base: 858, type: 'damage' },
     { name: 'Swinging Shield Counter', icon: "../assets/icons/live_kn_shieldswing_g1.png", base: 686, type: 'damage' },
     { name: 'Sword Wind', icon: "../assets/icons/live_kn_windblade_g1.png", base: 1195, type: 'damage' },
     { name: 'Judgment', icon: "../assets/icons/cbt_kn_judgement_g1.png", base: 1095, type: 'damage' },
+    { name: 'Binding Wave', icon: '../assets/icons/odi_fortitudewave.png', base: 1500, type: 'damage', tip: {
+      description: `Deals 1500 physical damage.
+      Immobilises the target for 8s. There is only a slight chance this state can be removed.
+      Knocks the target back.
+      If the caster has a +5 Enchantment, reduces the target's additional PvP and PvE defence by 500 for 8 seconds.
+      If the caster has a +10 Enchantment, reduces the target's evasion, resist magic, block and parry by 1,200 for 8 sec.
+      The effect cannot be removed.`,
+      target: 'Area within a Radius of Target 12 People', usageCost: '0 MP', castTime: 'Cast Instantly', cooldown: '1m',
+      usageDistance: '1m',
+      area: '7m',
+      areaIcon: 'targetCircle'  } },
     { name: 'Hard Charge', icon: "../assets/icons/cbt_wa_dash_g1.png", base: 10, type: 'buff', perLevel: 0.2  },
     { name: 'Panoply of Protection', icon: "../assets/icons/live_kn_protectshield_g1.png", base: 15000, type: 'buff', perLevel: 300 },
     { name: 'Empyrean Armour', icon: "../assets/icons/cbt_kn_stonebody_g1.png", base: 350, type: 'buff', perLevel: 10 },
-    { name: 'Prayer of Freedom', icon: "../assets/icons/cbt_kn_purifywing_g1.png", base: 7, type: 'buff', perLevel: 0.2 }
+    { name: 'Prayer of Freedom', icon: "../assets/icons/cbt_kn_purifywing_g1.png", base: 7, type: 'buff', perLevel: 0.2 },
+    { name: 'Shell of Balance', icon: '../assets/icons/odi_protectshield.png', type: 'buff', scalingStats: [{ stat: 'Parry Count', base: 2, perLevel: 0 }], tip: { description: 'Increases the target\'s Stun, Knock Back, Stumble, Spin, and Aether\'s Hold Resists by 300 for 30s.\nThis skill is exclusively used with group members.\nIf the caster has a +5 Enchantment, reduces the cooldown for Remove Shock by 10 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s cooldown for Carmine and Azure Odian skills by 10%.', target: 'Selected Target', usageCost: 'MP 133', castTime: 'Cast Instantly', cooldown: '30s' } },
   ],
   assassin: [
     { name: 'Swift Edge', icon: "../assets/icons/cbt_sc_swiftedge_g1.png", base: 1072, type: 'damage', 
@@ -112,48 +132,67 @@ const ODIAN_SKILLS = {
     { name: 'Fang Strike', icon: "../assets/icons/cbt_as_tigerfang_g1.png", base: 939, type: 'damage' },
     { name: 'Ambush Attack', icon: "../assets/icons/as_backslash_g1.png", base: 1010, type: 'damage', dot: 2195 },
     { name: 'Assassination', icon: "../assets/icons/cbt_as_corruptingcut_g1.png", base: 725, type: 'damage', dot: 1760 },
+    { name: 'Divider\'s Charge', icon: '../assets/icons/odi_dashattack.png', base: 2251, type: 'damage', tip: { 
+      description: `Deals 1100 physical damage to the target that is immobilised, slowed or in a shock state.
+      If the caster has a +5 Enchantment, reduces the target's healing by 30% for 5 seconds.
+      If the caster has a +10 Enchantment, reduces the target's additional PvP attack and PvE attack by 500 for 5 sec.
+      The effect cannot be removed.`,
+      target: 'Selected Target', usageCost: 'MP 131', castTime: 'Cast Instantly', cooldown: '5s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle' } },
     { name: 'Beast Leap', icon: "../assets/icons/live_as_tumbling_g1.png", base: 557, type: 'damage' },
     { name: 'Counter Attack', icon: "../assets/icons/cbt_sc_counterslash_g1.png", base: 701, type: 'damage' },
     { name: 'Massacre', icon: "../assets/icons/live_as_genocidalsword_g1.png", base: 1303, type: 'damage', dot: 99 },
     { name: 'Binding Rune', icon: "../assets/icons/cbt_as_heavensedge_g1.png", base: 779, type: 'damage' },
+    { name: 'Storm Splitter', icon: '../assets/icons/odi_stormslash.png', base: 2200, type: 'damage', tip: { 
+      description: 'Deals 2200 physical damage.\nCauses the target to stumble.\nIf the caster has a +5 Enchantment, reduces the target\'s additional PvP and PvE defence by 500 for 8 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s evasion, resist magic, block and parry by 1,200 for 8 sec.\nThe effect cannot be removed.', target: 'Selected Target', usageCost: 'MP 143', castTime: 'Cast Instantly', cooldown: '30s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle' } },
     { name: 'Soul Splitter', icon: "../assets/icons/cbt_sc_swiftshock_g1.png", base: 1451, type: 'damage' },
     { name: 'All-Seeing Eye', icon: "../assets/icons/cbt_as_sixsense_g2.png", base: 30, type: 'buff', perLevel: 0.6 },
     { name: 'Devotion', icon: '../assets/icons/cbt_sc_invokepower_g1.png', base: 450, type: 'buff', scalingStats: [{ stat: 'Physical Attack', base: 450, perLevel: 10 }, { stat: 'Weapon Attack', base: 1500, perLevel: 50 }]},
-    { name: 'Flurry', icon: "../assets/icons/cbt_as_quickmove_g1.png", base: 1500, type: 'buff', perLevel: 50, extraStats: ['+1500 Weapon attack', '+20% Attack Speed'] }
+    { name: 'Flurry', icon: "../assets/icons/cbt_as_quickmove_g1.png", base: 1500, type: 'buff', perLevel: 50, extraStats: ['+1500 Weapon attack', '+20% Attack Speed'] },
+    { name: 'Ambush Strike', icon: '../assets/icons/odi_raidstance.png', type: 'buff', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the cooldown for Remove Shock by 10 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s cooldown for Carmine and Azure Odian skills by 10%.', target: 'Self', usageCost: 'MP 133', castTime: 'Cast Instantly', cooldown: '24s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle'} },
   ],
   ranger: [
     { name: 'Deadshot', icon: "../assets/icons/live_ra_basicshot_g1.png", base: 627, type: 'damage' },
     { name: 'Swift Shot', icon: "../assets/icons/cbt_ra_trueshot_g1.png", base: 1006, type: 'damage' },
     { name: 'Strengthening Eye', icon: "../assets/icons/cbt_ra_snakeeye_g1.png", base: 1200, type: 'buff', perLevel: 5 },
     { name: 'Griffonix Arrow', icon: "../assets/icons/live_ra_stigma_ancientarrow_g1.png", base: 1501, type: 'damage' },
+    { name: 'Arrow Storm', icon: '../assets/icons/odi_arrowstorm.png', base: 2251, type: 'damage', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s healing by 30% for 5 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s additional PvP attack and PvE attack by 500 for 5 sec.\nThe effect cannot be removed.', target: 'Area within a Radius of Target', usageCost: 'MP 126', castTime: 'Cast Instantly', cooldown: '15s' } },
     { name: 'Entangling Shot', icon: "../assets/icons/cbt_ra_entangleshot_g1.png", base: 493, type: 'damage' },
     { name: 'Final Storm Attack', icon: "../assets/icons/ra_finalfire_g1.png", base: 1256, type: 'damage' },
     { name: 'Arrow Strike', icon: "../assets/icons/cbt_ra_arrowstrike_g1.png", base: 607, type: 'damage' },
     { name: 'Stunning Shot', icon: "../assets/icons/cbt_ra_heavyshot_g1.png", base: 1294, type: 'damage' },
+    { name: 'Shock Arrow', icon: '../assets/icons/odi_steelarrow.png', base: 2200, type: 'damage', tip: { description: 'DetailsToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s additional PvP and PvE defence by 500 for 8 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s evasion, resist magic, block and parry by 1,200 for 8 sec.\nThe effect cannot be removed.', target: 'Selected Target',  usageCost: 'MP 143', castTime: 'Cast Instantly', cooldown: '30s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle' } },
     { name: 'Ascended Soul Arrow', icon: "../assets/icons/live_ra_approachshot_g1.png", base: 1335, type: 'damage' },
     { name: 'All-Seeing Eye', icon: "../assets/icons/cbt_as_sixsense_g2.png", base: 30, type: 'buff', perLevel: 0.6 },
     { name: 'Devotion', icon: '../assets/icons/cbt_sc_invokepower_g1.png', base: 450, type: 'buff', scalingStats: [{ stat: 'Physical Attack', base: 450, perLevel: 10 }, { stat: 'Weapon Attack', base: 1500, perLevel: 50 }]},
-    { name: 'Speed of the Wind', icon: "../assets/icons/live_ra_panthermove_g1.png", base: 300, type: 'buff', perLevel: 6 }
+    { name: 'Speed of the Wind', icon: "../assets/icons/live_ra_panthermove_g1.png", base: 300, type: 'buff', perLevel: 6 },
+    { name: 'Twisted Shadow', icon: '../assets/icons/odi_instantsprint.png', type: 'buff', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the cooldown for Remove Shock by 10 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s cooldown for Carmine and Azure Odian skills by 10%.', target: 'Self', usageCost: 'MP 133', castTime: 'Cast Instantly', cooldown: '24s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle'} },
   ],
   sorcerer: [
     { name: 'Flame Harpoon', icon: "../assets/icons/cbt_wi_burningsoul_g1.png", base: 1328, type: 'damage' },
     { name: 'Ember', icon: "../assets/icons/wi_chainburn_g1.png", base: 1581, type: 'damage' },
     { name: 'Fiery Roller', icon: "../assets/icons/cbt_wi_meteor_g1.png", base: 4628, type: 'damage' },
     { name: 'Hell Flame of Wrath', icon: "../assets/icons/wi_magicalflame_g1.png", base: 5522, type: 'damage', extras: [{ label: 'Additional Damage', base: 514 }] },
+    { name: 'Meteor Wave', icon: '../assets/icons/odi_raisingstorm.png', base: 2251, type: 'damage', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s healing by 30% for 5 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s additional PvP attack and PvE attack by 500 for 5 sec.\nThe effect cannot be removed.', target: 'Area within a Radius of Target', usageCost: 'MP 126', castTime: 'Cast Instantly', cooldown: '15s' } },
     { name: 'Winter Binding', icon: "../assets/icons/cbt_wi_frozenfield_g1.png", base: 177, type: 'damage', scalingStats: [{ stat: 'Bind Duration', perLevel: 0.6, unit: 's' }] },
     { name: 'Blaze', icon: "../assets/icons/cbt_ma_ignicburn_g1.png", base: 909, type: 'damage' },
     { name: 'Flame Cage', icon: "../assets/icons/cbt_wi_flamecage_g5.png", base: 362, type: 'damage', dot: 365 },
     { name: 'Flame Fusion', icon: "../assets/icons/cbt_wi_meltdown_g1.png", base: 869, type: 'damage' },
+    { name: 'Frosty Binding', icon: '../assets/icons/odi_frozenfield.png', base: 2200, type: 'damage', tip: { description: 'DetailsToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s additional PvP and PvE defence by 500 for 8 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s evasion, resist magic, block and parry by 1,200 for 8 sec.\nThe effect cannot be removed.', target: 'Selected Target',  usageCost: 'MP 143', castTime: 'Cast Instantly', cooldown: '30s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle' } },
     { name: 'Frozen Shock', icon: "../assets/icons/cbt_ma_frozenshock_g1.png", base: 739, type: 'damage' },
     { name: 'Graspbreaker', icon: "../assets/icons/live_wi_crystalmirror_g1.png", base: 1900, type: 'damage' },
     { name: 'Vaizel Gift', icon: '../assets/icons/cbt_wi_arcaneboost_g1.png', base: 500, type: 'buff', perLevel: 10, stat: 'Additional PvE Attack', extraStats: ['+25% Casting Time', '-20% MP Consumption'] },
-    { name: 'Stone Skin', icon: "../assets/icons/cbt_ma_stoneskin_g1.png", base: 8000, type: 'buff', perLevel: 90 }
+    { name: 'Stone Skin', icon: "../assets/icons/cbt_ma_stoneskin_g1.png", base: 8000, type: 'buff', perLevel: 90 },
+    { name: 'Inhuman Toughness', icon: '../assets/icons/odi_physicalwall.png', type: 'buff', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the cooldown for Remove Shock by 10 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s cooldown for Carmine and Azure Odian skills by 10%.', target: 'Self', usageCost: 'MP 133', castTime: 'Cast Instantly', cooldown: '24s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle'} },
   ],
   spiritmaster: [
     { name: 'Erosion', icon: "../assets/icons/cbt_ma_gravitycage_g1.png", base: 525, type: 'damage', dot: 363 },
     { name: 'Summon Wind Servant', icon: "../assets/icons/cbt_el_light_slave_windservent_g1.png", base: 513, type: 'damage' },
     { name: 'Magic Explosion', icon: "../assets/icons/live_el_dispelexplosion_g1.png", base: 1109, type: 'damage', dot: 1291 },
     { name: 'Elemental Smash', icon: "../assets/icons/el_elementalstrike_g1.png", base: 2061, type: 'damage' },
+    { name: 'Wilderness Grip', icon: '../assets/icons/odi_cursedbreath.png', base: 2251, type: 'damage', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s healing by 30% for 5 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s additional PvP attack and PvE attack by 500 for 5 sec.\nThe effect cannot be removed.', target: 'Area within a Radius of Target', usageCost: 'MP 126', castTime: 'Cast Instantly', cooldown: '15s',
+                    usageDistance: '1m',
+                    area: 'Single Target',
+                    areaIcon: 'targetSingle' } },
     { name: 'Root of Enervation', icon: "../assets/icons/cbt_el_slow_g1.png", base: 10, baseMax: 12, unit: 's', type: 'buff', perLevel: 0.3, stat: 'Attack Speed Reduction Duration',
     tip: {description: 'Reduces the target\'s attack speed for {base} ~ {baseMax}s (+{perLevel} per level).',usageCost: '295 MP',
                     cooldown: '10s',
@@ -165,94 +204,114 @@ const ODIAN_SKILLS = {
     { name: 'Stone Shock', icon: "../assets/icons/cbt_el_stoneshock_g1.png", base: 578, type: 'damage' },
     { name: 'Sandblaster', icon: "../assets/icons/cbt_el_areacage_g1.png", base: 288, type: 'damage', dot: 317 },
     { name: 'Ignite Aether', icon: "../assets/icons/cbt_el_enchantmentburst_g1.png", base: 861, type: 'damage', extras: [{ label: 'Additional Damage', base: 861 }] },
+    { name: 'Hex', icon: '../assets/icons/odi_magicalbreakdown.png', base: 2200, type: 'damage', tip: { description: 'DetailsToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s additional PvP and PvE defence by 500 for 8 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s evasion, resist magic, block and parry by 1,200 for 8 sec.\nThe effect cannot be removed.', target: 'Selected Target',  usageCost: 'MP 143', castTime: 'Cast Instantly', cooldown: '30s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle' } },
     { name: 'Replenish Element', icon: "../assets/icons/cbt_el_pet_recoverhealth_g1.png", base: 20, type: 'buff', perLevel: 1 },
     { name: 'Illusion Pact', icon: "../assets/icons/live_ch_protectself_g1.png", base: 20, type: 'buff', perLevel: 0.4 },
     { name: 'Backdraft', icon: "../assets/icons/live_el_counthpmpdrain_g1.png", base: 1323, type: 'damage' },
-    { name: 'Stone Skin', icon: "../assets/icons/cbt_ma_stoneskin_g1.png", base: 8000, type: 'buff', perLevel: 90 }
+    { name: 'Stone Skin', icon: "../assets/icons/cbt_ma_stoneskin_g1.png", base: 8000, type: 'buff', perLevel: 90 },
+    { name: 'Shadow Crest', icon: '../assets/icons/odi_escape.png', type: 'buff', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the cooldown for Remove Shock by 10 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s cooldown for Carmine and Azure Odian skills by 10%.', target: 'Self', usageCost: 'MP 133', castTime: 'Cast Instantly', cooldown: '24s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle'} },
   ],
   cleric: [
     { name: 'Punishing Earth', icon: "../assets/icons/live_pr_powersmite_g1.png", base: 875, type: 'damage' },
     { name: 'Shocking Thunderbolt Strike', icon: "../assets/icons/cbt_pr_lightningbolt_g1.png", base: 620, type: 'damage' },
     { name: 'Amplification', icon: '../assets/icons/live_pr_prepareholywar_g1.png', base: 700, type: 'buff', perLevel: 14, stat: 'Magic Attack', extraStats: ['+1100 Healing Boost', 'Restores 5628 MP'] }, // Amplification has multiple attributes: Magic attack +14, HB +22 / level, MP +113 / level
     { name: 'Power Smash Strike', icon: "../assets/icons/pr_holyexplosion_g1.png", base: 1663, type: 'damage' },
+    { name: 'Thunderclap', icon: '../assets/icons/odi_thunderbolt.png', base: 2251, type: 'damage', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s healing by 30% for 5 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s additional PvP attack and PvE attack by 500 for 5 sec.\nThe effect cannot be removed.', target: 'Area within a Radius of Target', usageCost: 'MP 126', castTime: 'Cast Instantly', cooldown: '15s' } },
     { name: 'Chastise', icon: "../assets/icons/cbt_pr_repentance_g1.png", base: 411, type: 'damage', dot: 411 },
     { name: 'Infernal Blaze', icon: "../assets/icons/cbt_cl_soniceruption_g1.png", base: 884, type: 'damage' },
     { name: 'Earth\'s Wrath', icon: "../assets/icons/live_pr_purgatory_g1.png", base: 561, type: 'damage', dot: 771 },
     { name: 'Slashing Wind', icon: "../assets/icons/cbt_pr_divinebolt_g1.png", base: 882, type: 'damage' },
+    { name: 'Paralysing Blow', icon: '../assets/icons/odi_divinespark.png', base: 2200, type: 'damage', tip: { description: 'DetailsToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s additional PvP and PvE defence by 500 for 8 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s evasion, resist magic, block and parry by 1,200 for 8 sec.\nThe effect cannot be removed.', target: 'Selected Target',  usageCost: 'MP 143', castTime: 'Cast Instantly', cooldown: '30s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle' } },
     { name: 'Healing Light', icon: "../assets/icons/cbt_cl_heal_g1.png", base: 1990, type: 'buff', perLevel: 40 },
     { name: 'Splendour of Recovery', icon: "../assets/icons/cbt_pr_massemergentheal_g1.png", base: 4977, type: 'buff', perLevel: 100 },
     { name: 'Blessed Shield', icon: "../assets/icons/cbt_pr_blessedshield_g1.png", base: 5900, type: 'buff', perLevel: 118 }, // Blessed Shield has multipe attributes: Protection +118 /level, Mana +110 / level and Mana dot +11/level
-    { name: 'Prayer of Resistance', icon: "../assets/icons/cbt_pr_focuscasting_g1.png", base: 1000, type: 'buff', perLevel: 10 }
+    { name: 'Prayer of Resistance', icon: "../assets/icons/cbt_pr_focuscasting_g1.png", base: 1000, type: 'buff', perLevel: 10 },
+    { name: 'Stalwart Concentration', icon: '../assets/icons/odi_phoenixstep.png', type: 'buff', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the cooldown for Remove Shock by 10 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s cooldown for Carmine and Azure Odian skills by 10%.', target: 'Self', usageCost: 'MP 133', castTime: 'Cast Instantly', cooldown: '24s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle'} },
   ],
   chanter: [
     { name: 'Booming Strike', icon: "../assets/icons/cbt_ch_sonicswing_g1.png", base: 405, type: 'damage', extraStats: ['Physical Defence -3%'] },
     { name: 'Hallowed Strike', icon: "../assets/icons/cbt_cl_hallowswing_g1.png", base: 675, type: 'damage' },
     { name: 'Split Strike', icon: "../assets/icons/ch_tearingstrike_g1.png", base: 668, type: 'damage' },
     { name: 'Vehemence Strike', icon: "../assets/icons/ch_tearingcrash_g1.png", base: 741, type: 'damage' },
+    { name: 'Metal Chain', icon: '../assets/icons/odi_presssmash.png', base: 2251, type: 'damage', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s healing by 30% for 5 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s additional PvP attack and PvE attack by 500 for 5 sec.\nThe effect cannot be removed.', target: 'Area within a Radius of Target', usageCost: 'MP 126', castTime: 'Cast Instantly', cooldown: '15s' } },
     { name: 'Backshock', icon: "../assets/icons/live_ch_shockattack_g1.png", base: 912, type: 'damage' },
     { name: 'Pentacle Shock', icon: "../assets/icons/cbt_ch_pentacleshock_g1.png", base: 816, type: 'damage' },
     { name: 'Parrying Strike', icon: "../assets/icons/cbt_ch_parryingstrike_g1.png", base: 740, type: 'damage' },
     { name: 'Divine Curtain', icon: "../assets/icons/live_ch_stigma_angelicwall_g1.png", base: 4000, type: 'buff', perLevel: 100 },
+    { name: 'Spoken Binding', icon: '../assets/icons/odi_swordbind.png', base: 2200, type: 'damage', tip: { description: 'DetailsToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s additional PvP and PvE defence by 500 for 8 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s evasion, resist magic, block and parry by 1,200 for 8 sec.\nThe effect cannot be removed.', target: 'Selected Target',  usageCost: 'MP 143', castTime: 'Cast Instantly', cooldown: '30s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle' } },
     { name: 'Cross Shield', icon: "../assets/icons/live_ch_crossparry_g1.png", base: 350, type: 'buff', perLevel: 7 },
     { name: 'Healing Light', icon: "../assets/icons/cbt_cl_heal_g1.png", base: 1990, type: 'buff', perLevel: 10 },
     { name: 'Stamina Restoration', icon: "../assets/icons/live_ch_chakra_g1.png", base: 6081, type: 'buff', perLevel: 122, extraStats: ['Healing Boost +300'] },
-    { name: 'Magic Acceleration', icon: "../assets/icons/cbt_ch_zest_g1.png", base: 15, type: 'buff', perLevel: 0.3 }
+    { name: 'Magic Acceleration', icon: "../assets/icons/cbt_ch_zest_g1.png", base: 15, type: 'buff', perLevel: 0.3 },
+    { name: 'Soulburst', icon: '../assets/icons/odi_renewedvitality.png', type: 'buff', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the cooldown for Remove Shock by 10 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s cooldown for Carmine and Azure Odian skills by 10%.', target: 'Self', usageCost: 'MP 133', castTime: 'Cast Instantly', cooldown: '24s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle'} },
   ],
   gunner: [
     { name: 'Pistol Shot', icon: "../assets/icons/live_en_doublefirechain_g1.png", base: 914, type: 'damage' },
     { name: 'Fire Cannon', icon: "../assets/icons/live_gu_firecannon_1_g1.png", base: 1100, type: 'damage' }, // Fire Cannon LVL 1, 2, 3 - all of them has different dmg/level, i need to test this ingame
     { name: 'Repeated Volley', icon: "../assets/icons/live_en_enfirechain_g1.png", base: 1041, type: 'damage' },
     { name: 'Heavy Projectile', icon: "../assets/icons/live_gu_heavyfirechain_g1.png", base: 1050, type: 'damage', extras: [{ label: 'Additional Damage', base: 227 }] },
+    { name: 'Concentrated Fire', icon: '../assets/icons/odi_snipingshot.png', base: 2251, type: 'damage', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s healing by 30% for 5 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s additional PvP attack and PvE attack by 500 for 5 sec.\nThe effect cannot be removed.', target: 'Area within a Radius of Target', usageCost: 'MP 126', castTime: 'Cast Instantly', cooldown: '15s' } },
     { name: 'Weakpoint Shot', icon: "../assets/icons/live_gu_weakspotsnipe_g1.png", base: 1268, type: 'damage' },
     { name: 'Aimed Weakpoint Shot', icon: "../assets/icons/live_gu_aimingstrike_g1.png", base: 1166, type: 'damage' },
     { name: 'Projectile of Silence', icon: "../assets/icons/live_gu_silenceshot_g1.png", base: 411, type: 'damage' },
     { name: 'Disrupter Shot', icon: "../assets/icons/live_gu_cracksnipe_g1.png", base: 768, type: 'damage' },
+    { name: 'Torment Cannon Ball with a Wide Area of Effect', icon: '../assets/icons/odi_gravitycannon.png', base: 2200, type: 'damage', tip: { description: 'DetailsToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s additional PvP and PvE defence by 500 for 8 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s evasion, resist magic, block and parry by 1,200 for 8 sec.\nThe effect cannot be removed.', target: 'Selected Target',  usageCost: 'MP 143', castTime: 'Cast Instantly', cooldown: '30s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle' } },
     { name: 'Soul Shot', icon: "../assets/icons/live_gu_mentalicfirechain_g1.png", base: 764, type: 'damage', extraStats: ['Restores MP'] },
     { name: 'Soul Volley', icon: "../assets/icons/live_gu_breakingfirechain_g1.png", base: 757, type: 'damage', extraStats: ['Restores MP'] },
     { name: 'Rapid Soul Fire', icon: "../assets/icons/live_gu_mentalicrapidfire_g1.png", base: 1098, type: 'damage', extraStats: ['Restores MP'] },
-    { name: 'Materialised Magic Form', icon: "../assets/icons/live_en_formwall_g1.png", base: 25000, type: 'buff', perLevel: 10 }
+    { name: 'Materialised Magic Form', icon: "../assets/icons/live_en_formwall_g1.png", base: 25000, type: 'buff', perLevel: 10 },
+    { name: 'Concentrated Controlled Evasion', icon: '../assets/icons/odi_checkingtoavoid.png', type: 'buff', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the cooldown for Remove Shock by 10 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s cooldown for Carmine and Azure Odian skills by 10%.', target: 'Self', usageCost: 'MP 133', castTime: 'Cast Instantly', cooldown: '24s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle'} },
   ],
   aethertech: [
     { name: 'Burning Cannon Shot', icon: "../assets/icons/ri_directfire_g1.png", base: 2056, type: 'damage' },
     { name: 'Flame of Demolition', icon: "../assets/icons/ri_angrypunch_g1.png", base: 2427, type: 'damage' },
     { name: 'Sprint Strike', icon: "../assets/icons/ri_chargeattack_g1.png", base: 1410, type: 'damage' },
     { name: 'Vampiric Wave', icon: "../assets/icons/ri_drainingnet_g1.png", base: 1141, type: 'damage' },
+    { name: 'Titanic Idium Explosion', icon: '../assets/icons/odi_overloadexplosion.png', base: 2251, type: 'damage', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s healing by 30% for 5 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s additional PvP attack and PvE attack by 500 for 5 sec.\nThe effect cannot be removed.', target: 'Area within a Radius of Target', usageCost: 'MP 126', castTime: 'Cast Instantly', cooldown: '15s' } },
     { name: 'Bludgeon', icon: "../assets/icons/ri_rightjab_g1.png", base: 916, type: 'damage' },
     { name: 'Cooling Wave', icon: "../assets/icons/ri_forwardattack_g1.png", base: 1148, type: 'damage' },
     { name: 'Collapsing Smash', icon: "../assets/icons/ri_weakeningattack_g1.png", base: 684, type: 'damage', scalingStats: [{ stat: 'Physical Defence Reduction', base: 412, perLevel: 8 }, { stat: 'Magical Defence Reduction', base: 412, perLevel: 8 }] },
     { name: 'Strong Attack', icon: "../assets/icons/ri_powerjab_g1.png", base: 1310, type: 'damage', extras: [{ label: 'Additional Damage', base: 251 }] },
+    { name: 'Electric Idium Wave', icon: '../assets/icons/odi_flamethrow.png', base: 2200, type: 'damage', tip: { description: 'DetailsToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s additional PvP and PvE defence by 500 for 8 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s evasion, resist magic, block and parry by 1,200 for 8 sec.\nThe effect cannot be removed.', target: 'Selected Target',  usageCost: 'MP 143', castTime: 'Cast Instantly', cooldown: '30s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle' } },
     { name: 'Emergency Upkeep', icon: "../assets/icons/ri_instantthrust_g1.png", base: 4000, type: 'buff', perLevel: 100 },
     { name: 'Rapid Recharge', icon: "../assets/icons/ri_rapidcharge_g1.png", base: 15120, type: 'buff', perLevel: 302, extraStats: ['MP: 7080'] },
     { name: 'Call Mech', icon: '../assets/icons/ri_summonarmor_g1.png', type: 'buff', scalingStats: [{ stat: 'Physical Defence', base: 139, perLevel: 3 }, { stat: 'Parry', base: 403, perLevel: 8 }], extraStats: ['+200 All Altered State Resist', '+272 Magical Accuracy', '+4m Attack Range'] },
-    { name: 'Surge of Glory', icon: "../assets/icons/ri_drainjab_g1.png", base: 600, type: 'buff', perLevel: 10 }
+    { name: 'Surge of Glory', icon: "../assets/icons/ri_drainjab_g1.png", base: 600, type: 'buff', perLevel: 10 },
+    { name: 'Absorbing Shield', icon: '../assets/icons/odi_itheumreflector.png', type: 'buff', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the cooldown for Remove Shock by 10 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s cooldown for Carmine and Azure Odian skills by 10%.', target: 'Self', usageCost: 'MP 133', castTime: 'Cast Instantly', cooldown: '24s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle'} },
   ],
   bard: [
     { name: 'Sound of the Breeze', icon: "../assets/icons/live_ar_songofair_g1.png", base: 911, type: 'damage' },
     { name: 'Chilling Harmony', icon: "../assets/icons/live_ar_songofcold_g1.png", base: 1293, type: 'damage' },
     { name: 'Wind Harmony', icon: "../assets/icons/live_ba_songofwind_g1.png", base: 2721, type: 'damage', scalingStats: [{ stat: 'Magical Accuracy', base: 270, perLevel: 3 }, { stat: 'Physical Attack', base: 121, perLevel: 3 }] },
     { name: 'Tsunami Requiem', icon: "../assets/icons/live_ba_songoftidalwave_g1.png", base: 2501, type: 'damage' },
+    { name: 'Dissonance', icon: '../assets/icons/odi_songofgale.png', base: 2251, type: 'damage', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s healing by 30% for 5 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s additional PvP attack and PvE attack by 500 for 5 sec.\nThe effect cannot be removed.', target: 'Area within a Radius of Target', usageCost: 'MP 126', castTime: 'Cast Instantly', cooldown: '15s' } },
     { name: 'Acute Grating Sound', icon: "../assets/icons/live_ba_songofinjury_g1.png", base: 922, type: 'damage' },
     { name: 'Loud Bang', icon: "../assets/icons/live_ba_songofweight_g1.png", base: 473, type: 'damage' },
     { name: 'Soul Harmony', icon: "../assets/icons/live_ba_songofshock_g1.png", base: 1267, type: 'damage' },
     { name: 'Sea Variation', icon: "../assets/icons/live_ba_songofgravity_g1.png", base: 1700, type: 'damage' }, // Has multiple levels Lvl1, 2 ,3 have to test it ingame
+    { name: 'Chord of Desolation', icon: '../assets/icons/odi_magicaldestruction.png', base: 2200, type: 'damage', tip: { description: 'DetailsToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s additional PvP and PvE defence by 500 for 8 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s evasion, resist magic, block and parry by 1,200 for 8 sec.\nThe effect cannot be removed.', target: 'Selected Target',  usageCost: 'MP 143', castTime: 'Cast Instantly', cooldown: '30s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle' } },
     { name: 'Melody of Reflection', icon: "../assets/icons/live_ar_songofrelax_g1.png", base: 3164, type: 'buff', perLevel: 63 }, // Recovers Additional mana as dot also 1539 / 2 sec - +31 / level
     { name: 'Mild Echo', icon: "../assets/icons/live_ba_songofemergentheal_g1.png", base: 1438, type: 'buff', perLevel: 30, extraStats: ['MP: 3620'] },
     { name: 'Shield Melody', icon: "../assets/icons/live_ar_songofshield_g1.png", base: 8000, type: 'buff', perLevel: 75 },
-    { name: 'Cheery Melody', icon: "../assets/icons/ba_excitingmelody_g1.png", base: 1000, type: 'buff', perLevel: 20 }
+    { name: 'Cheery Melody', icon: "../assets/icons/ba_excitingmelody_g1.png", base: 1000, type: 'buff', perLevel: 20 },
+    { name: 'Hymn of Hope', icon: '../assets/icons/odi_songofhope.png', type: 'buff', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the cooldown for Remove Shock by 10 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s cooldown for Carmine and Azure Odian skills by 10%.', target: 'Self', usageCost: 'MP 133', castTime: 'Cast Instantly', cooldown: '24s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle'} },
   ],
   painter: [
     { name: 'Colour Rocket', icon: "../assets/icons/pa_paintthrow_g1.png", base: 1129, type: 'damage' },
     { name: 'Retreat', icon: "../assets/icons/pa_dodgeatk_g1.png", base: 1517, type: 'damage' },
     { name: 'Colour Grenade', icon: "../assets/icons/pa_explosionpaint_g1.png", base: 1454, type: 'damage' },
     { name: 'Punishment Strap', icon: "../assets/icons/pa_aerialpaintshooter_g1.png", base: 3238, type: 'damage' },
+    { name: 'Hurled Colour', icon: '../assets/icons/odi_paintthrow.png', base: 2251, type: 'damage', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s healing by 30% for 5 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s additional PvP attack and PvE attack by 500 for 5 sec.\nThe effect cannot be removed.', target: 'Area within a Radius of Target', usageCost: 'MP 126', castTime: 'Cast Instantly', cooldown: '15s' } },
     { name: 'Sour Dye', icon: "../assets/icons/pa_acidpaint_g1.png", base: 1590, type: 'damage' },
     { name: 'Powerful Shot', icon: "../assets/icons/pa_drainexplosionpaint_g1.png", base: 1969, type: 'damage' },
     { name: 'Blow', icon: "../assets/icons/pa_paintbeating_g1.png", base: 3897, type: 'damage', extraStats: ['Healing Boost -400'] },
     { name: 'Instant Petrification', icon: "../assets/icons/pa_hardeningplaster_g1.png", base: 3, type: 'buff', perLevel: 0.1 },
+    { name: 'Masterpiece', icon: '../assets/icons/odi_chargingplaster.png', base: 2200, type: 'damage', tip: { description: 'DetailsToFollow.\nIf the caster has a +5 Enchantment, reduces the target\'s additional PvP and PvE defence by 500 for 8 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s evasion, resist magic, block and parry by 1,200 for 8 sec.\nThe effect cannot be removed.', target: 'Selected Target',  usageCost: 'MP 143', castTime: 'Cast Instantly', cooldown: '30s', usageDistance: '1m', area: 'Single Target', areaIcon:'targetSingle' } },
     { name: 'Target Locked', icon: "../assets/icons/pa_drawingtarget_g1.png", base: 10, type: 'buff', perLevel: 0.2 },
     { name: 'Time Binding', icon: "../assets/icons/pa_hardeningleg_g1.png", base: 10, type: 'buff', perLevel: 0.2 },
     { name: 'Portrait of Closure', icon: "../assets/icons/pa_drawingpadlock_g1.png", base: 10, type: 'buff', perLevel: 0.7 },
-    { name: 'Colourful Tunnel', icon: "../assets/icons/pa_painttunnel_g1.png", base: 20, type: 'buff', perLevel: 0.4 }
+    { name: 'Colourful Tunnel', icon: "../assets/icons/pa_painttunnel_g1.png", base: 20, type: 'buff', perLevel: 0.4 },
+    { name: 'Colour Shield', icon: '../assets/icons/odi_paintshield.png', type: 'buff', tip: { description: 'DescriptionToFollow.\nIf the caster has a +5 Enchantment, reduces the cooldown for Remove Shock by 10 seconds.\nIf the caster has a +10 Enchantment, reduces the target\'s cooldown for Carmine and Azure Odian skills by 10%.', target: 'Self', usageCost: 'MP 133', castTime: 'Cast Instantly', cooldown: '24s' } }
   ]
 };
 
@@ -310,14 +369,13 @@ function renderOdianSkills() {
   const wrap = document.getElementById('odianSkillSelector');
   if (!wrap) return;
   wrap.innerHTML = '';
-  const skills = ODIAN_SKILLS[odianSelectedClass] || [];
+  const skills = (ODIAN_SKILLS[odianSelectedClass] || []);
 
-  // Skills are authored in color order: 4 red, then 4 blue, then 4 green.
-  // Group them into colored tiers so the selector reads at a glance.
+  // Render as 3 tiers: 4 class-native skills + 1 Odian-special skill per tier.
   const tiers = [
-    { name: 'Carmine', icon: '../assets/icons/icon_item_equip_odian_red_03.png', start: 0, end: 4 },
-    { name: 'Azure', icon: '../assets/icons/icon_item_equip_odian_blue_03.png', start: 4, end: 8 },
-    { name: 'Jade', icon: '../assets/icons/icon_item_equip_odian_green_03.png', start: 8, end: 12 }
+    { name: 'Carmine', cssClass: 'red', icon: '../assets/icons/icon_item_equip_odian_red_03.png', start: 0, end: 5 },
+    { name: 'Azure', cssClass: 'blue', icon: '../assets/icons/icon_item_equip_odian_blue_03.png', start: 5, end: 10 },
+    { name: 'Jade', cssClass: 'green', icon: '../assets/icons/icon_item_equip_odian_green_03.png', start: 10, end: 15 }
   ];
 
   tiers.forEach(function(tier) {
@@ -325,7 +383,7 @@ function renderOdianSkills() {
     if (!tierSkills.length) return;
 
     const group = document.createElement('div');
-    group.className = 'odian-skill-group odian-skill-group-' + tier.name.toLowerCase();
+    group.className = 'odian-skill-group odian-skill-group-' + tier.cssClass;
 
     const header = document.createElement('div');
     header.className = 'odian-skill-group-head';
@@ -353,7 +411,7 @@ function renderOdianSkills() {
 }
 
 function selectOdianSkill(index) {
-  const skills = ODIAN_SKILLS[odianSelectedClass] || [];
+  const skills = (ODIAN_SKILLS[odianSelectedClass] || []);
   const skill = skills[index];
   if (!skill) return;
 
@@ -392,7 +450,7 @@ function selectOdianSkill(index) {
 
 function getOdianSelectedSkill() {
   if (odianSelectedSkillIndex === null) return null;
-  const skills = ODIAN_SKILLS[odianSelectedClass] || [];
+  const skills = (ODIAN_SKILLS[odianSelectedClass] || []);
   return skills[odianSelectedSkillIndex] || null;
 }
 
@@ -1191,7 +1249,7 @@ function loadSession() {
               selectOdianClass(odianSelectedClass);
             }
             // Restore the selected skill after the class (selectOdianClass clears it).
-            const odianSkills = ODIAN_SKILLS[odianSelectedClass] || [];
+            const odianSkills = (ODIAN_SKILLS[odianSelectedClass] || []);
             if (typeof state.odianSelectedSkillIndex === 'number' && odianSkills[state.odianSelectedSkillIndex]) {
               odianSelectedSkillIndex = state.odianSelectedSkillIndex;
               renderOdianSkills();
@@ -1225,3 +1283,5 @@ function loadSession() {
       document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') closeOdianLevelDropdowns();
       });
+
+
