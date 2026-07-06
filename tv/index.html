@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#060b18">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>My TV Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/tv.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+</head>
+<body>
+    <div class="tv-app-bg" aria-hidden="true">
+        <div class="shape shape-a"></div>
+        <div class="shape shape-b"></div>
+        <div class="shape shape-c"></div>
+    </div>
+
+    <main class="tv-shell">
+        <header class="hero">
+            <p class="kicker">15TAN's</p>
+            <h1>TV Tracker</h1>
+            <div class="auth-panel" id="auth-panel">
+                <span id="auth-user" class="auth-user">Not signed in</span>
+                <div id="auth-signed-out" class="auth-group">
+                    <input id="auth-username" type="text" placeholder="Username" autocomplete="username">
+                    <input id="auth-password" type="password" placeholder="Password" autocomplete="current-password">
+                    <button id="auth-login" class="btn btn-sm" type="button">Login</button>
+                    <a id="auth-register-link" class="btn btn-sm" href="register/">Register</a>
+                    <button id="auth-forgot" class="btn btn-sm" type="button">Lost password?</button>
+                    <button id="auth-restore" class="btn btn-sm" type="button" title="Load a backup file exported from another device">Restore backup</button>
+                    <input id="restore-file" type="file" accept="application/json,.json" hidden>
+                </div>
+                <div id="auth-signed-in" class="auth-group" hidden>
+                    <button id="auth-settings" class="btn btn-sm" type="button">⚙️ Settings</button>
+                    <button id="auth-logout" class="btn btn-sm" type="button">Logout</button>
+                </div>
+            </div>
+            <div class="hero-actions">
+                <button id="import-data" class="btn btn-primary" type="button">Import TV Time Export</button>
+                <input id="import-file" type="file" accept=".zip,.csv" multiple hidden>
+                <button id="refresh-meta" class="btn" type="button">Refresh Metadata</button>
+                <button id="set-omdb-key" class="btn" type="button">Set OMDb Key</button>
+                <button id="add-show" class="btn" type="button">Add Show</button>
+                <button id="help-btn" class="btn" type="button">❔ How it works</button>
+                <button id="install-app" class="btn btn-primary" type="button" hidden>📱 Install App</button>
+            </div>
+            <p id="status-text" class="status-text" role="status">Log in to load your TV Time data.</p>
+            <p id="install-prompt" class="status-text" style="color: var(--mint); display: none;">💡 <strong>Save to Home Screen:</strong> Tap the menu → "Add to Home Screen" to save the app on your phone.</p>
+        </header>
+
+        <section class="stats" id="stats-cards"></section>
+
+        <section class="controls" aria-label="Filters and search">
+            <label class="search-wrap" for="search-input">
+                <span>Search shows</span>
+                <input id="search-input" type="search" placeholder="Type title, genre, or note">
+            </label>
+
+            <label for="sort-select">
+                <span>Sort by</span>
+                <select id="sort-select">
+                    <option value="recent">Recently watched</option>
+                    <option value="upcoming">Upcoming date</option>
+                    <option value="name">Name</option>
+                    <option value="progress">Episodes watched</option>
+                </select>
+            </label>
+
+            <label for="filter-select">
+                <span>Filter</span>
+                <select id="filter-select">
+                    <option value="all">All</option>
+                    <option value="active">Active only</option>
+                    <option value="paused">Paused only</option>
+                    <option value="completed">Completed only</option>
+                    <option value="archived">Archived in TVTime</option>
+                    <option value="with-upcoming">With upcoming episodes</option>
+                </select>
+            </label>
+        </section>
+
+        <section class="upcoming-board" id="upcoming-board-wrap">
+            <div class="section-head">
+                <h2>Upcoming Episodes</h2>
+                <p>Closest air dates from metadata provider.</p>
+            </div>
+            <div id="upcoming-tabs" class="tabs" role="tablist"></div>
+            <div id="upcoming-board" class="upcoming-grid"></div>
+        </section>
+
+        <section class="collapsible-section" id="section-current">
+            <h2 class="section-heading">
+                <button type="button" class="section-toggle" data-section="current" aria-expanded="true" aria-controls="current-shows-grid">
+                    <span class="section-caret" aria-hidden="true">▾</span>
+                    <span class="section-title">Current Watching</span>
+                    <span class="section-count" id="current-shows-count"></span>
+                </button>
+            </h2>
+            <div id="current-shows-grid" class="shows-grid" role="region" aria-label="Current Watching"></div>
+        </section>
+
+        <section class="collapsible-section" id="section-paused">
+            <h2 class="section-heading">
+                <button type="button" class="section-toggle" data-section="paused" aria-expanded="true" aria-controls="paused-shows-grid">
+                    <span class="section-caret" aria-hidden="true">▾</span>
+                    <span class="section-title">Paused / Backlog</span>
+                    <span class="section-count" id="paused-shows-count"></span>
+                </button>
+            </h2>
+            <div id="paused-shows-grid" class="shows-grid" role="region" aria-label="Paused / Backlog"></div>
+        </section>
+
+        <section class="collapsible-section" id="section-completed">
+            <h2 class="section-heading">
+                <button type="button" class="section-toggle" data-section="completed" aria-expanded="true" aria-controls="completed-shows-grid">
+                    <span class="section-caret" aria-hidden="true">▾</span>
+                    <span class="section-title">Completed</span>
+                    <span class="section-count" id="completed-shows-count"></span>
+                </button>
+            </h2>
+            <div id="completed-shows-grid" class="shows-grid" role="region" aria-label="Completed"></div>
+        </section>
+    </main>
+
+    <template id="show-card-template">
+        <article class="show-card">
+            <div class="poster-wrap">
+                <img class="poster" src="" alt="">
+            </div>
+            <div class="card-content">
+                <div class="title-row">
+                    <h3 class="show-title"></h3>
+                    <span class="status-pill"></span>
+                </div>
+                <p class="meta-row"></p>
+                <p class="description"></p>
+                <p class="watch-row"></p>
+                <p class="next-row"></p>
+                <div class="tags"></div>
+                <div class="notes-wrap">
+                    <label>Personal notes</label>
+                    <textarea class="note-input" rows="2" placeholder="Add your notes"></textarea>
+                </div>
+                <div class="controls-row">
+                    <button type="button" class="btn btn-episode-action btn-decrease" title="Remove last watched episode">➖</button>
+                    <button type="button" class="btn btn-episode-action btn-increase" title="Mark next episode as watched">➕</button>
+                    <button type="button" class="btn btn-episode-action watch-season" title="Catch up: mark all aired episodes watched">🎬</button>
+                    <button type="button" class="btn btn-action pause-show">Pause</button>
+                    <button type="button" class="btn btn-action complete-show">Complete</button>
+                </div>
+            </div>
+        </article>
+    </template>
+
+    <div id="show-modal" class="show-modal" hidden>
+        <div class="show-modal-backdrop" id="show-modal-backdrop"></div>
+        <section class="show-modal-panel" role="dialog" aria-modal="true" aria-labelledby="show-modal-title">
+            <header class="show-modal-header">
+                <div>
+                    <h2 id="show-modal-title">Show Details</h2>
+                    <p id="show-modal-subtitle"></p>
+                </div>
+                <button id="show-modal-close" class="btn btn-sm" type="button">Close</button>
+            </header>
+
+            <div class="show-modal-body">
+                <div class="show-modal-top">
+                    <div class="modal-poster-wrap">
+                        <img id="modal-poster" class="modal-poster" src="" alt="">
+                    </div>
+                    <div class="modal-facts">
+                        <p id="modal-facts-text" class="modal-facts-text"></p>
+                        <p id="modal-summary" class="modal-summary"></p>
+                    </div>
+                </div>
+                <div class="seasons-head">
+                    <h3>Seasons</h3>
+                    <span id="modal-progress" class="modal-progress"></span>
+                </div>
+                <div id="modal-seasons" class="seasons-accordion"></div>
+            </div>
+        </section>
+    </div>
+
+    <div id="account-modal" class="account-modal" hidden>
+        <div class="account-modal-backdrop" id="account-modal-backdrop"></div>
+        <section class="account-modal-panel" role="dialog" aria-modal="true" aria-labelledby="account-modal-title">
+            <header class="account-modal-header">
+                <h2 id="account-modal-title">Account Settings</h2>
+                <button id="account-modal-close" class="btn btn-sm" type="button">Close</button>
+            </header>
+
+            <div class="account-modal-content">
+                <section class="account-section">
+                    <h3>Account Information</h3>
+                    <div class="info-row">
+                        <label>Username</label>
+                        <p id="account-username-display"></p>
+                    </div>
+                    <div class="info-row">
+                        <label>Email (Optional)</label>
+                        <p id="account-email-display">Not set</p>
+                        <button id="edit-email-btn" class="btn btn-action" type="button">Edit Email</button>
+                    </div>
+                    <div class="info-row" id="email-edit-form" hidden>
+                        <input id="new-email" type="email" placeholder="Enter new email">
+                        <button id="save-email-btn" class="btn btn-action" type="button">Save Email</button>
+                        <button id="cancel-email-btn" class="btn" type="button">Cancel</button>
+                    </div>
+                </section>
+
+                <section class="account-section">
+                    <h3>Change Password</h3>
+                    <div class="form-row">
+                        <label>Current Password</label>
+                        <input id="current-password" type="password" placeholder="Enter current password" autocomplete="current-password">
+                    </div>
+                    <div class="form-row">
+                        <label>New Password</label>
+                        <input id="new-password" type="password" placeholder="Enter new password" autocomplete="new-password">
+                    </div>
+                    <div class="form-row">
+                        <label>Confirm New Password</label>
+                        <input id="confirm-password" type="password" placeholder="Confirm new password" autocomplete="new-password">
+                    </div>
+                    <button id="change-password-btn" class="btn btn-action" type="button">Change Password</button>
+                    <p id="password-message" class="info-text"></p>
+                </section>
+
+                <section class="account-section">
+                    <h3>Backup &amp; move to another device</h3>
+                    <p>Everything is stored only in this browser, so to use <strong>the same account on your phone and PC</strong>, download a backup here and restore it on the other device (use <strong>Restore backup</strong> on its login screen). The file includes your login and all show data &mdash; keep it private.</p>
+                    <div class="account-actions">
+                        <button id="export-data-btn" class="btn btn-action" type="button">⬇️ Download my data</button>
+                        <button id="restore-data-btn" class="btn btn-action" type="button">⬆️ Restore from backup</button>
+                    </div>
+                    <p id="backup-message" class="info-text"></p>
+                </section>
+
+                <section class="account-section danger-zone">
+                    <h3>⚠️ Danger Zone</h3>
+                    <p>Deleting your account permanently removes your profile and all tracker data on this device. This cannot be undone.</p>
+                    <div class="form-row">
+                        <label for="delete-confirm-password">Enter your password to confirm</label>
+                        <input id="delete-confirm-password" type="password" placeholder="Your password" autocomplete="current-password">
+                    </div>
+                    <button id="delete-account-btn" class="btn btn-danger" type="button">Delete Account</button>
+                    <p id="delete-message" class="info-text"></p>
+                </section>
+            </div>
+        </section>
+    </div>
+
+    <div id="recover-modal" class="account-modal" hidden>
+        <div class="account-modal-backdrop" id="recover-modal-backdrop"></div>
+        <section class="account-modal-panel" role="dialog" aria-modal="true" aria-labelledby="recover-modal-title">
+            <header class="account-modal-header">
+                <h2 id="recover-modal-title">Reset password</h2>
+                <button id="recover-modal-close" class="btn btn-sm" type="button">Close</button>
+            </header>
+            <div class="account-modal-content">
+                <section class="account-section">
+                    <p>Passwords are stored only in this browser and are never emailed. To reset yours, confirm the <strong>username</strong> and the <strong>email</strong> you registered with, then choose a new password.</p>
+                    <div class="form-row">
+                        <label for="recover-username">Username</label>
+                        <input id="recover-username" type="text" autocomplete="username" spellcheck="false">
+                    </div>
+                    <div class="form-row">
+                        <label for="recover-email">Registered email</label>
+                        <input id="recover-email" type="email" autocomplete="email">
+                    </div>
+                    <div class="form-row">
+                        <label for="recover-new-password">New password</label>
+                        <input id="recover-new-password" type="password" placeholder="At least 6 characters" autocomplete="new-password">
+                    </div>
+                    <div class="form-row">
+                        <label for="recover-confirm-password">Confirm new password</label>
+                        <input id="recover-confirm-password" type="password" autocomplete="new-password">
+                    </div>
+                    <button id="recover-submit" class="btn btn-primary" type="button">Reset password</button>
+                    <p id="recover-message" class="info-text" role="status"></p>
+                </section>
+            </div>
+        </section>
+    </div>
+
+    <div id="omdb-modal" class="account-modal" hidden>
+        <div class="account-modal-backdrop" id="omdb-modal-backdrop"></div>
+        <section class="account-modal-panel" role="dialog" aria-modal="true" aria-labelledby="omdb-modal-title">
+            <header class="account-modal-header">
+                <h2 id="omdb-modal-title">OMDb API Key</h2>
+                <button id="omdb-modal-close" class="btn btn-sm" type="button">Close</button>
+            </header>
+
+            <div class="account-modal-content">
+                <section class="account-section">
+                    <h3>What is this?</h3>
+                    <p>The OMDb API key lets the tracker pull richer show info &mdash; IMDb ratings, posters, and plot summaries &mdash; from the Open Movie Database. It's completely <strong>optional</strong>: without a key the app still works and uses TVMaze for metadata instead.</p>
+                </section>
+
+                <section class="account-section">
+                    <h3>How to get a free key</h3>
+                    <ol class="omdb-steps">
+                        <li>Open the OMDb API key page (button below).</li>
+                        <li>Choose the <strong>FREE</strong> plan &mdash; 1,000 requests per day.</li>
+                        <li>Enter your email and submit the form.</li>
+                        <li>Check your inbox and click the <strong>activation link</strong> (the key won't work until you do).</li>
+                        <li>Copy the key from the email and paste it below.</li>
+                    </ol>
+                    <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Get Free API Key ↗</a>
+                    <p class="info-text">Metadata is cached locally, so each show is only fetched once &mdash; 1,000/day is plenty.</p>
+                </section>
+
+                <section class="account-section">
+                    <h3>Your key</h3>
+                    <p id="omdb-status" class="info-text"></p>
+                    <div class="form-row">
+                        <label for="omdb-key-input">API key</label>
+                        <input id="omdb-key-input" type="text" placeholder="e.g. a1b2c3d4" autocomplete="off" spellcheck="false">
+                    </div>
+                    <div class="account-actions">
+                        <button id="omdb-save-btn" class="btn btn-action" type="button">Save Key</button>
+                        <button id="omdb-remove-btn" class="btn btn-danger" type="button">Remove Key</button>
+                    </div>
+                    <p id="omdb-message" class="info-text"></p>
+                </section>
+            </div>
+        </section>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay" hidden>
+        <div class="loading-box">
+            <div class="spinner" aria-hidden="true"></div>
+            <p id="loading-message">Working...</p>
+            <p id="loading-sub" class="loading-sub"></p>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="account-modal" hidden>
+        <div class="account-modal-backdrop" id="confirm-modal-backdrop"></div>
+        <section class="account-modal-panel confirm-panel" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+            <header class="account-modal-header">
+                <h2 id="confirm-title">Are you sure?</h2>
+            </header>
+            <div class="account-modal-content">
+                <p id="confirm-message" class="confirm-message"></p>
+                <div class="account-actions">
+                    <button id="confirm-cancel" class="btn" type="button">Cancel</button>
+                    <button id="confirm-ok" class="btn btn-primary" type="button">Confirm</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="help-modal" class="account-modal" hidden>
+        <div class="account-modal-backdrop" id="help-modal-backdrop"></div>
+        <section class="account-modal-panel" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+            <header class="account-modal-header">
+                <h2 id="help-modal-title">How this tracker works</h2>
+                <button id="help-modal-close" class="btn btn-sm" type="button">Close</button>
+            </header>
+
+            <div class="account-modal-content">
+                <section class="account-section">
+                    <h3>1. Your account &amp; privacy</h3>
+                    <p>Everything lives <strong>only in this browser</strong> on this device &mdash; nothing is uploaded to a server. Each person has their own login, and each login keeps its own separate show list. To use the same account on another device (or as a safety net before clearing browser data), open <strong>⚙️ Settings &rarr; Download my data</strong> and <strong>Restore</strong> it on the other device.</p>
+                </section>
+
+                <section class="account-section">
+                    <h3>2. Import your shows</h3>
+                    <p>In TV Time, go to <strong>Settings &rarr; Export your data</strong> and you'll receive a <strong>.zip</strong> by email. Click <strong>Import TV Time Export</strong> and pick that .zip (or the extracted CSV files). Your followed shows and watch progress load instantly.</p>
+                </section>
+
+                <section class="account-section">
+                    <h3>3. Track what you watch</h3>
+                    <p>Each show card shows your progress. Use <strong>➕ / ➖</strong> to add or remove one episode, <strong>🎬</strong> to catch up on everything that has aired, or open a show to tick individual episodes and mark whole seasons watched. Episodes that haven't aired yet stay locked. Click any card to open its season list.</p>
+                </section>
+
+                <section class="account-section">
+                    <h3>4. Posters &amp; upcoming episodes</h3>
+                    <p>The app fetches posters, descriptions and next-air-dates from <strong>TVMaze</strong> (free, no key). Optionally add a free <strong>OMDb API key</strong> for IMDb-sourced art and ratings. Use <strong>Refresh Metadata</strong> if something looks out of date.</p>
+                </section>
+
+                <section class="account-section">
+                    <h3>5. Install it like an app</h3>
+                    <p>On mobile or desktop you can add it to your home screen (look for <strong>📱 Install App</strong> or your browser's "Add to Home Screen"). It then works offline with your cached data.</p>
+                </section>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="js/tv.js"></script>
+</body>
+</html>

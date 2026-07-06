@@ -1,3 +1,16 @@
 theme: jekyll-theme-minimal
 title: Stan's homepage
 description: Atm used just to hold a MyAion profiles page.
+
+# Dev-only / helper files that must NOT be published to the live site.
+# tvtime-data was only sample data used while building the TV Tracker; each
+# user now imports their own TV Time export instead.
+exclude:
+  - tvtime-data/
+  - keepAlive.py
+  - keepAionAlive.py
+  - keepAlive_modern_requirements.txt
+  - build_keepAlive_modern.ps1
+  - test3.py
+  - aionKeySpammer/
+  - tv/icons/gen_icons.py
