@@ -27,6 +27,10 @@
     // "Haven't Watched in a While" (TV Time-style split of the active list).
     var RECENT_DAYS_THRESHOLD = 30;
 
+    // Fallback per-episode length (minutes) used for the "Hours watched" estimate
+    // when a show's metadata has no runtime yet.
+    var DEFAULT_EPISODE_MINUTES = 40;
+
     var FALLBACK_POSTER = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
         '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="480" viewBox="0 0 320 480">'
         + '<rect width="320" height="480" fill="#d8e7ff"/>'
@@ -1498,17 +1502,28 @@
     function renderStats() {
         var totalShows = state.shows.length;
         var totalWatchedEpisodes = state.shows.reduce(function (sum, show) { return sum + (show.watchedCount || 0); }, 0);
+        var totalHours = Math.round(estimateWatchedMinutes() / 60);
         var active = state.shows.filter(function (show) { return show.status === 'active'; }).length;
         var paused = state.shows.filter(function (show) { return show.status === 'paused'; }).length;
 
         var html = [
             statCard(totalShows, 'Shows in library'),
             statCard(totalWatchedEpisodes, 'Episodes marked watched'),
+            statCard(totalHours.toLocaleString(), 'Hours watched (est.)'),
             statCard(active, 'Active shows'),
             statCard(paused, 'Paused shows')
         ].join('');
 
         els.statsCards.innerHTML = html;
+    }
+
+    // Estimated total watch time in minutes = watched episodes x per-episode
+    // runtime (falling back to a sensible default when runtime is unknown).
+    function estimateWatchedMinutes() {
+        return state.shows.reduce(function (sum, show) {
+            var perEp = show.meta && toInt(show.meta.runtime) > 0 ? toInt(show.meta.runtime) : DEFAULT_EPISODE_MINUTES;
+            return sum + (show.watchedCount || 0) * perEp;
+        }, 0);
     }
 
     function statCard(value, label) {
@@ -2540,6 +2555,7 @@
             imdbRating: result.imdbRating && result.imdbRating !== 'N/A' ? result.imdbRating : '',
             premiered: result.Released && result.Released !== 'N/A' ? result.Released : '',
             network: result.Production && result.Production !== 'N/A' ? result.Production : '',
+            runtime: parseRuntimeMinutes(result.Runtime),
             tvmazeId: 0,
             nextEpisode: null,
             lastAired: null,
@@ -2556,6 +2572,9 @@
             }
             if (mazeByImdb && mazeByImdb.tvmazeId) {
                 meta.tvmazeId = mazeByImdb.tvmazeId;
+            }
+            if (!meta.runtime && mazeByImdb && mazeByImdb.runtime) {
+                meta.runtime = mazeByImdb.runtime;
             }
             if ((!meta.poster || meta.poster === FALLBACK_POSTER) && mazeByImdb && mazeByImdb.poster) {
                 meta.poster = mazeByImdb.poster;
@@ -2605,6 +2624,7 @@
             imdbRating: show.rating && show.rating.average ? String(show.rating.average) : '',
             premiered: show.premiered || '',
             network: (show.network && show.network.name) || (show.webChannel && show.webChannel.name) || '',
+            runtime: toInt(show.averageRuntime || show.runtime) || 0,
             tvmazeId: toInt(show.id),
             nextEpisode: null,
             lastAired: null,
@@ -2622,6 +2642,7 @@
         return {
             poster: pickPoster(show),
             tvmazeId: toInt(show.id),
+            runtime: toInt(show.averageRuntime || show.runtime) || 0,
             nextEpisode: links.nextEpisode,
             lastAired: links.lastAired
         };
@@ -2673,6 +2694,13 @@
     function splitGenres(text) {
         if (!text || text === 'N/A') return [];
         return String(text).split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+    }
+
+    // Parses an OMDb "Runtime" string (e.g. "60 min") to whole minutes.
+    function parseRuntimeMinutes(text) {
+        if (!text || text === 'N/A') return 0;
+        var match = String(text).match(/\d+/);
+        return match ? toInt(match[0]) : 0;
     }
 
     function parseCsv(raw) {

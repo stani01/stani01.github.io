@@ -20,6 +20,18 @@
     box-sizing: border-box;
 }
 
+/* Never allow the layout to be wider than the viewport (prevents the whole
+   page from scrolling sideways on phones). */
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+img {
+    max-width: 100%;
+}
+
 /* The hidden attribute must always win, even over display:flex/grid rules
    (auth groups + modals rely on toggling the `hidden` property in JS). */
 [hidden] {
@@ -160,7 +172,7 @@ h1, h2, h3 {
 .stats {
     margin-top: 1rem;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 0.8rem;
 }
 
@@ -334,7 +346,7 @@ textarea {
 
 .upcoming-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr));
     gap: 0.6rem;
 }
 
@@ -408,7 +420,7 @@ textarea {
 
 .shows-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(285px, 100%), 1fr));
     gap: 0.85rem;
 }
 
@@ -514,6 +526,12 @@ textarea {
     transform: scale(1.05);
 }
 
+/* Grid children default to min-width:auto, which lets long titles/words push
+   the card wider than its column and scroll the page. Allow it to shrink. */
+.card-content {
+    min-width: 0;
+}
+
 .title-row {
     display: flex;
     justify-content: space-between;
@@ -524,6 +542,8 @@ textarea {
 .show-title {
     font-size: 1rem;
     line-height: 1.25;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .status-pill {
@@ -566,6 +586,8 @@ textarea {
 .next-row {
     margin: 0.32rem 0 0;
     font-size: 0.86rem;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .meta-row,
