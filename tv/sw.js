@@ -1,5 +1,5 @@
 /* TV Tracker Service Worker: network-first strategy with offline support */
-var CACHE_NAME = 'tv-tracker-v5';
+var CACHE_NAME = 'tv-tracker-v9';
 var URLS_TO_CACHE = [
     '/tv/',
     '/tv/index.html',
@@ -29,7 +29,10 @@ self.addEventListener('activate', function (event) {
     event.waitUntil(
         caches.keys().then(function (names) {
             return Promise.all(names.map(function (n) {
-                if (n !== CACHE_NAME) {
+                // Only clean up the TV app's own caches; leave the root site
+                // caches (site-static-*) alone. CacheStorage is shared per
+                // origin, so deleting them would break the rest of the site.
+                if (n.indexOf('tv-tracker-') === 0 && n !== CACHE_NAME) {
                     console.log('[TV SW] Deleting old cache:', n);
                     return caches.delete(n);
                 }

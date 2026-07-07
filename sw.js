@@ -1,5 +1,5 @@
 /* Service Worker: network-first for .js/.css and skipWaiting update flow */
-var CACHE_NAME = 'site-static-v3';
+var CACHE_NAME = 'site-static-v4';
 
 self.addEventListener('install', function (event) {
     self.skipWaiting();
@@ -9,7 +9,12 @@ self.addEventListener('activate', function (event) {
     event.waitUntil(
         caches.keys().then(function (names) {
             return Promise.all(names.map(function (n) {
-                if (n !== CACHE_NAME) return caches.delete(n);
+                // Only clean up THIS app's own caches. CacheStorage is shared
+                // across the whole origin, so we must NOT delete caches owned by
+                // the /tv/ service worker (tv-tracker-*) or we'd wipe each other.
+                if (n.indexOf('site-static-') === 0 && n !== CACHE_NAME) {
+                    return caches.delete(n);
+                }
             }));
         }).then(function () {
             return self.clients.claim();
