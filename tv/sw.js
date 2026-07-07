@@ -1,5 +1,5 @@
 /* TV Tracker Service Worker: network-first strategy with offline support */
-var CACHE_NAME = 'tv-tracker-v19';
+var CACHE_NAME = 'tv-tracker-v28';
 var URLS_TO_CACHE = [
     '/tv/',
     '/tv/index.html',

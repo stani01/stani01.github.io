@@ -145,14 +145,16 @@
 
     <template id="show-card-template">
         <article class="show-card">
-            <div class="poster-wrap">
+            <button type="button" class="poster-wrap" aria-label="View poster full size">
                 <img class="poster" src="" alt="">
                 <span class="new-badge" hidden>● New</span>
                 <span class="premiere-badge" hidden>★ New Season</span>
-            </div>
+                <span class="poster-zoom-hint" aria-hidden="true">⤢</span>
+            </button>
             <div class="card-content">
                 <div class="title-row">
                     <h3 class="show-title"></h3>
+                    <span class="series-badge" hidden></span>
                     <span class="status-pill"></span>
                 </div>
                 <p class="meta-row"></p>
@@ -196,6 +198,19 @@
                         <p id="modal-facts-text" class="modal-facts-text"></p>
                         <div id="modal-links" class="modal-links"></div>
                         <p id="modal-summary" class="modal-summary"></p>
+                        <div id="modal-fix-link" class="modal-fix-link" hidden>
+                            <p class="modal-fix-link-note">This show isn't linked to a database yet, so there's no poster or episode list. Link it with its IMDb page to pull the right details.</p>
+                            <button type="button" id="modal-fix-link-toggle" class="btn btn-sm modal-fix-link-toggle">🔗 Fix show link</button>
+                            <form id="modal-fix-link-form" class="modal-fix-link-form" hidden>
+                                <label for="modal-fix-link-input">Paste the show's IMDb link or ID</label>
+                                <div class="modal-fix-link-row">
+                                    <input id="modal-fix-link-input" type="text" placeholder="https://www.imdb.com/title/tt1586680/ or tt1586680" autocomplete="off" spellcheck="false">
+                                    <button type="submit" id="modal-fix-link-submit" class="btn btn-accent btn-sm">Match</button>
+                                    <button type="button" id="modal-fix-link-cancel" class="btn btn-sm">Cancel</button>
+                                </div>
+                                <p id="modal-fix-link-msg" class="modal-fix-link-msg" hidden></p>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 <div class="seasons-head">
@@ -354,6 +369,7 @@
                 <section class="account-section">
                     <h3>Your key</h3>
                     <p id="omdb-status" class="info-text"></p>
+                    <p id="omdb-usage" class="info-text omdb-usage" hidden></p>
                     <div class="form-row">
                         <label for="omdb-key-input">API key</label>
                         <input id="omdb-key-input" type="text" placeholder="e.g. a1b2c3d4" autocomplete="off" spellcheck="false">
@@ -378,9 +394,19 @@
 
             <div class="account-modal-content">
                 <section class="account-section">
+                    <div id="unresolved-wrap" class="unresolved-wrap" hidden>
+                        <button type="button" id="unresolved-toggle" class="unresolved-toggle" aria-expanded="false" aria-controls="unresolved-panel">
+                            <span>🔧 Fix unresolved shows</span>
+                            <span class="unresolved-badge" id="unresolved-count">0</span>
+                        </button>
+                        <div id="unresolved-panel" class="unresolved-panel" hidden>
+                            <p class="unresolved-note">These shows aren't linked to a database yet, so they have no poster or episode list. Open one to paste its IMDb link and pull the details.</p>
+                            <div id="unresolved-list" class="unresolved-list"></div>
+                        </div>
+                    </div>
                     <p class="info-text addshow-hint">Start typing a show name &mdash; matches from TVMaze appear below as you type. Pick the right one to add it to your tracker.</p>
                     <div class="addshow-search-row">
-                        <input id="addshow-input" type="search" placeholder="e.g. Shameless (US)" autocomplete="off" spellcheck="false" aria-label="Show name to search">
+                        <input id="addshow-input" type="search" placeholder="e.g. Shameless 2011" autocomplete="off" spellcheck="false" aria-label="Show name to search">
                     </div>
                     <p id="addshow-message" class="addshow-message info-text" role="status"></p>
                     <div id="addshow-results" class="addshow-results"></div>

@@ -145,6 +145,13 @@
         modalFactsText: document.getElementById('modal-facts-text'),
         modalLinks: document.getElementById('modal-links'),
         modalSummary: document.getElementById('modal-summary'),
+        fixLink: document.getElementById('modal-fix-link'),
+        fixLinkToggle: document.getElementById('modal-fix-link-toggle'),
+        fixLinkForm: document.getElementById('modal-fix-link-form'),
+        fixLinkInput: document.getElementById('modal-fix-link-input'),
+        fixLinkSubmit: document.getElementById('modal-fix-link-submit'),
+        fixLinkCancel: document.getElementById('modal-fix-link-cancel'),
+        fixLinkMsg: document.getElementById('modal-fix-link-msg'),
         modalProgress: document.getElementById('modal-progress'),
         modalSeasons: document.getElementById('modal-seasons'),
         upcomingTabs: document.getElementById('upcoming-tabs'),
@@ -173,12 +180,18 @@
         omdbRemoveBtn: document.getElementById('omdb-remove-btn'),
         omdbMessage: document.getElementById('omdb-message'),
         omdbStatus: document.getElementById('omdb-status'),
+        omdbUsage: document.getElementById('omdb-usage'),
         addShowModal: document.getElementById('addshow-modal'),
         addShowModalBackdrop: document.getElementById('addshow-modal-backdrop'),
         addShowModalClose: document.getElementById('addshow-modal-close'),
         addShowInput: document.getElementById('addshow-input'),
         addShowMessage: document.getElementById('addshow-message'),
         addShowResults: document.getElementById('addshow-results'),
+        unresolvedWrap: document.getElementById('unresolved-wrap'),
+        unresolvedToggle: document.getElementById('unresolved-toggle'),
+        unresolvedCount: document.getElementById('unresolved-count'),
+        unresolvedPanel: document.getElementById('unresolved-panel'),
+        unresolvedList: document.getElementById('unresolved-list'),
         deleteConfirmPassword: document.getElementById('delete-confirm-password'),
         helpBtn: document.getElementById('help-btn'),
         helpModal: document.getElementById('help-modal'),
@@ -500,6 +513,10 @@
             closeAddShowModal();
         });
 
+        if (els.unresolvedToggle) els.unresolvedToggle.addEventListener('click', function () {
+            toggleUnresolvedPanel();
+        });
+
         if (els.addShowInput) els.addShowInput.addEventListener('input', function () {
             scheduleAddShowSearch();
         });
@@ -514,9 +531,12 @@
         });
 
         window.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && els.addShowModal && !els.addShowModal.hidden) {
-                closeAddShowModal();
-            }
+            if (event.key !== 'Escape') return;
+            if (!els.addShowModal || els.addShowModal.hidden) return;
+            // If the full-size poster is open over the results, Escape closes
+            // that first (handled by the lightbox listener), not the modal.
+            if (els.posterLightbox && !els.posterLightbox.hidden) return;
+            closeAddShowModal();
         });
 
         (els.sectionToggles || []).forEach(function (toggle) {
@@ -537,6 +557,25 @@
 
         if (els.posterBtn) els.posterBtn.addEventListener('click', function () {
             openPosterLightbox();
+        });
+
+        if (els.fixLinkToggle) els.fixLinkToggle.addEventListener('click', function () {
+            if (els.fixLinkForm) els.fixLinkForm.hidden = false;
+            els.fixLinkToggle.hidden = true;
+            showFixLinkMsg('');
+            if (els.fixLinkInput) els.fixLinkInput.focus();
+        });
+
+        if (els.fixLinkCancel) els.fixLinkCancel.addEventListener('click', function () {
+            if (els.fixLinkForm) els.fixLinkForm.hidden = true;
+            if (els.fixLinkToggle) els.fixLinkToggle.hidden = false;
+            showFixLinkMsg('');
+            if (els.fixLinkInput) els.fixLinkInput.value = '';
+        });
+
+        if (els.fixLinkForm) els.fixLinkForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            submitFixLink();
         });
 
         if (els.posterLightboxClose) els.posterLightboxClose.addEventListener('click', function () {
@@ -754,6 +793,17 @@
                 els.omdbStatus.textContent = 'A key is currently saved. Metadata prefers OMDb (IMDb source).';
             } else {
                 els.omdbStatus.textContent = 'No key saved. Metadata currently uses TVMaze.';
+            }
+        }
+        if (els.omdbUsage) {
+            if (state.currentUser && hasKey) {
+                var used = getOmdbUsageToday();
+                var remaining = Math.max(0, OMDB_DAILY_LIMIT - used);
+                els.omdbUsage.textContent = 'Requests today (this device): ' + used.toLocaleString() + ' / ' +
+                    OMDB_DAILY_LIMIT.toLocaleString() + ' \u00b7 ' + remaining.toLocaleString() + ' left';
+                els.omdbUsage.hidden = false;
+            } else {
+                els.omdbUsage.hidden = true;
             }
         }
         els.omdbModal.hidden = false;
@@ -1044,6 +1094,7 @@
     }
 
     function finishImport() {
+        autoCompleteEndedShows();
         applyFilters();
         render();
         hideLoadingOverlay();
@@ -1338,6 +1389,7 @@
 
         try {
             state.shows = buildShowsModel(imported);
+            autoCompleteEndedShows();
             applyFilters();
             render();
             queueMetadataFetches(state.shows, false);
@@ -1865,14 +1917,46 @@
             var completeButton = cardNode.querySelector('.complete-show');
 
             var meta = show.meta || {};
-            poster.src = meta.poster || FALLBACK_POSTER;
+            var posterSrc = meta.poster || FALLBACK_POSTER;
+            var hasPoster = !!meta.poster && posterSrc !== FALLBACK_POSTER;
+            poster.src = posterSrc;
             poster.alt = show.title + ' poster';
             if (newBadge) newBadge.hidden = !hasNewEpisode(show);
             if (premiereBadge) premiereBadge.hidden = !hasUpcomingPremiere(show);
+
+            // The poster is its own button: with real art it magnifies into the
+            // shared lightbox; the placeholder falls through to opening the modal
+            // (nothing worth zooming). Either way the card's modal-open handler
+            // ignores it because it's a <button>.
+            var posterWrap = cardNode.querySelector('.poster-wrap');
+            if (posterWrap) {
+                posterWrap.classList.toggle('has-poster', hasPoster);
+                posterWrap.setAttribute('aria-label', hasPoster ? ('View ' + show.title + ' poster full size') : ('Open ' + show.title));
+                posterWrap.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    if (hasPoster) {
+                        openPosterLightbox(posterSrc, show.title + ' poster');
+                    } else {
+                        openShowModal(show.id);
+                    }
+                });
+            }
             title.textContent = show.title;
 
             statusPill.textContent = capitalize(show.status);
             statusPill.classList.add(show.status);
+
+            var seriesBadge = cardNode.querySelector('.series-badge');
+            if (seriesBadge) {
+                var sInfo = seriesStatusLabel(meta.seriesStatus);
+                if (sInfo) {
+                    seriesBadge.textContent = sInfo.text;
+                    seriesBadge.classList.add('series-' + sInfo.cls);
+                    seriesBadge.hidden = false;
+                } else {
+                    seriesBadge.hidden = true;
+                }
+            }
 
             metaRow.textContent = buildMetaRow(show);
             description.textContent = stripHtml(meta.summary || 'No external description available yet.');
@@ -1925,8 +2009,15 @@
             completeButton.textContent = isCompleted ? 'Reopen' : 'Complete';
             completeButton.classList.toggle('is-unpause', isCompleted);
             completeButton.addEventListener('click', function () {
-                patchShow(show.id, { status: isCompleted ? 'active' : 'completed' });
-                setStatus((isCompleted ? 'Reopened ' : 'Completed ') + show.title + '.');
+                if (isCompleted) {
+                    // Reopening: opt out of auto-complete so it doesn't snap back.
+                    patchShow(show.id, { status: 'active' });
+                    updateShowOverride(show.id, { keepOpen: true });
+                    setStatus('Reopened ' + show.title + '.');
+                } else {
+                    updateShowOverride(show.id, { keepOpen: false });
+                    completeShow(show);
+                }
             });
 
             card.dataset.showId = show.id;
@@ -2049,6 +2140,15 @@
         var nextCount = Math.max(0, toInt(show.watchedCount) + delta);
         var nextStatus = show.status;
         if (nextCount > 0 && show.status === 'paused') nextStatus = 'active';
+        // Auto-complete: if this leaves an ended series fully watched, finish it.
+        // (episodeStates were updated above, so isEpisodeWatched reflects the new
+        // state.) Skipped if the user opted out by reopening it before.
+        if (watched && nextStatus === 'active' && !isAutoCompleteOptedOut(show)) {
+            var m = show.meta || {};
+            if (m.seriesStatus === 'ended' && allAiredEpisodesWatched(show, catalog)) {
+                nextStatus = 'completed';
+            }
+        }
         patchShow(show.id, {
             watchedCount: nextCount,
             episodeStates: show.episodeStates,
@@ -2143,8 +2243,70 @@
         var episodes = await loadEpisodeCatalog(show);
         if (state.modalShowId !== showId) return; // modal changed/closed while loading
         maybeSeedProgressFromCount(show, episodes);
+        maybeAutoCompleteFromCatalog(show, episodes);
         var current = state.shows.find(function (item) { return item.id === showId; }) || show;
         renderShowModal(current, episodes);
+    }
+
+    // --- Auto-complete ended shows ---------------------------------------
+    // When a series has finished airing and the user has watched everything, we
+    // flip it to Completed automatically. Users can still Reopen; doing so sets a
+    // per-show opt-out (keepOpen) so we don't immediately re-complete it.
+
+    function isAutoCompleteOptedOut(show) {
+        var ov = show && show.id ? state.overrides[show.id] : null;
+        return !!(ov && ov.keepOpen);
+    }
+
+    function allAiredEpisodesWatched(show, catalog) {
+        if (!Array.isArray(catalog) || !catalog.length) return false;
+        var aired = catalog.filter(function (ep) { return !isEpisodeUnaired(ep); });
+        if (!aired.length) return false;
+        return aired.every(function (ep) { return isEpisodeWatched(show, ep); });
+    }
+
+    // Accurate per-show check used when a modal opens (we have the full catalog).
+    function maybeAutoCompleteFromCatalog(show, episodes) {
+        if (!show || show.status !== 'active') return;
+        if (isAutoCompleteOptedOut(show)) return;
+        var meta = show.meta || {};
+        if (meta.seriesStatus !== 'ended') return;
+        if (!allAiredEpisodesWatched(show, episodes)) return;
+        patchShow(show.id, { status: 'completed' });
+        setStatus('Marked “' + show.title + '” completed — it has ended and you\u2019ve watched every episode.');
+    }
+
+    // Cheap heuristic used for a batch pass over the whole list (no catalog):
+    // an ended series whose last-aired episode is at or below the user's progress
+    // marker is fully watched. Relies on meta.lastAired + show.lastSeen.
+    function shouldAutoComplete(show) {
+        if (!show || show.status !== 'active') return false;
+        if (isAutoCompleteOptedOut(show)) return false;
+        var meta = show.meta || {};
+        if (meta.seriesStatus !== 'ended') return false;
+        var lastAired = meta.lastAired;
+        if (!lastAired || !lastAired.season) return false;
+        if (!show.lastSeen || !show.lastSeen.season) return false;
+        return epRank(show.lastSeen.season, show.lastSeen.episode) >= epRank(lastAired.season, lastAired.number);
+    }
+
+    // Batch pass over the loaded shows; flips qualifying ones to Completed
+    // WITHOUT re-rendering per show (the caller renders once). Returns the count.
+    function autoCompleteEndedShows() {
+        var changed = 0;
+        (state.shows || []).forEach(function (show) {
+            if (!shouldAutoComplete(show)) return;
+            show.status = 'completed';
+            show.localStatus = 'completed';
+            updateShowOverride(show.id, {
+                watchedCount: show.watchedCount,
+                status: 'completed',
+                lastSeen: show.lastSeen || null,
+                episodeStates: show.episodeStates || {}
+            });
+            changed += 1;
+        });
+        return changed;
     }
 
     function closeShowModal() {
@@ -2152,6 +2314,148 @@
         state.modalEpisodes = [];
         closePosterLightbox();
         if (els.showModal) els.showModal.hidden = true;
+    }
+
+    // Resets the "Fix show link" tool back to its collapsed state. Pass true when
+    // the show has episodes (i.e. is properly linked) to hide the whole block.
+    function resetFixLinkUi(hasEpisodes) {
+        if (!els.fixLink) return;
+        els.fixLink.hidden = !!hasEpisodes;
+        if (els.fixLinkForm) els.fixLinkForm.hidden = true;
+        if (els.fixLinkToggle) els.fixLinkToggle.hidden = false;
+        if (els.fixLinkInput) els.fixLinkInput.value = '';
+        if (els.fixLinkMsg) { els.fixLinkMsg.hidden = true; els.fixLinkMsg.textContent = ''; els.fixLinkMsg.className = 'modal-fix-link-msg'; }
+        if (els.fixLinkSubmit) { els.fixLinkSubmit.disabled = false; els.fixLinkSubmit.textContent = 'Match'; }
+    }
+
+    function showFixLinkMsg(message, isError) {
+        if (!els.fixLinkMsg) return;
+        els.fixLinkMsg.textContent = message;
+        els.fixLinkMsg.className = 'modal-fix-link-msg' + (isError ? ' error' : '');
+        els.fixLinkMsg.hidden = !message;
+    }
+
+    // Pulls the IMDb title id (ttNNNNNNN) out of a pasted URL or raw id.
+    function parseImdbId(raw) {
+        var match = String(raw || '').match(/tt\d{6,10}/i);
+        return match ? match[0].toLowerCase() : '';
+    }
+
+    // Resolves fresh metadata for a show from an IMDb id. Prefers OMDb (rich
+    // details, and it bridges to TVMaze for the episode list) when a key is set,
+    // then falls back to a direct TVMaze lookup. Always carries the imdb id so at
+    // minimum the show gets linked even if it isn't on TVMaze.
+    async function resolveMetaFromImdb(imdbId, title) {
+        var omdbKey = loadUserScopedValue(STORE_KEYS.omdbApiKey) || '';
+        if (omdbKey) {
+            try {
+                var omdb = await fetchOmdbById(imdbId, omdbKey, title);
+                if (omdb && (omdb.tvmazeId || omdb.imdbId)) return omdb;
+            } catch (error) {
+                console.warn('OMDb lookup for fix-link failed, trying TVMaze', error);
+            }
+        }
+
+        var show = await fetchJson('https://api.tvmaze.com/lookup/shows?imdb=' + encodeURIComponent(imdbId));
+        if (show) {
+            var meta = metaFromTvMazeShow(show, title);
+            if (!meta.imdbId) meta.imdbId = imdbId;
+            try {
+                var links = await fetchEpisodeLinks(show._links);
+                meta.nextEpisode = links.nextEpisode;
+                meta.lastAired = links.lastAired;
+            } catch (error) { /* keep meta without episode links */ }
+            return meta;
+        }
+
+        // Not on TVMaze: still link the imdb id so IMDb button + future OMDb
+        // enrichment work, even though episodes can't be tracked.
+        return {
+            provider: 'IMDb',
+            poster: FALLBACK_POSTER,
+            title: title || '',
+            summary: '',
+            genres: [],
+            imdbId: imdbId,
+            imdbRating: '',
+            premiered: '',
+            network: '',
+            runtime: 0,
+            tvmazeId: 0,
+            seriesStatus: '',
+            nextEpisode: null,
+            lastAired: null,
+            fetchedAt: new Date().toISOString()
+        };
+    }
+
+    // Keeps a custom show's stored ids in sync after a re-link so de-duplication
+    // (collectTrackedIds) stays correct. No-op for imported shows.
+    function updateCustomShowIds(showId, meta) {
+        var changed = false;
+        (state.customShows || []).forEach(function (custom) {
+            if (custom.id !== showId) return;
+            var tv = toInt(meta.tvmazeId);
+            if (tv && toInt(custom.tvmazeId) !== tv) { custom.tvmazeId = tv; changed = true; }
+            if (meta.imdbId && custom.imdbId !== meta.imdbId) { custom.imdbId = meta.imdbId; changed = true; }
+            if (changed) custom.updatedAt = Date.now();
+        });
+        if (changed) persistUserScopedJson(STORE_KEYS.customShows, state.customShows);
+    }
+
+    async function submitFixLink() {
+        var showId = state.modalShowId;
+        var show = state.shows.find(function (item) { return item.id === showId; });
+        if (!show) return;
+
+        var imdbId = parseImdbId(els.fixLinkInput ? els.fixLinkInput.value : '');
+        if (!imdbId) {
+            showFixLinkMsg('Enter a valid IMDb link or ID (it looks like tt1586680).', true);
+            return;
+        }
+
+        els.fixLinkSubmit.disabled = true;
+        els.fixLinkSubmit.textContent = 'Matching…';
+        showFixLinkMsg('Looking up show…');
+
+        try {
+            var meta = await resolveMetaFromImdb(imdbId, show.title);
+            if (state.modalShowId !== showId) return; // modal changed while loading
+            if (!meta || (!meta.tvmazeId && !meta.imdbId)) {
+                showFixLinkMsg('Couldn’t find that title. Double-check the IMDb link and try again.', true);
+                els.fixLinkSubmit.disabled = false;
+                els.fixLinkSubmit.textContent = 'Match';
+                return;
+            }
+
+            // Re-link: drop the stale (empty) episode cache, cache the new meta,
+            // and keep any custom-show id record in sync for de-duplication.
+            delete state.episodeCache[show.id];
+            setCachedMeta(show, meta);
+            updateCustomShowIds(show.id, meta);
+
+            var episodes = await loadEpisodeCatalog(show);
+            if (state.modalShowId !== showId) return;
+            maybeSeedProgressFromCount(show, episodes);
+            var updated = state.shows.find(function (item) { return item.id === showId; }) || show;
+            renderShowModal(updated, episodes);
+
+            // Refresh the card grid so the newly linked poster/badges show there too.
+            applyFilters();
+            render();
+
+            if (episodes.length) {
+                setStatus('Linked “' + show.title + '” — pulled ' + episodes.length + ' episodes from IMDb ' + imdbId + '.');
+            } else {
+                setStatus('Linked “' + show.title + '” to IMDb ' + imdbId + '. Episode tracking is unavailable (this title isn’t on TVMaze).');
+            }
+        } catch (error) {
+            console.warn('Fix-link failed', error);
+            if (state.modalShowId !== showId) return;
+            showFixLinkMsg('Something went wrong. Check your connection and try again.', true);
+            els.fixLinkSubmit.disabled = false;
+            els.fixLinkSubmit.textContent = 'Match';
+        }
     }
 
     // Point the modal poster at the show's art. When a real poster exists it
@@ -2170,13 +2474,19 @@
         }
     }
 
-    function openPosterLightbox() {
-        if (!els.posterLightbox || !els.modalPoster) return;
-        if (els.posterBtn && els.posterBtn.disabled) return;
-        var src = els.modalPoster.src || '';
+    // Opens the full-size poster overlay. With no arguments it uses the show
+    // modal's poster; callers (e.g. Add-Show results) can pass their own image.
+    function openPosterLightbox(src, alt) {
+        if (!els.posterLightbox || !els.posterLightboxImg) return;
+        if (src == null) {
+            if (!els.modalPoster) return;
+            if (els.posterBtn && els.posterBtn.disabled) return;
+            src = els.modalPoster.src || '';
+            alt = els.modalPoster.alt || 'Poster';
+        }
         if (!src) return;
         els.posterLightboxImg.src = src;
-        els.posterLightboxImg.alt = els.modalPoster.alt || 'Poster';
+        els.posterLightboxImg.alt = alt || 'Poster';
         els.posterLightbox.hidden = false;
     }
 
@@ -2191,6 +2501,13 @@
         if (!els.modalLinks) return;
         els.modalLinks.innerHTML = '';
         meta = meta || {};
+        var sInfo = seriesStatusLabel(meta.seriesStatus);
+        if (sInfo) {
+            var badge = document.createElement('span');
+            badge.className = 'series-badge series-' + sInfo.cls;
+            badge.textContent = sInfo.text;
+            els.modalLinks.appendChild(badge);
+        }
         if (meta.imdbRating) {
             var rating = document.createElement('span');
             rating.className = 'imdb-rating';
@@ -2233,8 +2550,13 @@
             : ('Watched ' + show.watchedCount + ' episodes');
         els.modalProgress.textContent = totalEps ? (watchedEps + ' / ' + totalEps + ' watched') : '';
 
+        // Unlinked imports (e.g. a TV Time title that matched no database) have no
+        // episodes; offer the "Fix show link" tool so the user can attach an IMDb
+        // page and pull the real metadata. Hidden once the show is trackable.
+        resetFixLinkUi(totalEps > 0);
+
         if (!totalEps) {
-            els.modalSeasons.innerHTML = '<div class="empty">Episode list unavailable for this show yet. Try “Refresh Metadata”, or the provider has no episode data for it.</div>';
+            els.modalSeasons.innerHTML = '<div class="empty">Episode list unavailable for this show yet. Try “Refresh Metadata”, or use “Fix show link” above to match it on IMDb.</div>';
             return;
         }
 
@@ -2366,14 +2688,89 @@
         if (state.addShowTimer) { clearTimeout(state.addShowTimer); state.addShowTimer = null; }
         state.addShowSeq += 1; // discard any in-flight search from a previous open
         setAddShowMessage('');
+        refreshUnresolvedControl();
         els.addShowModal.hidden = false;
         setTimeout(function () {
             try { if (els.addShowInput) els.addShowInput.focus(); } catch (e) { /* ignore */ }
         }, 30);
     }
 
+    // A show is "unresolved" when its metadata carries neither a TVMaze id nor an
+    // IMDb id, so episodes can't be loaded (e.g. a TV Time import whose title
+    // matched no database). These are the shows the "Fix show link" tool targets.
+    function isShowUnresolved(show) {
+        var m = (show && show.meta) || {};
+        return !toInt(m.tvmazeId) && !m.imdbId;
+    }
+
+    function getUnresolvedShows() {
+        return (state.shows || []).filter(isShowUnresolved).sort(function (a, b) {
+            return String(a.title || '').localeCompare(String(b.title || ''));
+        });
+    }
+
+    // Shows/hides the "Fix unresolved shows (N)" control at the top of the Add
+    // Show modal and keeps its count current. Collapsed by default each open.
+    function refreshUnresolvedControl() {
+        if (!els.unresolvedWrap) return;
+        var unresolved = getUnresolvedShows();
+        var count = unresolved.length;
+        if (els.unresolvedCount) els.unresolvedCount.textContent = String(count);
+        els.unresolvedWrap.hidden = count === 0;
+        if (els.unresolvedPanel) els.unresolvedPanel.hidden = true;
+        if (els.unresolvedToggle) els.unresolvedToggle.setAttribute('aria-expanded', 'false');
+        if (count === 0 && els.unresolvedList) els.unresolvedList.innerHTML = '';
+    }
+
+    function toggleUnresolvedPanel() {
+        if (!els.unresolvedPanel || !els.unresolvedToggle) return;
+        var willOpen = els.unresolvedPanel.hidden;
+        if (willOpen) renderUnresolvedList();
+        els.unresolvedPanel.hidden = !willOpen;
+        els.unresolvedToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    }
+
+    function renderUnresolvedList() {
+        if (!els.unresolvedList) return;
+        els.unresolvedList.innerHTML = '';
+        var unresolved = getUnresolvedShows();
+        if (!unresolved.length) {
+            els.unresolvedList.innerHTML = '<div class="addshow-empty">Everything is linked — nothing to fix.</div>';
+            return;
+        }
+        unresolved.forEach(function (show) {
+            var row = document.createElement('div');
+            row.className = 'unresolved-row';
+
+            var info = document.createElement('div');
+            info.className = 'unresolved-info';
+            var name = document.createElement('span');
+            name.className = 'unresolved-title';
+            name.textContent = show.title;
+            var sub = document.createElement('span');
+            sub.className = 'unresolved-sub';
+            sub.textContent = (toInt(show.watchedCount) || 0) + ' watched \u00b7 ' + capitalize(show.status || 'active');
+            info.appendChild(name);
+            info.appendChild(sub);
+
+            var fixBtn = document.createElement('button');
+            fixBtn.type = 'button';
+            fixBtn.className = 'btn btn-accent btn-sm';
+            fixBtn.textContent = 'Fix link';
+            fixBtn.addEventListener('click', function () {
+                closeAddShowModal();
+                openShowModal(show.id);
+            });
+
+            row.appendChild(info);
+            row.appendChild(fixBtn);
+            els.unresolvedList.appendChild(row);
+        });
+    }
+
     function closeAddShowModal() {
         if (state.addShowTimer) { clearTimeout(state.addShowTimer); state.addShowTimer = null; }
+        closePosterLightbox();
         if (els.addShowModal) els.addShowModal.hidden = true;
     }
 
@@ -2418,17 +2815,48 @@
         // Tag this search; if a newer keystroke starts another before we finish,
         // this response is stale and must not overwrite the newer results.
         var seq = ++state.addShowSeq;
-        setAddShowMessage('Searching TVMaze…');
+
+        // With an OMDb key we search IMDb's catalog; otherwise TVMaze. If OMDb
+        // returns nothing (e.g. the key is invalid or over its daily quota) we
+        // fall back to TVMaze so search always works.
+        var omdbKey = loadUserScopedValue(STORE_KEYS.omdbApiKey) || '';
+        var usingImdb = !!omdbKey;
+        setAddShowMessage(usingImdb ? 'Searching IMDb…' : 'Searching TVMaze…');
 
         try {
-            var results = await searchTvMazeShows(query);
+            var results = [];
+            if (usingImdb) {
+                try { results = await searchOmdbShows(query, omdbKey); }
+                catch (e) { results = []; }
+                if (seq !== state.addShowSeq) return; // superseded by a newer search
+                if (!results.length) {
+                    usingImdb = false;
+                    results = await searchTvMazeShows(query);
+                }
+            } else {
+                results = await searchTvMazeShows(query);
+            }
             if (seq !== state.addShowSeq) return; // superseded by a newer search
             if (!results.length) {
                 setAddShowMessage('No shows found for “' + query + '”. Check the spelling and try again.', true);
                 renderAddShowResults([]);
             } else {
-                setAddShowMessage(results.length + ' match' + (results.length === 1 ? '' : 'es') + ' found — pick the right one to add.');
-                renderAddShowResults(results);
+                // Hide anything already in the user's list (matched by ID, not
+                // title) so the results only show things they can actually add.
+                var trackedIds = collectTrackedIds();
+                var fresh = results.filter(function (s) { return !isResultTracked(s, trackedIds); });
+                var hidden = results.length - fresh.length;
+                var src = usingImdb ? 'IMDb' : 'TVMaze';
+                if (!fresh.length) {
+                    setAddShowMessage('All ' + results.length + ' match' + (results.length === 1 ? ' is' : 'es are') + ' already in your list.', true);
+                    renderAddShowResults([]);
+                } else {
+                    var msg = fresh.length + ' match' + (fresh.length === 1 ? '' : 'es') + ' found on ' + src;
+                    if (hidden) msg += ' (' + hidden + ' already in your list hidden)';
+                    msg += ' — pick the right one to add.';
+                    setAddShowMessage(msg);
+                    renderAddShowResults(fresh);
+                }
             }
         } catch (error) {
             if (seq !== state.addShowSeq) return;
@@ -2440,6 +2868,9 @@
     function renderAddShowResults(shows) {
         var container = els.addShowResults;
         if (!container) return;
+        // Tie any async OMDb enrichment below to the current search; if the user
+        // types again, state.addShowSeq changes and stale detail is discarded.
+        var seq = state.addShowSeq;
         container.innerHTML = '';
 
         if (!shows.length) {
@@ -2451,11 +2882,33 @@
             var row = document.createElement('div');
             row.className = 'addshow-result';
 
+            var posterSrc = pickPoster(show);
+            var hasPoster = posterSrc !== FALLBACK_POSTER;
             var poster = document.createElement('img');
             poster.className = 'addshow-poster';
             poster.loading = 'lazy';
-            poster.src = pickPoster(show);
+            poster.src = posterSrc;
             poster.alt = (show.name || 'Show') + ' poster';
+
+            // With real art the poster becomes a zoom-in button (same full-size
+            // lightbox as the show modal); the placeholder stays inert.
+            var posterNode = poster;
+            if (hasPoster) {
+                var posterBtn = document.createElement('button');
+                posterBtn.type = 'button';
+                posterBtn.className = 'addshow-poster-btn';
+                posterBtn.setAttribute('aria-label', 'View ' + (show.name || 'show') + ' poster full size');
+                var hint = document.createElement('span');
+                hint.className = 'poster-zoom-hint';
+                hint.setAttribute('aria-hidden', 'true');
+                hint.textContent = '\u2922';
+                posterBtn.appendChild(poster);
+                posterBtn.appendChild(hint);
+                posterBtn.addEventListener('click', function () {
+                    openPosterLightbox(posterSrc, (show.name || 'Show') + ' poster');
+                });
+                posterNode = posterBtn;
+            }
 
             var info = document.createElement('div');
             info.className = 'addshow-info';
@@ -2464,26 +2917,59 @@
             titleEl.className = 'addshow-title';
             var year = show.premiered ? formatYear(show.premiered) : '';
             titleEl.textContent = (show.name || 'Untitled') + (year ? ' (' + year + ')' : '');
-
-            var bits = [];
-            var net = (show.network && show.network.name) || (show.webChannel && show.webChannel.name) || '';
-            if (net) bits.push(net);
-            if (show.genres && show.genres.length) bits.push(show.genres.slice(0, 3).join(', '));
-            if (show.status) bits.push(show.status);
-            if (show.rating && show.rating.average) bits.push('⭐ ' + show.rating.average);
-
             info.appendChild(titleEl);
-            if (bits.length) {
-                var metaEl = document.createElement('p');
-                metaEl.className = 'addshow-meta';
-                metaEl.textContent = bits.join('  ·  ');
-                info.appendChild(metaEl);
-            }
+
+            var metaEl = document.createElement('p');
+            metaEl.className = 'addshow-meta';
+            info.appendChild(metaEl);
 
             var descEl = document.createElement('p');
             descEl.className = 'addshow-desc';
-            descEl.textContent = truncateText(stripHtml(show.summary || ''), 180) || 'No description available.';
             info.appendChild(descEl);
+
+            // Meta line + description are (re)built by these closures so the async
+            // OMDb enrichment pass can drop richer genre/rating/plot into the same
+            // card. show._genres/_network/_imdbRating/_summary hold enriched values;
+            // the plain fields come straight from TVMaze results.
+            var moreBtn = null;
+            show.__renderMeta = function () {
+                var bits = [];
+                if (show._omdb) bits.push('IMDb');
+                var net = (show.network && show.network.name) || (show.webChannel && show.webChannel.name) || show._network || '';
+                if (net) bits.push(net);
+                var genres = (show.genres && show.genres.length) ? show.genres : (show._genres || []);
+                if (genres.length) bits.push(genres.slice(0, 3).join(', '));
+                if (show.status) bits.push(show.status);
+                var rating = (show.rating && show.rating.average) || show._imdbRating || '';
+                if (rating) bits.push('⭐ ' + rating);
+                metaEl.textContent = bits.join('  ·  ');
+                metaEl.style.display = bits.length ? '' : 'none';
+            };
+            show.__renderDesc = function (fullText) {
+                var fullDesc = stripHtml(fullText || '');
+                var shortDesc = truncateText(fullDesc, 180);
+                var pending = show._omdb && !show._enrichTried;
+                descEl.textContent = shortDesc || (pending ? 'Loading description…' : 'No description available.');
+                if (moreBtn) { moreBtn.remove(); moreBtn = null; }
+                // Long summaries collapse to ~180 chars; a Show more/less toggle
+                // reveals the full text (truncateText adds a trailing … so a
+                // difference means it was actually clipped).
+                if (fullDesc && shortDesc !== fullDesc) {
+                    moreBtn = document.createElement('button');
+                    moreBtn.type = 'button';
+                    moreBtn.className = 'addshow-more';
+                    moreBtn.textContent = 'Show more';
+                    var expanded = false;
+                    moreBtn.addEventListener('click', function () {
+                        expanded = !expanded;
+                        descEl.textContent = expanded ? fullDesc : shortDesc;
+                        moreBtn.textContent = expanded ? 'Show less' : 'Show more';
+                    });
+                    info.appendChild(moreBtn);
+                }
+            };
+            show.__renderMeta();
+            show.__renderDesc(show._summary || show.summary || '');
 
             var addBtn = document.createElement('button');
             addBtn.type = 'button';
@@ -2493,11 +2979,46 @@
                 addVariant(show, addBtn);
             });
 
-            row.appendChild(poster);
+            row.appendChild(posterNode);
             row.appendChild(info);
             row.appendChild(addBtn);
             container.appendChild(row);
         });
+
+        enrichOmdbCards(shows, seq);
+    }
+
+    // Gathers every TVMaze/IMDb id already in the user's list. Imported shows
+    // carry ids on meta; custom shows carry them directly. Used to de-duplicate
+    // add-show results by ID rather than by title — same-named shows can be
+    // different entries, and a differently-named import can be the same show.
+    function collectTrackedIds() {
+        var tvmaze = {};
+        var imdb = {};
+        function add(t, i) {
+            var tv = toInt(t);
+            if (tv) tvmaze[tv] = true;
+            if (i) imdb[String(i).toLowerCase()] = true;
+        }
+        (state.shows || []).forEach(function (s) {
+            var m = s.meta || {};
+            add(m.tvmazeId, m.imdbId);
+        });
+        (state.customShows || []).forEach(function (c) {
+            add(c.tvmazeId, c.imdbId);
+        });
+        return { tvmaze: tvmaze, imdb: imdb };
+    }
+
+    // True when a search result is already tracked by ID. TVMaze results carry
+    // the tvmaze id on show.id; OMDb/IMDb results carry the imdb id on externals.
+    function isResultTracked(show, ids) {
+        if (!show || !ids) return false;
+        var tv = toInt(show.id);
+        if (tv && ids.tvmaze[tv]) return true;
+        var imdb = show.externals && show.externals.imdb ? String(show.externals.imdb).toLowerCase() : '';
+        if (imdb && ids.imdb[imdb]) return true;
+        return false;
     }
 
     // Adds a specific verified TVMaze variant as a custom show, caching its full
@@ -2508,17 +3029,18 @@
             return;
         }
 
+        var isOmdb = !!(show && show._omdb);
+        var imdbId = (show && show.externals && show.externals.imdb) || '';
         var tvmazeId = toInt(show.id);
         var finalTitle = show.name || '';
         var normalized = normalizeName(finalTitle);
 
-        var alreadyAdded = (state.customShows || []).some(function (custom) {
-            return tvmazeId && toInt(custom.tvmazeId) === tvmazeId;
-        });
-        var alreadyTracked = (state.shows || []).some(function (existing) {
-            return normalizeName(existing.title) === normalized;
-        });
-        if (alreadyAdded || alreadyTracked) {
+        // De-duplicate by ID, not title: same-named shows can be different
+        // entries, and the user may keep a differently-named import of the same
+        // show (title matching previously blocked legitimate adds).
+        var trackedIds = collectTrackedIds();
+        var lowerImdb = imdbId ? String(imdbId).toLowerCase() : '';
+        if ((tvmazeId && trackedIds.tvmaze[tvmazeId]) || (lowerImdb && trackedIds.imdb[lowerImdb])) {
             setAddShowMessage('“' + finalTitle + '” is already in your list.', true);
             return;
         }
@@ -2527,21 +3049,60 @@
         var originalLabel = button.textContent;
         button.textContent = 'Adding…';
 
-        var meta = metaFromTvMazeShow(show, finalTitle);
-        try {
-            var links = await fetchEpisodeLinks(show._links);
-            meta.nextEpisode = links.nextEpisode;
-            meta.lastAired = links.lastAired;
-        } catch (error) {
-            console.warn('Could not load episode links for added show', error);
+        var meta;
+        if (isOmdb) {
+            // IMDb search result: pull rich OMDb metadata for the exact show by
+            // its imdb id. fetchOmdbById also bridges to TVMaze internally to fill
+            // the tvmaze id + next/last episode so the show stays trackable.
+            var omdbKey = loadUserScopedValue(STORE_KEYS.omdbApiKey) || '';
+            if (omdbKey && imdbId) {
+                try { meta = await fetchOmdbById(imdbId, omdbKey, finalTitle); } catch (e) { meta = null; }
+            }
+            if (!meta && imdbId) {
+                // Fallback: resolve TVMaze straight from the imdb id.
+                try {
+                    var byImdb = await fetchTvMazeByImdb(imdbId);
+                    meta = metaFromTvMazeShow(show, finalTitle);
+                    if (byImdb) {
+                        meta.tvmazeId = byImdb.tvmazeId;
+                        meta.nextEpisode = byImdb.nextEpisode;
+                        meta.lastAired = byImdb.lastAired;
+                        if (byImdb.runtime && !meta.runtime) meta.runtime = byImdb.runtime;
+                        if (byImdb.poster && (!meta.poster || meta.poster === FALLBACK_POSTER)) meta.poster = byImdb.poster;
+                    }
+                } catch (e) { meta = metaFromTvMazeShow(show, finalTitle); }
+            }
+            if (!meta) meta = metaFromTvMazeShow(show, finalTitle);
+        } else {
+            meta = metaFromTvMazeShow(show, finalTitle);
+            try {
+                var links = await fetchEpisodeLinks(show._links);
+                meta.nextEpisode = links.nextEpisode;
+                meta.lastAired = links.lastAired;
+            } catch (error) {
+                console.warn('Could not load episode links for added show', error);
+            }
+        }
+
+        var resolvedTvmazeId = toInt(meta.tvmazeId) || tvmazeId;
+        var resolvedImdbId = meta.imdbId || imdbId || '';
+
+        // The OMDb→TVMaze bridge can resolve a tvmaze/imdb id we already track
+        // even when the raw result didn't match; re-check before adding a dupe.
+        var lowerResolvedImdb = resolvedImdbId ? String(resolvedImdbId).toLowerCase() : '';
+        if ((resolvedTvmazeId && trackedIds.tvmaze[resolvedTvmazeId]) || (lowerResolvedImdb && trackedIds.imdb[lowerResolvedImdb])) {
+            setAddShowMessage('“' + finalTitle + '” is already in your list.', true);
+            button.disabled = false;
+            button.textContent = originalLabel;
+            return;
         }
 
         var id = 'custom:' + normalized.replace(/\s+/g, '-') + ':' + Date.now();
         state.customShows.push({
             id: id,
             title: finalTitle,
-            tvmazeId: tvmazeId,
-            imdbId: meta.imdbId || '',
+            tvmazeId: resolvedTvmazeId,
+            imdbId: resolvedImdbId,
             nb_episodes_seen: 0,
             createdAt: new Date().toISOString(),
             updatedAt: Date.now()
@@ -2551,7 +3112,11 @@
 
         closeAddShowModal();
         bootstrap();
-        setStatus('Added show: ' + finalTitle + '.');
+        if (isOmdb && !resolvedTvmazeId) {
+            setStatus('Added “' + finalTitle + '”. Heads up: episode tracking may be unavailable (not found on TVMaze).');
+        } else {
+            setStatus('Added show: ' + finalTitle + '.');
+        }
         button.disabled = false;
         button.textContent = originalLabel;
     }
@@ -2623,6 +3188,37 @@
                 setStatus('Marked ' + episodesToWatch.length + ' episodes as watched for ' + show.title + '.');
             }
         );
+    }
+
+    // Marks every aired episode watched and flips the show to Completed in a
+    // single patch. Unaired (future) episodes are left untouched. Falls back to
+    // just flipping status when there's no episode catalog (unlinked shows).
+    async function completeShow(show) {
+        var catalog = await loadEpisodeCatalog(show);
+        var current = state.shows.find(function (item) { return item.id === show.id; }) || show;
+
+        if (catalog && catalog.length) {
+            if (!current.episodeStates) current.episodeStates = {};
+            var delta = 0;
+            catalog.forEach(function (ep) {
+                if (isEpisodeUnaired(ep)) return; // can't watch the future
+                var was = isEpisodeWatched(current, ep);
+                current.episodeStates[episodeKey(ep.season, ep.number)] = true;
+                if (!was) delta += 1;
+            });
+            var nextCount = Math.max(0, toInt(current.watchedCount) + delta);
+            patchShow(show.id, {
+                watchedCount: nextCount,
+                episodeStates: current.episodeStates,
+                lastSeen: computeLastSeen(current, catalog),
+                status: 'completed'
+            });
+            setStatus('Completed ' + show.title + ' \u2014 marked all aired episodes watched.');
+        } else {
+            // Unlinked show (no episode data): just flip the status.
+            patchShow(show.id, { status: 'completed' });
+            setStatus('Completed ' + show.title + '.');
+        }
     }
 
     function patchShow(showId, patch) {
@@ -2730,6 +3326,12 @@
                         state.importMode = false;
                         finishImport();
                     } else {
+                        // Fresh metadata may reveal ended shows that are fully
+                        // watched; auto-complete them and re-render if any changed.
+                        if (autoCompleteEndedShows() > 0) {
+                            applyFilters();
+                            render();
+                        }
                         setStatus('Metadata fetch completed.');
                     }
                 }
@@ -2753,14 +3355,24 @@
     }
 
     async function fetchOmdb(title, apiKey) {
-        var url = 'https://www.omdbapi.com/?apikey=' + encodeURIComponent(apiKey) + '&type=series&t=' + encodeURIComponent(title);
+        return fetchOmdbBy('t', title, apiKey, title);
+    }
+
+    // Fetch rich OMDb (IMDb) metadata for the exact show the user picked from an
+    // IMDb search result, keyed by its imdb id rather than by title.
+    async function fetchOmdbById(imdbId, apiKey, fallbackTitle) {
+        return fetchOmdbBy('i', imdbId, apiKey, fallbackTitle || '');
+    }
+
+    async function fetchOmdbBy(param, value, apiKey, fallbackTitle) {
+        var url = 'https://www.omdbapi.com/?apikey=' + encodeURIComponent(apiKey) + '&type=series&' + param + '=' + encodeURIComponent(value);
         var result = await fetchJson(url);
         if (!result || result.Response === 'False') return null;
 
         var meta = {
             provider: 'OMDb (IMDb)',
             poster: result.Poster && result.Poster !== 'N/A' ? result.Poster : FALLBACK_POSTER,
-            title: result.Title || title,
+            title: result.Title || fallbackTitle,
             summary: result.Plot && result.Plot !== 'N/A' ? result.Plot : '',
             genres: splitGenres(result.Genre),
             imdbId: result.imdbID || '',
@@ -2769,6 +3381,7 @@
             network: result.Production && result.Production !== 'N/A' ? result.Production : '',
             runtime: parseRuntimeMinutes(result.Runtime),
             tvmazeId: 0,
+            seriesStatus: seriesStatusFromOmdbYear(result.Year),
             nextEpisode: null,
             lastAired: null,
             fetchedAt: new Date().toISOString()
@@ -2784,6 +3397,10 @@
             }
             if (mazeByImdb && mazeByImdb.tvmazeId) {
                 meta.tvmazeId = mazeByImdb.tvmazeId;
+            }
+            // TVMaze's status is more reliable than the OMDb year heuristic.
+            if (mazeByImdb && mazeByImdb.seriesStatus) {
+                meta.seriesStatus = mazeByImdb.seriesStatus;
             }
             if (!meta.runtime && mazeByImdb && mazeByImdb.runtime) {
                 meta.runtime = mazeByImdb.runtime;
@@ -2810,16 +3427,203 @@
         return meta;
     }
 
+    // Cleans an add-show query so decorations users type don't break the match:
+    // pulls out a 4-digit year (from "(2011)" or a trailing "2011") for OMDb's
+    // year filter, and strips parentheticals + trailing region tags like US/UK so
+    // "Shameless US", "Shameless (2011)" and "Shameless 2011" all find the show.
+    function normalizeSearchQuery(raw) {
+        var text = String(raw || '').trim();
+        var year = '';
+        var paren = text.match(/\((\d{4})\)/);
+        if (paren) year = paren[1];
+        text = text.replace(/\([^)]*\)/g, ' ');
+        if (!year) {
+            var trailing = text.match(/\b(19|20)\d{2}\b\s*$/);
+            if (trailing) year = trailing[0].trim();
+        }
+        text = text.replace(/\b(19|20)\d{2}\b\s*$/, ' ');
+        text = text.replace(/\b(us|usa|uk|au|ca|nz)\b\s*$/i, ' ');
+        text = text.replace(/\s+/g, ' ').trim();
+        return { title: text, year: year };
+    }
+
     // Searches TVMaze for all shows matching a query, returning the raw show
     // objects (each carries poster, summary, genres, rating, externals, _links).
     async function searchTvMazeShows(query) {
-        var url = 'https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(query);
+        var norm = normalizeSearchQuery(query);
+        var term = norm.title || query;
+        var url = 'https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(term);
         var results = await fetchJson(url);
         if (!Array.isArray(results)) return [];
         return results
             .slice(0, 8)
             .map(function (item) { return item && item.show; })
             .filter(Boolean);
+    }
+
+    // Searches OMDb (IMDb's catalog) by title. OMDb's search results are sparse
+    // (title, year, poster, imdb id), so we normalize them to the same shape the
+    // TVMaze results use and mark them with _omdb; full descriptions are filled in
+    // afterwards by enrichOmdbCards, and the TVMaze bridge for episode tracking is
+    // resolved when the show is actually added.
+    async function searchOmdbShows(query, apiKey) {
+        var norm = normalizeSearchQuery(query);
+        var term = norm.title || query;
+        var base = 'https://www.omdbapi.com/?apikey=' + encodeURIComponent(apiKey) + '&type=series&s=' + encodeURIComponent(term);
+        var data = await fetchJson(base + (norm.year ? '&y=' + encodeURIComponent(norm.year) : ''));
+        // A year filter can be too strict (OMDb sometimes lists a different start
+        // year); if it finds nothing, retry on the title alone before giving up.
+        if ((!data || data.Response === 'False' || !Array.isArray(data.Search)) && norm.year) {
+            data = await fetchJson(base);
+        }
+        if (!data || data.Response === 'False' || !Array.isArray(data.Search)) return [];
+        var seen = {};
+        return data.Search.map(function (item) {
+            var imdb = item && item.imdbID ? String(item.imdbID) : '';
+            var poster = item && item.Poster && item.Poster !== 'N/A' ? item.Poster : '';
+            var year = (String((item && item.Year) || '').match(/\d{4}/) || [''])[0];
+            return {
+                id: 0,
+                name: (item && item.Title) || '',
+                premiered: year,
+                image: poster ? { original: poster, medium: poster } : null,
+                genres: [],
+                summary: '',
+                status: '',
+                rating: null,
+                externals: { imdb: imdb },
+                _omdb: true,
+                _links: null
+            };
+        }).filter(function (s) {
+            if (!s.name || !s.externals.imdb || seen[s.externals.imdb]) return false;
+            seen[s.externals.imdb] = true;
+            return true;
+        }).slice(0, 8);
+    }
+
+    // OMDb's cheap "s=" search omits plot/genre/rating, so we lazily fetch full
+    // detail per imdb id and cache it (localStorage, shared across users since
+    // it's public data) to avoid re-spending the 1000/day quota on repeat looks.
+    var omdbDetailMem = null;
+    var OMDB_CACHE_KEY = 'tv_omdb_detail_cache';
+    var OMDB_CACHE_MAX = 400;
+
+    function loadOmdbCache() {
+        if (omdbDetailMem) return omdbDetailMem;
+        omdbDetailMem = {};
+        try {
+            var raw = localStorage.getItem(OMDB_CACHE_KEY);
+            if (raw) omdbDetailMem = JSON.parse(raw) || {};
+        } catch (e) { omdbDetailMem = {}; }
+        return omdbDetailMem;
+    }
+
+    function getOmdbDetail(imdbId) {
+        var cache = loadOmdbCache();
+        return cache[imdbId] || null;
+    }
+
+    function setOmdbDetail(imdbId, detail) {
+        var cache = loadOmdbCache();
+        cache[imdbId] = detail;
+        var keys = Object.keys(cache);
+        if (keys.length > OMDB_CACHE_MAX) delete cache[keys[0]];
+        try { localStorage.setItem(OMDB_CACHE_KEY, JSON.stringify(cache)); } catch (e) { /* quota - ignore */ }
+    }
+
+    async function fetchOmdbDetail(imdbId, apiKey) {
+        var cached = getOmdbDetail(imdbId);
+        if (cached) return cached;
+        var url = 'https://www.omdbapi.com/?apikey=' + encodeURIComponent(apiKey) + '&plot=full&i=' + encodeURIComponent(imdbId);
+        var result = await fetchJson(url);
+        if (!result || result.Response === 'False') return null;
+        var detail = {
+            summary: result.Plot && result.Plot !== 'N/A' ? result.Plot : '',
+            genres: splitGenres(result.Genre),
+            imdbRating: result.imdbRating && result.imdbRating !== 'N/A' ? result.imdbRating : '',
+            network: result.Production && result.Production !== 'N/A' ? result.Production : ''
+        };
+        setOmdbDetail(imdbId, detail);
+        return detail;
+    }
+
+    // --- OMDb daily request tracking --------------------------------------
+    // OMDb's free tier allows 1,000 requests/day per key. We tally the requests
+    // this device makes (per user, since each user has their own key) so the
+    // count can be surfaced in the OMDb key modal. It's a per-device estimate
+    // stored locally and NOT synced (the real quota is per key, across devices).
+    var OMDB_USAGE_KEY = 'tvTrackerOmdbUsageV1';
+    var OMDB_DAILY_LIMIT = 1000;
+
+    function omdbUsageStorageKey() {
+        return OMDB_USAGE_KEY + '::' + (state.currentUser || 'anonymous');
+    }
+
+    function todayStamp() {
+        var d = new Date();
+        var m = String(d.getMonth() + 1);
+        if (m.length < 2) m = '0' + m;
+        var day = String(d.getDate());
+        if (day.length < 2) day = '0' + day;
+        return d.getFullYear() + '-' + m + '-' + day;
+    }
+
+    function loadOmdbUsage() {
+        try {
+            var raw = localStorage.getItem(omdbUsageStorageKey());
+            var parsed = raw ? JSON.parse(raw) : null;
+            return parsed && typeof parsed === 'object' ? parsed : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function recordOmdbRequest() {
+        var usage = loadOmdbUsage();
+        var today = todayStamp();
+        usage[today] = (usage[today] || 0) + 1;
+        // Keep only the most recent ~14 days so this never grows unbounded.
+        var keys = Object.keys(usage).sort();
+        while (keys.length > 14) {
+            delete usage[keys.shift()];
+        }
+        try {
+            localStorage.setItem(omdbUsageStorageKey(), JSON.stringify(usage));
+        } catch (e) { /* storage full - ignore telemetry write */ }
+    }
+
+    function getOmdbUsageToday() {
+        return loadOmdbUsage()[todayStamp()] || 0;
+    }
+
+    // Fills in descriptions/genre/rating for OMDb (IMDb) result cards after they
+    // render. Fetches run in parallel but each bails if the user has since typed
+    // a newer query (seq mismatch) so stale detail never lands on fresh results.
+    function enrichOmdbCards(shows, seq) {
+        var apiKey = loadUserScopedValue(STORE_KEYS.omdbApiKey) || '';
+        if (!apiKey) return;
+        shows.forEach(function (show) {
+            if (!show || !show._omdb || show._summary) return;
+            var imdb = show.externals && show.externals.imdb;
+            if (!imdb) return;
+            Promise.resolve(fetchOmdbDetail(imdb, apiKey)).then(function (detail) {
+                if (seq !== state.addShowSeq) return;
+                show._enrichTried = true;
+                if (detail) {
+                    show._summary = detail.summary;
+                    show._genres = detail.genres;
+                    show._imdbRating = detail.imdbRating;
+                    show._network = detail.network;
+                }
+                if (typeof show.__renderMeta === 'function') show.__renderMeta();
+                if (typeof show.__renderDesc === 'function') show.__renderDesc(show._summary || '');
+            }).catch(function () {
+                if (seq !== state.addShowSeq) return;
+                show._enrichTried = true;
+                if (typeof show.__renderDesc === 'function') show.__renderDesc('');
+            });
+        });
     }
 
     // Builds our metadata object from a TVMaze show payload (no episode links;
@@ -2838,10 +3642,34 @@
             network: (show.network && show.network.name) || (show.webChannel && show.webChannel.name) || '',
             runtime: toInt(show.averageRuntime || show.runtime) || 0,
             tvmazeId: toInt(show.id),
+            seriesStatus: normalizeSeriesStatus(show.status),
             nextEpisode: null,
             lastAired: null,
             fetchedAt: new Date().toISOString()
         };
+    }
+
+    // Canonicalizes a show's airing status into 'running' | 'ended' | 'upcoming'
+    // | '' (unknown). TVMaze uses Running/Ended/To Be Determined/In Development.
+    // NOTE: neither TVMaze nor OMDb reliably distinguish "cancelled" from "ended",
+    // so a cancelled show reads as 'ended' here.
+    function normalizeSeriesStatus(raw) {
+        var s = String(raw || '').trim().toLowerCase();
+        if (s === 'running' || s === 'continuing' || s === 'returning series') return 'running';
+        if (s === 'ended' || s === 'canceled' || s === 'cancelled') return 'ended';
+        if (s === 'in development' || s === 'to be determined' || s === 'upcoming') return 'upcoming';
+        return '';
+    }
+
+    // Derives airing status from an OMDb "Year" string: "2011–2021" (closed
+    // range) => ended; "2011–" (open range) => running; a bare year is ambiguous
+    // so it stays unknown.
+    function seriesStatusFromOmdbYear(year) {
+        var text = String(year || '').trim();
+        // OMDb uses an en-dash (–) but tolerate a hyphen too.
+        var m = text.match(/^(\d{4})\s*[–-]\s*(\d{0,4})/);
+        if (!m) return '';
+        return m[2] ? 'ended' : 'running';
     }
 
     async function fetchTvMazeByImdb(imdbId) {
@@ -2855,6 +3683,7 @@
             poster: pickPoster(show),
             tvmazeId: toInt(show.id),
             runtime: toInt(show.averageRuntime || show.runtime) || 0,
+            seriesStatus: normalizeSeriesStatus(show.status),
             nextEpisode: links.nextEpisode,
             lastAired: links.lastAired
         };
@@ -2894,8 +3723,13 @@
     }
 
     async function fetchJson(url) {
+        var isOmdb = typeof url === 'string' && url.indexOf('omdbapi.com') !== -1;
         try {
             var response = await fetch(url, { cache: 'no-store' });
+            // Count only requests that actually reached OMDb (a response came
+            // back, even an error/quota one, which still counts against the key).
+            // Network failures throw below and are not counted.
+            if (isOmdb) recordOmdbRequest();
             if (!response.ok) return null;
             return response.json();
         } catch (error) {
@@ -3025,6 +3859,15 @@
     function capitalize(value) {
         var text = String(value || '');
         return text ? text[0].toUpperCase() + text.slice(1) : '';
+    }
+
+    // Maps a canonical series status to a display label + CSS suffix for the
+    // airing-status badge. Returns null for unknown so the badge stays hidden.
+    function seriesStatusLabel(status) {
+        if (status === 'running') return { text: 'Ongoing', cls: 'running' };
+        if (status === 'ended') return { text: 'Ended', cls: 'ended' };
+        if (status === 'upcoming') return { text: 'Upcoming', cls: 'upcoming' };
+        return null;
     }
 
     function metaKey(showId, title) {
