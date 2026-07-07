@@ -250,6 +250,7 @@
     } catch (error) {
         console.error('[AUTH] Error binding events:', error);
     }
+    initSiteFooter();
     refreshForCurrentUser();
     setupPWA();
     try {
@@ -615,6 +616,53 @@
                 });
             }
         });
+    }
+
+    function initSiteFooter() {
+        var year = document.getElementById('tv-footer-year');
+        if (year) year.textContent = String(new Date().getFullYear());
+
+        var shareBtn = document.getElementById('tv-share-btn');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', function () {
+                var original = shareBtn.textContent;
+                function onDone() {
+                    shareBtn.textContent = '✅ Link Copied!';
+                    window.setTimeout(function () {
+                        shareBtn.textContent = original;
+                    }, 1800);
+                }
+                var url = window.location.href;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(url).then(onDone, function () {
+                        shareBtn.textContent = 'Copy failed';
+                    });
+                    return;
+                }
+                try {
+                    var tmp = document.createElement('input');
+                    tmp.value = url;
+                    document.body.appendChild(tmp);
+                    tmp.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tmp);
+                    onDone();
+                } catch (e) {
+                    shareBtn.textContent = 'Copy failed';
+                }
+            });
+        }
+
+        var topBtn = document.getElementById('tv-back-to-top');
+        if (topBtn) {
+            topBtn.addEventListener('click', function () {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            window.addEventListener('scroll', function () {
+                var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+                topBtn.style.display = y > 320 ? 'block' : 'none';
+            });
+        }
     }
 
     function initAuth() {
