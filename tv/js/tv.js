@@ -65,6 +65,10 @@
         modalEpisodes: [],
         modalOpenSeasons: null,
         upcomingTab: '',
+        // Add-Show live search: debounce timer + a sequence counter so a slow
+        // earlier response can't overwrite the results of a newer keystroke.
+        addShowTimer: null,
+        addShowSeq: 0,
         pendingConfirm: null,
         refreshMode: false,
         importMode: false,
@@ -173,7 +177,6 @@
         addShowModalBackdrop: document.getElementById('addshow-modal-backdrop'),
         addShowModalClose: document.getElementById('addshow-modal-close'),
         addShowInput: document.getElementById('addshow-input'),
-        addShowSearchBtn: document.getElementById('addshow-search-btn'),
         addShowMessage: document.getElementById('addshow-message'),
         addShowResults: document.getElementById('addshow-results'),
         deleteConfirmPassword: document.getElementById('delete-confirm-password'),
@@ -206,6 +209,7 @@
         restoreDataBtn: document.getElementById('restore-data-btn'),
         backupMessage: document.getElementById('backup-message'),
         syncDeviceBtn: document.getElementById('sync-device-btn'),
+        syncDeviceBtnMain: document.getElementById('sync-device-btn-main'),
         syncDeviceStatus: document.getElementById('sync-device-status'),
         syncModal: document.getElementById('sync-modal'),
         syncModalBackdrop: document.getElementById('sync-modal-backdrop'),
@@ -438,6 +442,10 @@
             openSyncModal();
         });
 
+        if (els.syncDeviceBtnMain) els.syncDeviceBtnMain.addEventListener('click', function () {
+            openSyncModal();
+        });
+
         if (els.syncModalClose) els.syncModalClose.addEventListener('click', function () {
             closeSyncModal();
         });
@@ -492,13 +500,15 @@
             closeAddShowModal();
         });
 
-        if (els.addShowSearchBtn) els.addShowSearchBtn.addEventListener('click', function () {
-            runAddShowSearch();
+        if (els.addShowInput) els.addShowInput.addEventListener('input', function () {
+            scheduleAddShowSearch();
         });
 
         if (els.addShowInput) els.addShowInput.addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
+                // Skip the debounce and search right away on Enter.
+                if (state.addShowTimer) { clearTimeout(state.addShowTimer); state.addShowTimer = null; }
                 runAddShowSearch();
             }
         });
@@ -2353,6 +2363,8 @@
         if (!els.addShowModal) return;
         if (els.addShowInput) els.addShowInput.value = '';
         if (els.addShowResults) els.addShowResults.innerHTML = '';
+        if (state.addShowTimer) { clearTimeout(state.addShowTimer); state.addShowTimer = null; }
+        state.addShowSeq += 1; // discard any in-flight search from a previous open
         setAddShowMessage('');
         els.addShowModal.hidden = false;
         setTimeout(function () {
@@ -2361,6 +2373,7 @@
     }
 
     function closeAddShowModal() {
+        if (state.addShowTimer) { clearTimeout(state.addShowTimer); state.addShowTimer = null; }
         if (els.addShowModal) els.addShowModal.hidden = true;
     }
 
@@ -2370,7 +2383,25 @@
         els.addShowMessage.style.color = isError ? 'var(--danger)' : '';
     }
 
-    // Verify a typed name against TVMaze and show the matching variants so the
+    // Debounced live search: called on every keystroke. Waits briefly so we
+    // only hit TVMaze once the user pauses, and skips very short queries.
+    function scheduleAddShowSearch() {
+        if (state.addShowTimer) { clearTimeout(state.addShowTimer); state.addShowTimer = null; }
+        var query = els.addShowInput ? String(els.addShowInput.value || '').trim() : '';
+        if (query.length < 2) {
+            // Nothing worth searching yet: drop stale results and any spinner.
+            state.addShowSeq += 1; // cancel any in-flight response
+            if (els.addShowResults) els.addShowResults.innerHTML = '';
+            setAddShowMessage(query.length ? 'Keep typing…' : '');
+            return;
+        }
+        state.addShowTimer = window.setTimeout(function () {
+            state.addShowTimer = null;
+            runAddShowSearch();
+        }, 350);
+    }
+
+    // Verify the typed name against TVMaze and show the matching variants so the
     // user picks the exact show before adding it.
     async function runAddShowSearch() {
         if (!state.currentUser) {
@@ -2379,16 +2410,19 @@
         }
         var query = els.addShowInput ? String(els.addShowInput.value || '').trim() : '';
         if (!query) {
-            setAddShowMessage('Type a show name to search.', true);
+            setAddShowMessage('');
+            if (els.addShowResults) els.addShowResults.innerHTML = '';
             return;
         }
 
+        // Tag this search; if a newer keystroke starts another before we finish,
+        // this response is stale and must not overwrite the newer results.
+        var seq = ++state.addShowSeq;
         setAddShowMessage('Searching TVMaze…');
-        if (els.addShowResults) els.addShowResults.innerHTML = '';
-        if (els.addShowSearchBtn) els.addShowSearchBtn.disabled = true;
 
         try {
             var results = await searchTvMazeShows(query);
+            if (seq !== state.addShowSeq) return; // superseded by a newer search
             if (!results.length) {
                 setAddShowMessage('No shows found for “' + query + '”. Check the spelling and try again.', true);
                 renderAddShowResults([]);
@@ -2397,10 +2431,9 @@
                 renderAddShowResults(results);
             }
         } catch (error) {
+            if (seq !== state.addShowSeq) return;
             console.warn('Add-show search failed', error);
             setAddShowMessage('Search failed. Check your connection and try again.', true);
-        } finally {
-            if (els.addShowSearchBtn) els.addShowSearchBtn.disabled = false;
         }
     }
 

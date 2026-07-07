@@ -51,6 +51,7 @@
                 <button id="set-omdb-key" class="btn" type="button">Set OMDb Key</button>
                 <button id="add-show" class="btn btn-accent" type="button">➕ Add Show</button>
                 <button id="help-btn" class="btn" type="button">❔ How it works</button>
+                <button id="sync-device-btn-main" class="btn btn-accent" type="button">📲 Sync device</button>
                 <button id="install-app" class="btn btn-primary" type="button" hidden>📱 Install App</button>
             </div>
             <p id="status-text" class="status-text" role="status">Log in to load your TV Time data.</p>
@@ -377,10 +378,9 @@
 
             <div class="account-modal-content">
                 <section class="account-section">
-                    <p class="info-text addshow-hint">Search by name to confirm the show exists on TVMaze, then pick the right match below to add it to your tracker.</p>
+                    <p class="info-text addshow-hint">Start typing a show name &mdash; matches from TVMaze appear below as you type. Pick the right one to add it to your tracker.</p>
                     <div class="addshow-search-row">
-                        <input id="addshow-input" type="text" placeholder="e.g. Severance" autocomplete="off" spellcheck="false" aria-label="Show name to search">
-                        <button id="addshow-search-btn" class="btn btn-primary" type="button">🔍 Search</button>
+                        <input id="addshow-input" type="search" placeholder="e.g. Shameless (US)" autocomplete="off" spellcheck="false" aria-label="Show name to search">
                     </div>
                     <p id="addshow-message" class="addshow-message info-text" role="status"></p>
                     <div id="addshow-results" class="addshow-results"></div>
@@ -424,7 +424,7 @@
             <div class="account-modal-content">
                 <section class="account-section">
                     <h3>1. Your account &amp; privacy</h3>
-                    <p>Everything lives <strong>only in this browser</strong> on this device &mdash; nothing is uploaded to a server. Each person has their own login, and each login keeps its own separate show list. To use the same account on another device (or as a safety net before clearing browser data), open <strong>⚙️ Settings &rarr; Download my data</strong> and <strong>Restore</strong> it on the other device.</p>
+                    <p>Everything lives <strong>only in this browser</strong> on this device &mdash; nothing is uploaded to a server. Each person has their own login, and each login keeps its own separate show list. To use the same account elsewhere you can <strong>sync directly between your devices</strong> (see below), or open <strong>⚙️ Settings &rarr; Download my data</strong> and <strong>Restore</strong> it on the other device as a manual backup.</p>
                 </section>
 
                 <section class="account-section">
@@ -439,11 +439,16 @@
 
                 <section class="account-section">
                     <h3>4. Posters &amp; upcoming episodes</h3>
-                    <p>The app fetches posters, descriptions and next-air-dates from <strong>TVMaze</strong> (free, no key). Optionally add a free <strong>OMDb API key</strong> for IMDb-sourced art and ratings. Use <strong>Refresh Metadata</strong> if something looks out of date.</p>
+                    <p>The app fetches posters, descriptions and next-air-dates from <strong>TVMaze</strong> (free, no key). Optionally add a free <strong>OMDb API key</strong> for IMDb-sourced art and ratings. Use <strong>Refresh Metadata</strong> if something looks out of date. Open a show and <strong>tap its poster</strong> to view it full&#8209;size.</p>
                 </section>
 
                 <section class="account-section">
-                    <h3>5. Install it like an app</h3>
+                    <h3>5. Sync your phone &amp; PC</h3>
+                    <p>Tap <strong>📲 Sync device</strong> (on the main page or in <strong>⚙️ Settings</strong>) to pair two devices once by scanning a QR code. After that, whenever both have the tracker open they sync <strong>directly device&#8209;to&#8209;device</strong> &mdash; on the same Wi&#8209;Fi your data never leaves your network, and it&rsquo;s end&#8209;to&#8209;end encrypted. Changes are merged automatically (newest edit per show wins), so ticking episodes on your phone shows up on your PC when you get home. It syncs while both apps are open; a closed tab can&rsquo;t sync.</p>
+                </section>
+
+                <section class="account-section">
+                    <h3>6. Install it like an app</h3>
                     <p>On mobile or desktop you can add it to your home screen (look for <strong>📱 Install App</strong> or your browser's "Add to Home Screen"). It then works offline with your cached data.</p>
                 </section>
             </div>
