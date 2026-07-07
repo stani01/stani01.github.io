@@ -2695,12 +2695,21 @@
         }, 30);
     }
 
-    // A show is "unresolved" when its metadata carries neither a TVMaze id nor an
-    // IMDb id, so episodes can't be loaded (e.g. a TV Time import whose title
-    // matched no database). These are the shows the "Fix show link" tool targets.
+    // A show is "unresolved" when we can't load an episode list for it, so there's
+    // nothing to track and the "Fix show link" tool applies. This mirrors the
+    // per-show check (0 episodes) used inside the show modal, so an IMDb-only link
+    // that never bridged to TVMaze still counts even though it has an imdbId.
     function isShowUnresolved(show) {
-        var m = (show && show.meta) || {};
-        return !toInt(m.tvmazeId) && !m.imdbId;
+        if (!show) return false;
+        var m = show.meta || {};
+        // If the catalog was already fetched, trust it outright: an empty list
+        // means the show still needs fixing even when a (stale) id is present.
+        var cached = state.episodeCache && state.episodeCache[show.id];
+        if (Array.isArray(cached)) return cached.length === 0;
+        // Not fetched yet: unresolved when there's no TVMaze id to load episodes
+        // from. A bare IMDb id may bridge to TVMaze when the show is opened, but
+        // until then it has nothing to track, so surface it as fixable.
+        return !toInt(m.tvmazeId);
     }
 
     function getUnresolvedShows() {
