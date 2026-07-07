@@ -41,206 +41,6 @@
         vision: { x: 202, y: 159 }
     };
 
-    var STIGMA_PRESET_BUILD_MAP = {
-        gladiator: {
-            pve: {
-                gold: ['drainingSword'],
-                blue: ['sharpStrike', 'sureStrike', 'exhaustingWave'],
-                green: ['lockdown', 'magicDefence', 'howl', 'earthquakeWave', 'siegebreaker']
-            },
-            pvp: {
-                gold: ['whirlingStrike'],
-                blue: ['severePrecisionCut', 'tendonSlice', 'sharpStrike'],
-                green: ['lockdown', 'magicDefence', 'howl', 'ankleSnare', 'cripplingCut']
-            }
-        },
-        templar: {
-            pve: {
-                gold: ['empyreanProvidence'],
-                blue: ['shieldOfFaith', 'prayerOfVictory', 'punishingWave'],
-                green: ['punishment', 'eliminationStrike', 'divineFury', 'inquisitorBlow', 'incurWrath']
-            },
-            pvp: {
-                gold: ['shieldBlast'],
-                blue: ['magicSmash', 'punishingWave', 'prayerOfVictory'],
-                green: ['punishment', 'eliminationStrike', 'divineFury', 'aetherArmour', 'barricadeOfSteel']
-            }
-        },
-        assassin: {
-            pve: {
-                gold: ['quickeningDoom'],
-                blue: ['dashAndSlash', 'applyLethalVenom', 'lightningSlash'],
-                green: ['deadlyAbandon', 'runeCarveSigilStrike', 'eyeOfWrath', 'venomousStrike', 'shadowWalk']
-            },
-            pvp: {
-                gold: ['daggerOath'],
-                blue: ['fleeingPosture', 'sensoryBoost', 'dashAndSlash'],
-                green: ['deadlyAbandon', 'runeCarveSigilStrike', 'shadowfall', 'ambushRaid', 'shadowWalk']
-            }
-        },
-        ranger: {
-            pve: {
-                gold: ['sharpenArrows'],
-                blue: ['lethalArrow', 'explosiveArrow', 'galeArrow'],
-                green: ['focusedShots', 'arrowDeluge', 'bowOfBlessing', 'sealArrow', 'naturesResolve']
-            },
-            pvp: {
-                gold: ['agonisingArrow'],
-                blue: ['lethalArrow', 'explosiveArrow', 'ragingWindArrow'],
-                green: ['focusedShots', 'arrowDeluge', 'bowOfBlessing', 'sealArrow', 'naturesResolve']
-            }
-        },
-        sorcerer: {
-            pve: {
-                gold: ['glacialShard'],
-                blue: ['flameSpray', 'summonStone', 'windCutDown'],
-                green: ['cycloneStrike', 'arcaneThunderbolt', 'iceHarpoon', 'exchangeVitality', 'elementalWard']
-            },
-            pvp: {
-                gold: ['winterArmour'],
-                blue: ['sleepingStorm', 'windCutDown', 'summonWhirlwind'],
-                green: ['cycloneStrike', 'arcaneThunderbolt', 'iceHarpoon', 'iceSheet', 'elementalWard']
-            }
-        },
-        spiritmaster: {
-            pve: {
-                gold: ['infernalBlight'],
-                blue: ['magicImplosion', 'infernalPain', 'cycloneServant'],
-                green: ['curseOfMagicPower', 'cycloneOfWrath', 'wildernessRage', 'commandWallOfProtection', 'enmitySwap']
-            },
-            pvp: {
-                gold: ['infernalBlight'],
-                blue: ['magicImplosion', 'infernalPain', 'shackleOfVulnerability'],
-                green: ['curseOfMagicPower', 'cycloneOfWrath', 'wildernessRage', 'witheringGloom', 'earthProtection']
-            }
-        },
-        cleric: {
-            pve: {
-                gold: ['callLightning'],
-                blue: ['sacrificialPower', 'chainOfSuffering', 'rippleOfPurification'],
-                green: ['lightningBoltOfRetaliation', 'savingGrace', 'nobleGrace', 'festeringWound', 'enfeeblingBurst']
-            },
-            pvp: {
-                gold: ['callLightning'],
-                blue: ['sacrificialPower', 'chainOfSuffering', 'rippleOfPurification'],
-                green: ['lightningBoltOfRetaliation', 'savingGrace', 'nobleGrace', 'festeringWound', 'enfeeblingBurst']
-            }
-        },
-        chanter: {
-            pve: {
-                gold: ['numbingBlow'],
-                blue: ['blessingOfWind', 'mountainCrash', 'healingBurst'],
-                green: ['healingConduit', 'annihilation', 'soulLock', 'deadlyBlow', 'wordOfInspiration']
-            },
-            pvp: {
-                gold: ['numbingBlow'],
-                blue: ['blessingOfWind', 'mountainCrash', 'healingBurst'],
-                green: ['wordOfLife', 'annihilation', 'soulLock', 'rise', 'wordOfInspiration']
-            }
-        },
-        aethertech: {
-            pve: {
-                gold: ['leapOfDestruction'],
-                blue: ['powerIncrease', 'lifelineSlash', 'stormStrike'],
-                green: ['idiumBombardment', 'idiumRay', 'waveOfDestruction', 'magicFocus', 'cleaveArmour']
-            },
-            pvp: {
-                gold: ['idShield'],
-                blue: ['powerIncrease', 'magicVeil', 'mobilityBoost'],
-                green: ['idiumBombardment', 'idiumRay', 'waveOfDestruction', 'absorbingReflectorShield', 'cleaveArmour']
-            }
-        },
-        gunner: {
-            pve: {
-                gold: ['soulCannon'],
-                blue: ['fissureCannonball', 'giftOfMagicPower', 'enhanceMagicProjectile'],
-                green: ['spiritCannon', 'frostCannon', 'flameBombardment', 'rapidVolley', 'soulsuckerShot']
-            },
-            pvp: {
-                gold: ['soulCannon'],
-                blue: ['fissureCannonball', 'giftOfMagicPower', 'bindingCannonball'],
-                green: ['spiritCannon', 'frostCannon', 'flameBombardment', 'shockCannon', 'soulsuckerShot']
-            }
-        },
-        bard: {
-            pve: {
-                gold: ['disharmony'],
-                blue: ['magicBoostMode', 'moskieRequiem', 'melodyOfJoy'],
-                green: ['marchOfTheBees', 'harmonyOfDesolation', 'requiemOfOblivion', 'variationOfPeace', 'healingVariation']
-            },
-            pvp: {
-                gold: ['disharmony'],
-                blue: ['magicBoostMode', 'moskieRequiem', 'paralysisResonation'],
-                green: ['marchOfTheBees', 'harmonyOfDesolation', 'requiemOfOblivion', 'danceOfTheJester', 'melodyOfDiscipline']
-            }
-        },
-        painter: {
-            pve: {
-                gold: ['colourFist'],
-                blue: ['colourOutbreak', 'flashPortrait', 'intoTheBlack'],
-                green: ['lifeBinding', 'colourFight', 'colourOfSilence', 'colourProtectionShield', 'colourfulRain']
-            },
-            pvp: {
-                gold: ['imprisonment'],
-                blue: ['newWork', 'intoTheBlack', 'colourOutbreak'],
-                green: ['lifeBinding', 'colourFight', 'colourOfSilence', 'colourProtectionShield', 'colourfulRain']
-            }
-        },
-    };
-
-    // One char per daevanion skill (in class skill order), same codes as share links:
-    // 0 = no explicit selection (falls back to default), 1-6 = variants, 7 = default skill.
-    // Example for 6-skill classes: pve: '111111', pvp: '444444'
-    var DAEVANION_PRESET_SHORT_CODE_MAP = {
-        gladiator: {
-            pve: '112222',
-            pvp: '212211'
-        },
-        templar: {
-            pve: '123212',
-            pvp: '212221'
-        },
-        assassin: {
-            pve: '121112',
-            pvp: '121222'
-        },
-        ranger: {
-            pve: '112222',
-            pvp: '112221'
-        },
-        sorcerer: {
-            pve: '112222',
-            pvp: '112221'
-        },
-        spiritmaster: {
-            pve: '112222',
-            pvp: '112221'
-        },
-        cleric: {
-            pve: '112222',
-            pvp: '112221'
-        },
-        chanter: {
-            pve: '112222',
-            pvp: '112221'
-        },
-        aethertech: {
-            pve: '112222',
-            pvp: '112221'
-        },
-        gunner: {
-            pve: '112222',
-            pvp: '112221'
-        },
-        bard: {
-            pve: '112222',
-            pvp: '112221'
-        },
-        painter: {
-            pve: '112222',
-            pvp: '112221'
-        },
-    };
 
     function escapeHtml(value) {
         return String(value)
@@ -698,12 +498,6 @@
         var html = '<div class="stigma-panel daevanion-panel">';
         html += '<div class="stigma-builder-head daevanion-builder-head">';
         html += '<div class="stigma-preset-actions">';
-        // html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pve" onclick="StigmaApp.applyDaevanionPresetBuild(\'pve\')" aria-label="Developer\'s PvE build" title="Developer\'s PvE build">';
-        // html += '<img src="../assets/icons/icon_pve.png" alt="PVE">';
-        // html += '</button>';
-        // html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pvp" onclick="StigmaApp.applyDaevanionPresetBuild(\'pvp\')" aria-label="Developer\'s PvP build" title="Developer\'s PvP build">';
-        // html += '<img src="../assets/icons/icon_pvp.png" alt="PVP">';
-        // html += '</button>';
         html += '<div class="stigma-share-spirit-stack">';
         html += '<button type="button" class="stigma-preset-btn stigma-share-btn daevanion-share-btn" onclick="StigmaApp.shareCurrentDaevanionBuild()" aria-label="Share current daevanion build" title="Share current daevanion build">';
         html += '<span class="stigma-share-label">Share Build 🔗</span>';
@@ -786,26 +580,6 @@
         return buildsByClass[className];
     }
 
-    function createPresetStigmaBuild(className, type) {
-        var cfg = getStigmaConfig(className);
-        if (!cfg) return createDefaultStigmaBuild(className);
-
-        var build = createDefaultStigmaBuild(className);
-        if (!build) return null;
-
-        var presetData = (STIGMA_PRESET_BUILD_MAP[className] || {})[type] || null;
-        if (presetData) {
-            GC_STIGMA_TIERS.forEach(function(tier) {
-                var tierPreset = Array.isArray(presetData[tier]) ? presetData[tier] : [];
-                for (var i = 0; i < build[tier].length; i++) {
-                    build[tier][i] = tierPreset[i] || null;
-                }
-            });
-        }
-
-        normalizeStigmaBuild(className, build);
-        return build;
-    }
 
     var STIGMA_SHORT_SHARE_SLOT_ORDER = [
         { tier: 'gold', index: 0 },
@@ -952,38 +726,6 @@
         return { className: className, used: used };
     }
 
-    function getDaevanionPresetSelection(skill, presetType) {
-        if (!skill) return null;
-        var preferred = presetType === 'pvp' ? { row: 'normal', type: 'type1' } : { row: 'improved', type: 'type1' };
-        if (getDaevanionSkillVariant(skill, preferred.row, preferred.type)) return preferred;
-        return getDaevanionDefaultUsed(skill);
-    }
-
-    function getDaevanionPresetFromShortCode(className, presetType, skills) {
-        if (!className || !presetType || !Array.isArray(skills) || !skills.length) return null;
-
-        var classPreset = DAEVANION_PRESET_SHORT_CODE_MAP[className];
-        if (!classPreset || typeof classPreset !== 'object') return null;
-
-        var code = classPreset[presetType];
-        if (typeof code !== 'string') return null;
-
-        code = code.trim().toLowerCase();
-        if (code.length !== skills.length) return null;
-
-        var used = {};
-        skills.forEach(function(skill, index) {
-            if (!skill || !skill.key) return;
-
-            var variantCode = parseInt(code[index], 36);
-            var selected = getDaevanionSelectionFromVariantCode(skill, variantCode);
-            if (!selected) selected = getDaevanionDefaultSkillSelection(skill);
-            if (!selected) selected = getDaevanionDefaultUsed(skill);
-            used[skill.key] = selected;
-        });
-
-        return used;
-    }
 
     function decodeSharedBuildFromUrl() {
         if (typeof URLSearchParams === 'undefined') return false;
@@ -1478,12 +1220,6 @@
         var html = '<div class="stigma-panel">';
         html += '<div class="stigma-builder-head">';
         html += '<div class="stigma-preset-actions">';
-        html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pve" onclick="StigmaApp.applyPresetBuild(\'pve\')" aria-label="Developer\'s PvE build" title="Developer\'s PvE build">';
-        html += '<img src="../assets/icons/icon_pve.png" alt="PVE">';
-        html += '</button>';
-        html += '<button type="button" class="stigma-preset-btn stigma-preset-btn-pvp" onclick="StigmaApp.applyPresetBuild(\'pvp\')" aria-label="Developer\'s PvP build" title="Developer\'s PvP build">';
-        html += '<img src="../assets/icons/icon_pvp.png" alt="PVP">';
-        html += '</button>';
         html += '<button type="button" class="stigma-preset-btn stigma-share-btn" onclick="StigmaApp.shareCurrentBuild()" aria-label="Share current setup" title="Share current setup">';
         html += '<span class="stigma-share-label">Share Build 🔗</span>';
         html += '</button>';
@@ -1685,20 +1421,6 @@
             }
         },
 
-        applyPresetBuild: function(type) {
-            if (!classHasStigmas(selectedClass)) return;
-            if (type !== 'pve' && type !== 'pvp') return;
-
-            var build = createPresetStigmaBuild(selectedClass, type);
-            if (!build) return;
-
-            buildsByClass[selectedClass] = build;
-            normalizeStigmaBuild(selectedClass, build);
-            saveState();
-            renderBuilder();
-            renderDaevanionBuilder();
-        },
-
         setDaevanionSkill: function(className, skillKey, rowKey, typeKey) {
             if (!CLASS_DATA[className]) return;
             var skills = getDaevanionSkillsForClass(className);
@@ -1715,27 +1437,6 @@
             ensureDaevanionClassState(className);
             daevanionUsedByClass[className][skillKey] = { row: rowKey, type: typeKey };
             if (selectedClass !== className) selectedClass = className;
-            saveState();
-            renderDaevanionBuilder();
-        },
-
-        applyDaevanionPresetBuild: function(type) {
-            if (type !== 'pve' && type !== 'pvp') return;
-            var skills = getDaevanionSkillsForClass(selectedClass);
-            if (!skills.length) return;
-
-            var shortPreset = getDaevanionPresetFromShortCode(selectedClass, type, skills);
-            if (shortPreset) {
-                daevanionUsedByClass[selectedClass] = shortPreset;
-            } else {
-                ensureDaevanionClassState(selectedClass);
-                var used = daevanionUsedByClass[selectedClass];
-                skills.forEach(function(skill) {
-                    if (!skill || !skill.key) return;
-                    used[skill.key] = getDaevanionPresetSelection(skill, type);
-                });
-            }
-
             saveState();
             renderDaevanionBuilder();
         },

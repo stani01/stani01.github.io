@@ -570,12 +570,16 @@ function getOdianScalingStats(skill) {
   return [];
 }
 
+function computeOdianEnchantStep(superbaseDamage) {
+  return Math.round(superbaseDamage * 0.02);
+}
+
 function computeOdianIngameBase(superbaseDamage, kpMultiplier) {
-  return Math.floor(superbaseDamage * kpMultiplier) + Math.round(superbaseDamage * kpMultiplier * 0.02);
+  return (superbaseDamage + computeOdianEnchantStep(superbaseDamage)) * kpMultiplier;
 }
 
 function computeOdianEnchantPerLevel(superbaseDamage, kpMultiplier) {
-  return Math.ceil(superbaseDamage * 0.02) * kpMultiplier;
+  return computeOdianEnchantStep(superbaseDamage) * kpMultiplier;
 }
 
 function projectOdianTooltipFromSuperbase(superbaseDamage, level, kpMultiplier) {
@@ -620,7 +624,7 @@ function projectOdianDamage(tooltip, fromLevel, toLevel, kpMultiplier) {
   return {
     baseDamage: baseDamage,
     enchantPerLevel: enchantPerLevel,
-    projected: Math.round(tooltip + (toLevel - fromLevel) * enchantPerLevel)
+    projected: projectOdianTooltipFromSuperbase(superbaseDamage, toLevel, kpMultiplier)
   };
 }
 
