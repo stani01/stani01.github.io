@@ -20,8 +20,18 @@
         profileSettings: 'tvTrackerProfileSettingsV1',
         sortPreference: 'tvTrackerSortPreference',
         filterPreference: 'tvTrackerFilterPreference',
-        sectionCollapse: 'tvTrackerSectionCollapseV1'
+        sectionCollapse: 'tvTrackerSectionCollapseV1',
+        // Cross-device sync: per-user partner link + settings clock (scoped),
+        // and a device-level stable peer id (NOT user-scoped).
+        syncPartner: 'tvTrackerSyncPartnerV1',
+        syncMeta: 'tvTrackerSyncMetaV1',
+        syncDeviceId: 'tvTrackerSyncDeviceIdV1'
     };
+
+    // Base keys whose changes should trigger a device-to-device sync push.
+    // (metadataCache is intentionally excluded: it is large and regenerable,
+    // so it rides along in the snapshot but never triggers a push by itself.)
+    var SYNC_PUSH_KEYS = ['tvTrackerLocalOverridesV1', 'tvTrackerCustomShowsV1', 'tvTrackerImportedDataV1', 'tvTrackerProfileSettingsV1'];
 
     // Shows watched within this window are "Watch Next"; older ones drop into
     // "Haven't Watched in a While" (TV Time-style split of the active list).
@@ -64,7 +74,25 @@
         sortBy: 'recent',
         filterBy: 'all',
         // Watch Next & Paused expanded; the long lists start collapsed.
-        collapsedSections: { watchnext: false, stale: true, paused: false, completed: true }
+        collapsedSections: { watchnext: false, stale: true, paused: false, completed: true },
+        // Cross-device sync runtime state (see the sync module near the bottom).
+        sync: {
+            selfId: '',
+            peer: null,
+            conn: null,
+            partner: null,
+            connected: false,
+            applying: false,
+            pendingPairCode: '',
+            pairSecret: '',
+            lastSentSig: '',
+            pushTimer: null,
+            hourlyTimer: null,
+            retryTimer: null,
+            lastSyncAt: 0,
+            lastResumeAt: 0,
+            statusText: 'Not connected'
+        }
     };
 
     var els = {
@@ -105,6 +133,11 @@
         showModalTitle: document.getElementById('show-modal-title'),
         showModalSubtitle: document.getElementById('show-modal-subtitle'),
         modalPoster: document.getElementById('modal-poster'),
+        posterBtn: document.getElementById('modal-poster-btn'),
+        posterLightbox: document.getElementById('poster-lightbox'),
+        posterLightboxImg: document.getElementById('poster-lightbox-img'),
+        posterLightboxClose: document.getElementById('poster-lightbox-close'),
+        posterLightboxBackdrop: document.getElementById('poster-lightbox-backdrop'),
         modalFactsText: document.getElementById('modal-facts-text'),
         modalLinks: document.getElementById('modal-links'),
         modalSummary: document.getElementById('modal-summary'),
@@ -171,7 +204,27 @@
         recoverMessage: document.getElementById('recover-message'),
         exportDataBtn: document.getElementById('export-data-btn'),
         restoreDataBtn: document.getElementById('restore-data-btn'),
-        backupMessage: document.getElementById('backup-message')
+        backupMessage: document.getElementById('backup-message'),
+        syncDeviceBtn: document.getElementById('sync-device-btn'),
+        syncDeviceStatus: document.getElementById('sync-device-status'),
+        syncModal: document.getElementById('sync-modal'),
+        syncModalBackdrop: document.getElementById('sync-modal-backdrop'),
+        syncModalClose: document.getElementById('sync-modal-close'),
+        syncStatus: document.getElementById('sync-status'),
+        syncDeviceLabel: document.getElementById('sync-device-label'),
+        syncUnpaired: document.getElementById('sync-unpaired'),
+        syncPaired: document.getElementById('sync-paired'),
+        syncQrWrap: document.getElementById('sync-qr-wrap'),
+        syncQr: document.getElementById('sync-qr'),
+        syncCode: document.getElementById('sync-code'),
+        syncCopyBtn: document.getElementById('sync-copy-btn'),
+        syncInviteBtn: document.getElementById('sync-invite-btn'),
+        syncCodeInput: document.getElementById('sync-code-input'),
+        syncConnectBtn: document.getElementById('sync-connect-btn'),
+        syncPartnerLabel: document.getElementById('sync-partner-label'),
+        syncLast: document.getElementById('sync-last'),
+        syncNowBtn: document.getElementById('sync-now-btn'),
+        syncUnpairBtn: document.getElementById('sync-unpair-btn')
     };
 
     initAuth();
@@ -182,6 +235,11 @@
     }
     refreshForCurrentUser();
     setupPWA();
+    try {
+        setupSync();
+    } catch (error) {
+        console.error('[SYNC] Setup failed:', error);
+    }
 
     function bindEvents() {
         els.authLogin.addEventListener('click', function () {
@@ -376,6 +434,52 @@
             exportUserData();
         });
 
+        if (els.syncDeviceBtn) els.syncDeviceBtn.addEventListener('click', function () {
+            openSyncModal();
+        });
+
+        if (els.syncModalClose) els.syncModalClose.addEventListener('click', function () {
+            closeSyncModal();
+        });
+
+        if (els.syncModalBackdrop) els.syncModalBackdrop.addEventListener('click', function () {
+            closeSyncModal();
+        });
+
+        if (els.syncInviteBtn) els.syncInviteBtn.addEventListener('click', function () {
+            startPairingInvite();
+        });
+
+        if (els.syncCopyBtn) els.syncCopyBtn.addEventListener('click', function () {
+            copyPairCode();
+        });
+
+        if (els.syncConnectBtn) els.syncConnectBtn.addEventListener('click', function () {
+            var code = els.syncCodeInput ? String(els.syncCodeInput.value || '').trim() : '';
+            connectWithCode(code);
+        });
+
+        if (els.syncCodeInput) els.syncCodeInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                connectWithCode(String(els.syncCodeInput.value || '').trim());
+            }
+        });
+
+        if (els.syncNowBtn) els.syncNowBtn.addEventListener('click', function () {
+            syncNow();
+        });
+
+        if (els.syncUnpairBtn) els.syncUnpairBtn.addEventListener('click', function () {
+            requestUnpair();
+        });
+
+        window.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && els.syncModal && !els.syncModal.hidden) {
+                closeSyncModal();
+            }
+        });
+
         els.addShowButton.addEventListener('click', function () {
             openAddShowModal();
         });
@@ -421,8 +525,30 @@
             closeShowModal();
         });
 
+        if (els.posterBtn) els.posterBtn.addEventListener('click', function () {
+            openPosterLightbox();
+        });
+
+        if (els.posterLightboxClose) els.posterLightboxClose.addEventListener('click', function () {
+            closePosterLightbox();
+        });
+
+        if (els.posterLightboxBackdrop) els.posterLightboxBackdrop.addEventListener('click', function () {
+            closePosterLightbox();
+        });
+
+        if (els.posterLightboxImg) els.posterLightboxImg.addEventListener('click', function () {
+            closePosterLightbox();
+        });
+
         window.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && !els.showModal.hidden) {
+            if (event.key !== 'Escape') return;
+            // The poster lightbox sits above the show modal, so close it first.
+            if (els.posterLightbox && !els.posterLightbox.hidden) {
+                closePosterLightbox();
+                return;
+            }
+            if (!els.showModal.hidden) {
                 closeShowModal();
             }
         });
@@ -565,9 +691,11 @@
         updateAuthUi();
         refreshForCurrentUser();
         setStatus('Logged in as ' + username + '.');
+        try { initSyncForUser(); } catch (e) { console.warn('[SYNC] init after login failed', e); }
     }
 
     function logoutUser() {
+        try { teardownSync(); } catch (e) { /* ignore */ }
         state.currentUser = '';
         persistJson(STORE_KEYS.sessionUser, '');
         updateAuthUi();
@@ -1149,6 +1277,7 @@
 
     function persistUserScopedJson(baseKey, value) {
         persistJson(scopedKey(baseKey), value);
+        afterUserScopedWrite(baseKey);
     }
 
     function loadUserScopedValue(baseKey) {
@@ -1157,10 +1286,25 @@
 
     function persistUserScopedValue(baseKey, value) {
         localStorage.setItem(scopedKey(baseKey), value);
+        afterUserScopedWrite(baseKey);
     }
 
     function clearUserScopedValue(baseKey) {
         localStorage.removeItem(scopedKey(baseKey));
+        afterUserScopedWrite(baseKey);
+    }
+
+    // Central choke point: whenever synced user data changes, keep the settings
+    // clock current and schedule a device-to-device sync push. Skipped while we
+    // are applying an incoming snapshot (that path pushes explicitly to converge).
+    function afterUserScopedWrite(baseKey) {
+        if (state.sync && state.sync.applying) return;
+        if (baseKey === STORE_KEYS.profileSettings || baseKey === STORE_KEYS.omdbApiKey) {
+            bumpSyncSettingsAt();
+        }
+        if (SYNC_PUSH_KEYS.indexOf(baseKey) !== -1 || baseKey === STORE_KEYS.omdbApiKey) {
+            syncSchedulePush();
+        }
     }
 
     function persistUserScopedValueFor(username, baseKey, value) {
@@ -1980,8 +2124,7 @@
         els.showModal.hidden = false;
         els.showModalTitle.textContent = show.title;
         els.showModalSubtitle.textContent = 'Loading episodes…';
-        els.modalPoster.src = (show.meta && show.meta.poster) || FALLBACK_POSTER;
-        els.modalPoster.alt = show.title + ' poster';
+        setModalPoster(show);
         els.modalFactsText.textContent = '';
         els.modalSummary.textContent = '';
         els.modalProgress.textContent = '';
@@ -1997,7 +2140,40 @@
     function closeShowModal() {
         state.modalShowId = '';
         state.modalEpisodes = [];
+        closePosterLightbox();
         if (els.showModal) els.showModal.hidden = true;
+    }
+
+    // Point the modal poster at the show's art. When a real poster exists it
+    // becomes a zoom-in button that opens the full-size lightbox; the "No
+    // Poster" placeholder stays inert.
+    function setModalPoster(show) {
+        var meta = (show && show.meta) || {};
+        var hasPoster = !!meta.poster;
+        var title = (show && show.title) ? show.title : 'Show';
+        els.modalPoster.src = meta.poster || FALLBACK_POSTER;
+        els.modalPoster.alt = title + ' poster';
+        if (els.posterBtn) {
+            els.posterBtn.classList.toggle('has-poster', hasPoster);
+            els.posterBtn.disabled = !hasPoster;
+            els.posterBtn.setAttribute('aria-label', hasPoster ? ('View ' + title + ' poster full size') : (title + ' poster'));
+        }
+    }
+
+    function openPosterLightbox() {
+        if (!els.posterLightbox || !els.modalPoster) return;
+        if (els.posterBtn && els.posterBtn.disabled) return;
+        var src = els.modalPoster.src || '';
+        if (!src) return;
+        els.posterLightboxImg.src = src;
+        els.posterLightboxImg.alt = els.modalPoster.alt || 'Poster';
+        els.posterLightbox.hidden = false;
+    }
+
+    function closePosterLightbox() {
+        if (!els.posterLightbox || els.posterLightbox.hidden) return;
+        els.posterLightbox.hidden = true;
+        if (els.posterLightboxImg) els.posterLightboxImg.src = '';
     }
 
     // Builds the IMDb rating chip + external link shown under the modal facts.
@@ -2029,8 +2205,7 @@
         var meta = show.meta || {};
 
         els.showModalTitle.textContent = show.title;
-        els.modalPoster.src = meta.poster || FALLBACK_POSTER;
-        els.modalPoster.alt = show.title + ' poster';
+        setModalPoster(show);
 
         var facts = [];
         if (meta.network) facts.push(meta.network);
@@ -2335,7 +2510,8 @@
             tvmazeId: tvmazeId,
             imdbId: meta.imdbId || '',
             nb_episodes_seen: 0,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            updatedAt: Date.now()
         });
         persistUserScopedJson(STORE_KEYS.customShows, state.customShows);
         setCachedMeta({ id: id, title: finalTitle }, meta);
@@ -2454,6 +2630,9 @@
     function updateShowOverride(showId, updates) {
         if (!state.overrides[showId]) state.overrides[showId] = {};
         Object.assign(state.overrides[showId], updates);
+        // Stamp the per-show change time so cross-device sync can merge by
+        // "newest wins" per show (edits on both devices then both survive).
+        state.overrides[showId].updatedAt = Date.now();
         persistUserScopedJson(STORE_KEYS.localOverrides, state.overrides);
     }
 
@@ -2901,5 +3080,734 @@
             hash = hash & 0xffffffff;
         }
         return String(hash >>> 0);
+    }
+
+    /* =====================================================================
+     * Cross-device sync (WebRTC peer-to-peer, PeerJS for signalling only)
+     * ---------------------------------------------------------------------
+     * Two devices signed into the SAME account pair once (QR / short code).
+     * After that, whenever both have the tracker open they auto-connect and
+     * exchange snapshots directly device-to-device (on the same Wi-Fi the
+     * data never leaves the network). A tiny public broker only introduces
+     * the peers (random IDs, never your data); the transfer itself is
+     * end-to-end encrypted by WebRTC. Merge is "newest wins" per show so
+     * edits made on both devices all survive.
+     * ===================================================================== */
+
+    function syncAvailable() {
+        return typeof Peer !== 'undefined';
+    }
+
+    // --- small helpers -----------------------------------------------------
+    function randomHex(nBytes) {
+        var arr = new Uint8Array(nBytes);
+        crypto.getRandomValues(arr);
+        var s = '';
+        for (var i = 0; i < arr.length; i++) s += ('0' + arr[i].toString(16)).slice(-2);
+        return s;
+    }
+
+    function randomSecret() { return randomHex(16); } // 128-bit shared secret
+
+    function getDeviceId() {
+        var id = localStorage.getItem(STORE_KEYS.syncDeviceId);
+        if (!id) {
+            id = 'tvsync-' + randomHex(16);
+            try { localStorage.setItem(STORE_KEYS.syncDeviceId, id); } catch (e) { /* ignore */ }
+        }
+        return id;
+    }
+
+    function deviceLabel() {
+        var ua = navigator.userAgent || '';
+        var os = /Android/i.test(ua) ? 'Android'
+            : /iPhone|iPad|iPod/i.test(ua) ? 'iOS'
+            : /Windows/i.test(ua) ? 'Windows'
+            : /Macintosh|Mac OS/i.test(ua) ? 'Mac'
+            : /Linux/i.test(ua) ? 'Linux' : 'device';
+        var kind = /Mobi|Android|iPhone|iPad|iPod/i.test(ua) ? 'phone' : 'computer';
+        return os + ' ' + kind;
+    }
+
+    function btoaUrl(str) {
+        return btoa(unescape(encodeURIComponent(str)))
+            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function atobUrl(str) {
+        var s = String(str || '').replace(/-/g, '+').replace(/_/g, '/');
+        while (s.length % 4) s += '=';
+        return decodeURIComponent(escape(atob(s)));
+    }
+
+    function encodePairCode(id, secret) {
+        return btoaUrl(JSON.stringify({ i: id, s: secret }));
+    }
+
+    function decodePairCode(code) {
+        try {
+            var raw = String(code || '').trim();
+            var idx = raw.indexOf('sync=');
+            if (idx !== -1) raw = raw.slice(idx + 5);
+            raw = raw.split('&')[0].replace(/[^A-Za-z0-9\-_]/g, '');
+            if (!raw) return null;
+            var obj = JSON.parse(atobUrl(raw));
+            if (obj && obj.i && obj.s) return { id: String(obj.i), secret: String(obj.s) };
+        } catch (e) { /* ignore */ }
+        return null;
+    }
+
+    function timeAgo(ms) {
+        if (!ms) return 'never';
+        var s = Math.max(0, Math.floor((Date.now() - ms) / 1000));
+        if (s < 60) return 'just now';
+        var mnt = Math.floor(s / 60); if (mnt < 60) return mnt + ' min ago';
+        var h = Math.floor(mnt / 60); if (h < 24) return h + ' h ago';
+        return Math.floor(h / 24) + ' d ago';
+    }
+
+    // --- persisted partner + settings clock -------------------------------
+    function getSyncPartner() { return loadJson(scopedKey(STORE_KEYS.syncPartner), null); }
+    function setSyncPartner(p) { persistJson(scopedKey(STORE_KEYS.syncPartner), p); }
+    function clearSyncPartner() {
+        try { localStorage.removeItem(scopedKey(STORE_KEYS.syncPartner)); } catch (e) { /* ignore */ }
+    }
+
+    function getSyncSettingsAt() {
+        var m = loadJson(scopedKey(STORE_KEYS.syncMeta), null);
+        return (m && m.settingsAt) || 0;
+    }
+    function setSyncSettingsAt(v) {
+        persistJson(scopedKey(STORE_KEYS.syncMeta), { settingsAt: v || Date.now() });
+    }
+    function bumpSyncSettingsAt() { setSyncSettingsAt(Date.now()); }
+
+    function amInitiatorFor(partner) {
+        return !!(partner && partner.id && state.sync.selfId && state.sync.selfId < partner.id);
+    }
+
+    // --- snapshot build / signature / merge -------------------------------
+    function buildSyncSnapshot() {
+        var accounts = loadJson(STORE_KEYS.accounts, {});
+        return {
+            t: 'push',
+            v: 1,
+            user: state.currentUser,
+            account: accounts[state.currentUser] || null,
+            overrides: state.overrides || {},
+            customShows: state.customShows || [],
+            importedData: state.importedData || null,
+            metadataCache: state.metadataCache || {},
+            settings: {
+                profileSettings: state.profileSettings || null,
+                omdbApiKey: loadUserScopedValue(STORE_KEYS.omdbApiKey) || '',
+                settingsAt: getSyncSettingsAt()
+            },
+            sentAt: Date.now()
+        };
+    }
+
+    function snapshotSignature(snap) {
+        var ov = snap.overrides || {};
+        var oCount = 0, oSum = 0;
+        Object.keys(ov).forEach(function (k) { oCount++; oSum += (ov[k] && ov[k].updatedAt) || 0; });
+        var cs = snap.customShows || [];
+        var csSum = 0;
+        cs.forEach(function (s) { csSum += (s && s.updatedAt) || 0; });
+        var imp = (snap.importedData && snap.importedData.importedAt) ? (Date.parse(snap.importedData.importedAt) || 0) : 0;
+        var setAt = (snap.settings && snap.settings.settingsAt) || 0;
+        var mc = snap.metadataCache ? Object.keys(snap.metadataCache).length : 0;
+        return [oCount, oSum, cs.length, csSum, imp, setAt, mc].join('|');
+    }
+
+    function mergeSyncSnapshot(remote) {
+        if (!remote || remote.t !== 'push') return { changed: false };
+        if (!state.currentUser) return { changed: false, rejected: true, reason: 'not-signed-in' };
+        if (normalizeUsername(remote.user || '') !== state.currentUser) {
+            return { changed: false, rejected: true, reason: 'user' };
+        }
+
+        var changed = false;
+        var importChanged = false;
+        var metaChanged = false;
+        var settingsChanged = false;
+        var pendingOmdb = null;
+        var pendingSettingsAt = 0;
+
+        state.sync.applying = true;
+        try {
+            // overrides: per-show newest wins (never delete local shows)
+            var rov = remote.overrides || {};
+            Object.keys(rov).forEach(function (showId) {
+                var rEntry = rov[showId];
+                if (!rEntry || typeof rEntry !== 'object') return;
+                var lEntry = state.overrides[showId];
+                var rAt = rEntry.updatedAt || 0;
+                var lAt = (lEntry && lEntry.updatedAt) || 0;
+                if (!lEntry || rAt > lAt) {
+                    state.overrides[showId] = JSON.parse(JSON.stringify(rEntry));
+                    changed = true;
+                }
+            });
+
+            // customShows: per-id newest wins (union)
+            var byId = {};
+            (state.customShows || []).forEach(function (s) { if (s && s.id) byId[s.id] = s; });
+            (remote.customShows || []).forEach(function (rs) {
+                if (!rs || !rs.id) return;
+                var ex = byId[rs.id];
+                var rAt = rs.updatedAt || Date.parse(rs.createdAt || '') || 0;
+                var eAt = ex ? (ex.updatedAt || Date.parse(ex.createdAt || '') || 0) : -1;
+                if (!ex || rAt > eAt) { byId[rs.id] = rs; changed = true; }
+            });
+            var mergedCustom = Object.keys(byId).map(function (k) { return byId[k]; });
+
+            // importedData: newest importedAt wins
+            var lImp = state.importedData;
+            var rImp = remote.importedData;
+            var lAtImp = lImp && lImp.importedAt ? (Date.parse(lImp.importedAt) || 0) : 0;
+            var rAtImp = rImp && rImp.importedAt ? (Date.parse(rImp.importedAt) || 0) : 0;
+            if (rImp && (!lImp || rAtImp > lAtImp)) { state.importedData = rImp; changed = true; importChanged = true; }
+
+            // metadataCache: fill missing keys only (regenerable, keep local on conflict)
+            var rmc = remote.metadataCache || {};
+            Object.keys(rmc).forEach(function (k) {
+                if (!state.metadataCache[k]) { state.metadataCache[k] = rmc[k]; metaChanged = true; }
+            });
+            if (metaChanged) changed = true;
+
+            // settings bundle: newest settingsAt wins
+            var rSet = remote.settings || {};
+            var rSetAt = rSet.settingsAt || 0;
+            if (rSetAt > getSyncSettingsAt()) {
+                if (rSet.profileSettings) state.profileSettings = rSet.profileSettings;
+                pendingOmdb = { value: rSet.omdbApiKey || '' };
+                pendingSettingsAt = rSetAt;
+                settingsChanged = true;
+                changed = true;
+            }
+
+            // account: create locally only if missing (never overwrite an existing login)
+            var accounts = loadJson(STORE_KEYS.accounts, {});
+            if (!accounts[state.currentUser] && remote.account) {
+                accounts[state.currentUser] = remote.account;
+                persistJson(STORE_KEYS.accounts, accounts);
+                changed = true;
+            }
+
+            if (changed) {
+                state.customShows = mergedCustom;
+                persistJson(scopedKey(STORE_KEYS.localOverrides), state.overrides);
+                persistJson(scopedKey(STORE_KEYS.customShows), state.customShows);
+                if (importChanged) persistJson(scopedKey(STORE_KEYS.importedData), state.importedData);
+                if (metaChanged) persistJson(scopedKey(STORE_KEYS.metadataCache), state.metadataCache);
+                if (settingsChanged) {
+                    if (state.profileSettings) persistJson(scopedKey(STORE_KEYS.profileSettings), state.profileSettings);
+                    if (pendingOmdb) {
+                        if (pendingOmdb.value) localStorage.setItem(scopedKey(STORE_KEYS.omdbApiKey), pendingOmdb.value);
+                        else { try { localStorage.removeItem(scopedKey(STORE_KEYS.omdbApiKey)); } catch (e) { /* ignore */ } }
+                    }
+                    setSyncSettingsAt(pendingSettingsAt || Date.now());
+                }
+            }
+        } finally {
+            state.sync.applying = false;
+        }
+        return { changed: changed };
+    }
+
+    function applyMergeAndRebuild() {
+        try { refreshForCurrentUser(); } catch (e) { console.warn('[SYNC] rebuild failed', e); }
+    }
+
+    // --- connection plumbing ----------------------------------------------
+    function sendMsg(conn, obj) {
+        try { if (conn && conn.open) conn.send(obj); } catch (e) { console.warn('[SYNC] send failed', e); }
+    }
+
+    function onConnData(msg) {
+        if (!msg || typeof msg !== 'object') return;
+        if (msg.t === 'hello') { handleHello(msg); return; }
+        if (msg.t === 'hello-ack') { handleHelloAck(msg); return; }
+        if (msg.t === 'deny') {
+            setSyncStatus('Other device declined: ' + (msg.reason === 'user' ? 'different account' : 'wrong code') + '.');
+            closeConn();
+            return;
+        }
+        if (msg.t === 'push') { handlePush(msg); return; }
+    }
+
+    function handleHello(msg) {
+        // An active invite (pairSecret) takes precedence over a previously
+        // stored partner, so re-pairing to a new device uses the fresh secret.
+        var expected = state.sync.pairSecret || (state.sync.partner && state.sync.partner.secret) || '';
+        if (!expected || msg.secret !== expected) {
+            sendMsg(state.sync.conn, { t: 'deny', reason: 'secret' });
+            setSyncStatus('A device tried to connect with the wrong code.');
+            closeConn();
+            return;
+        }
+        if (normalizeUsername(msg.user || '') !== state.currentUser) {
+            sendMsg(state.sync.conn, { t: 'deny', reason: 'user' });
+            setSyncStatus('Other device is signed in as a different account — log in with the same account on both.');
+            closeConn();
+            return;
+        }
+        var partner = {
+            id: msg.selfId, secret: expected, user: normalizeUsername(msg.user),
+            label: msg.label || 'other device', pairedAt: Date.now()
+        };
+        setSyncPartner(partner);
+        state.sync.partner = partner;
+        state.sync.pairSecret = '';
+        state.sync.connected = true;
+        sendMsg(state.sync.conn, {
+            t: 'hello-ack', secret: expected, selfId: state.sync.selfId,
+            user: state.currentUser, label: deviceLabel()
+        });
+        setSyncStatus('Connected to ' + partner.label + '.');
+        startHourlyTimer();
+        renderSyncModal();
+        syncPushNow(true);
+    }
+
+    function handleHelloAck(msg) {
+        var expected = state.sync._connectSecret || (state.sync.partner && state.sync.partner.secret) || '';
+        if (!expected || msg.secret !== expected) {
+            setSyncStatus('Pairing failed (wrong code).');
+            closeConn();
+            return;
+        }
+        if (normalizeUsername(msg.user || '') !== state.currentUser) {
+            setSyncStatus('Other device uses a different account.');
+            closeConn();
+            return;
+        }
+        var partner = {
+            id: msg.selfId, secret: expected, user: normalizeUsername(msg.user),
+            label: msg.label || 'other device', pairedAt: Date.now()
+        };
+        setSyncPartner(partner);
+        state.sync.partner = partner;
+        state.sync._connectSecret = '';
+        state.sync.connected = true;
+        setSyncStatus('Connected to ' + partner.label + '.');
+        startHourlyTimer();
+        renderSyncModal();
+        syncPushNow(true);
+    }
+
+    function handlePush(snap) {
+        var res = mergeSyncSnapshot(snap);
+        state.sync.lastSyncAt = Date.now();
+        persistSyncLast();
+        if (res.rejected) {
+            if (res.reason === 'user') setSyncStatus('Different account on the other device — sync skipped.');
+            renderSyncModal();
+            return;
+        }
+        if (res.changed) {
+            setSyncStatus('Synced \u2014 updated from your other device.');
+            applyMergeAndRebuild();
+            syncSchedulePush();
+        } else {
+            setSyncStatus('Up to date.');
+        }
+        renderSyncModal();
+    }
+
+    function wireConn(conn, isInitiator) {
+        conn.on('open', function () {
+            if (isInitiator) {
+                var secret = state.sync._connectSecret || (state.sync.partner && state.sync.partner.secret) || '';
+                sendMsg(conn, {
+                    t: 'hello', secret: secret, selfId: state.sync.selfId,
+                    user: state.currentUser, label: deviceLabel()
+                });
+                setSyncStatus('Handshaking\u2026');
+            }
+        });
+        conn.on('data', function (data) {
+            try { onConnData(data); } catch (e) { console.warn('[SYNC] data error', e); }
+        });
+        conn.on('close', function () { onConnClose(); });
+        conn.on('error', function (err) { console.warn('[SYNC] conn error', err); });
+    }
+
+    function handleConn(conn) {
+        // Accept the newest incoming connection (replaces any stale one).
+        if (state.sync.conn && state.sync.conn !== conn) {
+            try { state.sync.conn.close(); } catch (e) { /* ignore */ }
+        }
+        state.sync.conn = conn;
+        wireConn(conn, false);
+    }
+
+    function connectTo(peerId, secret) {
+        if (!state.sync.peer) return;
+        state.sync._connectSecret = secret || (state.sync.partner && state.sync.partner.secret) || '';
+        var conn;
+        try { conn = state.sync.peer.connect(peerId, { reliable: true }); } catch (e) { conn = null; }
+        if (!conn) { setSyncStatus('Could not start the connection.'); scheduleRetry(); return; }
+        state.sync.conn = conn;
+        wireConn(conn, true);
+    }
+
+    function onConnClose() {
+        state.sync.connected = false;
+        state.sync.conn = null;
+        setSyncStatus('Disconnected.');
+        renderSyncModal();
+        scheduleRetry();
+    }
+
+    function closeConn() {
+        if (state.sync.conn) { try { state.sync.conn.close(); } catch (e) { /* ignore */ } state.sync.conn = null; }
+        state.sync.connected = false;
+        renderSyncModal();
+    }
+
+    function scheduleRetry() {
+        if (state.sync.retryTimer) return;
+        var partner = state.sync.partner;
+        if (!partner || !amInitiatorFor(partner)) return; // listener just waits for the peer
+        state.sync.retryTimer = window.setTimeout(function () {
+            state.sync.retryTimer = null;
+            if (!state.sync.connected && state.currentUser && state.sync.partner) {
+                connectTo(state.sync.partner.id, state.sync.partner.secret);
+            }
+        }, 15000);
+    }
+
+    // --- peer lifecycle ----------------------------------------------------
+    function ensurePeer(mode, onReady) {
+        if (!syncAvailable()) { setSyncStatus('Peer-to-peer library not loaded \u2014 reload the page.'); return; }
+        if (state.sync.peer && state.sync.peerMode === mode && !state.sync.peer.destroyed) {
+            if (state.sync.peer.open) { if (onReady) onReady(); }
+            else state.sync.peer.on('open', function () { if (onReady) onReady(); });
+            return;
+        }
+        teardownPeer();
+        var id = (mode === 'listener') ? state.sync.selfId : undefined;
+        var peer;
+        try { peer = id ? new Peer(id, { debug: 1 }) : new Peer({ debug: 1 }); }
+        catch (e) { setSyncStatus('Could not start the sync engine.'); return; }
+        state.sync.peer = peer;
+        state.sync.peerMode = mode;
+        peer.on('open', function () { if (onReady) onReady(); });
+        peer.on('connection', function (conn) { handleConn(conn); });
+        peer.on('disconnected', function () { try { peer.reconnect(); } catch (e) { /* ignore */ } });
+        peer.on('error', function (err) { onPeerError(err, mode, onReady); });
+    }
+
+    function onPeerError(err, mode, onReady) {
+        var type = err && err.type;
+        console.warn('[SYNC] peer error', type, err);
+        if (type === 'unavailable-id') {
+            setSyncStatus('Reconnecting\u2026');
+            window.setTimeout(function () { teardownPeer(); ensurePeer(mode, onReady); }, 4000);
+        } else if (type === 'peer-unavailable') {
+            setSyncStatus('Other device is offline. Will keep trying while both are open.');
+            scheduleRetry();
+        } else if (type === 'browser-incompatible') {
+            setSyncStatus('This browser does not support peer-to-peer sync.');
+        } else if (type === 'network' || type === 'server-error' || type === 'socket-error' || type === 'socket-closed') {
+            setSyncStatus('Network hiccup \u2014 retrying\u2026');
+            scheduleRetry();
+        } else {
+            setSyncStatus('Sync error: ' + (type || 'unknown') + '.');
+        }
+    }
+
+    function teardownPeer() {
+        if (state.sync.retryTimer) { clearTimeout(state.sync.retryTimer); state.sync.retryTimer = null; }
+        if (state.sync.conn) { try { state.sync.conn.close(); } catch (e) { /* ignore */ } state.sync.conn = null; }
+        if (state.sync.peer) { try { state.sync.peer.destroy(); } catch (e) { /* ignore */ } state.sync.peer = null; }
+        state.sync.peerMode = '';
+        state.sync.connected = false;
+    }
+
+    function teardownSync() {
+        teardownPeer();
+        if (state.sync.hourlyTimer) { clearInterval(state.sync.hourlyTimer); state.sync.hourlyTimer = null; }
+        if (state.sync.pushTimer) { clearTimeout(state.sync.pushTimer); state.sync.pushTimer = null; }
+        state.sync.partner = null;
+        state.sync.pairSecret = '';
+        state.sync.lastSentSig = '';
+        state.sync.lastSyncAt = 0;
+        setSyncStatus('Not connected');
+    }
+
+    // --- push scheduling ---------------------------------------------------
+    function syncSchedulePush() {
+        if (!state.sync.connected || !state.sync.conn) return;
+        if (state.sync.pushTimer) return;
+        state.sync.pushTimer = window.setTimeout(function () {
+            state.sync.pushTimer = null;
+            syncPushNow(false);
+        }, 4000);
+    }
+
+    function syncPushNow(force) {
+        if (!state.sync.connected || !state.sync.conn) return;
+        var snap = buildSyncSnapshot();
+        var sig = snapshotSignature(snap);
+        if (!force && sig === state.sync.lastSentSig) return;
+        state.sync.lastSentSig = sig;
+        sendMsg(state.sync.conn, snap);
+        state.sync.lastSyncAt = Date.now();
+        persistSyncLast();
+        renderSyncModal();
+    }
+
+    function syncNow() {
+        if (!state.sync.partner) { setSyncStatus('Pair a device first.'); return; }
+        if (!state.sync.connected) {
+            setSyncStatus('Not connected \u2014 trying to reconnect\u2026');
+            initSyncForUser();
+            return;
+        }
+        syncPushNow(true);
+        setSyncStatus('Sync sent.');
+    }
+
+    function startHourlyTimer() {
+        if (state.sync.hourlyTimer) return;
+        state.sync.hourlyTimer = window.setInterval(function () {
+            if (state.sync.connected) syncPushNow(false);
+        }, 60 * 60 * 1000);
+    }
+
+    function persistSyncLast() {
+        if (!state.sync.partner) return;
+        state.sync.partner.lastSyncAt = state.sync.lastSyncAt;
+        setSyncPartner(state.sync.partner);
+    }
+
+    // When the app regains focus (e.g. you unlock your phone back home), get the
+    // two devices talking again right away instead of waiting on the ~15s retry
+    // timer: revive the broker link if it dropped while backgrounded, then push
+    // our latest immediately if connected, or reconnect if the link was lost.
+    function syncOnResume() {
+        if (!syncAvailable() || !state.currentUser) return;
+        var partner = state.sync.partner || getSyncPartner();
+        if (!partner) return;
+
+        // Debounce the burst of visible/focus/pageshow events fired together.
+        var now = Date.now();
+        if (now - (state.sync.lastResumeAt || 0) < 1500) return;
+        state.sync.lastResumeAt = now;
+
+        // Mobile browsers often drop the signalling connection while the tab is
+        // frozen; reconnect it to the broker so a re-pair isn't needed.
+        if (state.sync.peer && state.sync.peer.disconnected && !state.sync.peer.destroyed) {
+            try { state.sync.peer.reconnect(); } catch (e) { /* ignore */ }
+        }
+
+        if (state.sync.connected && state.sync.conn && state.sync.conn.open) {
+            syncPushNow(true);
+        } else {
+            // Skip the retry delay and reconnect immediately.
+            if (state.sync.retryTimer) { clearTimeout(state.sync.retryTimer); state.sync.retryTimer = null; }
+            initSyncForUser();
+        }
+    }
+
+    // --- pairing -----------------------------------------------------------
+    function startPairingInvite() {
+        if (!state.currentUser) { setSyncStatus('Log in first.'); return; }
+        if (!syncAvailable()) { setSyncStatus('Sync library not loaded.'); return; }
+        state.sync.selfId = getDeviceId();
+        state.sync.pairSecret = randomSecret();
+        setSyncStatus('Starting\u2026');
+        ensurePeer('listener', function () {
+            var code = encodePairCode(state.sync.selfId, state.sync.pairSecret);
+            showPairCode(code);
+            setSyncStatus('Ready \u2014 scan the QR (or paste the link) on your other device.');
+        });
+    }
+
+    function connectWithCode(code) {
+        if (!state.currentUser) { setSyncStatus('Log in first, then connect.'); return; }
+        if (!syncAvailable()) { setSyncStatus('Sync library not loaded.'); return; }
+        var decoded = decodePairCode(code);
+        if (!decoded) { setSyncStatus('That code / link is not valid.'); return; }
+        state.sync.selfId = getDeviceId();
+        if (decoded.id === state.sync.selfId) { setSyncStatus('That code is from this same device.'); return; }
+        setSyncStatus('Connecting to the other device\u2026');
+        ensurePeer('initiator', function () { connectTo(decoded.id, decoded.secret); });
+    }
+
+    function showPairCode(code) {
+        var url = location.origin + '/tv/#sync=' + code;
+        if (els.syncCode) els.syncCode.value = url;
+        if (els.syncQr) {
+            els.syncQr.innerHTML = '';
+            try {
+                if (typeof qrcode !== 'undefined') {
+                    var qr = qrcode(0, 'M');
+                    qr.addData(url);
+                    qr.make();
+                    els.syncQr.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+                } else {
+                    els.syncQr.textContent = 'QR unavailable \u2014 copy the link below.';
+                }
+            } catch (e) { els.syncQr.textContent = 'QR error \u2014 copy the link below.'; }
+        }
+        if (els.syncQrWrap) els.syncQrWrap.hidden = false;
+    }
+
+    function copyPairCode() {
+        if (!els.syncCode) return;
+        var text = els.syncCode.value || '';
+        var done = function () { setSyncStatus('Link copied. Open it on your other device.'); };
+        try {
+            els.syncCode.select();
+            document.execCommand('copy');
+            done();
+        } catch (e) {
+            if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () { /* ignore */ });
+        }
+    }
+
+    function requestUnpair() {
+        openConfirm(
+            'Unpair this device?',
+            'This stops automatic syncing with the other device. Your show data stays on both devices \u2014 you can pair again anytime.',
+            'Unpair',
+            function () {
+                teardownPeer();
+                clearSyncPartner();
+                state.sync.partner = null;
+                state.sync.lastSyncAt = 0;
+                setSyncStatus('Unpaired.');
+                renderSyncModal();
+            }
+        );
+    }
+
+    // --- UI ----------------------------------------------------------------
+    function setSyncStatus(text) {
+        state.sync.statusText = text;
+        if (els.syncStatus) els.syncStatus.textContent = text;
+        updateSyncButton();
+    }
+
+    function updateSyncButton() {
+        if (!els.syncDeviceStatus) return;
+        if (!syncAvailable()) { els.syncDeviceStatus.textContent = ''; return; }
+        var p = state.sync.partner;
+        if (!p) { els.syncDeviceStatus.textContent = 'Not paired with another device yet.'; return; }
+        els.syncDeviceStatus.textContent = (state.sync.connected ? '\uD83D\uDFE2 Connected to ' : 'Paired with ')
+            + (p.label || 'other device')
+            + (state.sync.lastSyncAt ? ' \u2022 last sync ' + timeAgo(state.sync.lastSyncAt) : '');
+    }
+
+    function renderSyncModal() {
+        if (!els.syncModal) return;
+        var p = state.sync.partner;
+        if (els.syncDeviceLabel) els.syncDeviceLabel.textContent = deviceLabel();
+        if (els.syncStatus) els.syncStatus.textContent = state.sync.statusText;
+        if (els.syncUnpaired) els.syncUnpaired.hidden = !!p;
+        if (els.syncPaired) els.syncPaired.hidden = !p;
+        if (p) {
+            if (els.syncPartnerLabel) els.syncPartnerLabel.textContent = p.label || 'other device';
+            if (els.syncLast) els.syncLast.textContent = state.sync.lastSyncAt ? ('Last sync: ' + timeAgo(state.sync.lastSyncAt)) : 'Not synced yet.';
+        }
+        updateSyncButton();
+    }
+
+    function openSyncModal() {
+        if (!state.currentUser) { setStatus('Log in first to set up device sync.'); return; }
+        if (!els.syncModal) return;
+        state.sync.selfId = getDeviceId();
+        state.sync.partner = getSyncPartner();
+        if (state.sync.partner && state.sync.partner.lastSyncAt) state.sync.lastSyncAt = state.sync.partner.lastSyncAt;
+        if (els.syncQrWrap) els.syncQrWrap.hidden = true;
+        if (els.syncCodeInput) els.syncCodeInput.value = '';
+        if (!syncAvailable()) {
+            setSyncStatus('Peer-to-peer library not loaded \u2014 reload the page.');
+        } else if (!state.sync.statusText || state.sync.statusText === 'Not connected') {
+            setSyncStatus(state.sync.partner
+                ? (state.sync.connected ? 'Connected.' : 'Paired. Trying to connect\u2026')
+                : 'Not paired yet.');
+        }
+        renderSyncModal();
+        els.syncModal.hidden = false;
+        if (syncAvailable() && state.sync.partner && !state.sync.connected) initSyncForUser();
+    }
+
+    function closeSyncModal() {
+        if (els.syncModal) els.syncModal.hidden = true;
+    }
+
+    // --- lifecycle ---------------------------------------------------------
+    function initSyncForUser() {
+        if (!syncAvailable()) { updateSyncButton(); return; }
+        if (!state.currentUser) return;
+        state.sync.selfId = getDeviceId();
+
+        // A pending deep-link code means this device just scanned the other's
+        // QR: act as the initiator/scanner and connect straight away.
+        if (state.sync.pendingPairCode) {
+            var code = state.sync.pendingPairCode;
+            state.sync.pendingPairCode = '';
+            openSyncModal();
+            connectWithCode(code);
+            return;
+        }
+
+        var partner = getSyncPartner();
+        state.sync.partner = partner;
+        if (partner && partner.lastSyncAt) state.sync.lastSyncAt = partner.lastSyncAt;
+
+        if (partner) {
+            if (amInitiatorFor(partner)) {
+                ensurePeer('initiator', function () { connectTo(partner.id, partner.secret); });
+            } else {
+                ensurePeer('listener', function () {
+                    setSyncStatus('Waiting for ' + (partner.label || 'your other device') + '\u2026');
+                });
+            }
+            startHourlyTimer();
+        } else {
+            setSyncStatus('Not paired yet.');
+        }
+        updateSyncButton();
+    }
+
+    function setupSync() {
+        // Deep-link pairing: the other device scans a QR that opens .../tv/#sync=CODE
+        var hash = location.hash || '';
+        var m = hash.match(/[#&]sync=([^&]+)/);
+        if (m && m[1]) {
+            state.sync.pendingPairCode = m[1];
+            try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ignore */ }
+        }
+
+        // Keep the two devices converged around app focus changes:
+        //  - hidden  -> flush our latest to the other device before we freeze.
+        //  - visible -> reconnect (if the link dropped while backgrounded) and
+        //    push immediately, so unlocking the phone back home syncs at once
+        //    instead of waiting on the ~15s retry timer.
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'hidden') {
+                if (state.sync.connected) { try { syncPushNow(true); } catch (e) { /* ignore */ } }
+            } else if (document.visibilityState === 'visible') {
+                syncOnResume();
+            }
+        });
+        // Desktop tab refocus and mobile back-forward (bfcache) restores don't
+        // always fire visibilitychange, so cover those too.
+        window.addEventListener('focus', function () { syncOnResume(); });
+        window.addEventListener('pageshow', function () { syncOnResume(); });
+
+        if (!syncAvailable()) { updateSyncButton(); return; }
+        if (state.currentUser) {
+            initSyncForUser();
+        } else if (state.sync.pendingPairCode) {
+            setStatus('Log in with the same account to finish syncing with your other device.');
+        }
+        updateSyncButton();
     }
 })();

@@ -1,10 +1,12 @@
 /* TV Tracker Service Worker: network-first strategy with offline support */
-var CACHE_NAME = 'tv-tracker-v11';
+var CACHE_NAME = 'tv-tracker-v16';
 var URLS_TO_CACHE = [
     '/tv/',
     '/tv/index.html',
     '/tv/css/tv.css',
     '/tv/js/tv.js',
+    '/tv/js/vendor/peerjs.min.js',
+    '/tv/js/vendor/qrcode.min.js',
     '/tv/manifest.json',
     'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=Space+Grotesk:wght@400;500;700&display=swap'
 ];

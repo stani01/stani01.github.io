@@ -1,4 +1,5 @@
 :root {
+    color-scheme: dark;
     --ink: #060b18;
     --ink-soft: #111c32;
     --paper: #dbe8ff;
@@ -21,11 +22,14 @@
 }
 
 /* Never allow the layout to be wider than the viewport (prevents the whole
-   page from scrolling sideways on phones). */
+   page from scrolling sideways on phones). The solid dark base on the root
+   element paints the overscroll/rubber-band area and fast-scroll gaps, so the
+   page never flashes white on mobile. */
 html,
 body {
     max-width: 100%;
     overflow-x: hidden;
+    background-color: var(--ink);
 }
 
 img {
@@ -43,7 +47,8 @@ body {
     min-height: 100vh;
     color: var(--text);
     font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
-    background: radial-gradient(circle at 20% 15%, #1a2f59 0%, #0a1225 46%, #060b18 100%);
+    background-color: var(--ink);
+    background-image: radial-gradient(circle at 20% 15%, #1a2f59 0%, #0a1225 46%, #060b18 100%);
 }
 
 h1, h2, h3 {
@@ -1273,11 +1278,31 @@ textarea {
 }
 
 .modal-poster-wrap {
+    position: relative;
     width: 110px;
     height: 165px;
     border-radius: 0.6rem;
     overflow: hidden;
     background: linear-gradient(145deg, #1f335f, #0f172f);
+    padding: 0;
+    border: none;
+    font: inherit;
+    color: inherit;
+    display: block;
+    cursor: default;
+}
+
+.modal-poster-wrap.has-poster {
+    cursor: zoom-in;
+}
+
+.modal-poster-wrap:disabled {
+    cursor: default;
+}
+
+.modal-poster-wrap.has-poster:focus-visible {
+    outline: 2px solid var(--mint);
+    outline-offset: 2px;
 }
 
 .modal-poster {
@@ -1285,6 +1310,94 @@ textarea {
     height: 100%;
     object-fit: cover;
     display: block;
+}
+
+.poster-zoom-hint {
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    width: 22px;
+    height: 22px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(3, 7, 18, 0.35);
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.8rem;
+    line-height: 1;
+    border: none;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.modal-poster-wrap.has-poster .poster-zoom-hint {
+    display: flex;
+    opacity: 0.35;
+}
+
+.modal-poster-wrap.has-poster:hover .poster-zoom-hint,
+.modal-poster-wrap.has-poster:focus-visible .poster-zoom-hint {
+    opacity: 0.6;
+}
+
+/* Full-size poster lightbox (click the modal poster to open) */
+.poster-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 2600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.poster-lightbox[hidden] {
+    display: none;
+}
+
+.poster-lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(3, 7, 18, 0.92);
+    backdrop-filter: blur(3px);
+}
+
+.poster-lightbox-img {
+    position: relative;
+    max-width: min(96vw, 900px);
+    max-height: 92vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 0.8rem;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+    cursor: zoom-out;
+}
+
+.poster-lightbox-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(7, 13, 26, 0.9);
+    color: #fff;
+    font-size: 1.05rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.poster-lightbox-close:hover {
+    background: var(--danger);
+    transform: scale(1.05);
 }
 
 .modal-facts {
@@ -1807,3 +1920,103 @@ textarea {
         display: none;
     }
 }
+
+/* --- Device sync modal ------------------------------------------------ */
+.sync-status-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.sync-dot {
+    flex: 0 0 auto;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--mint);
+    box-shadow: 0 0 0 4px rgba(46, 196, 182, 0.18);
+}
+
+.sync-status-row .info-text {
+    margin: 0;
+}
+
+.sync-device-line {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-soft);
+}
+
+#sync-unpaired[hidden],
+#sync-paired[hidden],
+#sync-qr-wrap[hidden] {
+    display: none;
+}
+
+.sync-qr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 220px;
+    max-width: 100%;
+    margin: 0.5rem auto 0.6rem;
+    padding: 12px;
+    background: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.sync-qr svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.sync-code-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.sync-code {
+    flex: 1 1 200px;
+    min-width: 0;
+    padding: 0.55rem 0.7rem;
+    border-radius: 0.6rem;
+    border: 1px solid var(--line);
+    background: rgba(13, 21, 39, 0.6);
+    color: var(--text);
+    font-size: 0.82rem;
+    font-family: inherit;
+}
+
+.sync-code:focus {
+    outline: none;
+    border-color: var(--mint);
+}
+
+.sync-or {
+    text-align: center;
+    color: var(--text-soft);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 1rem 0 0.4rem;
+    position: relative;
+}
+
+.sync-or::before,
+.sync-or::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 38%;
+    height: 1px;
+    background: var(--line);
+}
+
+.sync-or::before { left: 0; }
+.sync-or::after { right: 0; }

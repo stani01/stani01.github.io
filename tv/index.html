@@ -187,9 +187,10 @@
 
             <div class="show-modal-body">
                 <div class="show-modal-top">
-                    <div class="modal-poster-wrap">
+                    <button type="button" id="modal-poster-btn" class="modal-poster-wrap" aria-label="View poster full size">
                         <img id="modal-poster" class="modal-poster" src="" alt="">
-                    </div>
+                        <span class="poster-zoom-hint" aria-hidden="true">⤢</span>
+                    </button>
                     <div class="modal-facts">
                         <p id="modal-facts-text" class="modal-facts-text"></p>
                         <div id="modal-links" class="modal-links"></div>
@@ -203,6 +204,12 @@
                 <div id="modal-seasons" class="seasons-accordion"></div>
             </div>
         </section>
+    </div>
+
+    <div id="poster-lightbox" class="poster-lightbox" hidden>
+        <div class="poster-lightbox-backdrop" id="poster-lightbox-backdrop"></div>
+        <button id="poster-lightbox-close" class="poster-lightbox-close" type="button" aria-label="Close poster">✕</button>
+        <img id="poster-lightbox-img" class="poster-lightbox-img" src="" alt="">
     </div>
 
     <div id="account-modal" class="account-modal" hidden>
@@ -258,6 +265,15 @@
                         <button id="restore-data-btn" class="btn btn-action" type="button">⬆️ Restore from backup</button>
                     </div>
                     <p id="backup-message" class="info-text"></p>
+                </section>
+
+                <section class="account-section">
+                    <h3>Sync automatically with another device</h3>
+                    <p>Pair your phone and PC once, then whenever both have the tracker open they sync directly device&#8209;to&#8209;device (on the same Wi&#8209;Fi your data never leaves your network). Edits on either device are merged &mdash; newest change per show wins.</p>
+                    <div class="account-actions">
+                        <button id="sync-device-btn" class="btn btn-accent" type="button">📲 Sync with another device</button>
+                    </div>
+                    <p id="sync-device-status" class="info-text"></p>
                 </section>
 
                 <section class="account-section danger-zone">
@@ -434,7 +450,66 @@
         </section>
     </div>
 
+    <div id="sync-modal" class="account-modal" hidden>
+        <div class="account-modal-backdrop" id="sync-modal-backdrop"></div>
+        <section class="account-modal-panel" role="dialog" aria-modal="true" aria-labelledby="sync-modal-title">
+            <header class="account-modal-header">
+                <h2 id="sync-modal-title">Sync with another device</h2>
+                <button id="sync-modal-close" class="btn btn-sm" type="button">Close</button>
+            </header>
+
+            <div class="account-modal-content">
+                <section class="account-section">
+                    <div class="sync-status-row">
+                        <span class="sync-dot" aria-hidden="true"></span>
+                        <p id="sync-status" class="info-text">Not connected</p>
+                    </div>
+                    <p class="sync-device-line">This device: <strong id="sync-device-label">this device</strong></p>
+                </section>
+
+                <section class="account-section" id="sync-unpaired">
+                    <h3>1. On the device you want to add</h3>
+                    <p>Open this same page and sign in with <strong>the same account</strong>. Then here on this device, start an invite and scan it with the other device's camera.</p>
+                    <div class="account-actions">
+                        <button id="sync-invite-btn" class="btn btn-accent" type="button">Show pairing QR</button>
+                    </div>
+                    <div id="sync-qr-wrap" hidden>
+                        <div id="sync-qr" class="sync-qr" aria-label="Pairing QR code"></div>
+                        <p class="info-text">Scan this with your other device's camera, or copy the link and open it there:</p>
+                        <div class="sync-code-row">
+                            <input id="sync-code" class="sync-code" type="text" readonly aria-label="Pairing link">
+                            <button id="sync-copy-btn" class="btn btn-sm" type="button">Copy</button>
+                        </div>
+                    </div>
+                    <div class="sync-or">or</div>
+                    <h3>Have a link from the other device?</h3>
+                    <p>Paste the pairing link (or code) it gave you and connect:</p>
+                    <div class="sync-code-row">
+                        <input id="sync-code-input" class="sync-code" type="text" placeholder="Paste pairing link or code" aria-label="Pairing link to connect to">
+                        <button id="sync-connect-btn" class="btn btn-action" type="button">Connect</button>
+                    </div>
+                </section>
+
+                <section class="account-section" id="sync-paired" hidden>
+                    <h3>Paired</h3>
+                    <p>This device is paired with <strong id="sync-partner-label">other device</strong>. When both have the tracker open, changes sync automatically.</p>
+                    <p id="sync-last" class="info-text">Not synced yet.</p>
+                    <div class="account-actions">
+                        <button id="sync-now-btn" class="btn btn-accent" type="button">Sync now</button>
+                        <button id="sync-unpair-btn" class="btn btn-danger" type="button">Unpair</button>
+                    </div>
+                </section>
+
+                <section class="account-section">
+                    <p class="info-text">Your data transfers directly between your devices, end&#8209;to&#8209;end encrypted. A small public service is used only to introduce the two devices (it sees random pairing IDs, never your data). Nothing is ever stored on a server.</p>
+                </section>
+            </div>
+        </section>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="js/vendor/peerjs.min.js"></script>
+    <script src="js/vendor/qrcode.min.js"></script>
     <script src="js/tv.js"></script>
 </body>
 </html>
