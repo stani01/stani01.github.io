@@ -125,6 +125,11 @@ h1, h2, h3 {
 .hero h1 {
     font-size: clamp(1.7rem, 3vw, 2.5rem);
     margin-top: 0.18rem;
+    background: linear-gradient(120deg, #ffd7b5 0%, #ff8a5b 48%, #2ec4b6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 26px rgba(255, 138, 91, 0.28);
 }
 
 .sub {

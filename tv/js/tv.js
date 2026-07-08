@@ -1603,26 +1603,55 @@
     // Keep only the columns buildShowsModel needs, so stored data stays small.
     function reduceRows(kind, rows) {
         if (kind === 'userShows') {
-            return rows.map(function (r) {
-                return {
-                    tv_show_id: r.tv_show_id,
-                    tv_show_name: r.tv_show_name,
-                    is_followed: r.is_followed,
-                    is_favorited: r.is_favorited,
-                    nb_episodes_seen: r.nb_episodes_seen
-                };
+            // Some TV Time exports contain duplicated rows for the same show.
+            // Collapse by id (or normalized name fallback) before storing.
+            var byKey = new Map();
+            rows.forEach(function (r) {
+                var id = safeId(r.tv_show_id);
+                var name = String(r.tv_show_name || '').trim();
+                var key = id || ('name:' + normalizeName(name));
+                if (!key) return;
+
+                var prev = byKey.get(key);
+                var nextCount = toInt(r.nb_episodes_seen);
+                if (!prev) {
+                    byKey.set(key, {
+                        tv_show_id: id || r.tv_show_id,
+                        tv_show_name: name,
+                        is_followed: r.is_followed === '1' ? '1' : '0',
+                        is_favorited: r.is_favorited === '1' ? '1' : '0',
+                        nb_episodes_seen: String(nextCount)
+                    });
+                    return;
+                }
+
+                prev.tv_show_name = String(prev.tv_show_name || '').length >= name.length ? prev.tv_show_name : name;
+                prev.is_followed = (prev.is_followed === '1' || r.is_followed === '1') ? '1' : '0';
+                prev.is_favorited = (prev.is_favorited === '1' || r.is_favorited === '1') ? '1' : '0';
+                prev.nb_episodes_seen = String(Math.max(toInt(prev.nb_episodes_seen), nextCount));
             });
+
+            return Array.from(byKey.values());
         }
         if (kind === 'followed') {
-            return rows.map(function (r) {
-                return {
-                    tv_show_id: r.tv_show_id,
-                    active: r.active,
-                    archived: r.archived,
-                    created_at: r.created_at,
-                    updated_at: r.updated_at
-                };
+            var latestById = new Map();
+            rows.forEach(function (r) {
+                var id = safeId(r.tv_show_id);
+                if (!id) return;
+                var prev = latestById.get(id);
+                var rAt = asTime(r.updated_at) || asTime(r.created_at);
+                var pAt = prev ? (asTime(prev.updated_at) || asTime(prev.created_at)) : 0;
+                if (!prev || rAt >= pAt) {
+                    latestById.set(id, {
+                        tv_show_id: id,
+                        active: r.active,
+                        archived: r.archived,
+                        created_at: r.created_at,
+                        updated_at: r.updated_at
+                    });
+                }
             });
+            return Array.from(latestById.values());
         }
         // latestSeenByShow: dedupe to the latest record per show to minimise storage.
         var latest = new Map();
@@ -1682,6 +1711,34 @@
                 nb_episodes_seen: String(toInt(custom.nb_episodes_seen))
             });
         });
+
+        // Final safety net: collapse duplicate rows by show id before rendering.
+        // This catches any lingering duplicates from old stored imports/customs.
+        var rowById = new Map();
+        sourceRows.forEach(function (row) {
+            var id = safeId(row.tv_show_id);
+            var name = String(row.tv_show_name || '').trim();
+            var key = id || ('name:' + normalizeName(name));
+            if (!key) return;
+
+            var prev = rowById.get(key);
+            if (!prev) {
+                rowById.set(key, {
+                    tv_show_id: id || row.tv_show_id,
+                    tv_show_name: name,
+                    is_followed: row.is_followed,
+                    is_favorited: row.is_favorited,
+                    nb_episodes_seen: row.nb_episodes_seen
+                });
+                return;
+            }
+
+            prev.tv_show_name = String(prev.tv_show_name || '').length >= name.length ? prev.tv_show_name : name;
+            prev.is_followed = (prev.is_followed === '1' || row.is_followed === '1') ? '1' : '0';
+            prev.is_favorited = (prev.is_favorited === '1' || row.is_favorited === '1') ? '1' : '0';
+            prev.nb_episodes_seen = String(Math.max(toInt(prev.nb_episodes_seen), toInt(row.nb_episodes_seen)));
+        });
+        sourceRows = Array.from(rowById.values());
 
         var shows = [];
         sourceRows.forEach(function (row) {
