@@ -2279,7 +2279,7 @@
         // episodeStates were updated above, so isEpisodeWatched sees the new state.
         if (watched && nextStatus === 'active') {
             var m = show.meta || {};
-            if (m.seriesStatus === 'ended' && allAiredEpisodesWatched(show, catalog)) {
+            if (normalizeSeriesStatus(m.seriesStatus) === 'ended' && allAiredEpisodesWatched(show, catalog)) {
                 nextStatus = 'completed';
             }
         }
@@ -2455,7 +2455,7 @@
     function maybeAutoCompleteFromCatalog(show, episodes) {
         if (!show || show.status !== 'active') return;
         var meta = show.meta || {};
-        if (meta.seriesStatus !== 'ended') return;
+        if (normalizeSeriesStatus(meta.seriesStatus) !== 'ended') return;
         if (!allAiredEpisodesWatched(show, episodes)) return;
         patchShow(show.id, { status: 'completed' });
         setStatus('Marked “' + show.title + '” completed — it has ended and you\u2019ve watched every episode.');
@@ -2467,7 +2467,7 @@
     function shouldAutoComplete(show) {
         if (!show || show.status !== 'active') return false;
         var meta = show.meta || {};
-        if (meta.seriesStatus !== 'ended') return false;
+        if (normalizeSeriesStatus(meta.seriesStatus) !== 'ended') return false;
         var lastAired = meta.lastAired;
         if (!lastAired || !lastAired.season) return false;
         if (!show.lastSeen || !show.lastSeen.season) return false;
@@ -2499,7 +2499,9 @@
     async function reconcileEndedShowCompletionFromCatalog() {
         var candidates = (state.shows || []).filter(function (show) {
             var meta = show && show.meta ? show.meta : {};
-            return meta.seriesStatus === 'ended' && (show.status === 'active' || show.status === 'completed');
+            var seriesStatus = normalizeSeriesStatus(meta.seriesStatus);
+            var trackerStatus = normalizeTrackerStatus(show && show.status);
+            return seriesStatus === 'ended' && (trackerStatus === 'active' || trackerStatus === 'completed');
         });
         var changed = 0;
 
