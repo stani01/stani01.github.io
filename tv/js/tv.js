@@ -11,6 +11,7 @@
 
     var STORE_KEYS = {
         localOverrides: 'tvTrackerLocalOverridesV1',
+        watchHistory: 'tvTrackerWatchHistoryV1',
         metadataCache: 'tvTrackerMetadataCacheV1',
         omdbApiKey: 'tvTrackerOmdbApiKey',
         accounts: 'tvTrackerAccountsV1',
@@ -31,15 +32,13 @@
     // Base keys whose changes should trigger a device-to-device sync push.
     // (metadataCache is intentionally excluded: it is large and regenerable,
     // so it rides along in the snapshot but never triggers a push by itself.)
-    var SYNC_PUSH_KEYS = ['tvTrackerLocalOverridesV1', 'tvTrackerCustomShowsV1', 'tvTrackerImportedDataV1', 'tvTrackerProfileSettingsV1'];
-
-    // Shows watched within this window are "Watch Next"; older ones drop into
-    // "Haven't Watched in a While" (TV Time-style split of the active list).
-    var RECENT_DAYS_THRESHOLD = 30;
+    var SYNC_PUSH_KEYS = ['tvTrackerLocalOverridesV1', 'tvTrackerWatchHistoryV1', 'tvTrackerCustomShowsV1', 'tvTrackerImportedDataV1', 'tvTrackerProfileSettingsV1'];
 
     // Fallback per-episode length (minutes) used for the "Hours watched" estimate
     // when a show's metadata has no runtime yet.
     var DEFAULT_EPISODE_MINUTES = 40;
+    var STALE_DAYS_THRESHOLD = 30;
+    var WATCH_HISTORY_MAX = 800;
 
     var FALLBACK_POSTER = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
         '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="480" viewBox="0 0 320 480">'
@@ -53,6 +52,7 @@
         shows: [],
         filtered: [],
         overrides: {},
+        watchHistory: [],
         metadataCache: {},
         customShows: [],
         importedData: null,
@@ -78,7 +78,8 @@
         sortBy: 'recent',
         filterBy: 'all',
         // Watch Next & Paused expanded; the long lists start collapsed.
-        collapsedSections: { watchnext: false, stale: true, paused: false, completed: true },
+        collapsedSections: { watchnext: false, history: true, stale: true, paused: false, completed: true },
+        mobileGreetingDone: false,
         // Cross-device sync runtime state (see the sync module near the bottom).
         sync: {
             selfId: '',
@@ -105,11 +106,14 @@
         pausedShowsGrid: document.getElementById('paused-shows-grid'),
         completedShowsGrid: document.getElementById('completed-shows-grid'),
         watchNextGrid: document.getElementById('watchnext-shows-grid'),
+        historyGrid: document.getElementById('history-shows-grid'),
         staleGrid: document.getElementById('stale-shows-grid'),
         pausedShowsCount: document.getElementById('paused-shows-count'),
         completedShowsCount: document.getElementById('completed-shows-count'),
         watchNextCount: document.getElementById('watchnext-shows-count'),
+        historyCount: document.getElementById('history-shows-count'),
         staleCount: document.getElementById('stale-shows-count'),
+        watchNextSection: document.getElementById('section-watchnext'),
         sectionToggles: Array.prototype.slice.call(document.querySelectorAll('.section-toggle')),
         searchInput: document.getElementById('search-input'),
         sortSelect: document.getElementById('sort-select'),
@@ -134,6 +138,7 @@
         showModal: document.getElementById('show-modal'),
         showModalBackdrop: document.getElementById('show-modal-backdrop'),
         showModalClose: document.getElementById('show-modal-close'),
+        removeShowBtn: document.getElementById('remove-show-btn'),
         showModalTitle: document.getElementById('show-modal-title'),
         showModalSubtitle: document.getElementById('show-modal-subtitle'),
         modalPoster: document.getElementById('modal-poster'),
@@ -145,6 +150,11 @@
         modalFactsText: document.getElementById('modal-facts-text'),
         modalLinks: document.getElementById('modal-links'),
         modalSummary: document.getElementById('modal-summary'),
+        modalNotes: document.getElementById('modal-notes'),
+        modalDecrease: document.getElementById('modal-decrease'),
+        modalIncrease: document.getElementById('modal-increase'),
+        modalWatchSeason: document.getElementById('modal-watch-season'),
+        modalPauseShow: document.getElementById('modal-pause-show'),
         fixLink: document.getElementById('modal-fix-link'),
         fixLinkToggle: document.getElementById('modal-fix-link-toggle'),
         fixLinkForm: document.getElementById('modal-fix-link-form'),
@@ -560,6 +570,14 @@
             openPosterLightbox();
         });
 
+        if (els.modalNotes) els.modalNotes.addEventListener('change', function () {
+            saveModalNotes();
+        });
+
+        if (els.removeShowBtn) els.removeShowBtn.addEventListener('click', function () {
+            requestRemoveShow();
+        });
+
         if (els.fixLinkToggle) els.fixLinkToggle.addEventListener('click', function () {
             if (els.fixLinkForm) els.fixLinkForm.hidden = false;
             els.fixLinkToggle.hidden = true;
@@ -611,9 +629,19 @@
                     if (choiceResult.outcome === 'accepted') {
                         setStatus('✅ App installed! You can now access it from your home screen.');
                         els.installAppButton.hidden = true;
+                        els.installPrompt.style.display = 'none';
                     }
                     window.deferredPrompt = null;
                 });
+                return;
+            }
+
+            // iOS Safari has no beforeinstallprompt; keep a fallback CTA visible.
+            els.installPrompt.style.display = 'block';
+            if (isIosInstallDevice()) {
+                setStatus('On iPhone/iPad, tap Share in Safari, then "Add to Home Screen".');
+            } else {
+                setStatus('Install is not ready yet. Use your browser menu for "Install app" or "Add to Home Screen".');
             }
         });
     }
@@ -715,10 +743,14 @@
         });
 
         // Check if running in standalone mode (installed on home screen)
-        if (window.navigator.standalone === true) {
+        if (isStandaloneApp()) {
             console.log('[PWA] Running in standalone/installed mode');
             els.installAppButton.hidden = true;
             els.installPrompt.style.display = 'none';
+        } else if (isIosInstallDevice() || window.matchMedia('(max-width: 680px)').matches) {
+            // Keep install CTA visible on mobile; iOS never fires beforeinstallprompt.
+            els.installAppButton.hidden = false;
+            if (isIosInstallDevice()) els.installPrompt.style.display = 'block';
         }
 
         // Notify user about periodic updates from service worker
@@ -745,6 +777,7 @@
         try {
             // Load user-scoped data from localStorage
             state.overrides = loadUserScopedJson(STORE_KEYS.localOverrides, {});
+            state.watchHistory = loadUserScopedJson(STORE_KEYS.watchHistory, []);
             state.metadataCache = loadUserScopedJson(STORE_KEYS.metadataCache, {});
             state.customShows = loadUserScopedJson(STORE_KEYS.customShows, []);
             state.importedData = loadUserScopedJson(STORE_KEYS.importedData, null);
@@ -1106,7 +1139,18 @@
         queueMetadataFetches(state.shows, true);
     }
 
-    function finishMetadataRefresh() {
+    async function finishMetadataRefresh() {
+        updateLoadingSub('Checking ended-show completion…');
+        try {
+            var changed = await reconcileEndedShowCompletionFromCatalog();
+            if (changed > 0) {
+                applyFilters();
+                render();
+            }
+        } catch (error) {
+            console.warn('Post-refresh completion check failed', error);
+        }
+
         updateLoadingSub('Done! Reloading…');
         window.setTimeout(function () { window.location.reload(); }, 600);
     }
@@ -1274,6 +1318,7 @@
         // Delete user-scoped data
         var userScopedKeys = [
             STORE_KEYS.localOverrides,
+            STORE_KEYS.watchHistory,
             STORE_KEYS.metadataCache,
             STORE_KEYS.omdbApiKey,
             STORE_KEYS.customShows,
@@ -1306,7 +1351,7 @@
 
         var savedCollapse = loadJson(STORE_KEYS.sectionCollapse, null);
         if (savedCollapse && typeof savedCollapse === 'object') {
-            ['watchnext', 'stale', 'paused', 'completed'].forEach(function (key) {
+            ['watchnext', 'history', 'stale', 'paused', 'completed'].forEach(function (key) {
                 if (typeof savedCollapse[key] === 'boolean') state.collapsedSections[key] = savedCollapse[key];
             });
         }
@@ -1332,14 +1377,17 @@
     function clearUiForSignedOut() {
         state.shows = [];
         state.filtered = [];
+        state.watchHistory = [];
         state.importedData = null;
         state.customShows = [];
         els.statsCards.innerHTML = '';
         els.watchNextGrid.innerHTML = '<div class="empty">Sign in to load your personal tracker.</div>';
+        els.historyGrid.innerHTML = '';
         els.staleGrid.innerHTML = '';
         els.pausedShowsGrid.innerHTML = '';
         els.completedShowsGrid.innerHTML = '';
         els.watchNextCount.textContent = '';
+        els.historyCount.textContent = '';
         els.staleCount.textContent = '';
         els.pausedShowsCount.textContent = '';
         els.completedShowsCount.textContent = '';
@@ -1426,6 +1474,7 @@
         var imported = state.importedData || { userShows: [], followed: [], latestSeenByShow: [] };
         var hasImport = (imported.userShows && imported.userShows.length) || (imported.followed && imported.followed.length);
         var hasCustom = state.customShows && state.customShows.length;
+        state.mobileGreetingDone = false;
 
         if (!hasImport && !hasCustom) {
             state.shows = [];
@@ -1447,6 +1496,7 @@
             console.error(error);
             setStatus('Could not build your show list from the imported data.', true);
             els.watchNextGrid.innerHTML = '<div class="error">Failed to read imported data. Try re-importing your TV Time export.</div>';
+            if (els.historyGrid) els.historyGrid.innerHTML = '';
             els.staleGrid.innerHTML = '';
         }
     }
@@ -1643,6 +1693,7 @@
 
             var followedInfo = followedById.get(tvShowId) || { active: row.is_followed === '1', archived: false, createdAt: '', updatedAt: '' };
             var override = state.overrides[tvShowId] || {};
+            if (override.removed) return;
             var lastSeen = override.lastSeen || latestSeenByName.get(normalizeName(title)) || null;
 
             var watchedCountBase = toInt(row.nb_episodes_seen);
@@ -1685,11 +1736,19 @@
     }
 
     function deriveStatus(overrideStatus, followedInfo, watchedCount, lastSeen) {
-        if (overrideStatus) return overrideStatus;
+        if (overrideStatus) return normalizeTrackerStatus(overrideStatus);
         if (followedInfo.archived) return 'archived';
         if (!followedInfo.active && watchedCount <= 0) return 'paused';
         if (!followedInfo.active) return 'paused';
         if (lastSeen && watchedCount > 0 && lastSeen.season > 0) return 'active';
+        return 'active';
+    }
+
+    function normalizeTrackerStatus(raw) {
+        var s = String(raw || '').trim().toLowerCase();
+        if (s === 'completed' || s === 'complete') return 'completed';
+        if (s === 'paused') return 'paused';
+        if (s === 'archived') return 'archived';
         return 'active';
     }
 
@@ -1750,7 +1809,60 @@
     function render() {
         renderStats();
         renderUpcoming();
+        renderWatchHistory();
         renderShows();
+        maybeFocusWatchNextOnMobile();
+    }
+
+    function renderWatchHistory() {
+        if (!els.historyGrid) return;
+        var entries = (state.watchHistory || []).slice().sort(function (a, b) {
+            return asTime(b && b.loggedAt) - asTime(a && a.loggedAt);
+        });
+
+        if (els.historyCount) {
+            els.historyCount.textContent = entries.length + ' logged';
+        }
+
+        if (!entries.length) {
+            els.historyGrid.innerHTML = '<div class="empty">No watched-episode activity yet. Mark episodes watched to build your timeline.</div>';
+            return;
+        }
+
+        var fragment = document.createDocumentFragment();
+        entries.forEach(function (entry) {
+            if (!entry || !entry.showId) return;
+            var show = state.shows.find(function (item) { return item.id === entry.showId; }) || null;
+            var item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'history-item';
+
+            var dt = new Date(entry.loggedAt || Date.now());
+            var whenText = isNaN(dt.getTime()) ? 'Unknown time' : dt.toLocaleString(undefined, {
+                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+
+            var episodeLabel = 'S' + toInt(entry.season) + 'E' + toInt(entry.episode);
+            var epName = entry.episodeName ? (' · ' + entry.episodeName) : '';
+            item.innerHTML = '<div class="history-item-top">'
+                + '<span class="history-show">' + escapeHtml(entry.showTitle || (show && show.title) || 'Show') + '</span>'
+                + '<span class="history-when">' + escapeHtml(whenText) + '</span>'
+                + '</div>'
+                + '<div class="history-episode">Marked watched: ' + escapeHtml(episodeLabel + epName) + '</div>';
+
+            if (show) {
+                item.addEventListener('click', function () {
+                    openShowModal(show.id);
+                });
+            } else {
+                item.disabled = true;
+                item.title = 'This show is no longer in your tracker.';
+            }
+            fragment.appendChild(item);
+        });
+
+        els.historyGrid.innerHTML = '';
+        els.historyGrid.appendChild(fragment);
     }
 
     function renderStats() {
@@ -1908,7 +2020,7 @@
             if (tier === 'completed') completedShows.push(show);
             else if (tier === 'paused') pausedShows.push(show);
             else if (tier === 'stale') staleShows.push(show);
-            else watchNext.push(show);
+            else if (tier === 'watchnext') watchNext.push(show);
         });
 
         // In Watch Next, surface shows that have a new aired episode to watch.
@@ -1919,24 +2031,41 @@
             return compareByPreference(a, b);
         });
 
+        // "Haven't watched in a while" uses explicit recency ordering.
+        staleShows.sort(function (a, b) {
+            return asTime((b.lastSeen && b.lastSeen.updated_at) || '') - asTime((a.lastSeen && a.lastSeen.updated_at) || '');
+        });
+
         els.watchNextCount.textContent = watchNext.length + ' shown';
         els.staleCount.textContent = staleShows.length + ' shown';
         els.pausedShowsCount.textContent = pausedShows.length + ' shown';
         els.completedShowsCount.textContent = completedShows.length + ' shown';
 
-        renderShowList(els.watchNextGrid, watchNext, 'No shows watched in the last ' + RECENT_DAYS_THRESHOLD + ' days. Watch something to see it here.');
-        renderShowList(els.staleGrid, staleShows, 'Nothing here — every active show has recent progress.');
+        renderShowList(els.watchNextGrid, watchNext, 'You are caught up on all active shows.');
+        renderShowList(els.staleGrid, staleShows, 'No inactive catch-up shows right now.');
         renderShowList(els.pausedShowsGrid, pausedShows, 'No paused/backlog shows right now.');
         renderShowList(els.completedShowsGrid, completedShows, 'No completed shows yet.');
     }
 
     function categorizeShow(show) {
-        if (show.status === 'completed') return 'completed';
-        if (show.status === 'paused' || show.status === 'archived') return 'paused';
-        return isRecentlyWatched(show) ? 'watchnext' : 'stale';
+        var status = normalizeTrackerStatus(show && show.status);
+        if (status === 'completed') return 'completed';
+        if (status === 'paused' || status === 'archived') return 'paused';
+        if (hasNewEpisode(show)) {
+            return isNotWatchedForAWhile(show) ? 'stale' : 'watchnext';
+        }
+        return 'uptodate';
     }
 
-    function renderShowList(container, shows, emptyText) {
+    function isNotWatchedForAWhile(show) {
+        if (!hasNewEpisode(show)) return false;
+        var last = asTime(show && show.lastSeen && show.lastSeen.updated_at);
+        if (!last) return true;
+        var thresholdMs = STALE_DAYS_THRESHOLD * 24 * 60 * 60 * 1000;
+        return (Date.now() - last) >= thresholdMs;
+    }
+
+    function renderShowList(container, shows, emptyText, listType) {
         if (!shows.length) {
             container.innerHTML = '<div class="empty">' + escapeHtml(emptyText) + '</div>';
             return;
@@ -1957,12 +2086,6 @@
             var watchRow = cardNode.querySelector('.watch-row');
             var nextRow = cardNode.querySelector('.next-row');
             var tags = cardNode.querySelector('.tags');
-            var noteInput = cardNode.querySelector('.note-input');
-            var decButton = cardNode.querySelector('.btn-decrease');
-            var incButton = cardNode.querySelector('.btn-increase');
-            var seasonButton = cardNode.querySelector('.watch-season');
-            var pauseButton = cardNode.querySelector('.pause-show');
-            var completeButton = cardNode.querySelector('.complete-show');
 
             var meta = show.meta || {};
             var posterSrc = meta.poster || FALLBACK_POSTER;
@@ -2025,48 +2148,6 @@
                 rating.textContent = '\u2b50 ' + meta.imdbRating;
                 tags.appendChild(rating);
             }
-
-            noteInput.value = show.notes;
-            noteInput.addEventListener('change', function () {
-                updateShowOverride(show.id, { notes: noteInput.value });
-                setStatus('Saved note for ' + show.title + '.');
-            });
-
-            decButton.addEventListener('click', function () {
-                removeLatestWatchedEpisode(show);
-            });
-
-            incButton.addEventListener('click', function () {
-                markNextEpisodeAsWatched(show);
-            });
-
-            seasonButton.addEventListener('click', function () {
-                watchSeasonUpToCurrent(show);
-            });
-
-            var isCompleted = show.status === 'completed';
-            var isPausedLike = show.status === 'paused' || show.status === 'archived';
-            pauseButton.textContent = isPausedLike ? 'Unpause' : 'Pause';
-            pauseButton.classList.toggle('is-unpause', isPausedLike);
-            pauseButton.disabled = isCompleted;
-            pauseButton.addEventListener('click', function () {
-                patchShow(show.id, { status: isPausedLike ? 'active' : 'paused' });
-                setStatus((isPausedLike ? 'Resumed ' : 'Paused ') + show.title + '.');
-            });
-
-            completeButton.textContent = isCompleted ? 'Reopen' : 'Complete';
-            completeButton.classList.toggle('is-unpause', isCompleted);
-            completeButton.addEventListener('click', function () {
-                if (isCompleted) {
-                    // Reopening: opt out of auto-complete so it doesn't snap back.
-                    patchShow(show.id, { status: 'active' });
-                    updateShowOverride(show.id, { keepOpen: true });
-                    setStatus('Reopened ' + show.title + '.');
-                } else {
-                    updateShowOverride(show.id, { keepOpen: false });
-                    completeShow(show);
-                }
-            });
 
             card.dataset.showId = show.id;
             card.addEventListener('click', function (event) {
@@ -2179,23 +2260,32 @@
     function applyWatchedChange(show, episodesToChange, watched, catalog) {
         if (!show.episodeStates) show.episodeStates = {};
         var delta = 0;
+        var markedWatched = [];
+        var markedUnwatched = [];
         episodesToChange.forEach(function (ep) {
             if (watched && isEpisodeUnaired(ep)) return; // can't watch the future
             var was = isEpisodeWatched(show, ep);
             show.episodeStates[episodeKey(ep.season, ep.number)] = watched;
-            if (was !== watched) delta += watched ? 1 : -1;
+            if (was !== watched) {
+                delta += watched ? 1 : -1;
+                if (watched) markedWatched.push(ep);
+                else markedUnwatched.push(ep);
+            }
         });
         var nextCount = Math.max(0, toInt(show.watchedCount) + delta);
         var nextStatus = show.status;
         if (nextCount > 0 && show.status === 'paused') nextStatus = 'active';
-        // Auto-complete: if this leaves an ended series fully watched, finish it.
-        // (episodeStates were updated above, so isEpisodeWatched reflects the new
-        // state.) Skipped if the user opted out by reopening it before.
-        if (watched && nextStatus === 'active' && !isAutoCompleteOptedOut(show)) {
+        // Auto-complete ended series when all aired episodes are watched.
+        // episodeStates were updated above, so isEpisodeWatched sees the new state.
+        if (watched && nextStatus === 'active') {
             var m = show.meta || {};
             if (m.seriesStatus === 'ended' && allAiredEpisodesWatched(show, catalog)) {
                 nextStatus = 'completed';
             }
+        }
+        // If a completed show no longer has all aired episodes watched, reopen it.
+        if (nextStatus === 'completed' && !allAiredEpisodesWatched(show, catalog)) {
+            nextStatus = 'active';
         }
         patchShow(show.id, {
             watchedCount: nextCount,
@@ -2203,6 +2293,55 @@
             lastSeen: computeLastSeen(show, catalog),
             status: nextStatus
         });
+
+        if (markedWatched.length) appendWatchHistory(show, markedWatched);
+        if (markedUnwatched.length) pruneWatchHistory(show.id, markedUnwatched);
+    }
+
+    function appendWatchHistory(show, episodes) {
+        if (!show || !show.id || !Array.isArray(episodes) || !episodes.length) return;
+        var base = Date.now();
+        var history = Array.isArray(state.watchHistory) ? state.watchHistory.slice() : [];
+
+        episodes.slice().sort(byEpOrder).forEach(function (ep, idx) {
+            history.push({
+                id: String(show.id) + ':' + episodeKey(ep.season, ep.number) + ':' + String(base + idx),
+                showId: show.id,
+                showTitle: show.title || '',
+                season: toInt(ep.season),
+                episode: toInt(ep.number),
+                episodeName: ep.name || '',
+                loggedAt: new Date(base + idx).toISOString()
+            });
+        });
+
+        if (history.length > WATCH_HISTORY_MAX) {
+            history = history.slice(history.length - WATCH_HISTORY_MAX);
+        }
+
+        state.watchHistory = history;
+        persistUserScopedJson(STORE_KEYS.watchHistory, state.watchHistory);
+    }
+
+    function pruneWatchHistory(showId, episodes) {
+        if (!showId || !Array.isArray(episodes) || !episodes.length) return;
+        var history = Array.isArray(state.watchHistory) ? state.watchHistory.slice() : [];
+
+        episodes.forEach(function (ep) {
+            var targetSeason = toInt(ep.season);
+            var targetEpisode = toInt(ep.number);
+            for (var i = history.length - 1; i >= 0; i--) {
+                var entry = history[i];
+                if (!entry) continue;
+                if (entry.showId === showId && toInt(entry.season) === targetSeason && toInt(entry.episode) === targetEpisode) {
+                    history.splice(i, 1);
+                    break;
+                }
+            }
+        });
+
+        state.watchHistory = history;
+        persistUserScopedJson(STORE_KEYS.watchHistory, state.watchHistory);
     }
 
     function setEpisodeWatched(show, episode, watched, catalog) {
@@ -2297,26 +2436,24 @@
     }
 
     // --- Auto-complete ended shows ---------------------------------------
-    // When a series has finished airing and the user has watched everything, we
-    // flip it to Completed automatically. Users can still Reopen; doing so sets a
-    // per-show opt-out (keepOpen) so we don't immediately re-complete it.
-
-    function isAutoCompleteOptedOut(show) {
-        var ov = show && show.id ? state.overrides[show.id] : null;
-        return !!(ov && ov.keepOpen);
-    }
+    // Ended series become Completed automatically once all aired episodes are
+    // watched, and switch back to Active if progress is later undone.
 
     function allAiredEpisodesWatched(show, catalog) {
         if (!Array.isArray(catalog) || !catalog.length) return false;
-        var aired = catalog.filter(function (ep) { return !isEpisodeUnaired(ep); });
+        // Ignore specials (season 0) for completion and only count regular aired eps.
+        var aired = catalog.filter(function (ep) {
+            return toInt(ep.season) >= 1 && toInt(ep.number) > 0 && !isEpisodeUnaired(ep);
+        });
         if (!aired.length) return false;
+        // Import rows can carry a reliable total seen count without per-episode marks.
+        if (toInt(show && show.watchedCount) >= aired.length) return true;
         return aired.every(function (ep) { return isEpisodeWatched(show, ep); });
     }
 
     // Accurate per-show check used when a modal opens (we have the full catalog).
     function maybeAutoCompleteFromCatalog(show, episodes) {
         if (!show || show.status !== 'active') return;
-        if (isAutoCompleteOptedOut(show)) return;
         var meta = show.meta || {};
         if (meta.seriesStatus !== 'ended') return;
         if (!allAiredEpisodesWatched(show, episodes)) return;
@@ -2329,7 +2466,6 @@
     // marker is fully watched. Relies on meta.lastAired + show.lastSeen.
     function shouldAutoComplete(show) {
         if (!show || show.status !== 'active') return false;
-        if (isAutoCompleteOptedOut(show)) return false;
         var meta = show.meta || {};
         if (meta.seriesStatus !== 'ended') return false;
         var lastAired = meta.lastAired;
@@ -2354,6 +2490,46 @@
             });
             changed += 1;
         });
+        return changed;
+    }
+
+    // During a full metadata refresh we have fresh metadata for every show.
+    // Re-check ended titles with full episode catalogs so completion status is
+    // accurate even when the user does not open individual modals.
+    async function reconcileEndedShowCompletionFromCatalog() {
+        var candidates = (state.shows || []).filter(function (show) {
+            var meta = show && show.meta ? show.meta : {};
+            return meta.seriesStatus === 'ended' && (show.status === 'active' || show.status === 'completed');
+        });
+        var changed = 0;
+
+        for (var i = 0; i < candidates.length; i++) {
+            var show = candidates[i];
+            updateLoadingSub('Checking ended-show completion… ' + (i + 1) + ' / ' + candidates.length);
+
+            var catalog = [];
+            try {
+                catalog = await loadEpisodeCatalog(show);
+            } catch (error) {
+                console.warn('Completion catalog check failed for', show.title, error);
+                continue;
+            }
+            if (!catalog.length) continue;
+
+            var nextStatus = allAiredEpisodesWatched(show, catalog) ? 'completed' : 'active';
+            if (show.status === nextStatus) continue;
+
+            show.status = nextStatus;
+            show.localStatus = nextStatus;
+            updateShowOverride(show.id, {
+                watchedCount: show.watchedCount,
+                status: nextStatus,
+                lastSeen: show.lastSeen || null,
+                episodeStates: show.episodeStates || {}
+            });
+            changed += 1;
+        }
+
         return changed;
     }
 
@@ -2544,6 +2720,57 @@
         if (els.posterLightboxImg) els.posterLightboxImg.src = '';
     }
 
+    function saveModalNotes() {
+        var showId = state.modalShowId;
+        if (!showId || !els.modalNotes) return;
+        var show = state.shows.find(function (item) { return item.id === showId; });
+        if (!show) return;
+        show.notes = String(els.modalNotes.value || '');
+        updateShowOverride(showId, { notes: show.notes });
+        applyFilters();
+        render();
+        setStatus('Saved note for ' + show.title + '.');
+    }
+
+    function requestRemoveShow() {
+        var showId = state.modalShowId;
+        if (!showId) return;
+        var show = state.shows.find(function (item) { return item.id === showId; });
+        if (!show) return;
+
+        openConfirm(
+            'Remove ' + show.title + '?',
+            'This removes it from your tracker list on this account. You can re-import your export or add it again later.',
+            'Remove',
+            function () {
+                removeShowFromTracker(show);
+            }
+        );
+    }
+
+    function removeShowFromTracker(show) {
+        if (!show || !show.id) return;
+
+        if (String(show.id).indexOf('custom:') === 0) {
+            state.customShows = (state.customShows || []).filter(function (custom) {
+                return custom.id !== show.id;
+            });
+            persistUserScopedJson(STORE_KEYS.customShows, state.customShows);
+        }
+
+        updateShowOverride(show.id, { removed: true });
+        delete state.episodeCache[show.id];
+        state.watchHistory = (state.watchHistory || []).filter(function (entry) {
+            return entry && entry.showId !== show.id;
+        });
+        persistUserScopedJson(STORE_KEYS.watchHistory, state.watchHistory);
+
+        closeShowModal();
+        bootstrap().then(function () {
+            setStatus('Removed ' + show.title + ' from your tracker.');
+        });
+    }
+
     // Builds the IMDb rating chip + external link shown under the modal facts.
     function renderModalLinks(meta) {
         if (!els.modalLinks) return;
@@ -2590,6 +2817,37 @@
         els.modalFactsText.textContent = facts.join('  ·  ');
         renderModalLinks(meta);
         els.modalSummary.textContent = stripHtml(meta.summary || '');
+        if (els.modalNotes) {
+            els.modalNotes.value = show.notes || '';
+        }
+
+        if (els.modalDecrease) {
+            els.modalDecrease.onclick = function () {
+                removeLatestWatchedEpisode(show);
+            };
+        }
+        if (els.modalIncrease) {
+            els.modalIncrease.onclick = function () {
+                markNextEpisodeAsWatched(show);
+            };
+        }
+        if (els.modalWatchSeason) {
+            els.modalWatchSeason.onclick = function () {
+                watchSeasonUpToCurrent(show);
+            };
+        }
+
+        var isCompleted = show.status === 'completed';
+        var isPausedLike = show.status === 'paused' || show.status === 'archived';
+        if (els.modalPauseShow) {
+            els.modalPauseShow.textContent = isPausedLike ? 'Unpause' : 'Pause';
+            els.modalPauseShow.classList.toggle('is-unpause', isPausedLike);
+            els.modalPauseShow.disabled = isCompleted;
+            els.modalPauseShow.onclick = function () {
+                patchShow(show.id, { status: isPausedLike ? 'active' : 'paused' });
+                setStatus((isPausedLike ? 'Resumed ' : 'Paused ') + show.title + '.');
+            };
+        }
 
         var totalEps = episodes.length;
         var watchedEps = episodes.filter(function (ep) { return isEpisodeWatched(show, ep); }).length;
@@ -3184,14 +3442,6 @@
         return value.slice(0, max).replace(/\s+\S*$/, '') + '…';
     }
 
-    // Recently active = last watched within the recent window. Shows with no
-    // known watch date fall through to "Haven't Watched in a While".
-    function isRecentlyWatched(show) {
-        var t = asTime(show.lastSeen && show.lastSeen.updated_at);
-        if (!t) return false;
-        return t >= Date.now() - RECENT_DAYS_THRESHOLD * 24 * 60 * 60 * 1000;
-    }
-
     // True when the most recent aired episode is later than the user's progress,
     // i.e. there's a new episode ready to watch. Uses meta.lastAired (TVMaze
     // previous-episode) so it needs no extra per-card fetch.
@@ -3199,8 +3449,10 @@
         var meta = show.meta || {};
         var lastAired = meta.lastAired;
         if (!lastAired || !lastAired.season) return false;
-        if (!show.lastSeen || !show.lastSeen.season) return false;
-        return epRank(lastAired.season, lastAired.number) > epRank(show.lastSeen.season, show.lastSeen.episode);
+        var seenRank = (show.lastSeen && show.lastSeen.season)
+            ? epRank(show.lastSeen.season, show.lastSeen.episode)
+            : 0;
+        return epRank(lastAired.season, lastAired.number) > seenRank;
     }
 
     // A returning season opener (episode 1 of season >= 2) counts as a premiere.
@@ -3208,11 +3460,13 @@
         return !!ep && toInt(ep.number) === 1 && toInt(ep.season) >= 2;
     }
 
-    // True when the next upcoming (scheduled) episode kicks off a new season,
-    // so we can flag a "New Season" premiere on the card.
+    // True when the next episode is a season premiere that has already aired,
+    // so "New Season" doesn't show months before release.
     function hasUpcomingPremiere(show) {
         var next = show.meta && show.meta.nextEpisode;
         if (!next || !next.airdate) return false;
+        var airTime = asTime(next.airdate);
+        if (!airTime || airTime > Date.now()) return false;
         return isSeasonPremiere(next);
     }
 
@@ -3255,21 +3509,13 @@
         var current = state.shows.find(function (item) { return item.id === show.id; }) || show;
 
         if (catalog && catalog.length) {
-            if (!current.episodeStates) current.episodeStates = {};
-            var delta = 0;
-            catalog.forEach(function (ep) {
-                if (isEpisodeUnaired(ep)) return; // can't watch the future
-                var was = isEpisodeWatched(current, ep);
-                current.episodeStates[episodeKey(ep.season, ep.number)] = true;
-                if (!was) delta += 1;
+            var toWatch = catalog.filter(function (ep) {
+                return !isEpisodeUnaired(ep) && !isEpisodeWatched(current, ep);
             });
-            var nextCount = Math.max(0, toInt(current.watchedCount) + delta);
-            patchShow(show.id, {
-                watchedCount: nextCount,
-                episodeStates: current.episodeStates,
-                lastSeen: computeLastSeen(current, catalog),
-                status: 'completed'
-            });
+            if (toWatch.length) {
+                applyWatchedChange(current, toWatch, true, catalog);
+            }
+            patchShow(show.id, { status: 'completed' });
             setStatus('Completed ' + show.title + ' \u2014 marked all aired episodes watched.');
         } else {
             // Unlinked show (no episode data): just flip the status.
@@ -3286,8 +3532,9 @@
             show.watchedCount = patch.watchedCount;
         }
         if (patch.status) {
-            show.status = patch.status;
-            show.localStatus = patch.status;
+            var normalized = normalizeTrackerStatus(patch.status);
+            show.status = normalized;
+            show.localStatus = normalized;
         }
         if (patch.episodeStates && typeof patch.episodeStates === 'object') {
             show.episodeStates = patch.episodeStates;
@@ -3311,6 +3558,19 @@
 
         applyFilters();
         render();
+
+        // Keep the currently open modal live when actions are triggered there.
+        if (state.modalShowId === showId && !els.showModal.hidden) {
+            loadEpisodeCatalog(show).then(function (episodes) {
+                var current = state.shows.find(function (item) { return item.id === showId; }) || show;
+                if (state.modalShowId !== showId) return;
+                renderShowModal(current, episodes || []);
+            }).catch(function () {
+                var current = state.shows.find(function (item) { return item.id === showId; }) || show;
+                if (state.modalShowId !== showId) return;
+                renderShowModal(current, []);
+            });
+        }
     }
 
     function updateShowOverride(showId, updates) {
@@ -3320,6 +3580,27 @@
         // "newest wins" per show (edits on both devices then both survive).
         state.overrides[showId].updatedAt = Date.now();
         persistUserScopedJson(STORE_KEYS.localOverrides, state.overrides);
+    }
+
+    function isStandaloneApp() {
+        var mql = window.matchMedia && window.matchMedia('(display-mode: standalone)');
+        return (mql && mql.matches) || window.navigator.standalone === true;
+    }
+
+    function isIosInstallDevice() {
+        return /iphone|ipad|ipod/i.test(window.navigator.userAgent || '');
+    }
+
+    function maybeFocusWatchNextOnMobile() {
+        if (state.mobileGreetingDone) return;
+        if (!state.currentUser || !state.shows.length) return;
+        if (!(window.matchMedia && window.matchMedia('(max-width: 680px)').matches)) return;
+        if (!els.watchNextSection) return;
+
+        state.mobileGreetingDone = true;
+        window.setTimeout(function () {
+            els.watchNextSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 180);
     }
 
     function getCachedMeta(showId, title) {
@@ -4128,6 +4409,7 @@
             user: state.currentUser,
             account: accounts[state.currentUser] || null,
             overrides: state.overrides || {},
+            watchHistory: state.watchHistory || [],
             customShows: state.customShows || [],
             importedData: state.importedData || null,
             metadataCache: state.metadataCache || {},
@@ -4147,10 +4429,12 @@
         var cs = snap.customShows || [];
         var csSum = 0;
         cs.forEach(function (s) { csSum += (s && s.updatedAt) || 0; });
+        var wh = snap.watchHistory || [];
+        var whLast = wh.length ? asTime(wh[wh.length - 1] && wh[wh.length - 1].loggedAt) : 0;
         var imp = (snap.importedData && snap.importedData.importedAt) ? (Date.parse(snap.importedData.importedAt) || 0) : 0;
         var setAt = (snap.settings && snap.settings.settingsAt) || 0;
         var mc = snap.metadataCache ? Object.keys(snap.metadataCache).length : 0;
-        return [oCount, oSum, cs.length, csSum, imp, setAt, mc].join('|');
+        return [oCount, oSum, wh.length, whLast, cs.length, csSum, imp, setAt, mc].join('|');
     }
 
     function mergeSyncSnapshot(remote) {
@@ -4163,6 +4447,7 @@
         var changed = false;
         var importChanged = false;
         var metaChanged = false;
+        var watchHistoryChanged = false;
         var settingsChanged = false;
         var pendingOmdb = null;
         var pendingSettingsAt = 0;
@@ -4194,6 +4479,26 @@
                 if (!ex || rAt > eAt) { byId[rs.id] = rs; changed = true; }
             });
             var mergedCustom = Object.keys(byId).map(function (k) { return byId[k]; });
+
+            // watchHistory: append-only merge by event id.
+            var histById = {};
+            (state.watchHistory || []).forEach(function (e) {
+                if (!e || !e.id) return;
+                histById[e.id] = e;
+            });
+            (remote.watchHistory || []).forEach(function (e) {
+                if (!e || !e.id) return;
+                if (!histById[e.id]) {
+                    histById[e.id] = e;
+                    watchHistoryChanged = true;
+                    changed = true;
+                }
+            });
+            var mergedHistory = Object.keys(histById).map(function (k) { return histById[k]; })
+                .sort(function (a, b) { return asTime(a && a.loggedAt) - asTime(b && b.loggedAt); });
+            if (mergedHistory.length > WATCH_HISTORY_MAX) {
+                mergedHistory = mergedHistory.slice(mergedHistory.length - WATCH_HISTORY_MAX);
+            }
 
             // importedData: newest importedAt wins
             var lImp = state.importedData;
@@ -4230,7 +4535,9 @@
 
             if (changed) {
                 state.customShows = mergedCustom;
+                state.watchHistory = mergedHistory;
                 persistJson(scopedKey(STORE_KEYS.localOverrides), state.overrides);
+                if (watchHistoryChanged) persistJson(scopedKey(STORE_KEYS.watchHistory), state.watchHistory);
                 persistJson(scopedKey(STORE_KEYS.customShows), state.customShows);
                 if (importChanged) persistJson(scopedKey(STORE_KEYS.importedData), state.importedData);
                 if (metaChanged) persistJson(scopedKey(STORE_KEYS.metadataCache), state.metadataCache);

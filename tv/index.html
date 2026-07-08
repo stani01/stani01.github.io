@@ -109,6 +109,17 @@
             <div id="watchnext-shows-grid" class="shows-grid" role="region" aria-label="Watch Next"></div>
         </section>
 
+        <section class="collapsible-section" id="section-history">
+            <h2 class="section-heading">
+                <button type="button" class="section-toggle" data-section="history" aria-expanded="true" aria-controls="history-shows-grid">
+                    <span class="section-caret" aria-hidden="true">▾</span>
+                    <span class="section-title">Watch History</span>
+                    <span class="section-count" id="history-shows-count"></span>
+                </button>
+            </h2>
+            <div id="history-shows-grid" class="shows-grid history-feed" role="region" aria-label="Watch History timeline"></div>
+        </section>
+
         <section class="collapsible-section" id="section-stale">
             <h2 class="section-heading">
                 <button type="button" class="section-toggle" data-section="stale" aria-expanded="true" aria-controls="stale-shows-grid">
@@ -162,17 +173,6 @@
                 <p class="watch-row"></p>
                 <p class="next-row"></p>
                 <div class="tags"></div>
-                <div class="notes-wrap">
-                    <label>Personal notes</label>
-                    <textarea class="note-input" rows="2" placeholder="Add your notes"></textarea>
-                </div>
-                <div class="controls-row">
-                    <button type="button" class="btn btn-episode-action btn-decrease" title="Remove last watched episode">➖</button>
-                    <button type="button" class="btn btn-episode-action btn-increase" title="Mark next episode as watched">➕</button>
-                    <button type="button" class="btn btn-episode-action watch-season" title="Catch up: mark all aired episodes watched">🎬</button>
-                    <button type="button" class="btn btn-action pause-show">Pause</button>
-                    <button type="button" class="btn btn-action complete-show">Complete</button>
-                </div>
             </div>
         </article>
     </template>
@@ -185,7 +185,10 @@
                     <h2 id="show-modal-title">Show Details</h2>
                     <p id="show-modal-subtitle"></p>
                 </div>
-                <button id="show-modal-close" class="btn btn-sm" type="button">Close</button>
+                <div class="show-modal-actions">
+                    <button id="remove-show-btn" class="btn btn-danger btn-sm" type="button">Remove Show</button>
+                    <button id="show-modal-close" class="btn btn-sm" type="button">Close</button>
+                </div>
             </header>
 
             <div class="show-modal-body">
@@ -198,6 +201,10 @@
                         <p id="modal-facts-text" class="modal-facts-text"></p>
                         <div id="modal-links" class="modal-links"></div>
                         <p id="modal-summary" class="modal-summary"></p>
+                        <div class="modal-notes-wrap">
+                            <label for="modal-notes">Personal notes</label>
+                            <textarea id="modal-notes" rows="3" placeholder="Add your notes"></textarea>
+                        </div>
                         <div id="modal-fix-link" class="modal-fix-link" hidden>
                             <p class="modal-fix-link-note">This show isn't linked to a database yet, so there's no poster or episode list. Link it with its IMDb page to pull the right details.</p>
                             <button type="button" id="modal-fix-link-toggle" class="btn btn-sm modal-fix-link-toggle">🔗 Fix show link</button>
@@ -210,6 +217,12 @@
                                 </div>
                                 <p id="modal-fix-link-msg" class="modal-fix-link-msg" hidden></p>
                             </form>
+                        </div>
+                        <div class="controls-row modal-controls-row">
+                            <button type="button" id="modal-decrease" class="btn btn-episode-action" title="Remove last watched episode">➖</button>
+                            <button type="button" id="modal-increase" class="btn btn-episode-action" title="Mark next episode as watched">➕</button>
+                            <button type="button" id="modal-watch-season" class="btn btn-episode-action" title="Catch up: mark all aired episodes watched">🎬</button>
+                            <button type="button" id="modal-pause-show" class="btn btn-action">Pause</button>
                         </div>
                     </div>
                 </div>

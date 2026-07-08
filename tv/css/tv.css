@@ -429,6 +429,58 @@ textarea {
     gap: 0.85rem;
 }
 
+.history-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.history-item {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 0.85rem;
+    background: rgba(12, 20, 37, 0.88);
+    color: var(--text);
+    text-align: left;
+    padding: 0.62rem 0.74rem;
+    cursor: pointer;
+    transition: transform 0.16s ease, border-color 0.16s ease, background-color 0.16s ease;
+}
+
+.history-item:hover {
+    transform: translateY(-1px);
+    border-color: var(--accent);
+    background: rgba(20, 32, 58, 0.95);
+}
+
+.history-item[disabled] {
+    cursor: default;
+    opacity: 0.75;
+}
+
+.history-item-top {
+    display: flex;
+    gap: 0.55rem;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.history-show {
+    font-weight: 700;
+}
+
+.history-when {
+    color: var(--text-soft);
+    font-size: 0.78rem;
+    white-space: nowrap;
+}
+
+.history-episode {
+    margin-top: 0.15rem;
+    color: #d7e7ff;
+    font-size: 0.84rem;
+}
+
 .show-card {
     display: grid;
     grid-template-columns: 96px 1fr;
@@ -448,6 +500,15 @@ textarea {
     transform: translateY(-3px);
     border-color: var(--accent);
     box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5);
+}
+
+.show-card.is-dimmed {
+    opacity: 0.62;
+    border-color: rgba(109, 130, 173, 0.35);
+}
+
+.show-card.is-dimmed:hover {
+    opacity: 0.88;
 }
 
 .poster-wrap {
@@ -647,6 +708,7 @@ textarea {
     color: #d7e7ff;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -674,21 +736,22 @@ textarea {
     font-weight: 700;
 }
 
-.notes-wrap {
-    margin-top: 0.45rem;
-}
-
-.notes-wrap label {
-    font-size: 0.76rem;
-    color: var(--text-soft);
-}
-
 .controls-row {
     margin-top: 0.7rem;
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     align-items: center;
+}
+
+.modal-controls-row {
+    margin-top: 0.55rem;
+}
+
+.modal-controls-row .btn-action {
+    flex: 0 1 auto;
+    min-height: 36px;
+    padding: 0.45rem 0.65rem;
 }
 
 .btn {
@@ -869,6 +932,13 @@ textarea {
     justify-content: space-between;
     align-items: flex-start;
     gap: 0.7rem;
+}
+
+.show-modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    justify-content: flex-end;
 }
 
 .show-modal-header p {
@@ -1685,6 +1755,24 @@ textarea {
     overflow: hidden;
 }
 
+.modal-notes-wrap {
+    margin-top: 0.55rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.modal-notes-wrap label {
+    font-size: 0.78rem;
+    color: var(--text-soft);
+    font-weight: 600;
+}
+
+#modal-notes {
+    min-height: 72px;
+    background: rgba(13, 21, 39, 0.96);
+}
+
 .modal-fix-link {
     margin-top: 0.6rem;
     padding: 0.7rem 0.8rem;
@@ -1955,6 +2043,7 @@ textarea {
 @media (max-width: 680px) {
     .tv-shell {
         width: min(100% - 1rem, 1400px);
+        margin-top: 0.55rem;
     }
 
     .hero,
@@ -1966,16 +2055,30 @@ textarea {
     }
 
     .hero {
-        padding: 1rem 1rem;
+        padding: 0.8rem 0.85rem;
+    }
+
+    .kicker {
+        font-size: 0.68rem;
     }
 
     .hero h1 {
-        font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+        margin: 0.05rem 0 0;
+        font-size: clamp(1.25rem, 4.4vw, 1.7rem);
     }
 
     .hero-actions {
-        gap: 0.4rem;
-        margin-top: 0.7rem;
+        gap: 0.35rem;
+        margin-top: 0.55rem;
+        flex-wrap: wrap;
+        overflow: visible;
+        padding-bottom: 0;
+    }
+
+    .hero-actions .btn {
+        flex: 1 1 100%;
+        width: 100%;
+        min-width: 0;
     }
 
     .btn {
@@ -1991,18 +2094,27 @@ textarea {
     .auth-panel {
         flex-direction: column;
         align-items: stretch;
-        gap: 0.35rem;
+        gap: 0.25rem;
+        margin-top: 0.45rem;
+    }
+
+    .auth-group {
+        width: 100%;
     }
 
     .auth-panel input {
-        min-width: 100%;
+        width: 100%;
+        min-width: 0;
         max-width: 100%;
         min-height: 40px;
         padding: 0.5rem 0.6rem;
         font-size: 0.85rem;
     }
 
-    .auth-panel .btn {
+    .auth-panel .btn,
+    .auth-group .btn {
+        width: 100%;
+        min-width: 0;
         min-height: 40px;
         padding: 0.5rem 0.8rem;
     }
@@ -2013,8 +2125,21 @@ textarea {
     }
 
     .stats {
+        margin-top: 0.7rem;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0.6rem;
+    }
+
+    .controls {
+        margin-top: 0.7rem;
+    }
+
+    .upcoming-board {
+        margin-top: 0.8rem;
+    }
+
+    .collapsible-section {
+        margin-top: 0.85rem;
     }
 
     .stat-card {
@@ -2101,6 +2226,15 @@ textarea {
 
     .show-modal-header .btn {
         align-self: flex-start;
+    }
+
+    .show-modal-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .show-modal-actions .btn {
+        flex: 0 0 auto;
     }
 
     .modal-list {
@@ -2207,6 +2341,14 @@ textarea {
 
     .ep-date {
         display: none;
+    }
+
+    #install-app {
+        order: -1;
+    }
+
+    #install-prompt {
+        font-size: 0.74rem;
     }
 }
 
