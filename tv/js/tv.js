@@ -1493,6 +1493,16 @@
             autoCompleteEndedShows();
             applyFilters();
             render();
+            // The fast pass above depends on lastSeen and can miss some ended
+            // fully-watched shows from imported counts. Run the accurate catalog
+            // check in the background so users don't need to open each modal.
+            reconcileEndedShowCompletionFromCatalog().then(function (changed) {
+                if (!changed) return;
+                applyFilters();
+                render();
+            }).catch(function (error) {
+                console.warn('Background completion reconcile failed', error);
+            });
             queueMetadataFetches(state.shows, false);
             var when = imported.importedAt ? new Date(imported.importedAt).toLocaleDateString() : '';
             setStatus('Loaded ' + state.shows.length + ' shows from your TV Time export' + (when ? ' (imported ' + when + ')' : '') + '.');
