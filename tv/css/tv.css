@@ -1033,6 +1033,25 @@ textarea {
     z-index: 2300;
 }
 
+/* Modal layering scale (higher value sits above lower value):
+ * show modal < account/info modals < sync modal < confirm modal < lightbox < loading
+ */
+#account-modal,
+#recover-modal,
+#omdb-modal,
+#addshow-modal,
+#help-modal {
+    z-index: 2300;
+}
+
+#sync-modal {
+    z-index: 2400;
+}
+
+#confirm-modal {
+    z-index: 2500;
+}
+
 .account-modal-backdrop {
     position: absolute;
     inset: 0;
