@@ -1872,6 +1872,7 @@
         renderUpcoming();
         renderWatchHistory();
         renderShows();
+        refreshUnresolvedControl();
         maybeFocusWatchNextOnMobile();
     }
 
@@ -3110,17 +3111,26 @@
         });
     }
 
-    // Shows/hides the "Fix unresolved shows (N)" control at the top of the Add
-    // Show modal and keeps its count current. Collapsed by default each open.
+    // Shows/hides the "Fix unresolved shows (N)" control on the main page and
+    // keeps its count current. If already open, keep it open while updating.
     function refreshUnresolvedControl() {
         if (!els.unresolvedWrap) return;
         var unresolved = getUnresolvedShows();
         var count = unresolved.length;
+        var wasOpen = !!(els.unresolvedPanel && !els.unresolvedPanel.hidden);
         if (els.unresolvedCount) els.unresolvedCount.textContent = String(count);
         els.unresolvedWrap.hidden = count === 0;
-        if (els.unresolvedPanel) els.unresolvedPanel.hidden = true;
-        if (els.unresolvedToggle) els.unresolvedToggle.setAttribute('aria-expanded', 'false');
-        if (count === 0 && els.unresolvedList) els.unresolvedList.innerHTML = '';
+        if (count === 0) {
+            if (els.unresolvedPanel) els.unresolvedPanel.hidden = true;
+            if (els.unresolvedToggle) els.unresolvedToggle.setAttribute('aria-expanded', 'false');
+            if (els.unresolvedList) els.unresolvedList.innerHTML = '';
+            return;
+        }
+        if (wasOpen) {
+            renderUnresolvedList();
+            if (els.unresolvedPanel) els.unresolvedPanel.hidden = false;
+            if (els.unresolvedToggle) els.unresolvedToggle.setAttribute('aria-expanded', 'true');
+        }
     }
 
     function toggleUnresolvedPanel() {

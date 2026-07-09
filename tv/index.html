@@ -89,6 +89,19 @@
             </label>
         </section>
 
+        <section class="unresolved-main" aria-label="Unresolved shows" id="unresolved-main-section">
+            <div id="unresolved-wrap" class="unresolved-wrap" hidden>
+                <button type="button" id="unresolved-toggle" class="unresolved-toggle" aria-expanded="false" aria-controls="unresolved-panel">
+                    <span>🔧 Fix unresolved shows</span>
+                    <span class="unresolved-badge" id="unresolved-count">0</span>
+                </button>
+                <div id="unresolved-panel" class="unresolved-panel" hidden>
+                    <p class="unresolved-note">These shows have no episode list yet, so there's nothing to track. Open one to paste its IMDb link and pull the details.</p>
+                    <div id="unresolved-list" class="unresolved-list"></div>
+                </div>
+            </div>
+        </section>
+
         <section class="upcoming-board" id="upcoming-board-wrap">
             <div class="section-head">
                 <h2>Upcoming Episodes</h2>
@@ -418,16 +431,6 @@
 
             <div class="account-modal-content">
                 <section class="account-section">
-                    <div id="unresolved-wrap" class="unresolved-wrap" hidden>
-                        <button type="button" id="unresolved-toggle" class="unresolved-toggle" aria-expanded="false" aria-controls="unresolved-panel">
-                            <span>🔧 Fix unresolved shows</span>
-                            <span class="unresolved-badge" id="unresolved-count">0</span>
-                        </button>
-                        <div id="unresolved-panel" class="unresolved-panel" hidden>
-                            <p class="unresolved-note">These shows have no episode list yet, so there's nothing to track. Open one to paste its IMDb link and pull the details.</p>
-                            <div id="unresolved-list" class="unresolved-list"></div>
-                        </div>
-                    </div>
                     <p class="info-text addshow-hint">Start typing a show name &mdash; matches from TVMaze appear below as you type. Pick the right one to add it to your tracker.</p>
                     <div class="addshow-search-row">
                         <input id="addshow-input" type="search" placeholder="e.g. Shameless 2011" autocomplete="off" spellcheck="false" aria-label="Show name to search">
@@ -479,7 +482,7 @@
 
                 <section class="account-section">
                     <h3>2. Import your shows</h3>
-                    <p>In TV Time, go to <strong>Settings &rarr; Export your data</strong> and you'll receive a <strong>.zip</strong> by email. Click <strong>Import TV Time Export</strong> and pick that .zip (or the extracted CSV files). Your followed shows and watch progress load instantly.</p>
+                    <p>Open TV Time GDPR self-service at <a href="https://gdpr.tvtime.com/gdpr/self-service" target="_blank" rel="noopener noreferrer"><strong>gdpr.tvtime.com/gdpr/self-service</strong></a>, request your export, then generate/download the <strong>.zip</strong>. After that, click <strong>Import TV Time Export</strong> here and choose the downloaded .zip (or extracted CSV files). Your followed shows and watch progress load instantly.</p>
                 </section>
 
                 <section class="account-section">

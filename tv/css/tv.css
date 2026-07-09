@@ -1331,6 +1331,10 @@ textarea {
     border-radius: 0.7rem;
 }
 
+.unresolved-main {
+    margin: 0.15rem 0 0.4rem;
+}
+
 .unresolved-wrap {
     margin-bottom: 0.8rem;
 }
