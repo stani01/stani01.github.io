@@ -77,8 +77,8 @@
         search: '',
         sortBy: 'recent',
         filterBy: 'all',
-        // Watch Next & Paused expanded; the long lists start collapsed.
-        collapsedSections: { watchnext: false, history: true, stale: true, paused: false, completed: true },
+        // Watch Next/Up-to-date/Paused expanded; the long lists start collapsed.
+        collapsedSections: { watchnext: false, uptodate: false, history: true, stale: true, paused: false, completed: true },
         mobileGreetingDone: false,
         // Cross-device sync runtime state (see the sync module near the bottom).
         sync: {
@@ -106,11 +106,13 @@
         pausedShowsGrid: document.getElementById('paused-shows-grid'),
         completedShowsGrid: document.getElementById('completed-shows-grid'),
         watchNextGrid: document.getElementById('watchnext-shows-grid'),
+        upToDateGrid: document.getElementById('uptodate-shows-grid'),
         historyGrid: document.getElementById('history-shows-grid'),
         staleGrid: document.getElementById('stale-shows-grid'),
         pausedShowsCount: document.getElementById('paused-shows-count'),
         completedShowsCount: document.getElementById('completed-shows-count'),
         watchNextCount: document.getElementById('watchnext-shows-count'),
+        upToDateCount: document.getElementById('uptodate-shows-count'),
         historyCount: document.getElementById('history-shows-count'),
         staleCount: document.getElementById('stale-shows-count'),
         watchNextSection: document.getElementById('section-watchnext'),
@@ -1351,7 +1353,7 @@
 
         var savedCollapse = loadJson(STORE_KEYS.sectionCollapse, null);
         if (savedCollapse && typeof savedCollapse === 'object') {
-            ['watchnext', 'history', 'stale', 'paused', 'completed'].forEach(function (key) {
+            ['watchnext', 'uptodate', 'history', 'stale', 'paused', 'completed'].forEach(function (key) {
                 if (typeof savedCollapse[key] === 'boolean') state.collapsedSections[key] = savedCollapse[key];
             });
         }
@@ -1382,11 +1384,13 @@
         state.customShows = [];
         els.statsCards.innerHTML = '';
         els.watchNextGrid.innerHTML = '<div class="empty">Sign in to load your personal tracker.</div>';
+        if (els.upToDateGrid) els.upToDateGrid.innerHTML = '';
         els.historyGrid.innerHTML = '';
         els.staleGrid.innerHTML = '';
         els.pausedShowsGrid.innerHTML = '';
         els.completedShowsGrid.innerHTML = '';
         els.watchNextCount.textContent = '';
+        if (els.upToDateCount) els.upToDateCount.textContent = '';
         els.historyCount.textContent = '';
         els.staleCount.textContent = '';
         els.pausedShowsCount.textContent = '';
@@ -1832,7 +1836,7 @@
         if (state.filterBy === 'all') return true;
         if (state.filterBy === 'active') return show.status === 'active';
         if (state.filterBy === 'paused') return show.status === 'paused';
-        if (state.filterBy === 'completed') return show.status === 'completed';
+        if (state.filterBy === 'completed') return isStrictlyCompletedShow(show);
         if (state.filterBy === 'archived') return show.status === 'archived';
         if (state.filterBy === 'with-upcoming') return Boolean(show.meta && show.meta.nextEpisode && show.meta.nextEpisode.airdate);
         return true;
@@ -2069,6 +2073,7 @@
 
     function renderShows() {
         var watchNext = [];
+        var upToDateShows = [];
         var staleShows = [];
         var pausedShows = [];
         var completedShows = [];
@@ -2077,6 +2082,7 @@
             if (tier === 'completed') completedShows.push(show);
             else if (tier === 'paused') pausedShows.push(show);
             else if (tier === 'stale') staleShows.push(show);
+            else if (tier === 'uptodate') upToDateShows.push(show);
             else if (tier === 'watchnext') watchNext.push(show);
         });
 
@@ -2093,21 +2099,42 @@
             return asTime((b.lastSeen && b.lastSeen.updated_at) || '') - asTime((a.lastSeen && a.lastSeen.updated_at) || '');
         });
 
+        // Up-to-date shows are active titles with no currently aired episode pending.
+        upToDateShows.sort(compareByPreference);
+
         els.watchNextCount.textContent = watchNext.length + ' shown';
+        if (els.upToDateCount) els.upToDateCount.textContent = upToDateShows.length + ' shown';
         els.staleCount.textContent = staleShows.length + ' shown';
         els.pausedShowsCount.textContent = pausedShows.length + ' shown';
         els.completedShowsCount.textContent = completedShows.length + ' shown';
 
-        renderShowList(els.watchNextGrid, watchNext, 'You are caught up on all active shows.');
+        renderShowList(els.watchNextGrid, watchNext, 'No active shows need watching right now.');
+        if (els.upToDateGrid) renderShowList(els.upToDateGrid, upToDateShows, 'No up-to-date active shows right now.');
         renderShowList(els.staleGrid, staleShows, 'No inactive catch-up shows right now.');
         renderShowList(els.pausedShowsGrid, pausedShows, 'No paused/backlog shows right now.');
         renderShowList(els.completedShowsGrid, completedShows, 'No completed shows yet.');
     }
 
+    function isStrictlyCompletedShow(show) {
+        if (!show) return false;
+        var meta = show.meta || {};
+        if (normalizeSeriesStatus(meta.seriesStatus) !== 'ended') return false;
+        if (hasNewEpisode(show)) return false;
+
+        var lastAired = meta.lastAired;
+        var lastSeen = show.lastSeen;
+        if (lastAired && toInt(lastAired.season) > 0 && lastSeen && toInt(lastSeen.season) > 0) {
+            return epRank(lastSeen.season, lastSeen.episode) >= epRank(lastAired.season, lastAired.number);
+        }
+
+        // Fallback when episode-level metadata is missing.
+        return normalizeTrackerStatus(show.status) === 'completed';
+    }
+
     function categorizeShow(show) {
         var status = normalizeTrackerStatus(show && show.status);
-        if (status === 'completed') return 'completed';
         if (status === 'paused' || status === 'archived') return 'paused';
+        if (isStrictlyCompletedShow(show)) return 'completed';
         if (hasNewEpisode(show)) {
             return isNotWatchedForAWhile(show) ? 'stale' : 'watchnext';
         }
