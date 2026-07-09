@@ -1493,19 +1493,25 @@
             autoCompleteEndedShows();
             applyFilters();
             render();
+            var when = imported.importedAt ? new Date(imported.importedAt).toLocaleDateString() : '';
+            var loadedMsg = 'Loaded ' + state.shows.length + ' shows from your TV Time export' + (when ? ' (imported ' + when + ')' : '') + '.';
+            setStatus(loadedMsg + ' Verifying completed shows…');
             // The fast pass above depends on lastSeen and can miss some ended
             // fully-watched shows from imported counts. Run the accurate catalog
             // check in the background so users don't need to open each modal.
             reconcileEndedShowCompletionFromCatalog().then(function (changed) {
-                if (!changed) return;
-                applyFilters();
-                render();
+                if (changed) {
+                    applyFilters();
+                    render();
+                    setStatus(loadedMsg + ' Verified completed shows: ' + changed + ' updated.');
+                    return;
+                }
+                setStatus(loadedMsg + ' Completed-show verification finished.');
             }).catch(function (error) {
                 console.warn('Background completion reconcile failed', error);
+                setStatus(loadedMsg + ' Completed-show verification could not finish (you can still use the tracker).');
             });
             queueMetadataFetches(state.shows, false);
-            var when = imported.importedAt ? new Date(imported.importedAt).toLocaleDateString() : '';
-            setStatus('Loaded ' + state.shows.length + ' shows from your TV Time export' + (when ? ' (imported ' + when + ')' : '') + '.');
         } catch (error) {
             console.error(error);
             setStatus('Could not build your show list from the imported data.', true);
