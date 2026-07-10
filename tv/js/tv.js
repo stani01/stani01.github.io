@@ -1707,6 +1707,9 @@
     function buildCloudSyncSnapshot() {
         var snap = buildSyncSnapshot();
         delete snap.account;
+        // Metadata cache can become very large and is regenerable from APIs,
+        // so keep cloud snapshots focused on user state.
+        delete snap.metadataCache;
         return snap;
     }
 
@@ -1767,7 +1770,13 @@
                 persistCloudVersion(pull.version);
             }
 
-            if (!forcePush && !state.cloud.pendingLocalChanges) return;
+            var shouldBootstrapPush = !forcePush
+                && !state.cloud.pendingLocalChanges
+                && Number(state.cloud.version || 0) === 0
+                && pull
+                && Number(pull.version || 0) === 0;
+
+            if (!forcePush && !state.cloud.pendingLocalChanges && !shouldBootstrapPush) return;
 
             var localSnap = buildCloudSyncSnapshot();
             var push = await cloudFetch('/v1/push', {
