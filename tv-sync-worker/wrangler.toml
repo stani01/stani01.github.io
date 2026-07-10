@@ -1,0 +1,15 @@
+name = "tv-sync-worker"
+main = "src/worker.js"
+compatibility_date = "2026-07-10"
+routes = [
+	{ pattern = "atreiahub.com/tv-sync/*", zone_name = "atreiahub.com" },
+	{ pattern = "www.atreiahub.com/tv-sync/*", zone_name = "atreiahub.com" }
+]
+
+[vars]
+SESSION_TTL_DAYS = "30"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tv-sync-db"
+database_id = "1e313fd6-ab8e-4d95-b3cc-09debaed6e46"

@@ -28,7 +28,7 @@
         <header class="hero">
             <p class="kicker">15TAN's</p>
             <h1>Create Account</h1>
-            <p class="status-text">Set up a local account to track your shows. Your data stays in this browser.</p>
+            <p class="status-text">Create your cloud account once and use it across all your devices.</p>
         </header>
 
         <section class="auth-card">
@@ -51,7 +51,7 @@
                     <input id="reg-email" type="email" placeholder="you@example.com" autocomplete="email" required>
                 </div>
 
-                <p class="info-text" style="color: var(--text-soft);">Your email is stored only in this browser and is used to reset a lost password. After you sign in, import your own TV Time export (the .zip from Settings &rarr; Export your data) to load your shows.</p>
+                <p class="info-text" style="color: var(--text-soft);">Your account is stored in cloud sync backend. After you sign in, import your own TV Time export (the .zip from Settings &rarr; Export your data) to load your shows.</p>
 
                 <div class="account-actions">
                     <button id="reg-submit" class="btn btn-primary" type="button">Create Account</button>
@@ -67,9 +67,11 @@
             'use strict';
 
             var STORE_KEYS = {
-                accounts: 'tvTrackerAccountsV1',
+                cloudSession: 'tvTrackerCloudSessionV1',
                 sessionUser: 'tvTrackerSessionUserV1'
             };
+
+            var CLOUD_SYNC_BASE_PATH = '/tv-sync';
 
             var els = {
                 username: document.getElementById('reg-username'),
@@ -94,48 +96,25 @@
                 return String(value || '').trim().toLowerCase().replace(/[^a-z0-9._-]+/g, '');
             }
 
-            function generateSalt() {
-                var arr = new Uint8Array(32);
-                crypto.getRandomValues(arr);
-                return btoa(String.fromCharCode.apply(null, arr));
-            }
-
-            async function hashPassword(password, salt) {
-                try {
-                    var encoder = new TextEncoder();
-                    var data = encoder.encode(password);
-                    var saltData = Uint8Array.from(atob(salt), function (c) { return c.charCodeAt(0); });
-                    var key = await crypto.subtle.importKey('raw', data, 'PBKDF2', false, ['deriveBits']);
-                    var bits = await crypto.subtle.deriveBits(
-                        { name: 'PBKDF2', salt: saltData, iterations: 100000, hash: 'SHA-256' },
-                        key,
-                        256
-                    );
-                    var hashArray = Array.from(new Uint8Array(bits));
-                    return btoa(String.fromCharCode.apply(null, hashArray));
-                } catch (error) {
-                    console.error('Password hashing failed:', error);
-                    return null;
-                }
-            }
-
-            function loadJson(key, fallback) {
-                try {
-                    var raw = localStorage.getItem(key);
-                    if (!raw) return fallback;
-                    var parsed = JSON.parse(raw);
-                    return parsed && typeof parsed === 'object' ? parsed : fallback;
-                } catch (error) {
-                    return fallback;
-                }
-            }
-
             function persistJson(key, value) {
                 try {
                     localStorage.setItem(key, JSON.stringify(value));
                 } catch (error) {
                     console.warn('Could not persist localStorage key', key, error);
                 }
+            }
+
+            async function cloudFetch(path, payload) {
+                var resp = await fetch(CLOUD_SYNC_BASE_PATH + path, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload || {})
+                });
+                var json = await resp.json().catch(function () { return {}; });
+                if (!resp.ok) {
+                    throw new Error((json && json.error) ? json.error : ('HTTP ' + resp.status));
+                }
+                return json || {};
             }
 
             async function registerUser() {
@@ -169,32 +148,27 @@
                     return;
                 }
 
-                var accounts = loadJson(STORE_KEYS.accounts, {});
-                if (accounts[username]) {
-                    setMessage('That username already exists. Go back and log in instead.', true);
-                    return;
-                }
-
                 els.submit.disabled = true;
                 setMessage('Creating your account...', false);
 
-                var salt = generateSalt();
-                var passwordHash = await hashPassword(password, salt);
-                if (!passwordHash) {
+                var payload;
+                try {
+                    payload = await cloudFetch('/v1/register', {
+                        username: username,
+                        password: password,
+                        email: email
+                    });
+                } catch (error) {
                     els.submit.disabled = false;
-                    setMessage('Password hashing failed. Please try again.', true);
+                    setMessage(error && error.message ? error.message : 'Registration failed.', true);
                     return;
                 }
 
-                accounts[username] = {
-                    salt: salt,
-                    passwordHash: passwordHash,
-                    email: email,
-                    createdAt: new Date().toISOString()
-                };
-                persistJson(STORE_KEYS.accounts, accounts);
-
-                // Log the new user in and return to the tracker (they import their own export there)
+                persistJson(STORE_KEYS.cloudSession, {
+                    username: username,
+                    email: payload && payload.email ? payload.email : email,
+                    token: payload && payload.token ? payload.token : ''
+                });
                 persistJson(STORE_KEYS.sessionUser, username);
                 setMessage('Account created! Redirecting to your tracker...', false);
                 window.setTimeout(function () {

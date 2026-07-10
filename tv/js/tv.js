@@ -15,14 +15,15 @@
         metadataCache: 'tvTrackerMetadataCacheV1',
         manualLinks: 'tvTrackerManualLinksV1',
         omdbApiKey: 'tvTrackerOmdbApiKey',
-        accounts: 'tvTrackerAccountsV1',
         sessionUser: 'tvTrackerSessionUserV1',
         customShows: 'tvTrackerCustomShowsV1',
         importedData: 'tvTrackerImportedDataV1',
         profileSettings: 'tvTrackerProfileSettingsV1',
+        cloudSession: 'tvTrackerCloudSessionV1',
         sortPreference: 'tvTrackerSortPreference',
         filterPreference: 'tvTrackerFilterPreference',
         sectionCollapse: 'tvTrackerSectionCollapseV1',
+        cloudSyncMeta: 'tvTrackerCloudSyncMetaV1',
         // Cross-device sync: per-user partner link + settings clock (scoped),
         // and a device-level stable peer id (NOT user-scoped).
         syncPartner: 'tvTrackerSyncPartnerV1',
@@ -63,6 +64,7 @@
         episodeCache: {},
         activeFetches: 0,
         currentUser: '',
+        currentEmail: '',
         modalShowId: '',
         modalEpisodes: [],
         modalOpenSeasons: null,
@@ -99,7 +101,30 @@
             lastSyncAt: 0,
             lastResumeAt: 0,
             statusText: 'Not connected'
+        },
+        cloud: {
+            inFlight: false,
+            timer: null,
+            pendingLocalChanges: false,
+            version: 0,
+            token: '',
+            retryAt: 0,
+            lastErrorAt: 0
         }
+    };
+
+    // --- Persistent storage adapter ---------------------------------------
+    // App logic stays synchronous while IndexedDB persists data in the
+    // background; first run imports existing localStorage keys.
+    var STORAGE_DB_NAME = 'tvTrackerStorageV1';
+    var STORAGE_STORE_NAME = 'kv';
+    var CLOUD_SYNC_BASE_PATH = '/tv-sync';
+    var CLOUD_SYNC_TIMEOUT_MS = 12000;
+    var CLOUD_SYNC_RETRY_MS = 30000;
+    var storageState = {
+        mode: 'local', // 'idb' | 'local'
+        db: null,
+        cache: {}
     };
 
     var els = {
@@ -262,19 +287,159 @@
         syncUnpairBtn: document.getElementById('sync-unpair-btn')
     };
 
-    initAuth();
-    try {
-        bindEvents();
-    } catch (error) {
-        console.error('[AUTH] Error binding events:', error);
+    startApp();
+
+    async function startApp() {
+        await initializeStorage();
+        initAuth();
+        try {
+            bindEvents();
+        } catch (error) {
+            console.error('[AUTH] Error binding events:', error);
+        }
+        initSiteFooter();
+        refreshForCurrentUser();
+        setupCloudSync();
+        setupPWA();
     }
-    initSiteFooter();
-    refreshForCurrentUser();
-    setupPWA();
-    try {
-        setupSync();
-    } catch (error) {
-        console.error('[SYNC] Setup failed:', error);
+
+    function storageGetItem(key) {
+        key = String(key || '');
+        if (!key) return null;
+        if (storageState.mode === 'idb') {
+            return Object.prototype.hasOwnProperty.call(storageState.cache, key)
+                ? storageState.cache[key]
+                : null;
+        }
+        try { return localStorage.getItem(key); } catch (error) { return null; }
+    }
+
+    function storageSetItem(key, value) {
+        key = String(key || '');
+        if (!key) return;
+        var text = String(value);
+        if (storageState.mode === 'idb') {
+            storageState.cache[key] = text;
+            storageWriteIdb('put', key, text).catch(function (error) {
+                console.warn('Could not persist IndexedDB key', key, error);
+            });
+            return;
+        }
+        try { localStorage.setItem(key, text); } catch (error) { /* ignore */ }
+    }
+
+    function storageRemoveItem(key) {
+        key = String(key || '');
+        if (!key) return;
+        if (storageState.mode === 'idb') {
+            delete storageState.cache[key];
+            storageWriteIdb('delete', key, '').catch(function (error) {
+                console.warn('Could not delete IndexedDB key', key, error);
+            });
+            return;
+        }
+        try { localStorage.removeItem(key); } catch (error) { /* ignore */ }
+    }
+
+    function storageKeys() {
+        if (storageState.mode === 'idb') return Object.keys(storageState.cache);
+        var keys = [];
+        try {
+            for (var i = 0; i < localStorage.length; i++) {
+                var k = localStorage.key(i);
+                if (k) keys.push(k);
+            }
+        } catch (error) { /* ignore */ }
+        return keys;
+    }
+
+    async function initializeStorage() {
+        if (typeof indexedDB === 'undefined') {
+            storageState.mode = 'local';
+            return;
+        }
+
+        try {
+            var db = await openStorageDb();
+            storageState.db = db;
+            storageState.mode = 'idb';
+
+            var existing = await storageReadAllIdb();
+            storageState.cache = existing;
+
+            // One-time migration + safety merge from localStorage into IndexedDB.
+            var writes = [];
+            try {
+                for (var i = 0; i < localStorage.length; i++) {
+                    var key = localStorage.key(i);
+                    if (!key) continue;
+                    if (Object.prototype.hasOwnProperty.call(storageState.cache, key)) continue;
+                    var val = localStorage.getItem(key);
+                    if (val == null) continue;
+                    storageState.cache[key] = val;
+                    writes.push(storageWriteIdb('put', key, val));
+                }
+            } catch (error) {
+                console.warn('localStorage import scan failed', error);
+            }
+            if (writes.length) await Promise.all(writes);
+        } catch (error) {
+            console.warn('IndexedDB unavailable, falling back to localStorage', error);
+            storageState.mode = 'local';
+            storageState.db = null;
+            storageState.cache = {};
+        }
+    }
+
+    function openStorageDb() {
+        return new Promise(function (resolve, reject) {
+            var req = indexedDB.open(STORAGE_DB_NAME, 1);
+            req.onupgradeneeded = function (event) {
+                var db = event.target.result;
+                if (!db.objectStoreNames.contains(STORAGE_STORE_NAME)) {
+                    db.createObjectStore(STORAGE_STORE_NAME, { keyPath: 'k' });
+                }
+            };
+            req.onsuccess = function () { resolve(req.result); };
+            req.onerror = function () { reject(req.error || new Error('IndexedDB open failed')); };
+        });
+    }
+
+    function storageReadAllIdb() {
+        return new Promise(function (resolve, reject) {
+            if (!storageState.db) {
+                resolve({});
+                return;
+            }
+            var tx = storageState.db.transaction(STORAGE_STORE_NAME, 'readonly');
+            var store = tx.objectStore(STORAGE_STORE_NAME);
+            var req = store.getAll();
+            req.onsuccess = function () {
+                var out = {};
+                (req.result || []).forEach(function (row) {
+                    if (!row || !row.k) return;
+                    out[String(row.k)] = String(row.v == null ? '' : row.v);
+                });
+                resolve(out);
+            };
+            req.onerror = function () { reject(req.error || new Error('IndexedDB read failed')); };
+        });
+    }
+
+    function storageWriteIdb(kind, key, value) {
+        return new Promise(function (resolve, reject) {
+            if (!storageState.db) {
+                resolve();
+                return;
+            }
+            var tx = storageState.db.transaction(STORAGE_STORE_NAME, 'readwrite');
+            var store = tx.objectStore(STORAGE_STORE_NAME);
+            var req = kind === 'delete'
+                ? store.delete(key)
+                : store.put({ k: key, v: String(value) });
+            req.onsuccess = function () { resolve(); };
+            req.onerror = function () { reject(req.error || new Error('IndexedDB write failed')); };
+        });
     }
 
     function bindEvents() {
@@ -707,22 +872,57 @@
     }
 
     function initAuth() {
-        // sessionUser is stored as a JSON string (e.g. "john"), which loadJson
-        // rejects because it only returns objects. Read/parse it directly.
         var lastUser = '';
+        var lastEmail = '';
+        var token = '';
         try {
-            var raw = localStorage.getItem(STORE_KEYS.sessionUser);
-            if (raw) {
-                var parsed = JSON.parse(raw);
-                if (typeof parsed === 'string') lastUser = parsed;
+            var rawSession = storageGetItem(STORE_KEYS.cloudSession);
+            if (rawSession) {
+                var parsedSession = JSON.parse(rawSession);
+                if (parsedSession && typeof parsedSession === 'object') {
+                    if (typeof parsedSession.username === 'string') lastUser = normalizeUsername(parsedSession.username);
+                    if (typeof parsedSession.email === 'string') lastEmail = parsedSession.email;
+                    if (typeof parsedSession.token === 'string') token = parsedSession.token;
+                }
+            }
+            if (!lastUser) {
+                // Legacy fallback for older local-only session storage.
+                var raw = storageGetItem(STORE_KEYS.sessionUser);
+                if (raw) {
+                    var parsed = JSON.parse(raw);
+                    if (typeof parsed === 'string') lastUser = parsed;
+                }
             }
         } catch (error) {
             lastUser = '';
+            lastEmail = '';
+            token = '';
         }
-        if (lastUser) {
+        if (lastUser && token) {
             state.currentUser = String(lastUser);
+            state.currentEmail = String(lastEmail || '');
+            state.cloud.token = String(token || '');
+        } else if (lastUser && !token) {
+            clearCloudSession();
         }
         updateAuthUi();
+    }
+
+    function persistCloudSession() {
+        if (!state.currentUser || !state.cloud.token) return;
+        persistJson(STORE_KEYS.cloudSession, {
+            username: state.currentUser,
+            email: state.currentEmail || '',
+            token: state.cloud.token
+        });
+        persistJson(STORE_KEYS.sessionUser, state.currentUser);
+    }
+
+    function clearCloudSession() {
+        storageRemoveItem(STORE_KEYS.cloudSession);
+        persistJson(STORE_KEYS.sessionUser, '');
+        state.cloud.token = '';
+        state.currentEmail = '';
     }
 
     function setupPWA() {
@@ -779,6 +979,8 @@
         if (els.authSignedIn) els.authSignedIn.hidden = !signedIn;
         if (els.authSettings) els.authSettings.hidden = !signedIn;
         if (els.authLogout) els.authLogout.hidden = !signedIn;
+        if (els.syncDeviceBtn) els.syncDeviceBtn.hidden = true;
+        if (els.syncDeviceBtnMain) els.syncDeviceBtnMain.hidden = true;
     }
 
     function refreshForCurrentUser() {
@@ -815,33 +1017,41 @@
             setStatus('Enter username and password to log in.');
             return;
         }
-        var accounts = loadJson(STORE_KEYS.accounts, {});
-        var account = accounts[username];
-        if (!account) {
-            setStatus('Invalid username or password.');
+        if (!cloudSyncAvailable()) {
+            setStatus('Cloud login is not configured.', true);
             return;
         }
-        
-        // Verify password using PBKDF2
-        var derivedHash = await hashPassword(password, account.salt);
-        if (!derivedHash || derivedHash !== account.passwordHash) {
-            setStatus('Invalid username or password.');
+
+        var payload;
+        try {
+            payload = await cloudFetch('/v1/login', {
+                username: username,
+                password: password
+            });
+        } catch (error) {
+            setStatus(error && error.message ? error.message : 'Could not log in right now.', true);
             return;
         }
         
         state.currentUser = username;
-        persistJson(STORE_KEYS.sessionUser, username);
+        state.currentEmail = payload && payload.email ? String(payload.email) : '';
+        state.cloud.token = payload && payload.token ? String(payload.token) : '';
+        persistCloudSession();
         els.authPassword.value = '';
         updateAuthUi();
         refreshForCurrentUser();
         setStatus('Logged in as ' + username + '.');
-        try { initSyncForUser(); } catch (e) { console.warn('[SYNC] init after login failed', e); }
+        initCloudSyncForUser();
     }
 
     function logoutUser() {
-        try { teardownSync(); } catch (e) { /* ignore */ }
+        var token = state.cloud && state.cloud.token ? state.cloud.token : '';
+        try { teardownCloudSync(); } catch (e) { /* ignore */ }
+        if (token) {
+            cloudFetch('/v1/logout', { token: token }).catch(function () { /* ignore */ });
+        }
         state.currentUser = '';
-        persistJson(STORE_KEYS.sessionUser, '');
+        clearCloudSession();
         updateAuthUi();
         clearUiForSignedOut();
         setStatus('Signed out. Log in to access your tracker data.');
@@ -850,8 +1060,7 @@
     function openAccountModal() {
         if (!state.currentUser) return;
         
-        var accounts = loadJson(STORE_KEYS.accounts, {});
-        var account = accounts[state.currentUser];
+        var account = { email: state.currentEmail || '' };
         
         els.accountUsernameDisplay.textContent = state.currentUser;
         els.accountEmailDisplay.textContent = account && account.email ? escapeHtml(account.email) : 'Not set';
@@ -935,10 +1144,7 @@
         setStatus('OMDb API key removed. Metadata fetch falls back to TVMaze.');
     }
 
-    // --- Lost-password reset (local-only) ---------------------------------
-    // No server exists, so we can't email a reset link. Instead we verify the
-    // username + the email captured at registration, then let the user set a
-    // new password. This matches the app's local-profile threat model.
+    // --- Lost-password reset ----------------------------------------------
 
     function openRecoverModal() {
         setRecoverMessage('', false);
@@ -969,20 +1175,6 @@
             setRecoverMessage('Enter your username and registered email.', true);
             return;
         }
-        var accounts = loadJson(STORE_KEYS.accounts, {});
-        var account = accounts[username];
-        if (!account) {
-            setRecoverMessage('No account with that username exists in this browser.', true);
-            return;
-        }
-        if (!account.email) {
-            setRecoverMessage('This account has no email on file, so it can\u2019t be reset here. Re-register it instead.', true);
-            return;
-        }
-        if (String(account.email).trim().toLowerCase() !== email.toLowerCase()) {
-            setRecoverMessage('That email does not match the one on file for this account.', true);
-            return;
-        }
         if (newPassword.length < 6) {
             setRecoverMessage('New password must be at least 6 characters long.', true);
             return;
@@ -992,16 +1184,16 @@
             return;
         }
 
-        var salt = generateSalt();
-        var passwordHash = await hashPassword(newPassword, salt);
-        if (!passwordHash) {
-            setRecoverMessage('Password hashing failed. Please try again.', true);
+        try {
+            await cloudFetch('/v1/recover', {
+                username: username,
+                email: email,
+                newPassword: newPassword
+            });
+        } catch (error) {
+            setRecoverMessage(error && error.message ? error.message : 'Password reset failed.', true);
             return;
         }
-        account.salt = salt;
-        account.passwordHash = passwordHash;
-        accounts[username] = account;
-        persistJson(STORE_KEYS.accounts, accounts);
 
         setRecoverMessage('Password updated! You can now log in with your new password.', false);
         if (els.authUsername) els.authUsername.value = username;
@@ -1018,20 +1210,19 @@
             if (els.backupMessage) els.backupMessage.textContent = 'Log in first to export your data.';
             return;
         }
-        var accounts = loadJson(STORE_KEYS.accounts, {});
         var payload = {
             type: 'tvtracker-backup',
             version: 1,
             exportedAt: new Date().toISOString(),
             username: state.currentUser,
-            account: accounts[state.currentUser] || null,
             data: {}
         };
         var suffix = '::' + state.currentUser;
-        for (var i = 0; i < localStorage.length; i++) {
-            var key = localStorage.key(i);
+        var keys = storageKeys();
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
             if (key && key.length > suffix.length && key.slice(-suffix.length) === suffix) {
-                payload.data[key.slice(0, key.length - suffix.length)] = localStorage.getItem(key);
+                payload.data[key.slice(0, key.length - suffix.length)] = storageGetItem(key);
             }
         }
         try {
@@ -1044,7 +1235,7 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-            if (els.backupMessage) els.backupMessage.textContent = 'Backup downloaded. Restore it on your other device to sync.';
+            if (els.backupMessage) els.backupMessage.textContent = 'Backup downloaded.';
             setStatus('Downloaded a backup of your account and data.');
         } catch (error) {
             console.error('[BACKUP] Export failed:', error);
@@ -1062,7 +1253,7 @@
                 setStatus('That backup file could not be read (invalid JSON).');
                 return;
             }
-            if (!payload || payload.type !== 'tvtracker-backup' || !payload.username || !payload.account) {
+            if (!payload || payload.type !== 'tvtracker-backup' || !payload.username) {
                 setStatus('That file is not a valid TV Tracker backup.');
                 return;
             }
@@ -1071,28 +1262,19 @@
                 setStatus('That backup has an invalid username.');
                 return;
             }
-            var accounts = loadJson(STORE_KEYS.accounts, {});
             var applyRestore = function () {
-                accounts[username] = payload.account;
-                persistJson(STORE_KEYS.accounts, accounts);
+                if (state.currentUser && state.currentUser !== username) {
+                    setStatus('That backup belongs to a different username. Log in as ' + username + ' first.');
+                    return;
+                }
                 var data = payload.data || {};
                 Object.keys(data).forEach(function (base) {
-                    try { localStorage.setItem(base + '::' + username, data[base]); } catch (e) { /* ignore */ }
+                    try { storageSetItem(base + '::' + username, data[base]); } catch (e) { /* ignore */ }
                 });
-                persistJson(STORE_KEYS.sessionUser, username);
-                setStatus('Backup restored. Loading your account\u2026');
+                setStatus('Backup restored. Log in as ' + username + ' to load it from cloud session.');
                 window.setTimeout(function () { window.location.reload(); }, 500);
             };
-            if (accounts[username]) {
-                openConfirm(
-                    'Restore over \u201c' + username + '\u201d?',
-                    'An account named \u201c' + username + '\u201d already exists in this browser. Restoring will overwrite its login and tracker data with the backup.',
-                    'Overwrite',
-                    applyRestore
-                );
-            } else {
-                applyRestore();
-            }
+            applyRestore();
         };
         reader.onerror = function () {
             setStatus('Could not read that backup file.');
@@ -1225,18 +1407,19 @@
         }
         openConfirm(
             'Delete your account?',
-            'This permanently removes your profile and all tracker data stored in this browser. It cannot be undone.',
+            'This permanently removes your cloud account and synced tracker data. It cannot be undone.',
             'Delete forever',
             function () { confirmDeleteAccount(password); }
         );
     }
 
     async function confirmDeleteAccount(password) {
-        var accounts = loadJson(STORE_KEYS.accounts, {});
-        var account = accounts[state.currentUser];
-        if (!account) return;
-        var derivedHash = await hashPassword(password, account.salt);
-        if (!derivedHash || derivedHash !== account.passwordHash) {
+        try {
+            await cloudFetch('/v1/account/delete', {
+                token: state.cloud.token,
+                password: password
+            });
+        } catch (error) {
             if (els.deleteMessage) els.deleteMessage.textContent = 'Incorrect password. Your account was not deleted.';
             return;
         }
@@ -1256,14 +1439,19 @@
             return;
         }
         
-        var accounts = loadJson(STORE_KEYS.accounts, {});
-        if (accounts[state.currentUser]) {
-            accounts[state.currentUser].email = newEmail;
-            persistJson(STORE_KEYS.accounts, accounts);
-            els.accountEmailDisplay.textContent = escapeHtml(newEmail);
+        try {
+            var payload = await cloudFetch('/v1/account/email', {
+                token: state.cloud.token,
+                email: newEmail
+            });
+            state.currentEmail = payload && payload.email ? String(payload.email) : newEmail;
+            persistCloudSession();
+            els.accountEmailDisplay.textContent = escapeHtml(state.currentEmail);
             els.emailEditForm.hidden = true;
             els.newEmail.value = '';
             setStatus('Email updated successfully.');
+        } catch (error) {
+            setStatus(error && error.message ? error.message : 'Could not update email.', true);
         }
     }
 
@@ -1294,29 +1482,16 @@
             return;
         }
         
-        // Verify current password
-        var accounts = loadJson(STORE_KEYS.accounts, {});
-        var account = accounts[state.currentUser];
-        if (!account) {
-            els.passwordMessage.textContent = 'Account not found.';
+        try {
+            await cloudFetch('/v1/account/password', {
+                token: state.cloud.token,
+                currentPassword: currentPassword,
+                newPassword: newPassword
+            });
+        } catch (error) {
+            els.passwordMessage.textContent = error && error.message ? error.message : 'Could not change password.';
             return;
         }
-        
-        var derivedHash = await hashPassword(currentPassword, account.salt);
-        if (!derivedHash || derivedHash !== account.passwordHash) {
-            els.passwordMessage.textContent = 'Current password is incorrect.';
-            return;
-        }
-        
-        // Hash new password with same salt
-        var newHash = await hashPassword(newPassword, account.salt);
-        if (!newHash) {
-            els.passwordMessage.textContent = 'Password hashing failed. Please try again.';
-            return;
-        }
-        
-        account.passwordHash = newHash;
-        persistJson(STORE_KEYS.accounts, accounts);
         
         els.passwordMessage.textContent = '✅ Password changed successfully!';
         els.currentPasswordInput.value = '';
@@ -1345,13 +1520,8 @@
         ];
         
         userScopedKeys.forEach(function (key) {
-            localStorage.removeItem(key + '::' + state.currentUser);
+            storageRemoveItem(key + '::' + state.currentUser);
         });
-        
-        // Delete account
-        var accounts = loadJson(STORE_KEYS.accounts, {});
-        delete accounts[state.currentUser];
-        persistJson(STORE_KEYS.accounts, accounts);
         
         // Logout
         logoutUser();
@@ -1417,24 +1587,23 @@
         closeShowModal();
     }
 
-    /* ====== DATA PERSISTENCE (PER-USER ACCOUNT) ======
-     * All user data is stored locally in the browser's localStorage under per-user scoped keys.
+    /* ====== DATA PERSISTENCE (CLOUD ACCOUNT + LOCAL CACHE) ======
+     * Per-user tracker data is cached locally under scoped keys for speed/offline.
+     * Cloudflare Worker + D1 is the source of truth for account auth and sync.
      * This includes:
      * - Watched episodes and counts
      * - Show metadata cache (posters, descriptions, genres, next episode)
      * - Custom shows added by the user
      * - User profile settings (whether to use imported data)
-     * - Account credentials (username + weak hash for local login)
+     * - Cloud sync session token (stored locally to keep you signed in)
      * 
-     * Data is NOT synced to a server or cloud. Each browser/device is independent.
-     * Each user account has scoped keys in the format: "baseKey::username"
+    * Local cached keys use the format: "baseKey::username"
      * 
-     * This approach means:
-     * ✓ No login required to other services
-     * ✓ All data stays private on your device
-     * ✓ Works offline once cached
-     * ⚠ Data is lost if browser storage is cleared
-     * ⚠ Each device/browser has separate accounts
+    * This approach means:
+    * ✓ One cloud account works on every device
+    * ✓ Local cache keeps the UI fast and resilient
+    * ✓ Works offline with cached data
+    * ⚠ If cache is cleared, local offline copy is lost (cloud copy remains)
      * 
      * PWA (Progressive Web App) support enabled for:
      * - Installing the app on your home screen
@@ -1460,16 +1629,16 @@
     }
 
     function loadUserScopedValue(baseKey) {
-        return localStorage.getItem(scopedKey(baseKey));
+        return storageGetItem(scopedKey(baseKey));
     }
 
     function persistUserScopedValue(baseKey, value) {
-        localStorage.setItem(scopedKey(baseKey), value);
+        storageSetItem(scopedKey(baseKey), value);
         afterUserScopedWrite(baseKey);
     }
 
     function clearUserScopedValue(baseKey) {
-        localStorage.removeItem(scopedKey(baseKey));
+        storageRemoveItem(scopedKey(baseKey));
         afterUserScopedWrite(baseKey);
     }
 
@@ -1481,8 +1650,159 @@
         if (baseKey === STORE_KEYS.profileSettings || baseKey === STORE_KEYS.omdbApiKey) {
             bumpSyncSettingsAt();
         }
+        state.cloud.pendingLocalChanges = true;
+        cloudScheduleSync(1500);
         if (SYNC_PUSH_KEYS.indexOf(baseKey) !== -1 || baseKey === STORE_KEYS.omdbApiKey) {
             syncSchedulePush();
+        }
+    }
+
+    // --- Cloud sync (Cloudflare Worker + D1) -----------------------------
+    function cloudSyncAvailable() {
+        return !!CLOUD_SYNC_BASE_PATH;
+    }
+
+    function setupCloudSync() {
+        if (!cloudSyncAvailable()) return;
+        if (state.currentUser) initCloudSyncForUser();
+    }
+
+    function initCloudSyncForUser() {
+        if (!cloudSyncAvailable() || !state.currentUser) return;
+        if (!state.cloud.token) return;
+        var meta = loadUserScopedJson(STORE_KEYS.cloudSyncMeta, null);
+        state.cloud.version = meta && typeof meta.version === 'number' ? meta.version : 0;
+        state.cloud.pendingLocalChanges = false;
+        cloudScheduleSync(800);
+    }
+
+    function teardownCloudSync() {
+        if (state.cloud.timer) {
+            clearTimeout(state.cloud.timer);
+            state.cloud.timer = null;
+        }
+        state.cloud.inFlight = false;
+        state.cloud.pendingLocalChanges = false;
+        state.cloud.version = 0;
+        state.cloud.token = '';
+        state.cloud.retryAt = 0;
+        state.cloud.lastErrorAt = 0;
+    }
+
+    function cloudScheduleSync(delayMs) {
+        if (!cloudSyncAvailable() || !state.currentUser || !state.cloud.token) return;
+        if (state.cloud.timer) return;
+        var delay = typeof delayMs === 'number' ? delayMs : 2000;
+        state.cloud.timer = window.setTimeout(function () {
+            state.cloud.timer = null;
+            cloudRunSync(false);
+        }, delay);
+    }
+
+    function cloudAuthForCurrentUser() {
+        if (!state.currentUser || !state.cloud.token) return null;
+        return { token: state.cloud.token };
+    }
+
+    function buildCloudSyncSnapshot() {
+        var snap = buildSyncSnapshot();
+        delete snap.account;
+        return snap;
+    }
+
+    function persistCloudVersion(version) {
+        state.cloud.version = version || 0;
+        persistUserScopedJson(STORE_KEYS.cloudSyncMeta, {
+            version: state.cloud.version,
+            syncedAt: Date.now()
+        });
+    }
+
+    async function cloudFetch(path, payload) {
+        var ctrl = new AbortController();
+        var timeout = window.setTimeout(function () { ctrl.abort(); }, CLOUD_SYNC_TIMEOUT_MS);
+        try {
+            var resp = await fetch(CLOUD_SYNC_BASE_PATH + path, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload || {}),
+                signal: ctrl.signal
+            });
+            var json = await resp.json().catch(function () { return {}; });
+            if (!resp.ok) {
+                var msg = (json && json.error) ? json.error : ('HTTP ' + resp.status);
+                var err = new Error(msg);
+                err.status = resp.status;
+                err.body = json;
+                throw err;
+            }
+            return json || {};
+        } finally {
+            clearTimeout(timeout);
+        }
+    }
+
+    async function cloudRunSync(forcePush) {
+        if (!cloudSyncAvailable() || !state.currentUser) return;
+        if (state.cloud.inFlight) return;
+        if (state.sync && state.sync.applying) return;
+        if (state.cloud.retryAt && Date.now() < state.cloud.retryAt) {
+            cloudScheduleSync(Math.max(1000, state.cloud.retryAt - Date.now()));
+            return;
+        }
+
+        var auth = cloudAuthForCurrentUser();
+        if (!auth) return;
+
+        state.cloud.inFlight = true;
+        try {
+            var pull = await cloudFetch('/v1/pull', {
+                token: auth.token,
+                knownVersion: state.cloud.version
+            });
+
+            if (pull && pull.version > state.cloud.version && pull.snapshot) {
+                var merged = mergeSyncSnapshot(pull.snapshot);
+                if (merged.changed) applyMergeAndRebuild();
+                persistCloudVersion(pull.version);
+            }
+
+            if (!forcePush && !state.cloud.pendingLocalChanges) return;
+
+            var localSnap = buildCloudSyncSnapshot();
+            var push = await cloudFetch('/v1/push', {
+                token: auth.token,
+                baseVersion: state.cloud.version,
+                snapshot: localSnap,
+                deviceId: getDeviceId()
+            });
+
+            if (push && typeof push.version === 'number') {
+                persistCloudVersion(push.version);
+            }
+            state.cloud.pendingLocalChanges = false;
+            state.cloud.retryAt = 0;
+        } catch (error) {
+            if (error && error.status === 401) {
+                setStatus('Session expired. Please log in again.', true);
+                logoutUser();
+                return;
+            }
+            if (error && error.status === 409) {
+                state.cloud.pendingLocalChanges = true;
+                cloudScheduleSync(1200);
+                return;
+            }
+            // Keep failures quiet for users and retry in the background.
+            var now = Date.now();
+            if (!state.cloud.lastErrorAt || (now - state.cloud.lastErrorAt) > 15000) {
+                console.warn('[CLOUD-SYNC] sync failed:', error && error.message ? error.message : error);
+                state.cloud.lastErrorAt = now;
+            }
+            state.cloud.retryAt = now + CLOUD_SYNC_RETRY_MS;
+            cloudScheduleSync(CLOUD_SYNC_RETRY_MS);
+        } finally {
+            state.cloud.inFlight = false;
         }
     }
 
@@ -1866,13 +2186,33 @@
         return compareUpcoming(a, b);
     }
 
+    function getCategoryTier(show) {
+        return categorizeShow(show);
+    }
+
+    function isSameOrAfterToday(value) {
+        var time = asTime(value);
+        if (!time) return false;
+        var date = new Date(time);
+        var candidate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+        var now = new Date();
+        var today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        return candidate >= today;
+    }
+
+    function getFutureUpcomingEpisode(show) {
+        var next = show && show.meta ? show.meta.nextEpisode : null;
+        if (!next || !next.airdate) return null;
+        return isSameOrAfterToday(next.airdate) ? next : null;
+    }
+
     function matchesFilter(show) {
         if (state.filterBy === 'all') return true;
-        if (state.filterBy === 'active') return show.status === 'active';
-        if (state.filterBy === 'paused') return show.status === 'paused';
+        if (state.filterBy === 'active') return ['watchnext', 'uptodate', 'stale'].indexOf(getCategoryTier(show)) >= 0;
+        if (state.filterBy === 'paused') return getCategoryTier(show) === 'paused';
         if (state.filterBy === 'completed') return isStrictlyCompletedShow(show);
-        if (state.filterBy === 'archived') return show.status === 'archived';
-        if (state.filterBy === 'with-upcoming') return Boolean(show.meta && show.meta.nextEpisode && show.meta.nextEpisode.airdate);
+        if (state.filterBy === 'archived') return normalizeTrackerStatus(show && show.status) === 'archived';
+        if (state.filterBy === 'with-upcoming') return Boolean(getFutureUpcomingEpisode(show));
         return true;
     }
 
@@ -1886,8 +2226,8 @@
     }
 
     function getUpcomingTime(show) {
-        if (!show.meta || !show.meta.nextEpisode || !show.meta.nextEpisode.airdate) return 0;
-        return asTime(show.meta.nextEpisode.airdate);
+        var next = getFutureUpcomingEpisode(show);
+        return next ? asTime(next.airdate) : 0;
     }
 
     function searchableText(show) {
@@ -1965,8 +2305,13 @@
         var totalShows = state.shows.length;
         var totalWatchedEpisodes = state.shows.reduce(function (sum, show) { return sum + (show.watchedCount || 0); }, 0);
         var totalHours = Math.round(estimateWatchedMinutes() / 60);
-        var active = state.shows.filter(function (show) { return show.status === 'active'; }).length;
-        var paused = state.shows.filter(function (show) { return show.status === 'paused'; }).length;
+        var active = state.shows.filter(function (show) {
+            var tier = getCategoryTier(show);
+            return tier === 'watchnext' || tier === 'uptodate' || tier === 'stale';
+        }).length;
+        var paused = state.shows.filter(function (show) {
+            return getCategoryTier(show) === 'paused';
+        }).length;
 
         var html = [
             statCard(totalShows, 'Shows in library'),
@@ -1995,7 +2340,7 @@
     function renderUpcoming() {
         var upcoming = state.shows
             .filter(function (show) {
-                return show.meta && show.meta.nextEpisode && show.meta.nextEpisode.airdate;
+                return !!getFutureUpcomingEpisode(show);
             })
             .sort(compareUpcoming);
 
@@ -2032,7 +2377,7 @@
         // Compact poster tiles for the active category.
         var shows = grouped[state.upcomingTab] || [];
         els.upcomingBoard.innerHTML = shows.map(function (show) {
-            var next = show.meta.nextEpisode;
+            var next = getFutureUpcomingEpisode(show) || show.meta.nextEpisode;
             var poster = (show.meta && show.meta.poster) || FALLBACK_POSTER;
             return '<button type="button" class="upcoming-item" data-show-id="' + escapeHtml(show.id) + '">'
                 + '<span class="upcoming-poster-wrap"><img class="upcoming-poster" src="' + escapeHtml(poster) + '" alt="" loading="lazy"></span>'
@@ -2077,7 +2422,7 @@
         nextWeekEnd.setDate(nextWeekEnd.getDate() + 14);
 
         shows.forEach(function (show) {
-            var next = show.meta.nextEpisode;
+            var next = getFutureUpcomingEpisode(show);
             if (!next || !next.airdate) return;
 
             var airDate = new Date(next.airdate);
@@ -2150,13 +2495,31 @@
         renderShowList(els.completedShowsGrid, completedShows, 'No completed shows yet.');
     }
 
+    function getLatestAiredEpisode(show) {
+        var cached = state.episodeCache && state.episodeCache[show && show.id];
+        if (Array.isArray(cached) && cached.length) {
+            var aired = cached.filter(function (ep) {
+                return toInt(ep.season) > 0 && toInt(ep.number) > 0 && !isEpisodeUnaired(ep);
+            });
+            if (aired.length) {
+                return aired[aired.length - 1];
+            }
+        }
+        var meta = show && show.meta ? show.meta : null;
+        if (!meta) return null;
+        if (meta.nextEpisode && meta.nextEpisode.airdate && !isEpisodeUnaired(meta.nextEpisode)) {
+            return meta.nextEpisode;
+        }
+        return meta.lastAired || null;
+    }
+
     function isStrictlyCompletedShow(show) {
         if (!show) return false;
         var meta = show.meta || {};
         if (normalizeSeriesStatus(meta.seriesStatus) !== 'ended') return false;
         if (hasNewEpisode(show)) return false;
 
-        var lastAired = meta.lastAired;
+        var lastAired = getLatestAiredEpisode(show);
         var lastSeen = show.lastSeen;
         if (lastAired && toInt(lastAired.season) > 0 && lastSeen && toInt(lastSeen.season) > 0) {
             return epRank(lastSeen.season, lastSeen.episode) >= epRank(lastAired.season, lastAired.number);
@@ -2295,8 +2658,11 @@
     }
 
     function buildNextRow(show) {
-        var next = show.meta && show.meta.nextEpisode;
-        if (!next || !next.airdate) return 'Next episode: unknown';
+        var next = getFutureUpcomingEpisode(show);
+        if (!next || !next.airdate) {
+            if (hasNewEpisode(show)) return 'New aired episode ready to watch';
+            return 'Next episode: unknown';
+        }
         if (isSeasonPremiere(next)) {
             return 'Season ' + next.season + ' premiere: ' + formatDate(next.airdate);
         }
@@ -2363,7 +2729,9 @@
         if (show.episodeStates && Object.keys(show.episodeStates).length) return;
         var count = toInt(show.watchedCount);
         if (count <= 0) return;
-        var sorted = catalog.slice().sort(byEpOrder);
+        var sorted = catalog.filter(function (ep) {
+            return toInt(ep.season) >= 1 && toInt(ep.number) > 0 && !isEpisodeUnaired(ep);
+        }).sort(byEpOrder);
         var target = sorted[Math.min(count, sorted.length) - 1];
         if (!target) return;
         patchShow(show.id, {
@@ -2587,7 +2955,7 @@
         if (!show || show.status !== 'active') return false;
         var meta = show.meta || {};
         if (normalizeSeriesStatus(meta.seriesStatus) !== 'ended') return false;
-        var lastAired = meta.lastAired;
+        var lastAired = getLatestAiredEpisode(show);
         if (!lastAired || !lastAired.season) return false;
         if (!show.lastSeen || !show.lastSeen.season) return false;
         return epRank(show.lastSeen.season, show.lastSeen.episode) >= epRank(lastAired.season, lastAired.number);
@@ -3632,8 +4000,7 @@
     // i.e. there's a new episode ready to watch. Uses meta.lastAired (TVMaze
     // previous-episode) so it needs no extra per-card fetch.
     function hasNewEpisode(show) {
-        var meta = show.meta || {};
-        var lastAired = meta.lastAired;
+        var lastAired = getLatestAiredEpisode(show);
         if (!lastAired || !lastAired.season) return false;
         var seenRank = (show.lastSeen && show.lastSeen.season)
             ? epRank(show.lastSeen.season, show.lastSeen.episode)
@@ -3649,10 +4016,8 @@
     // True when the next episode is a season premiere that has already aired,
     // so "New Season" doesn't show months before release.
     function hasUpcomingPremiere(show) {
-        var next = show.meta && show.meta.nextEpisode;
+        var next = getFutureUpcomingEpisode(show);
         if (!next || !next.airdate) return false;
-        var airTime = asTime(next.airdate);
-        if (!airTime || airTime > Date.now()) return false;
         return isSeasonPremiere(next);
     }
 
@@ -4183,7 +4548,7 @@
         if (omdbDetailMem) return omdbDetailMem;
         omdbDetailMem = {};
         try {
-            var raw = localStorage.getItem(OMDB_CACHE_KEY);
+            var raw = storageGetItem(OMDB_CACHE_KEY);
             if (raw) omdbDetailMem = JSON.parse(raw) || {};
         } catch (e) { omdbDetailMem = {}; }
         return omdbDetailMem;
@@ -4199,7 +4564,7 @@
         cache[imdbId] = detail;
         var keys = Object.keys(cache);
         if (keys.length > OMDB_CACHE_MAX) delete cache[keys[0]];
-        try { localStorage.setItem(OMDB_CACHE_KEY, JSON.stringify(cache)); } catch (e) { /* quota - ignore */ }
+        try { storageSetItem(OMDB_CACHE_KEY, JSON.stringify(cache)); } catch (e) { /* quota - ignore */ }
     }
 
     async function fetchOmdbDetail(imdbId, apiKey) {
@@ -4241,7 +4606,7 @@
 
     function loadOmdbUsage() {
         try {
-            var raw = localStorage.getItem(omdbUsageStorageKey());
+            var raw = storageGetItem(omdbUsageStorageKey());
             var parsed = raw ? JSON.parse(raw) : null;
             return parsed && typeof parsed === 'object' ? parsed : {};
         } catch (e) {
@@ -4259,7 +4624,7 @@
             delete usage[keys.shift()];
         }
         try {
-            localStorage.setItem(omdbUsageStorageKey(), JSON.stringify(usage));
+            storageSetItem(omdbUsageStorageKey(), JSON.stringify(usage));
         } catch (e) { /* storage full - ignore telemetry write */ }
     }
 
@@ -4551,7 +4916,7 @@
 
     function loadJson(key, fallback) {
         try {
-            var raw = localStorage.getItem(key);
+            var raw = storageGetItem(key);
             if (!raw) return fallback;
             var parsed = JSON.parse(raw);
             return parsed && typeof parsed === 'object' ? parsed : fallback;
@@ -4562,7 +4927,7 @@
 
     function persistJson(key, value) {
         try {
-            localStorage.setItem(key, JSON.stringify(value));
+            storageSetItem(key, JSON.stringify(value));
         } catch (error) {
             console.warn('Could not persist localStorage key', key, error);
         }
@@ -4656,10 +5021,10 @@
     function randomSecret() { return randomHex(16); } // 128-bit shared secret
 
     function getDeviceId() {
-        var id = localStorage.getItem(STORE_KEYS.syncDeviceId);
+        var id = storageGetItem(STORE_KEYS.syncDeviceId);
         if (!id) {
             id = 'tvsync-' + randomHex(16);
-            try { localStorage.setItem(STORE_KEYS.syncDeviceId, id); } catch (e) { /* ignore */ }
+            try { storageSetItem(STORE_KEYS.syncDeviceId, id); } catch (e) { /* ignore */ }
         }
         return id;
     }
@@ -4716,7 +5081,7 @@
     function getSyncPartner() { return loadJson(scopedKey(STORE_KEYS.syncPartner), null); }
     function setSyncPartner(p) { persistJson(scopedKey(STORE_KEYS.syncPartner), p); }
     function clearSyncPartner() {
-        try { localStorage.removeItem(scopedKey(STORE_KEYS.syncPartner)); } catch (e) { /* ignore */ }
+        try { storageRemoveItem(scopedKey(STORE_KEYS.syncPartner)); } catch (e) { /* ignore */ }
     }
 
     function getSyncSettingsAt() {
@@ -4734,12 +5099,10 @@
 
     // --- snapshot build / signature / merge -------------------------------
     function buildSyncSnapshot() {
-        var accounts = loadJson(STORE_KEYS.accounts, {});
         return {
             t: 'push',
             v: 1,
             user: state.currentUser,
-            account: accounts[state.currentUser] || null,
             overrides: state.overrides || {},
             watchHistory: state.watchHistory || [],
             customShows: state.customShows || [],
@@ -4879,14 +5242,6 @@
                 changed = true;
             }
 
-            // account: create locally only if missing (never overwrite an existing login)
-            var accounts = loadJson(STORE_KEYS.accounts, {});
-            if (!accounts[state.currentUser] && remote.account) {
-                accounts[state.currentUser] = remote.account;
-                persistJson(STORE_KEYS.accounts, accounts);
-                changed = true;
-            }
-
             if (changed) {
                 state.customShows = mergedCustom;
                 state.watchHistory = mergedHistory;
@@ -4899,8 +5254,8 @@
                 if (settingsChanged) {
                     if (state.profileSettings) persistJson(scopedKey(STORE_KEYS.profileSettings), state.profileSettings);
                     if (pendingOmdb) {
-                        if (pendingOmdb.value) localStorage.setItem(scopedKey(STORE_KEYS.omdbApiKey), pendingOmdb.value);
-                        else { try { localStorage.removeItem(scopedKey(STORE_KEYS.omdbApiKey)); } catch (e) { /* ignore */ } }
+                        if (pendingOmdb.value) storageSetItem(scopedKey(STORE_KEYS.omdbApiKey), pendingOmdb.value);
+                        else { try { storageRemoveItem(scopedKey(STORE_KEYS.omdbApiKey)); } catch (e) { /* ignore */ } }
                     }
                     setSyncSettingsAt(pendingSettingsAt || Date.now());
                 }
