@@ -109,7 +109,8 @@
             version: 0,
             token: '',
             retryAt: 0,
-            lastErrorAt: 0
+            lastErrorAt: 0,
+            applyingRemote: false
         }
     };
 
@@ -1765,9 +1766,11 @@
             });
 
             if (pull && pull.version > state.cloud.version && pull.snapshot) {
+                state.cloud.applyingRemote = true;
                 var merged = mergeSyncSnapshot(pull.snapshot);
                 if (merged.changed) applyMergeAndRebuild();
                 persistCloudVersion(pull.version);
+                state.cloud.applyingRemote = false;
             }
 
             var shouldBootstrapPush = !forcePush
@@ -1792,6 +1795,7 @@
             state.cloud.pendingLocalChanges = false;
             state.cloud.retryAt = 0;
         } catch (error) {
+            state.cloud.applyingRemote = false;
             if (error && error.status === 401) {
                 setStatus('Session expired. Please log in again.', true);
                 logoutUser();
@@ -1831,6 +1835,7 @@
             state.shows = [];
             applyFilters();
             render();
+            if (state.cloud && state.cloud.applyingRemote) hideLoadingOverlay();
             setStatus('No data yet. Click "Import TV Time Export" and pick the .zip you downloaded from TV Time (Settings \u2192 Export your data).');
             return;
         }
@@ -1847,6 +1852,7 @@
             // fully-watched shows from imported counts. Run the accurate catalog
             // check in the background so users don't need to open each modal.
             reconcileEndedShowCompletionFromCatalog().then(function (changed) {
+                if (state.cloud && state.cloud.applyingRemote) hideLoadingOverlay();
                 if (changed) {
                     applyFilters();
                     render();
@@ -1855,11 +1861,13 @@
                 }
                 setStatus(loadedMsg + ' Completed-show verification finished.');
             }).catch(function (error) {
+                if (state.cloud && state.cloud.applyingRemote) hideLoadingOverlay();
                 console.warn('Background completion reconcile failed', error);
                 setStatus(loadedMsg + ' Completed-show verification could not finish (you can still use the tracker).');
             });
             queueMetadataFetches(state.shows, false);
         } catch (error) {
+            if (state.cloud && state.cloud.applyingRemote) hideLoadingOverlay();
             console.error(error);
             setStatus('Could not build your show list from the imported data.', true);
             els.watchNextGrid.innerHTML = '<div class="error">Failed to read imported data. Try re-importing your TV Time export.</div>';
@@ -5276,7 +5284,15 @@
     }
 
     function applyMergeAndRebuild() {
-        try { refreshForCurrentUser(); } catch (e) { console.warn('[SYNC] rebuild failed', e); }
+        if (state.cloud && state.cloud.applyingRemote) {
+            showLoadingOverlay('Syncing from cloud…', 'Refreshing your tracker data');
+        }
+        try {
+            refreshForCurrentUser();
+        } catch (e) {
+            console.warn('[SYNC] rebuild failed', e);
+            if (state.cloud && state.cloud.applyingRemote) hideLoadingOverlay();
+        }
     }
 
     // --- connection plumbing ----------------------------------------------
