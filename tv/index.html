@@ -28,6 +28,7 @@
         <header class="hero">
             <p class="kicker">15TAN's</p>
             <h1>TV Tracker</h1>
+            <button id="page-refresh" class="btn" type="button" title="Reload the page and fetch fresh data">↻ Refresh Page</button>
             <div class="auth-panel" id="auth-panel">
                 <span id="auth-user" class="auth-user">Not signed in</span>
                 <div id="auth-signed-out" class="auth-group">
@@ -223,19 +224,23 @@
                     </button>
                     <div class="modal-facts">
                         <p id="modal-facts-text" class="modal-facts-text"></p>
-                        <div id="modal-links" class="modal-links"></div>
+                        <div class="modal-links-row">
+                            <div id="modal-links" class="modal-links"></div>
+                            <button type="button" id="modal-refresh-meta" class="imdb-btn modal-refresh-link" title="Refresh metadata for this show only">↻ Refresh show metadata</button>
+                            <button type="button" id="modal-prefer-tvmaze" class="imdb-btn modal-provider-link" title="Toggle between IMDb-first and TVMaze-first metadata lookup">Use TVMaze instead</button>
+                        </div>
                         <p id="modal-summary" class="modal-summary"></p>
                         <div class="modal-notes-wrap">
                             <label for="modal-notes">Personal notes</label>
                             <textarea id="modal-notes" rows="3" placeholder="Add your notes"></textarea>
                         </div>
                         <div id="modal-fix-link" class="modal-fix-link" hidden>
-                            <p class="modal-fix-link-note">This show isn't linked to a database yet, so there's no poster or episode list. Link it with its IMDb page to pull the right details.</p>
+                            <p id="modal-fix-link-note" class="modal-fix-link-note">This show isn't linked to a database yet, so there's no poster or episode list. Link it with its IMDb or TVMaze page to pull the right details.</p>
                             <button type="button" id="modal-fix-link-toggle" class="btn btn-sm modal-fix-link-toggle">🔗 Fix show link</button>
                             <form id="modal-fix-link-form" class="modal-fix-link-form" hidden>
-                                <label for="modal-fix-link-input">Paste the show's IMDb link or ID</label>
+                                <label for="modal-fix-link-input">Paste the show's IMDb or TVMaze link or ID</label>
                                 <div class="modal-fix-link-row">
-                                    <input id="modal-fix-link-input" type="text" placeholder="https://www.imdb.com/title/tt1586680/ or tt1586680" autocomplete="off" spellcheck="false">
+                                    <input id="modal-fix-link-input" type="text" placeholder="https://www.imdb.com/title/tt1586680/ or https://www.tvmaze.com/shows/82/game-of-thrones" autocomplete="off" spellcheck="false">
                                     <button type="submit" id="modal-fix-link-submit" class="btn btn-accent btn-sm">Match</button>
                                     <button type="button" id="modal-fix-link-cancel" class="btn btn-sm">Cancel</button>
                                 </div>

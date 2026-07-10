@@ -13,6 +13,7 @@
         localOverrides: 'tvTrackerLocalOverridesV1',
         watchHistory: 'tvTrackerWatchHistoryV1',
         metadataCache: 'tvTrackerMetadataCacheV1',
+        manualLinks: 'tvTrackerManualLinksV1',
         omdbApiKey: 'tvTrackerOmdbApiKey',
         accounts: 'tvTrackerAccountsV1',
         sessionUser: 'tvTrackerSessionUserV1',
@@ -32,7 +33,7 @@
     // Base keys whose changes should trigger a device-to-device sync push.
     // (metadataCache is intentionally excluded: it is large and regenerable,
     // so it rides along in the snapshot but never triggers a push by itself.)
-    var SYNC_PUSH_KEYS = ['tvTrackerLocalOverridesV1', 'tvTrackerWatchHistoryV1', 'tvTrackerCustomShowsV1', 'tvTrackerImportedDataV1', 'tvTrackerProfileSettingsV1'];
+    var SYNC_PUSH_KEYS = ['tvTrackerLocalOverridesV1', 'tvTrackerWatchHistoryV1', 'tvTrackerCustomShowsV1', 'tvTrackerImportedDataV1', 'tvTrackerProfileSettingsV1', 'tvTrackerManualLinksV1'];
 
     // Fallback per-episode length (minutes) used for the "Hours watched" estimate
     // when a show's metadata has no runtime yet.
@@ -54,6 +55,7 @@
         overrides: {},
         watchHistory: [],
         metadataCache: {},
+        manualLinks: {},
         customShows: [],
         importedData: null,
         profileSettings: { useImportedData: true },
@@ -125,6 +127,7 @@
         importButton: document.getElementById('import-data'),
         importInput: document.getElementById('import-file'),
         refreshMetaButton: document.getElementById('refresh-meta'),
+        pageRefreshButton: document.getElementById('page-refresh'),
         setOmdbKeyButton: document.getElementById('set-omdb-key'),
         addShowButton: document.getElementById('add-show'),
         installAppButton: document.getElementById('install-app'),
@@ -156,8 +159,11 @@
         modalDecrease: document.getElementById('modal-decrease'),
         modalIncrease: document.getElementById('modal-increase'),
         modalWatchSeason: document.getElementById('modal-watch-season'),
+        modalRefreshMeta: document.getElementById('modal-refresh-meta'),
+        modalPreferTvmaze: document.getElementById('modal-prefer-tvmaze'),
         modalPauseShow: document.getElementById('modal-pause-show'),
         fixLink: document.getElementById('modal-fix-link'),
+        fixLinkNote: document.getElementById('modal-fix-link-note'),
         fixLinkToggle: document.getElementById('modal-fix-link-toggle'),
         fixLinkForm: document.getElementById('modal-fix-link-form'),
         fixLinkInput: document.getElementById('modal-fix-link-input'),
@@ -369,6 +375,11 @@
                 'Refresh',
                 function () { startMetadataRefresh(); }
             );
+        });
+
+        if (els.pageRefreshButton) els.pageRefreshButton.addEventListener('click', function () {
+            setStatus('Refreshing page…');
+            window.location.reload();
         });
 
         els.setOmdbKeyButton.addEventListener('click', function () {
@@ -781,6 +792,7 @@
             state.overrides = loadUserScopedJson(STORE_KEYS.localOverrides, {});
             state.watchHistory = loadUserScopedJson(STORE_KEYS.watchHistory, []);
             state.metadataCache = loadUserScopedJson(STORE_KEYS.metadataCache, {});
+            state.manualLinks = loadUserScopedJson(STORE_KEYS.manualLinks, {});
             state.customShows = loadUserScopedJson(STORE_KEYS.customShows, []);
             state.importedData = loadUserScopedJson(STORE_KEYS.importedData, null);
             state.profileSettings = loadUserScopedJson(STORE_KEYS.profileSettings, { useImportedData: true });
@@ -1136,7 +1148,10 @@
 
         state.metadataCache = {};
         persistUserScopedJson(STORE_KEYS.metadataCache, state.metadataCache);
-        state.shows.forEach(function (show) { show.meta = null; });
+        state.shows.forEach(function (show) {
+            var manual = state.manualLinks[show.id];
+            show.meta = manual ? mergeManualLinkMeta(null, manual) : null;
+        });
 
         queueMetadataFetches(state.shows, true);
     }
@@ -1322,6 +1337,7 @@
             STORE_KEYS.localOverrides,
             STORE_KEYS.watchHistory,
             STORE_KEYS.metadataCache,
+            STORE_KEYS.manualLinks,
             STORE_KEYS.omdbApiKey,
             STORE_KEYS.customShows,
             STORE_KEYS.importedData,
@@ -1380,6 +1396,8 @@
         state.shows = [];
         state.filtered = [];
         state.watchHistory = [];
+        state.metadataCache = {};
+        state.manualLinks = {};
         state.importedData = null;
         state.customShows = [];
         els.statsCards.innerHTML = '';
@@ -1788,7 +1806,7 @@
             }
 
             var derivedStatus = deriveStatus(override.status, followedInfo, watchedCount, lastSeen);
-            var metadata = getCachedMeta(tvShowId, title);
+            var metadata = mergeManualLinkMeta(getCachedMeta(tvShowId, title), state.manualLinks[tvShowId]);
 
             shows.push({
                 id: tvShowId,
@@ -2644,10 +2662,18 @@
     }
 
     // Resets the "Fix show link" tool back to its collapsed state. Pass true when
-    // the show has episodes (i.e. is properly linked) to hide the whole block.
+    // the show has episodes (i.e. is properly linked) to adjust the helper copy.
     function resetFixLinkUi(hasEpisodes) {
         if (!els.fixLink) return;
-        els.fixLink.hidden = !!hasEpisodes;
+        els.fixLink.hidden = false;
+        if (els.fixLinkNote) {
+            els.fixLinkNote.textContent = hasEpisodes
+                ? 'Wrong poster, summary, or episode match? Paste a direct IMDb or TVMaze page to override this show.'
+                : 'This show is not linked to a database yet, so there is no poster or episode list. Link it with its IMDb or TVMaze page to pull the right details.';
+        }
+        if (els.fixLinkToggle) {
+            els.fixLinkToggle.textContent = hasEpisodes ? '🔗 Change database link' : '🔗 Fix show link';
+        }
         if (els.fixLinkForm) els.fixLinkForm.hidden = true;
         if (els.fixLinkToggle) els.fixLinkToggle.hidden = false;
         if (els.fixLinkInput) els.fixLinkInput.value = '';
@@ -2662,10 +2688,21 @@
         els.fixLinkMsg.hidden = !message;
     }
 
-    // Pulls the IMDb title id (ttNNNNNNN) out of a pasted URL or raw id.
-    function parseImdbId(raw) {
-        var match = String(raw || '').match(/tt\d{6,10}/i);
-        return match ? match[0].toLowerCase() : '';
+    // Pulls a supported external id out of a pasted URL or raw token.
+    function parseFixedShowLink(raw) {
+        var text = String(raw || '').trim();
+        var imdbMatch = text.match(/tt\d{6,10}/i);
+        if (imdbMatch) {
+            return { type: 'imdb', imdbId: imdbMatch[0].toLowerCase(), label: imdbMatch[0].toLowerCase() };
+        }
+
+        var tvmazeMatch = text.match(/tvmaze\.com\/shows\/(\d+)/i);
+        if (!tvmazeMatch) tvmazeMatch = text.match(/(?:tvmaze|maze)\s*[:#-]?\s*(\d{1,10})/i);
+        if (tvmazeMatch) {
+            return { type: 'tvmaze', tvmazeId: toInt(tvmazeMatch[1]), label: 'TVMaze #' + toInt(tvmazeMatch[1]) };
+        }
+
+        return null;
     }
 
     // Resolves fresh metadata for a show from an IMDb id. Prefers OMDb (rich
@@ -2716,6 +2753,11 @@
         };
     }
 
+    async function resolveMetaFromTvMaze(tvmazeId, title) {
+        var meta = await fetchTvMazeById(tvmazeId, title || '', '');
+        return meta && (meta.tvmazeId || meta.imdbId) ? meta : null;
+    }
+
     // Keeps a custom show's stored ids in sync after a re-link so de-duplication
     // (collectTrackedIds) stays correct. No-op for imported shows.
     function updateCustomShowIds(showId, meta) {
@@ -2735,9 +2777,9 @@
         var show = state.shows.find(function (item) { return item.id === showId; });
         if (!show) return;
 
-        var imdbId = parseImdbId(els.fixLinkInput ? els.fixLinkInput.value : '');
-        if (!imdbId) {
-            showFixLinkMsg('Enter a valid IMDb link or ID (it looks like tt1586680).', true);
+        var linkedSource = parseFixedShowLink(els.fixLinkInput ? els.fixLinkInput.value : '');
+        if (!linkedSource) {
+            showFixLinkMsg('Enter a valid IMDb link/ID or a TVMaze show URL/ID.', true);
             return;
         }
 
@@ -2746,10 +2788,12 @@
         showFixLinkMsg('Looking up show…');
 
         try {
-            var meta = await resolveMetaFromImdb(imdbId, show.title);
+            var meta = linkedSource.type === 'tvmaze'
+                ? await resolveMetaFromTvMaze(linkedSource.tvmazeId, show.title)
+                : await resolveMetaFromImdb(linkedSource.imdbId, show.title);
             if (state.modalShowId !== showId) return; // modal changed while loading
             if (!meta || (!meta.tvmazeId && !meta.imdbId)) {
-                showFixLinkMsg('Couldn’t find that title. Double-check the IMDb link and try again.', true);
+                showFixLinkMsg('Could not find that show. Double-check the pasted IMDb or TVMaze link and try again.', true);
                 els.fixLinkSubmit.disabled = false;
                 els.fixLinkSubmit.textContent = 'Match';
                 return;
@@ -2758,6 +2802,7 @@
             // Re-link: drop the stale (empty) episode cache, cache the new meta,
             // and keep any custom-show id record in sync for de-duplication.
             delete state.episodeCache[show.id];
+            setManualLinkMeta(show.id, meta, { preferredLookup: linkedSource.type });
             setCachedMeta(show, meta);
             updateCustomShowIds(show.id, meta);
 
@@ -2772,9 +2817,9 @@
             render();
 
             if (episodes.length) {
-                setStatus('Linked “' + show.title + '” — pulled ' + episodes.length + ' episodes from IMDb ' + imdbId + '.');
+                setStatus('Linked “' + show.title + '” — pulled ' + episodes.length + ' episodes from ' + linkedSource.label + '.');
             } else {
-                setStatus('Linked “' + show.title + '” to IMDb ' + imdbId + '. Episode tracking is unavailable (this title isn’t on TVMaze).');
+                setStatus('Linked “' + show.title + '” to ' + linkedSource.label + '. Episode tracking is still unavailable for this title.');
             }
         } catch (error) {
             console.warn('Fix-link failed', error);
@@ -2902,6 +2947,15 @@
             link.textContent = 'View on IMDb \u2197';
             els.modalLinks.appendChild(link);
         }
+        if (toInt(meta.tvmazeId)) {
+            var mazeLink = document.createElement('a');
+            mazeLink.className = 'imdb-btn modal-provider-link';
+            mazeLink.href = 'https://www.tvmaze.com/shows/' + encodeURIComponent(String(meta.tvmazeId));
+            mazeLink.target = '_blank';
+            mazeLink.rel = 'noopener noreferrer';
+            mazeLink.textContent = 'View on TVMaze \u2197';
+            els.modalLinks.appendChild(mazeLink);
+        }
         els.modalLinks.hidden = !els.modalLinks.childNodes.length;
     }
 
@@ -2939,6 +2993,24 @@
                 watchSeasonUpToCurrent(show);
             };
         }
+        if (els.modalRefreshMeta) {
+            els.modalRefreshMeta.disabled = false;
+            els.modalRefreshMeta.textContent = '↻ Refresh show metadata';
+            els.modalRefreshMeta.onclick = function () {
+                refreshSingleShowMeta(show.id);
+            };
+        }
+        if (els.modalPreferTvmaze) {
+            var manualLink = getManualLinkMeta(show.id);
+            var prefersTvmaze = manualLink && manualLink.preferredLookup === 'tvmaze';
+            var canUseTvmaze = !!(toInt(meta.tvmazeId) || (manualLink && manualLink.imdbId) || meta.imdbId || meta.provider === 'IMDb');
+            els.modalPreferTvmaze.hidden = !canUseTvmaze;
+            els.modalPreferTvmaze.disabled = false;
+            els.modalPreferTvmaze.textContent = prefersTvmaze ? 'Use IMDb instead' : 'Use TVMaze instead';
+            els.modalPreferTvmaze.onclick = canUseTvmaze ? function () {
+                toggleMetadataPreference(show.id);
+            } : null;
+        }
 
         var isCompleted = show.status === 'completed';
         var isPausedLike = show.status === 'paused' || show.status === 'archived';
@@ -2959,13 +3031,12 @@
             : ('Watched ' + show.watchedCount + ' episodes');
         els.modalProgress.textContent = totalEps ? (watchedEps + ' / ' + totalEps + ' watched') : '';
 
-        // Unlinked imports (e.g. a TV Time title that matched no database) have no
-        // episodes; offer the "Fix show link" tool so the user can attach an IMDb
-        // page and pull the real metadata. Hidden once the show is trackable.
+        // Keep the relink tool available on every show so the user can override
+        // a bad match later with a direct IMDb or TVMaze page.
         resetFixLinkUi(totalEps > 0);
 
         if (!totalEps) {
-            els.modalSeasons.innerHTML = '<div class="empty">Episode list unavailable for this show yet. Try “Refresh Metadata”, or use “Fix show link” above to match it on IMDb.</div>';
+            els.modalSeasons.innerHTML = '<div class="empty">Episode list unavailable for this show yet. Try “Refresh show metadata”, “Use TVMaze instead”, or “Fix show link” above to match it directly.</div>';
             return;
         }
 
@@ -3115,6 +3186,9 @@
         // means the show still needs fixing even when a (stale) id is present.
         var cached = state.episodeCache && state.episodeCache[show.id];
         if (Array.isArray(cached)) return cached.length === 0;
+        // A saved/manual link that has either a tvmaze id or an imdb id should
+        // not immediately count as unresolved before we attempt provider fallback.
+        if (toInt(m.tvmazeId) || m.imdbId) return false;
         // Not fetched yet: unresolved when there's no TVMaze id to load episodes
         // from. A bare IMDb id may bridge to TVMaze when the show is opened, but
         // until then it has nothing to track, so surface it as fixable.
@@ -3720,10 +3794,46 @@
         return state.metadataCache[key] || null;
     }
 
+    function mergeManualLinkMeta(baseMeta, manualMeta) {
+        if (!manualMeta) return baseMeta || null;
+        return Object.assign({}, baseMeta || {}, manualMeta || {});
+    }
+
+    function getManualLinkMeta(showId) {
+        return state.manualLinks && state.manualLinks[showId] ? state.manualLinks[showId] : null;
+    }
+
+    function setManualLinkMeta(showId, meta, options) {
+        if (!showId || !meta) return;
+        if (!state.manualLinks) state.manualLinks = {};
+        var existing = state.manualLinks[showId] || {};
+        var preferredLookup = options && options.preferredLookup
+            ? options.preferredLookup
+            : (existing.preferredLookup || ((meta.provider || '').toLowerCase() === 'tvmaze' && toInt(meta.tvmazeId) ? 'tvmaze' : 'imdb'));
+        state.manualLinks[showId] = Object.assign({}, existing, {
+            imdbId: meta.imdbId || '',
+            tvmazeId: toInt(meta.tvmazeId) || 0,
+            preferredLookup: preferredLookup,
+            provider: meta.provider || '',
+            poster: meta.poster || '',
+            seriesStatus: meta.seriesStatus || '',
+            nextEpisode: meta.nextEpisode || null,
+            lastAired: meta.lastAired || null,
+            runtime: toInt(meta.runtime) || 0,
+            network: meta.network || '',
+            premiered: meta.premiered || '',
+            genres: Array.isArray(meta.genres) ? meta.genres.slice() : [],
+            summary: meta.summary || '',
+            imdbRating: meta.imdbRating || '',
+            fetchedAt: meta.fetchedAt || new Date().toISOString()
+        });
+        persistUserScopedJson(STORE_KEYS.manualLinks, state.manualLinks);
+    }
+
     function setCachedMeta(show, meta) {
         var key = metaKey(show.id, show.title);
         state.metadataCache[key] = meta;
-        show.meta = meta;
+        show.meta = mergeManualLinkMeta(meta, getManualLinkMeta(show.id));
         persistUserScopedJson(STORE_KEYS.metadataCache, state.metadataCache);
     }
 
@@ -3791,6 +3901,42 @@
     }
 
     async function fetchShowMeta(show) {
+        var manual = getManualLinkMeta(show.id);
+        if (manual) {
+            var preferTvmaze = manual.preferredLookup === 'tvmaze';
+            if (preferTvmaze) {
+                if (toInt(manual.tvmazeId)) {
+                    try {
+                        return await fetchTvMazeById(toInt(manual.tvmazeId), show.title, manual.imdbId || '');
+                    } catch (error) {
+                        console.warn('Manual TVMaze refresh failed, trying IMDb/title fallback', error);
+                    }
+                }
+                if (manual.imdbId) {
+                    try {
+                        return await resolveMetaFromImdb(manual.imdbId, show.title);
+                    } catch (error) {
+                        console.warn('Manual IMDb refresh failed after TVMaze miss, trying title fallback', error);
+                    }
+                }
+            } else {
+                if (manual.imdbId) {
+                    try {
+                        return await resolveMetaFromImdb(manual.imdbId, show.title);
+                    } catch (error) {
+                        console.warn('Manual IMDb refresh failed, trying TVMaze/title fallback', error);
+                    }
+                }
+                if (toInt(manual.tvmazeId)) {
+                    try {
+                        return await fetchTvMazeById(toInt(manual.tvmazeId), show.title, manual.imdbId || '');
+                    } catch (error) {
+                        console.warn('Manual TVMaze refresh failed, trying title fallback', error);
+                    }
+                }
+            }
+        }
+
         var omdbKey = loadUserScopedValue(STORE_KEYS.omdbApiKey) || '';
         if (omdbKey) {
             try {
@@ -3802,6 +3948,68 @@
         }
 
         return fetchTvMaze(show.title);
+    }
+
+    async function refreshSingleShowMeta(showId) {
+        var show = state.shows.find(function (item) { return item.id === showId; });
+        if (!show) return;
+        if (els.modalRefreshMeta) {
+            els.modalRefreshMeta.disabled = true;
+            els.modalRefreshMeta.textContent = 'Refreshing…';
+        }
+        setStatus('Refreshing metadata for ' + show.title + '…');
+
+        try {
+            delete state.episodeCache[show.id];
+            var meta = await fetchShowMeta(show);
+            if (meta) {
+                if (getManualLinkMeta(show.id)) setManualLinkMeta(show.id, meta);
+                setCachedMeta(show, meta);
+            }
+            var episodes = await loadEpisodeCatalog(show);
+            maybeSeedProgressFromCount(show, episodes);
+            maybeAutoCompleteFromCatalog(show, episodes);
+            var current = state.shows.find(function (item) { return item.id === showId; }) || show;
+            applyFilters();
+            render();
+            if (state.modalShowId === showId) renderShowModal(current, episodes);
+            setStatus('Refreshed metadata for ' + show.title + '.');
+        } catch (error) {
+            console.warn('Single-show metadata refresh failed', error);
+            setStatus('Could not refresh metadata for ' + show.title + '.', true);
+        } finally {
+            if (els.modalRefreshMeta) {
+                els.modalRefreshMeta.disabled = false;
+                els.modalRefreshMeta.textContent = '↻ Refresh show metadata';
+            }
+        }
+    }
+
+    function toggleMetadataPreference(showId) {
+        var show = state.shows.find(function (item) { return item.id === showId; });
+        if (!show) return;
+
+        var currentManual = getManualLinkMeta(show.id) || {};
+        var currentPrefers = currentManual.preferredLookup === 'tvmaze';
+        var newPreference = currentPrefers ? 'imdb' : 'tvmaze';
+
+        var meta = show.meta || {};
+        var updated = Object.assign({}, currentManual, { preferredLookup: newPreference });
+        setManualLinkMeta(showId, meta, { preferredLookup: newPreference });
+
+        var label = newPreference === 'tvmaze' ? 'TVMaze-first' : 'IMDb-first';
+        setStatus('Set ' + show.title + ' to ' + label + ' metadata lookup.');
+
+        var current = state.shows.find(function (item) { return item.id === showId; }) || show;
+        if (state.modalShowId === showId) {
+            loadEpisodeCatalog(show).then(function (episodes) {
+                if (state.modalShowId !== showId) return;
+                renderShowModal(current, episodes || []);
+            }).catch(function () {
+                if (state.modalShowId !== showId) return;
+                renderShowModal(current, []);
+            });
+        }
     }
 
     async function fetchOmdb(title, apiKey) {
@@ -3871,6 +4079,18 @@
         }
 
         var meta = metaFromTvMazeShow(show, title);
+        var links = await fetchEpisodeLinks(show._links);
+        meta.nextEpisode = links.nextEpisode;
+        meta.lastAired = links.lastAired;
+        return meta;
+    }
+
+    async function fetchTvMazeById(tvmazeId, fallbackTitle, imdbId) {
+        var show = await fetchJson('https://api.tvmaze.com/shows/' + encodeURIComponent(String(tvmazeId)));
+        if (!show) return metaFromTvMazeShow({}, fallbackTitle || '');
+
+        var meta = metaFromTvMazeShow(show, fallbackTitle || '');
+        if (!meta.imdbId && imdbId) meta.imdbId = imdbId;
         var links = await fetchEpisodeLinks(show._links);
         meta.nextEpisode = links.nextEpisode;
         meta.lastAired = links.lastAired;
@@ -4525,6 +4745,7 @@
             customShows: state.customShows || [],
             importedData: state.importedData || null,
             metadataCache: state.metadataCache || {},
+            manualLinks: state.manualLinks || {},
             settings: {
                 profileSettings: state.profileSettings || null,
                 omdbApiKey: loadUserScopedValue(STORE_KEYS.omdbApiKey) || '',
@@ -4559,6 +4780,7 @@
         var changed = false;
         var importChanged = false;
         var metaChanged = false;
+        var manualLinksChanged = false;
         var watchHistoryChanged = false;
         var settingsChanged = false;
         var pendingOmdb = null;
@@ -4626,6 +4848,26 @@
             });
             if (metaChanged) changed = true;
 
+            // manualLinks: per-show union, remote fills missing ids/details only.
+            var rml = remote.manualLinks || {};
+            Object.keys(rml).forEach(function (showId) {
+                var remoteLink = rml[showId];
+                if (!remoteLink || typeof remoteLink !== 'object') return;
+                var localLink = state.manualLinks[showId] || null;
+                if (!localLink) {
+                    state.manualLinks[showId] = JSON.parse(JSON.stringify(remoteLink));
+                    manualLinksChanged = true;
+                    changed = true;
+                    return;
+                }
+                var merged = Object.assign({}, remoteLink, localLink);
+                if (JSON.stringify(merged) !== JSON.stringify(localLink)) {
+                    state.manualLinks[showId] = merged;
+                    manualLinksChanged = true;
+                    changed = true;
+                }
+            });
+
             // settings bundle: newest settingsAt wins
             var rSet = remote.settings || {};
             var rSetAt = rSet.settingsAt || 0;
@@ -4653,6 +4895,7 @@
                 persistJson(scopedKey(STORE_KEYS.customShows), state.customShows);
                 if (importChanged) persistJson(scopedKey(STORE_KEYS.importedData), state.importedData);
                 if (metaChanged) persistJson(scopedKey(STORE_KEYS.metadataCache), state.metadataCache);
+                if (manualLinksChanged) persistJson(scopedKey(STORE_KEYS.manualLinks), state.manualLinks);
                 if (settingsChanged) {
                     if (state.profileSettings) persistJson(scopedKey(STORE_KEYS.profileSettings), state.profileSettings);
                     if (pendingOmdb) {

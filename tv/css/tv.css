@@ -1729,6 +1729,13 @@ textarea {
     gap: 0.6rem;
 }
 
+.modal-links-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+}
+
 .modal-links[hidden] {
     display: none;
 }
@@ -1769,6 +1776,23 @@ textarea {
 .imdb-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(245, 197, 24, 0.35);
+}
+
+.modal-refresh-link {
+    cursor: pointer;
+}
+
+.modal-provider-link {
+    cursor: pointer;
+    background: linear-gradient(135deg, rgba(87, 162, 255, 0.24), rgba(78, 217, 196, 0.22));
+    border-color: rgba(126, 208, 255, 0.45);
+    color: #dff6ff;
+}
+
+.modal-provider-link:hover,
+.modal-provider-link:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(90, 186, 255, 0.24);
 }
 
 .modal-summary {
