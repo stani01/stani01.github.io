@@ -236,13 +236,30 @@
                         </div>
                         <div id="modal-fix-link" class="modal-fix-link" hidden>
                             <p id="modal-fix-link-note" class="modal-fix-link-note">This show isn't linked to a database yet, so there's no poster or episode list. Link it with its IMDb or TVMaze page to pull the right details.</p>
-                            <button type="button" id="modal-fix-link-toggle" class="btn btn-sm modal-fix-link-toggle">🔗 Fix show link</button>
+                            <div class="modal-fix-link-controls">
+                                <button type="button" id="modal-fix-link-toggle" class="btn btn-sm modal-fix-link-toggle">🔗 Fix show link</button>
+                                <button type="button" id="modal-mark-unfixable-btn" class="btn btn-sm" title="Mark this show as unfixable/unsalvageable">Mark as unfixable</button>
+                            </div>
                             <form id="modal-fix-link-form" class="modal-fix-link-form" hidden>
-                                <label for="modal-fix-link-input">Paste the show's IMDb or TVMaze link or ID</label>
-                                <div class="modal-fix-link-row">
-                                    <input id="modal-fix-link-input" type="text" placeholder="https://www.imdb.com/title/tt1586680/ or https://www.tvmaze.com/shows/82/game-of-thrones" autocomplete="off" spellcheck="false">
-                                    <button type="submit" id="modal-fix-link-submit" class="btn btn-accent btn-sm">Match</button>
-                                    <button type="button" id="modal-fix-link-cancel" class="btn btn-sm">Cancel</button>
+                                <div class="modal-fix-link-mode-tabs">
+                                    <button type="button" id="modal-fix-link-paste-tab" class="modal-fix-link-tab active" data-mode="paste">Paste Link/ID</button>
+                                    <button type="button" id="modal-fix-link-search-tab" class="modal-fix-link-tab" data-mode="search">Search Databases</button>
+                                </div>
+                                <div id="modal-fix-link-paste-mode" class="modal-fix-link-mode active">
+                                    <label for="modal-fix-link-input">Paste the show's IMDb or TVMaze link or ID</label>
+                                    <div class="modal-fix-link-row">
+                                        <input id="modal-fix-link-input" type="text" placeholder="https://www.imdb.com/title/tt1586680/ or https://www.tvmaze.com/shows/82/game-of-thrones" autocomplete="off" spellcheck="false">
+                                        <button type="submit" id="modal-fix-link-submit" class="btn btn-accent btn-sm">Match</button>
+                                        <button type="button" id="modal-fix-link-cancel" class="btn btn-sm">Cancel</button>
+                                    </div>
+                                </div>
+                                <div id="modal-fix-link-search-mode" class="modal-fix-link-mode hidden">
+                                    <label for="modal-fix-link-search-input">Search show by name</label>
+                                    <div class="modal-fix-link-row">
+                                        <input id="modal-fix-link-search-input" type="text" placeholder="Search IMDb and TVMaze..." autocomplete="off" spellcheck="false">
+                                        <button type="button" id="modal-fix-link-search-cancel" class="btn btn-sm">Cancel</button>
+                                    </div>
+                                    <div id="modal-fix-link-search-results" class="modal-fix-link-search-results"></div>
                                 </div>
                                 <p id="modal-fix-link-msg" class="modal-fix-link-msg" hidden></p>
                             </form>

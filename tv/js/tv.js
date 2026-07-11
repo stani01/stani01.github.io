@@ -14,6 +14,7 @@
         watchHistory: 'tvTrackerWatchHistoryV1',
         metadataCache: 'tvTrackerMetadataCacheV1',
         manualLinks: 'tvTrackerManualLinksV1',
+        unfixableShows: 'tvTrackerUnfixableShowsV1',
         omdbApiKey: 'tvTrackerOmdbApiKey',
         sessionUser: 'tvTrackerSessionUserV1',
         customShows: 'tvTrackerCustomShowsV1',
@@ -34,7 +35,7 @@
     // Base keys whose changes should trigger a device-to-device sync push.
     // (metadataCache is intentionally excluded: it is large and regenerable,
     // so it rides along in the snapshot but never triggers a push by itself.)
-    var SYNC_PUSH_KEYS = ['tvTrackerLocalOverridesV1', 'tvTrackerWatchHistoryV1', 'tvTrackerCustomShowsV1', 'tvTrackerImportedDataV1', 'tvTrackerProfileSettingsV1', 'tvTrackerManualLinksV1'];
+    var SYNC_PUSH_KEYS = ['tvTrackerLocalOverridesV1', 'tvTrackerWatchHistoryV1', 'tvTrackerCustomShowsV1', 'tvTrackerImportedDataV1', 'tvTrackerProfileSettingsV1', 'tvTrackerManualLinksV1', 'tvTrackerUnfixableShowsV1'];
 
     // Fallback per-episode length (minutes) used for the "Hours watched" estimate
     // when a show's metadata has no runtime yet.
@@ -57,6 +58,7 @@
         watchHistory: [],
         metadataCache: {},
         manualLinks: {},
+        unfixableShows: {},
         customShows: [],
         importedData: null,
         profileSettings: { useImportedData: true },
@@ -105,11 +107,13 @@
         cloud: {
             inFlight: false,
             timer: null,
+            stuckDetectorTimer: null,
             pendingLocalChanges: false,
             version: 0,
             token: '',
             retryAt: 0,
             lastErrorAt: 0,
+            lastActivityAt: 0,
             applyingRemote: false
         }
     };
@@ -191,11 +195,19 @@
         fixLink: document.getElementById('modal-fix-link'),
         fixLinkNote: document.getElementById('modal-fix-link-note'),
         fixLinkToggle: document.getElementById('modal-fix-link-toggle'),
+        markUnfixableBtn: document.getElementById('modal-mark-unfixable-btn'),
         fixLinkForm: document.getElementById('modal-fix-link-form'),
         fixLinkInput: document.getElementById('modal-fix-link-input'),
         fixLinkSubmit: document.getElementById('modal-fix-link-submit'),
         fixLinkCancel: document.getElementById('modal-fix-link-cancel'),
         fixLinkMsg: document.getElementById('modal-fix-link-msg'),
+        fixLinkPasteTab: document.getElementById('modal-fix-link-paste-tab'),
+        fixLinkSearchTab: document.getElementById('modal-fix-link-search-tab'),
+        fixLinkPasteMode: document.getElementById('modal-fix-link-paste-mode'),
+        fixLinkSearchMode: document.getElementById('modal-fix-link-search-mode'),
+        fixLinkSearchInput: document.getElementById('modal-fix-link-search-input'),
+        fixLinkSearchCancel: document.getElementById('modal-fix-link-search-cancel'),
+        fixLinkSearchResults: document.getElementById('modal-fix-link-search-results'),
         modalProgress: document.getElementById('modal-progress'),
         modalSeasons: document.getElementById('modal-seasons'),
         upcomingTabs: document.getElementById('upcoming-tabs'),
@@ -761,7 +773,12 @@
             if (els.fixLinkForm) els.fixLinkForm.hidden = false;
             els.fixLinkToggle.hidden = true;
             showFixLinkMsg('');
+            switchFixLinkMode('paste');
             if (els.fixLinkInput) els.fixLinkInput.focus();
+        });
+
+        if (els.markUnfixableBtn) els.markUnfixableBtn.addEventListener('click', function () {
+            toggleUnfixable();
         });
 
         if (els.fixLinkCancel) els.fixLinkCancel.addEventListener('click', function () {
@@ -769,11 +786,32 @@
             if (els.fixLinkToggle) els.fixLinkToggle.hidden = false;
             showFixLinkMsg('');
             if (els.fixLinkInput) els.fixLinkInput.value = '';
+            if (els.fixLinkSearchInput) els.fixLinkSearchInput.value = '';
+        });
+
+        if (els.fixLinkSearchCancel) els.fixLinkSearchCancel.addEventListener('click', function () {
+            if (els.fixLinkForm) els.fixLinkForm.hidden = true;
+            if (els.fixLinkToggle) els.fixLinkToggle.hidden = false;
+            showFixLinkMsg('');
+            if (els.fixLinkSearchInput) els.fixLinkSearchInput.value = '';
+            if (els.fixLinkSearchResults) els.fixLinkSearchResults.innerHTML = '';
+        });
+
+        if (els.fixLinkPasteTab) els.fixLinkPasteTab.addEventListener('click', function () {
+            switchFixLinkMode('paste');
+        });
+
+        if (els.fixLinkSearchTab) els.fixLinkSearchTab.addEventListener('click', function () {
+            switchFixLinkMode('search');
         });
 
         if (els.fixLinkForm) els.fixLinkForm.addEventListener('submit', function (event) {
             event.preventDefault();
             submitFixLink();
+        });
+
+        if (els.fixLinkSearchInput) els.fixLinkSearchInput.addEventListener('input', function () {
+            scheduleFixLinkSearch();
         });
 
         if (els.posterLightboxClose) els.posterLightboxClose.addEventListener('click', function () {
@@ -996,6 +1034,7 @@
             state.watchHistory = loadUserScopedJson(STORE_KEYS.watchHistory, []);
             state.metadataCache = loadUserScopedJson(STORE_KEYS.metadataCache, {});
             state.manualLinks = loadUserScopedJson(STORE_KEYS.manualLinks, {});
+            state.unfixableShows = loadUserScopedJson(STORE_KEYS.unfixableShows, {});
             state.customShows = loadUserScopedJson(STORE_KEYS.customShows, []);
             state.importedData = loadUserScopedJson(STORE_KEYS.importedData, null);
             state.profileSettings = loadUserScopedJson(STORE_KEYS.profileSettings, { useImportedData: true });
@@ -1569,6 +1608,7 @@
         state.watchHistory = [];
         state.metadataCache = {};
         state.manualLinks = {};
+        state.unfixableShows = {};
         state.importedData = null;
         state.customShows = [];
         els.statsCards.innerHTML = '';
@@ -1674,7 +1714,21 @@
         var meta = loadUserScopedJson(STORE_KEYS.cloudSyncMeta, null);
         state.cloud.version = meta && typeof meta.version === 'number' ? meta.version : 0;
         state.cloud.pendingLocalChanges = false;
+        state.cloud.stuckDetectorTimer = window.setInterval(detectStuckCloudSync, 30000);
         cloudScheduleSync(800);
+    }
+
+    function detectStuckCloudSync() {
+        if (!state.cloud.inFlight && !state.cloud.applyingRemote) return;
+        var now = Date.now();
+        var lastActivityAt = state.cloud.lastActivityAt || 0;
+        var stuckDuration = now - lastActivityAt;
+        if (stuckDuration > CLOUD_SYNC_TIMEOUT_MS * 2) {
+            console.warn('[CLOUD-SYNC] Detected stuck sync state for ' + stuckDuration + 'ms, resetting');
+            state.cloud.inFlight = false;
+            state.cloud.applyingRemote = false;
+            state.cloud.lastActivityAt = now;
+        }
     }
 
     function teardownCloudSync() {
@@ -1682,12 +1736,18 @@
             clearTimeout(state.cloud.timer);
             state.cloud.timer = null;
         }
+        if (state.cloud.stuckDetectorTimer) {
+            clearInterval(state.cloud.stuckDetectorTimer);
+            state.cloud.stuckDetectorTimer = null;
+        }
         state.cloud.inFlight = false;
+        state.cloud.applyingRemote = false;
         state.cloud.pendingLocalChanges = false;
         state.cloud.version = 0;
         state.cloud.token = '';
         state.cloud.retryAt = 0;
         state.cloud.lastErrorAt = 0;
+        state.cloud.lastActivityAt = 0;
     }
 
     function cloudScheduleSync(delayMs) {
@@ -1696,8 +1756,38 @@
         var delay = typeof delayMs === 'number' ? delayMs : 2000;
         state.cloud.timer = window.setTimeout(function () {
             state.cloud.timer = null;
-            cloudRunSync(false);
+            cloudRunSyncWithTimeout(false);
         }, delay);
+    }
+
+    async function cloudRunSyncWithTimeout(forcePush) {
+        var timeoutHandle = null;
+        var completed = false;
+        state.cloud.lastActivityAt = Date.now();
+        try {
+            var syncPromise = cloudRunSync(forcePush);
+            var timeoutPromise = new Promise(function (resolve) {
+                timeoutHandle = window.setTimeout(function () {
+                    if (!completed) {
+                        state.cloud.inFlight = false;
+                        state.cloud.applyingRemote = false;
+                        state.cloud.lastActivityAt = Date.now();
+                        console.warn('[CLOUD-SYNC] sync timed out after ' + CLOUD_SYNC_TIMEOUT_MS + 'ms');
+                    }
+                    resolve();
+                }, CLOUD_SYNC_TIMEOUT_MS);
+            });
+            await Promise.race([syncPromise, timeoutPromise]);
+        } catch (e) {
+            state.cloud.inFlight = false;
+            state.cloud.applyingRemote = false;
+            state.cloud.lastActivityAt = Date.now();
+            console.warn('[CLOUD-SYNC] sync wrapper error:', e);
+        } finally {
+            completed = true;
+            state.cloud.lastActivityAt = Date.now();
+            if (timeoutHandle) clearTimeout(timeoutHandle);
+        }
     }
 
     function cloudAuthForCurrentUser() {
@@ -3062,8 +3152,11 @@
         if (els.fixLinkForm) els.fixLinkForm.hidden = true;
         if (els.fixLinkToggle) els.fixLinkToggle.hidden = false;
         if (els.fixLinkInput) els.fixLinkInput.value = '';
+        if (els.fixLinkSearchInput) els.fixLinkSearchInput.value = '';
+        if (els.fixLinkSearchResults) els.fixLinkSearchResults.innerHTML = '';
         if (els.fixLinkMsg) { els.fixLinkMsg.hidden = true; els.fixLinkMsg.textContent = ''; els.fixLinkMsg.className = 'modal-fix-link-msg'; }
         if (els.fixLinkSubmit) { els.fixLinkSubmit.disabled = false; els.fixLinkSubmit.textContent = 'Match'; }
+        switchFixLinkMode('paste');
     }
 
     function showFixLinkMsg(message, isError) {
@@ -3071,6 +3164,272 @@
         els.fixLinkMsg.textContent = message;
         els.fixLinkMsg.className = 'modal-fix-link-msg' + (isError ? ' error' : '');
         els.fixLinkMsg.hidden = !message;
+    }
+
+    function switchFixLinkMode(mode) {
+        var tabs = [els.fixLinkPasteTab, els.fixLinkSearchTab];
+        var modes = [els.fixLinkPasteMode, els.fixLinkSearchMode];
+        
+        tabs.forEach(function (tab) {
+            if (!tab) return;
+            tab.classList.toggle('active', tab.getAttribute('data-mode') === mode);
+        });
+        
+        modes.forEach(function (m) {
+            if (!m) return;
+            m.classList.toggle('active', modes.indexOf(m) === (mode === 'search' ? 1 : 0));
+            m.classList.toggle('hidden', modes.indexOf(m) !== (mode === 'search' ? 1 : 0));
+        });
+
+        if (mode === 'search' && els.fixLinkSearchInput) {
+            setTimeout(function () { els.fixLinkSearchInput.focus(); }, 50);
+        }
+    }
+
+    var fixLinkSearchTimer = null;
+    var fixLinkSearchSeq = 0;
+
+    function scheduleFixLinkSearch() {
+        if (fixLinkSearchTimer) clearTimeout(fixLinkSearchTimer);
+        var query = els.fixLinkSearchInput ? String(els.fixLinkSearchInput.value || '').trim() : '';
+        if (query.length < 2) {
+            fixLinkSearchSeq += 1;
+            if (els.fixLinkSearchResults) els.fixLinkSearchResults.innerHTML = '';
+            showFixLinkMsg(query.length ? 'Keep typing…' : '');
+            return;
+        }
+        fixLinkSearchTimer = setTimeout(runFixLinkSearch, 500);
+    }
+
+    async function runFixLinkSearch() {
+        fixLinkSearchSeq += 1;
+        var currentSeq = fixLinkSearchSeq;
+        var query = els.fixLinkSearchInput ? String(els.fixLinkSearchInput.value || '').trim() : '';
+        
+        if (query.length < 2) {
+            if (els.fixLinkSearchResults) els.fixLinkSearchResults.innerHTML = '';
+            return;
+        }
+
+        showFixLinkMsg('Searching databases…');
+        if (els.fixLinkSearchResults) els.fixLinkSearchResults.innerHTML = '';
+
+        try {
+            var results = await searchMultipleDbsForShow(query);
+            if (fixLinkSearchSeq !== currentSeq) return; // another search superseded this one
+            
+            if (!results || !results.length) {
+                showFixLinkMsg('No results found. Try a different name or paste a direct link.', true);
+                if (els.fixLinkSearchResults) els.fixLinkSearchResults.innerHTML = '<div class="addshow-empty">No results found</div>';
+                return;
+            }
+
+            showFixLinkMsg('');
+            renderFixLinkSearchResults(results);
+        } catch (error) {
+            if (fixLinkSearchSeq !== currentSeq) return;
+            console.warn('Fix-link search failed', error);
+            showFixLinkMsg('Search failed. Try a direct link instead.', true);
+        }
+    }
+
+    async function searchMultipleDbsForShow(query) {
+        // Search both TVMaze and IMDb (via OMDb or IMDb bridge)
+        var results = [];
+
+        try {
+            var tvmazeResults = await searchTvMazeShows(query);
+            if (Array.isArray(tvmazeResults)) {
+                tvmazeResults.forEach(function (show) {
+                    results.push({
+                        title: show.name || show.title || query,
+                        year: show.premiered ? new Date(show.premiered).getFullYear() : null,
+                        tvmazeId: show.id,
+                        tvmazePoster: show.image && show.image.medium ? show.image.medium : null,
+                        source: 'tvmaze',
+                        summary: show.summary && show.summary.replace(/<[^>]*>/g, '') || ''
+                    });
+                });
+            }
+        } catch (error) {
+            console.warn('TVMaze search failed:', error);
+        }
+
+        return results.sort(function (a, b) {
+            return (a.title || '').localeCompare(b.title || '');
+        });
+    }
+
+    async function searchTvMazeShows(query) {
+        // TVMaze API: GET /search/shows?q=query
+        var url = 'https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(query);
+        var resp = await fetch(url);
+        if (!resp.ok) throw new Error('TVMaze search failed: ' + resp.status);
+        var data = await resp.json();
+        return data.map(function (item) { return item.show; });
+    }
+
+    function renderFixLinkSearchResults(results) {
+        if (!els.fixLinkSearchResults) return;
+        els.fixLinkSearchResults.innerHTML = '';
+
+        if (!results.length) {
+            els.fixLinkSearchResults.innerHTML = '<div class="addshow-empty">No shows found</div>';
+            return;
+        }
+
+        var fragment = document.createDocumentFragment();
+        results.slice(0, 20).forEach(function (result) {
+            var row = document.createElement('div');
+            row.className = 'addshow-result';
+
+            var poster = document.createElement('img');
+            poster.src = result.tvmazePoster || FALLBACK_POSTER;
+            poster.alt = result.title;
+            poster.className = 'addshow-poster';
+
+            var info = document.createElement('div');
+            info.className = 'addshow-info';
+
+            var title = document.createElement('strong');
+            title.textContent = result.title || 'Unknown';
+            title.className = 'addshow-title';
+
+            var yearText = result.year ? ' (' + result.year + ')' : '';
+            var sourceText = ' [' + (result.source === 'tvmaze' ? 'TVMaze' : 'IMDb') + ']';
+            var subtitle = document.createElement('span');
+            subtitle.textContent = yearText + sourceText;
+            subtitle.className = 'addshow-subtitle';
+
+            var summary = document.createElement('span');
+            summary.textContent = stripHtml(result.summary || '').substring(0, 100);
+            summary.className = 'addshow-summary';
+
+            info.appendChild(title);
+            info.appendChild(subtitle);
+            info.appendChild(summary);
+
+            var selectBtn = document.createElement('button');
+            selectBtn.type = 'button';
+            selectBtn.className = 'btn btn-accent btn-sm';
+            selectBtn.textContent = 'Select';
+            selectBtn.addEventListener('click', function () {
+                selectFixLinkResult(result);
+            });
+
+            row.appendChild(poster);
+            row.appendChild(info);
+            row.appendChild(selectBtn);
+            fragment.appendChild(row);
+        });
+
+        els.fixLinkSearchResults.appendChild(fragment);
+    }
+
+    async function selectFixLinkResult(result) {
+        var showId = state.modalShowId;
+        var show = state.shows.find(function (item) { return item.id === showId; });
+        if (!show) return;
+
+        if (els.fixLinkSubmit) els.fixLinkSubmit.disabled = true;
+        if (els.fixLinkSearchResults) {
+            els.fixLinkSearchResults.querySelectorAll('button').forEach(function (btn) { btn.disabled = true; });
+        }
+        showFixLinkMsg('Matching…');
+
+        try {
+            var meta;
+            if (result.tvmazeId) {
+                meta = await resolveMetaFromTvMaze(result.tvmazeId, show.title);
+            } else {
+                throw new Error('No valid database ID found');
+            }
+
+            if (state.modalShowId !== showId) return; // modal changed
+            if (!meta || (!meta.tvmazeId && !meta.imdbId)) {
+                showFixLinkMsg('Could not load show details. Try another result.', true);
+                if (els.fixLinkSubmit) els.fixLinkSubmit.disabled = false;
+                if (els.fixLinkSearchResults) {
+                    els.fixLinkSearchResults.querySelectorAll('button').forEach(function (btn) { btn.disabled = false; });
+                }
+                return;
+            }
+
+            // Re-link the show
+            delete state.episodeCache[show.id];
+            setManualLinkMeta(show.id, meta, { preferredLookup: result.source });
+            setCachedMeta(show, meta);
+            updateCustomShowIds(show.id, meta);
+
+            var episodes = await loadEpisodeCatalog(show);
+            if (state.modalShowId !== showId) return;
+            maybeSeedProgressFromCount(show, episodes);
+            var updated = state.shows.find(function (item) { return item.id === showId; }) || show;
+            renderShowModal(updated, episodes);
+
+            applyFilters();
+            render();
+
+            if (episodes.length) {
+                setStatus('Linked "' + show.title + '" — pulled ' + episodes.length + ' episodes from ' + result.source + '.');
+            } else {
+                setStatus('Linked "' + show.title + '" to ' + result.source + '. Episode tracking is still unavailable for this title.');
+            }
+
+            // Close the form and switch back to paste mode
+            if (els.fixLinkForm) els.fixLinkForm.hidden = true;
+            if (els.fixLinkToggle) els.fixLinkToggle.hidden = false;
+            if (els.fixLinkSearchInput) els.fixLinkSearchInput.value = '';
+            switchFixLinkMode('paste');
+        } catch (error) {
+            console.warn('Fix-link search selection failed', error);
+            if (state.modalShowId === showId) {
+                showFixLinkMsg('Something went wrong. Try another result or paste a direct link.', true);
+                if (els.fixLinkSubmit) els.fixLinkSubmit.disabled = false;
+                if (els.fixLinkSearchResults) {
+                    els.fixLinkSearchResults.querySelectorAll('button').forEach(function (btn) { btn.disabled = false; });
+                }
+            }
+        }
+    }
+
+    function toggleUnfixable() {
+        var showId = state.modalShowId;
+        if (!showId) return;
+        var show = state.shows.find(function (item) { return item.id === showId; });
+        if (!show) return;
+
+        var isCurrentlyUnfixable = !!(state.unfixableShows && state.unfixableShows[showId]);
+        
+        if (!state.unfixableShows) state.unfixableShows = {};
+        
+        if (isCurrentlyUnfixable) {
+            delete state.unfixableShows[showId];
+            setStatus('Unmarked "' + show.title + '" as unfixable.');
+        } else {
+            state.unfixableShows[showId] = true;
+            setStatus('Marked "' + show.title + '" as unfixable — it will no longer appear in the fix list.');
+        }
+
+        persistUserScopedJson(STORE_KEYS.unfixableShows, state.unfixableShows);
+        updateMarkUnfixableBtn();
+        refreshUnresolvedControl();
+        applyFilters();
+        render();
+    }
+
+    function updateMarkUnfixableBtn() {
+        if (!els.markUnfixableBtn) return;
+        var showId = state.modalShowId;
+        if (!showId) {
+            els.markUnfixableBtn.hidden = true;
+            return;
+        }
+        
+        var isUnfixable = !!(state.unfixableShows && state.unfixableShows[showId]);
+        els.markUnfixableBtn.textContent = isUnfixable ? '✓ Marked as unfixable' : 'Mark as unfixable';
+        els.markUnfixableBtn.classList.toggle('active', isUnfixable);
+        els.markUnfixableBtn.hidden = false;
     }
 
     // Pulls a supported external id out of a pasted URL or raw token.
@@ -3419,6 +3778,7 @@
         // Keep the relink tool available on every show so the user can override
         // a bad match later with a direct IMDb or TVMaze page.
         resetFixLinkUi(totalEps > 0);
+        updateMarkUnfixableBtn();
 
         if (!totalEps) {
             els.modalSeasons.innerHTML = '<div class="empty">Episode list unavailable for this show yet. Try “Refresh show metadata”, “Use TVMaze instead”, or “Fix show link” above to match it directly.</div>';
@@ -3566,6 +3926,8 @@
     // that never bridged to TVMaze still counts even though it has an imdbId.
     function isShowUnresolved(show) {
         if (!show) return false;
+        // If marked as unfixable, don't list it anymore
+        if (state.unfixableShows && state.unfixableShows[show.id]) return false;
         var m = show.meta || {};
         // If the catalog was already fetched, trust it outright: an empty list
         // means the show still needs fixing even when a (stale) id is present.

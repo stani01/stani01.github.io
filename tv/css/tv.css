@@ -869,6 +869,16 @@ textarea {
     align-items: center;
 }
 
+.btn.active {
+    background: rgba(46, 196, 182, 0.2);
+    border-color: rgba(46, 196, 182, 0.5);
+    color: var(--mint);
+}
+
+.btn.active:hover {
+    background: rgba(46, 196, 182, 0.3);
+}
+
 .empty,
 .error {
     padding: 1rem;
@@ -1897,6 +1907,65 @@ textarea {
 
 .modal-fix-link-msg.error {
     color: var(--danger);
+}
+
+.modal-fix-link-controls {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.modal-fix-link-mode-tabs {
+    display: flex;
+    gap: 0.3rem;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 0.45rem;
+}
+
+.modal-fix-link-tab {
+    padding: 0.45rem 0.7rem;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-soft);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.modal-fix-link-tab:hover {
+    color: var(--text);
+}
+
+.modal-fix-link-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.modal-fix-link-mode {
+    display: none;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.modal-fix-link-mode.active {
+    display: flex;
+}
+
+.modal-fix-link-mode.hidden {
+    display: none;
+}
+
+.modal-fix-link-search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 0.3rem;
+    border-radius: 0.55rem;
 }
 
 .modal-fix-link-msg[hidden] {
