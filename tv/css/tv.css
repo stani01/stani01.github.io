@@ -1206,6 +1206,16 @@ textarea {
     width: 100%;
 }
 
+.modal-menu-separator {
+    height: 1px;
+    margin: 0.45rem 0;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.24) 50%, rgba(255, 255, 255, 0.06) 100%);
+}
+
+.modal-menu-dropdown #remove-show-btn {
+    margin-top: 0.12rem;
+}
+
 .show-modal-header p {
     margin: 0.2rem 0 0;
     color: var(--text-soft);
@@ -2650,6 +2660,21 @@ body.tv-busy .shape {
         margin-top: 0.85rem;
     }
 
+    .collapsible-section .section-heading {
+        position: sticky;
+        top: calc(env(safe-area-inset-top, 0px) + 0.2rem);
+        z-index: 45;
+        margin: 0 0 0.45rem;
+    }
+
+    .collapsible-section .section-toggle {
+        border: 1px solid rgba(130, 168, 255, 0.28);
+        border-radius: 0.6rem;
+        padding: 0.44rem 0.58rem;
+        background: rgba(6, 11, 24, 0.92);
+        backdrop-filter: blur(6px);
+    }
+
     .stat-card {
         padding: 0.8rem 0.9rem;
     }
@@ -2774,6 +2799,10 @@ body.tv-busy .shape {
         width: auto;
         max-width: min(260px, calc(100vw - 2rem));
         z-index: 1000;
+    }
+
+    .show-modal-actions .modal-menu[open] .modal-menu-dropdown .modal-menu-separator {
+        margin: 0.6rem 0;
     }
 
     .modal-list {
@@ -3035,8 +3064,20 @@ body.tv-busy .shape {
     font-size: 1rem;
     cursor: pointer;
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
-    display: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     z-index: 1300;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.18s ease, transform 0.18s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.tv-back-to-top.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
 }
 
 .tv-back-to-top:hover,

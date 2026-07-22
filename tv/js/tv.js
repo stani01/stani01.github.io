@@ -392,7 +392,8 @@
         exportDataBtn: document.getElementById('export-data-btn'),
         restoreDataBtn: document.getElementById('restore-data-btn'),
         restoreCloudPrevBtn: document.getElementById('restore-cloud-prev-btn'),
-        backupMessage: document.getElementById('backup-message')
+        backupMessage: document.getElementById('backup-message'),
+        backToTopBtn: document.getElementById('tv-back-to-top')
     };
 
     startApp();
@@ -767,6 +768,7 @@
                 window.deferredPrompt = null;
             });
         });
+        on(els.backToTopBtn, 'click', scrollToTop);
 
         // Core list controls
         on(els.searchInput, 'input', function () {
@@ -908,6 +910,7 @@
         });
 
         window.addEventListener('resize', applyControlsCollapseUi);
+        window.addEventListener('scroll', updateBackToTopVisibility, { passive: true });
         window.addEventListener('keydown', function (event) {
             if (document.body && document.body.classList.contains('tv-busy')) return;
             if (event.key !== 'Escape') return;
@@ -920,6 +923,19 @@
             if (els.accountModal && !els.accountModal.hidden) { closeAccountModal(); return; }
             if (els.helpModal && !els.helpModal.hidden) { closeHelpModal(); }
         });
+
+        updateBackToTopVisibility();
+    }
+
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateBackToTopVisibility() {
+        if (!els.backToTopBtn) return;
+        var isVisible = (window.scrollY || window.pageYOffset || 0) > 360;
+        els.backToTopBtn.classList.toggle('is-visible', isVisible);
+        els.backToTopBtn.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
     }
 
     function updateAuthUi() {
