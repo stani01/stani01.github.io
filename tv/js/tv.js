@@ -285,6 +285,7 @@
         showModalBackdrop: document.getElementById('show-modal-backdrop'),
         showModalClose: document.getElementById('show-modal-close'),
         showModalMenu: document.getElementById('show-modal-menu'),
+        pushWatchLaterBtn: document.getElementById('push-watch-later-btn'),
         removeShowBtn: document.getElementById('remove-show-btn'),
         showModalTitle: document.getElementById('show-modal-title'),
         showModalSubtitle: document.getElementById('show-modal-subtitle'),
@@ -798,6 +799,7 @@
         // Main modal close controls
         on(els.showModalClose, 'click', closeShowModal);
         on(els.showModalBackdrop, 'click', closeShowModal);
+        on(els.pushWatchLaterBtn, 'click', togglePushToWatchLater);
         on(els.removeShowBtn, 'click', requestRemoveShow);
         on(els.posterBtn, 'click', function () {
             if (!els.modalPoster || !els.modalPoster.src) return;
@@ -2478,6 +2480,8 @@
     }
 
     function applyFilters() {
+        cleanupExpiredManualWatchLaterOverrides();
+
         var filtered = state.shows.filter(function (show) {
             if (!matchesFilter(show)) return false;
             if (!state.search) return true;
@@ -2850,12 +2854,46 @@
         return 'uptodate';
     }
 
-    function isNotWatchedForAWhile(show) {
+    function isManuallyPushedToWatchLater(show) {
+        if (!show || !show.id) return false;
+        var entry = state.overrides && state.overrides[show.id];
+        return !!(entry && entry.forceWatchLater);
+    }
+
+    function isNaturallyStaleShow(show) {
         if (!hasNewEpisode(show)) return false;
         var last = asTime(show && show.lastSeen && show.lastSeen.updated_at);
         if (!last) return true;
         var thresholdMs = STALE_DAYS_THRESHOLD * 24 * 60 * 60 * 1000;
         return (Date.now() - last) >= thresholdMs;
+    }
+
+    function cleanupExpiredManualWatchLaterOverrides() {
+        if (!state.shows || !state.shows.length || !state.overrides) return;
+
+        var changed = false;
+        state.shows.forEach(function (show) {
+            if (!isManuallyPushedToWatchLater(show)) return;
+            if (!isNaturallyStaleShow(show)) return;
+
+            var entry = state.overrides[show.id];
+            if (!entry) return;
+            delete entry.forceWatchLater;
+            if (!Object.keys(entry).length) {
+                delete state.overrides[show.id];
+            }
+            changed = true;
+        });
+
+        if (changed) {
+            persistUserScopedJson(STORE_KEYS.localOverrides, state.overrides);
+        }
+    }
+
+    function isNotWatchedForAWhile(show) {
+        if (isNaturallyStaleShow(show)) return true;
+        if (!hasNewEpisode(show)) return false;
+        return isManuallyPushedToWatchLater(show);
     }
 
     function renderShowList(container, shows, emptyText, listType) {
@@ -2977,6 +3015,13 @@
 
                 watchRow.textContent = 'Watched episodes: ' + show.watchedCount + buildLastSeenSuffix(show);
                 nextRow.textContent = buildNextRow(show);
+
+                if (isManuallyPushedToWatchLater(show)) {
+                    var watchLaterTag = document.createElement('span');
+                    watchLaterTag.className = 'tag tag-watchlater';
+                    watchLaterTag.textContent = 'Watch later';
+                    tags.appendChild(watchLaterTag);
+                }
 
                 (meta.genres || []).slice(0, 4).forEach(function (genre) {
                     var tag = document.createElement('span');
@@ -3180,7 +3225,8 @@
             watchedCount: nextCount,
             episodeStates: show.episodeStates,
             lastSeen: computeLastSeen(show, catalog),
-            status: nextStatus
+            status: nextStatus,
+            clearForceWatchLater: watched === true
         });
 
         if (markedWatched.length) appendWatchHistory(show, markedWatched);
@@ -3980,6 +4026,40 @@
         );
     }
 
+    function togglePushToWatchLater() {
+        var showId = state.modalShowId;
+        if (!showId) return;
+
+        var show = state.shows.find(function (item) { return item.id === showId; });
+        if (!show) return;
+        var currentlyPushed = isManuallyPushedToWatchLater(show);
+
+        if (els.showModalMenu) els.showModalMenu.open = false;
+
+        if (!hasNewEpisode(show) && !currentlyPushed) {
+            setStatus('This show has no pending aired episode to move right now.');
+            return;
+        }
+
+        updateShowOverride(show.id, {
+            forceWatchLater: !currentlyPushed
+        });
+
+        applyFilters();
+        render();
+
+        var updated = state.shows.find(function (item) { return item.id === show.id; }) || show;
+        if (state.modalShowId === show.id && !els.showModal.hidden) {
+            renderShowModal(updated, state.modalEpisodes || []);
+        }
+
+        if (currentlyPushed) {
+            setStatus('Moved ' + show.title + ' back to Watch Next.');
+        } else {
+            setStatus('Pushed ' + show.title + ' to Haven\'t Watched in a While.');
+        }
+    }
+
     function removeShowFromTracker(show) {
         if (!show || !show.id) return;
 
@@ -4106,6 +4186,17 @@
                 patchShow(show.id, { status: isPausedLike ? 'active' : 'paused' });
                 setStatus((isPausedLike ? 'Resumed ' : 'Paused ') + show.title + '.');
             };
+        }
+
+        if (els.pushWatchLaterBtn) {
+            var hasPendingEpisode = hasNewEpisode(show);
+            var pushed = isManuallyPushedToWatchLater(show);
+            var canToggle = hasPendingEpisode || pushed;
+            els.pushWatchLaterBtn.textContent = pushed ? 'Return to Watch Next' : 'Push to Watch Later';
+            els.pushWatchLaterBtn.disabled = !canToggle;
+            els.pushWatchLaterBtn.title = canToggle
+                ? (pushed ? 'Move this show back to Watch Next logic' : 'Manually place this show in Haven\'t Watched in a While')
+                : 'No pending episode right now';
         }
 
         var totalEps = episodes.length;
@@ -4819,12 +4910,14 @@
             };
         }
 
-        updateShowOverride(showId, {
+        var overridePatch = {
             watchedCount: show.watchedCount,
             status: show.localStatus || show.status,
             lastSeen: show.lastSeen || null,
             episodeStates: show.episodeStates || {}
-        });
+        };
+        if (patch.clearForceWatchLater) overridePatch.forceWatchLater = false;
+        updateShowOverride(showId, overridePatch);
 
         applyFilters();
         render();

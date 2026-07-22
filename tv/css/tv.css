@@ -2037,6 +2037,12 @@ body.tv-busy .shape {
     gap: 0.25rem;
     font-size: 0.9rem;
     color: var(--text);
+.tag-watchlater {
+    border-color: rgba(114, 234, 210, 0.5);
+    color: #93ffe6;
+    background: rgba(46, 196, 182, 0.2);
+    font-weight: 700;
+}
 }
 
 .imdb-rating strong {
