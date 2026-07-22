@@ -104,7 +104,7 @@
     var STORAGE_STORE_NAME = 'kv';
     var CLOUD_SYNC_BASE_PATH = resolveCloudSyncBasePath();
     var CLOUD_SYNC_READONLY = isLocalCloudReadOnlyMode();
-    var CLOUD_SYNC_TIMEOUT_MS = 8000;
+    var CLOUD_SYNC_TIMEOUT_MS = 12000;
     var CLOUD_SYNC_RETRY_MS = 15000;
     var storageState = {
         mode: 'local', // 'idb' | 'local'
@@ -1720,7 +1720,26 @@
             cloudRunSyncWithTimeout(false).finally(function () {
                 if (!state.cloud.applyingRemote) hideLoadingOverlay();
             });
+            scheduleStartupRecoverySync();
         }
+    }
+
+    function scheduleStartupRecoverySync() {
+        // Mobile PWA resumes can occasionally miss the first startup pull
+        // (network wake/timeout). If the UI is still empty shortly after
+        // startup, auto-run a force pull so users do not need to tap Refresh.
+        window.setTimeout(function () {
+            if (!state.currentUser || !state.cloud.token) return;
+            if (!cloudSyncAvailable()) return;
+            if (state.shows && state.shows.length) return;
+            if (state.cloud.inFlight || state.cloud.applyingRemote) return;
+
+            state.cloud.forceFullPullOnce = true;
+            showLoadingOverlay('Syncing from cloud\u2026', 'Restoring your tracker data');
+            cloudRunSyncWithTimeout(false).finally(function () {
+                if (!state.cloud.applyingRemote) hideLoadingOverlay();
+            });
+        }, 1800);
     }
 
     function hasLocalTrackerCache() {
