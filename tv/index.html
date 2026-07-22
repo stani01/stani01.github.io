@@ -27,8 +27,23 @@
     <main class="tv-shell">
         <header class="hero">
             <p class="kicker">15TAN's</p>
-            <h1>TV Tracker</h1>
-            <button id="page-refresh" class="btn" type="button" title="Reload the page and fetch fresh data">↻ Refresh Page</button>
+            <div class="hero-heading-row">
+                <h1>TV Tracker</h1>
+                <div class="hero-inline-actions">
+                    <button id="add-show" class="btn btn-accent btn-sm" type="button">➕ Add Show</button>
+                    <button id="page-refresh" class="btn btn-sm hero-refresh-btn" type="button" title="Reload page" aria-label="Reload page">↻</button>
+                    <button id="install-app" class="btn btn-primary btn-sm" type="button" hidden>📱 Install App</button>
+                    <details class="hero-tools-menu">
+                        <summary class="btn btn-sm">More</summary>
+                        <div class="hero-tools-list">
+                            <button id="import-data" class="btn btn-sm" type="button">Import legacy TV Time data</button>
+                            <button id="refresh-meta" class="btn btn-sm" type="button">Refresh Metadata</button>
+                            <button id="set-omdb-key" class="btn btn-sm" type="button">Set OMDb Key</button>
+                            <button id="help-btn" class="btn btn-sm" type="button">How it works</button>
+                        </div>
+                    </details>
+                </div>
+            </div>
             <div class="auth-panel" id="auth-panel">
                 <span id="auth-user" class="auth-user">Not signed in</span>
                 <div id="auth-signed-out" class="auth-group">
@@ -45,49 +60,46 @@
                     <button id="auth-logout" class="btn btn-sm" type="button">Logout</button>
                 </div>
             </div>
-            <div class="hero-actions">
-                <button id="import-data" class="btn btn-primary" type="button">Import TV Time Export</button>
-                <input id="import-file" type="file" accept=".zip,.csv" multiple hidden>
-                <button id="refresh-meta" class="btn" type="button">Refresh Metadata</button>
-                <button id="set-omdb-key" class="btn" type="button">Set OMDb Key</button>
-                <button id="add-show" class="btn btn-accent" type="button">➕ Add Show</button>
-                <button id="help-btn" class="btn" type="button">❔ How it works</button>
-                <button id="sync-device-btn-main" class="btn btn-accent" type="button">📲 Sync device</button>
-                <button id="install-app" class="btn btn-primary" type="button" hidden>📱 Install App</button>
-            </div>
-            <p id="status-text" class="status-text" role="status">Log in to load your TV Time data.</p>
+            <input id="import-file" type="file" accept=".zip,.csv" multiple hidden>
+            <p id="status-text" class="status-text" role="status"></p>
             <p id="install-prompt" class="status-text" style="color: var(--mint); display: none;">💡 <strong>Save to Home Screen:</strong> Tap the menu → "Add to Home Screen" to save the app on your phone.</p>
         </header>
 
         <section class="stats" id="stats-cards"></section>
 
         <section class="controls" aria-label="Filters and search">
-            <label class="search-wrap" for="search-input">
-                <span>Search shows</span>
-                <input id="search-input" type="search" placeholder="Type title, genre, or note">
-            </label>
+            <div class="controls-top">
+                <h2 class="controls-title">Find and Filter Shows</h2>
+                <button id="controls-toggle" class="btn btn-sm controls-toggle" type="button" aria-expanded="true" aria-controls="controls-body">Hide filters</button>
+            </div>
+            <div id="controls-body" class="controls-body">
+                <label class="search-wrap" for="search-input">
+                    <span>Search shows</span>
+                    <input id="search-input" type="search" placeholder="Type title, genre, or note">
+                </label>
 
-            <label for="sort-select">
-                <span>Sort by</span>
-                <select id="sort-select">
-                    <option value="recent">Recently watched</option>
-                    <option value="upcoming">Upcoming date</option>
-                    <option value="name">Name</option>
-                    <option value="progress">Episodes watched</option>
-                </select>
-            </label>
+                <label for="sort-select">
+                    <span>Sort by</span>
+                    <select id="sort-select">
+                        <option value="recent">Recently watched</option>
+                        <option value="upcoming">Upcoming date</option>
+                        <option value="name">Name</option>
+                        <option value="progress">Episodes watched</option>
+                    </select>
+                </label>
 
-            <label for="filter-select">
-                <span>Filter</span>
-                <select id="filter-select">
-                    <option value="all">All</option>
-                    <option value="active">Active only</option>
-                    <option value="paused">Paused only</option>
-                    <option value="completed">Completed only</option>
-                    <option value="archived">Archived in TVTime</option>
-                    <option value="with-upcoming">With upcoming episodes</option>
-                </select>
-            </label>
+                <label for="filter-select">
+                    <span>Filter</span>
+                    <select id="filter-select">
+                        <option value="all">All</option>
+                        <option value="active">Active only</option>
+                        <option value="paused">Paused only</option>
+                        <option value="completed">Completed only</option>
+                        <option value="archived">Archived in TVTime</option>
+                        <option value="with-upcoming">With upcoming episodes</option>
+                    </select>
+                </label>
+            </div>
         </section>
 
         <section class="unresolved-main" aria-label="Unresolved shows" id="unresolved-main-section">
@@ -211,7 +223,12 @@
                     <p id="show-modal-subtitle"></p>
                 </div>
                 <div class="show-modal-actions">
-                    <button id="remove-show-btn" class="btn btn-danger btn-sm" type="button">Remove Show</button>
+                    <details id="show-modal-menu" class="modal-menu">
+                        <summary class="btn btn-sm modal-menu-trigger" aria-label="Show options">⋯</summary>
+                        <div class="modal-menu-dropdown">
+                            <button id="remove-show-btn" class="btn btn-danger btn-sm" type="button">Remove Show</button>
+                        </div>
+                    </details>
                     <button id="show-modal-close" class="btn btn-sm" type="button">Close</button>
                 </div>
             </header>
@@ -333,22 +350,24 @@
                 </section>
 
                 <section class="account-section">
+                    <h3>Interface</h3>
+                    <div class="form-row form-row-inline-toggle">
+                        <label for="debug-messages-toggle">Debug messages</label>
+                        <input id="debug-messages-toggle" type="checkbox">
+                    </div>
+                    <p id="debug-messages-hint" class="info-text">Show status/debug messages under the login area.</p>
+                </section>
+
+                <section class="account-section">
                     <h3>Backup &amp; move to another device</h3>
                     <p>Your account and sync state are cloud-backed, so you can use the same login on phone and PC. Backup is optional and exports local tracker/cache data to a file you can keep for safekeeping.</p>
                     <div class="account-actions">
                         <button id="export-data-btn" class="btn btn-action" type="button">⬇️ Download my data</button>
                         <button id="restore-data-btn" class="btn btn-action" type="button">⬆️ Restore from backup</button>
+                        <button id="restore-cloud-prev-btn" class="btn btn-action" type="button">⏮️ Restore previous cloud save</button>
                     </div>
+                    <p id="cloud-history-depth" class="info-text"></p>
                     <p id="backup-message" class="info-text"></p>
-                </section>
-
-                <section class="account-section">
-                    <h3>Sync automatically with another device</h3>
-                    <p>Pair your phone and PC once, then whenever both have the tracker open they sync directly device&#8209;to&#8209;device (on the same Wi&#8209;Fi your data never leaves your network). Edits on either device are merged &mdash; newest change per show wins.</p>
-                    <div class="account-actions">
-                        <button id="sync-device-btn" class="btn btn-accent" type="button">📲 Sync with another device</button>
-                    </div>
-                    <p id="sync-device-status" class="info-text"></p>
                 </section>
 
                 <section class="account-section danger-zone">
@@ -498,90 +517,33 @@
 
             <div class="account-modal-content">
                 <section class="account-section">
-                    <h3>1. Your account &amp; privacy</h3>
-                    <p>Everything lives <strong>only in this browser</strong> on this device &mdash; nothing is uploaded to a server. Each person has their own login, and each login keeps its own separate show list. To use the same account elsewhere you can <strong>sync directly between your devices</strong> (see below), or open <strong>⚙️ Settings &rarr; Download my data</strong> and <strong>Restore</strong> it on the other device as a manual backup.</p>
+                    <h3>1. Account and data</h3>
+                    <p>Sign in to access a personal tracker profile. Show progress, settings, and linked metadata are associated with the account so they are available when signing in on another device. For an additional manual copy, use <strong>⚙️ Settings &rarr; Download my data</strong> and restore it later if needed.</p>
                 </section>
 
                 <section class="account-section">
-                    <h3>2. Import your shows from TV Time</h3>
-                    <p>Open TV Time GDPR self-service at <a href="https://gdpr.tvtime.com/gdpr/self-service" target="_blank" rel="noopener noreferrer"><strong>gdpr.tvtime.com/gdpr/self-service</strong></a>, request your export, then generate/download the <strong>.zip</strong>. After that, click <strong>Import TV Time Export</strong> here and choose the downloaded .zip (or extracted CSV files). Your followed shows and watch progress load instantly.</p>
+                    <h3>2. Legacy TV Time import (optional)</h3>
+                    <p>If an older TV Time export file is already available, it can still be imported from <strong>More &rarr; Import legacy TV Time data</strong>. This is a migration path only and is no longer the primary setup method.</p>
                 </section>
 
                 <section class="account-section">
-                    <h3>3. Track what you watch</h3>
-                    <p>Each show card shows your progress. Use <strong>➕ / ➖</strong> to add or remove one episode, <strong>🎬</strong> to catch up on everything that has aired, or open a show to tick individual episodes and mark whole seasons watched. Episodes that haven't aired yet stay locked. Click any card to open its season list.</p>
+                    <h3>3. Add and manage shows</h3>
+                    <p>Use <strong>➕ Add Show</strong> to search and add series to the tracker. Existing entries can be opened to edit notes, adjust progress, refresh metadata for a single title, and manage seasons and episodes.</p>
                 </section>
 
                 <section class="account-section">
-                    <h3>4. Posters &amp; upcoming episodes</h3>
-                    <p>The app fetches posters, descriptions and next-air-dates from <strong>TVMaze</strong> (free, no key). Optionally add a free <strong>OMDb API key</strong> for IMDb-sourced art and ratings. Use <strong>Refresh Metadata</strong> if something looks out of date. Open a show and <strong>tap its poster</strong> to view it full&#8209;size.</p>
+                    <h3>4. Track watching progress</h3>
+                    <p><strong>Watch Next</strong> highlights the next episodes to watch first. Use <strong>Mark watched</strong> on cards for quick updates, or open a show for detailed controls including single-episode and full-season actions. Unreleased episodes remain locked until they air.</p>
                 </section>
 
                 <section class="account-section">
-                    <h3>5. Sync your phone &amp; PC</h3>
-                    <p>Tap <strong>📲 Sync device</strong> (on the main page or in <strong>⚙️ Settings</strong>) to pair two devices once by scanning a QR code. After that, whenever both have the tracker open they sync <strong>directly device&#8209;to&#8209;device</strong> &mdash; on the same Wi&#8209;Fi your data never leaves your network, and it&rsquo;s end&#8209;to&#8209;end encrypted. Changes are merged automatically (newest edit per show wins), so ticking episodes on your phone shows up on your PC when you get home. It syncs while both apps are open; a closed tab can&rsquo;t sync.</p>
+                    <h3>5. Metadata and artwork</h3>
+                    <p>Posters, summaries, and episode schedules are pulled from <strong>TVMaze</strong>. An optional <strong>OMDb API key</strong> can be added for IMDb-based artwork and ratings. Metadata refresh is manual; use <strong>More &rarr; Refresh Metadata</strong> when updates are needed.</p>
                 </section>
 
                 <section class="account-section">
-                    <h3>6. Install it like an app</h3>
-                    <p>On mobile or desktop you can add it to your home screen (look for <strong>📱 Install App</strong> or your browser's "Add to Home Screen"). It then works offline with your cached data.</p>
-                </section>
-            </div>
-        </section>
-    </div>
-
-    <div id="sync-modal" class="account-modal" hidden>
-        <div class="account-modal-backdrop" id="sync-modal-backdrop"></div>
-        <section class="account-modal-panel" role="dialog" aria-modal="true" aria-labelledby="sync-modal-title">
-            <header class="account-modal-header">
-                <h2 id="sync-modal-title">Sync with another device</h2>
-                <button id="sync-modal-close" class="btn btn-sm" type="button">Close</button>
-            </header>
-
-            <div class="account-modal-content">
-                <section class="account-section">
-                    <div class="sync-status-row">
-                        <span class="sync-dot" aria-hidden="true"></span>
-                        <p id="sync-status" class="info-text">Not connected</p>
-                    </div>
-                    <p class="sync-device-line">This device: <strong id="sync-device-label">this device</strong></p>
-                </section>
-
-                <section class="account-section" id="sync-unpaired">
-                    <h3>1. On the device you want to add</h3>
-                    <p>Open this same page and sign in with <strong>the same account</strong>. Then here on this device, start an invite and scan it with the other device's camera.</p>
-                    <div class="account-actions">
-                        <button id="sync-invite-btn" class="btn btn-accent" type="button">Show pairing QR</button>
-                    </div>
-                    <div id="sync-qr-wrap" hidden>
-                        <div id="sync-qr" class="sync-qr" aria-label="Pairing QR code"></div>
-                        <p class="info-text">Scan this with your other device's camera, or copy the link and open it there:</p>
-                        <div class="sync-code-row">
-                            <input id="sync-code" class="sync-code" type="text" readonly aria-label="Pairing link">
-                            <button id="sync-copy-btn" class="btn btn-sm" type="button">Copy</button>
-                        </div>
-                    </div>
-                    <div class="sync-or">or</div>
-                    <h3>Have a link from the other device?</h3>
-                    <p>Paste the pairing link (or code) it gave you and connect:</p>
-                    <div class="sync-code-row">
-                        <input id="sync-code-input" class="sync-code" type="text" placeholder="Paste pairing link or code" aria-label="Pairing link to connect to">
-                        <button id="sync-connect-btn" class="btn btn-action" type="button">Connect</button>
-                    </div>
-                </section>
-
-                <section class="account-section" id="sync-paired" hidden>
-                    <h3>Paired</h3>
-                    <p>This device is paired with <strong id="sync-partner-label">other device</strong>. When both have the tracker open, changes sync automatically.</p>
-                    <p id="sync-last" class="info-text">Not synced yet.</p>
-                    <div class="account-actions">
-                        <button id="sync-now-btn" class="btn btn-accent" type="button">Sync now</button>
-                        <button id="sync-unpair-btn" class="btn btn-danger" type="button">Unpair</button>
-                    </div>
-                </section>
-
-                <section class="account-section">
-                    <p class="info-text">Your data transfers directly between your devices, end&#8209;to&#8209;end encrypted. A small public service is used only to introduce the two devices (it sees random pairing IDs, never your data). Nothing is ever stored on a server.</p>
+                    <h3>6. Multi-device access and app install</h3>
+                    <p>Your tracker is available on any device where you sign in with the same account. Sync happens automatically through your account. For faster access, install the tracker to the home screen using <strong>📱 Install App</strong> or the browser install option.</p>
                 </section>
             </div>
         </section>
@@ -607,8 +569,6 @@
     <button id="tv-back-to-top" class="tv-back-to-top" type="button" title="Back to top" aria-label="Back to top">↑</button>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="js/vendor/peerjs.min.js"></script>
-    <script src="js/vendor/qrcode.min.js"></script>
     <script src="js/tv.js"></script>
 </body>
 </html>

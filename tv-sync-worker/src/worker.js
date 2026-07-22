@@ -14,11 +14,15 @@ const ALLOWED_ORIGINS = new Set([
   "https://www.atreiahub.com"
 ]);
 
+const LOCALHOST_HOSTS = new Set(["localhost", "127.0.0.1"]);
+
 const RATE_LIMIT_RULES = {
   "/tv-sync/v1/register": { limit: 5, windowSec: 900, blockSec: 3600 },
   "/tv-sync/v1/login": { limit: 10, windowSec: 600, blockSec: 900 },
   "/tv-sync/v1/recover": { limit: 5, windowSec: 1800, blockSec: 3600 }
 };
+
+const SNAPSHOT_HISTORY_MAX = 30;
 
 let rateLimitSchemaReady = false;
 
@@ -66,6 +70,8 @@ export default {
       if (url.pathname === "/tv-sync/v1/account/delete") return withCors(await deleteAccount(env, body), origin);
       if (url.pathname === "/tv-sync/v1/pull") return withCors(await pullSnapshot(env, body), origin);
       if (url.pathname === "/tv-sync/v1/push") return withCors(await pushSnapshot(env, body), origin);
+      if (url.pathname === "/tv-sync/v1/restore-last") return withCors(await restoreLastSnapshot(env, body), origin);
+      if (url.pathname === "/tv-sync/v1/history-depth") return withCors(await getHistoryDepth(env, body), origin);
 
       return withCors(json({ error: "Not found" }, 404), origin);
     } catch (error) {
@@ -75,7 +81,16 @@ export default {
 };
 
 function isAllowedOrigin(origin) {
-  return ALLOWED_ORIGINS.has(String(origin || "").trim().toLowerCase());
+  const normalized = String(origin || "").trim().toLowerCase();
+  if (!normalized) return false;
+  if (ALLOWED_ORIGINS.has(normalized)) return true;
+  try {
+    const url = new URL(normalized);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return false;
+    return LOCALHOST_HOSTS.has(String(url.hostname || "").toLowerCase());
+  } catch {
+    return false;
+  }
 }
 
 function withCors(resp, origin) {
@@ -428,15 +443,40 @@ async function pullSnapshot(env, body) {
   return json({ ok: true, version, snapshot, changed: true });
 }
 
+async function ensureSnapshotHistoryTable(env) {
+  await env.DB.prepare(
+    "CREATE TABLE IF NOT EXISTS user_snapshot_history (user_id INTEGER NOT NULL, version INTEGER NOT NULL, snapshot TEXT NOT NULL, updated_at INTEGER NOT NULL, updated_by TEXT, archived_at INTEGER NOT NULL, PRIMARY KEY (user_id, version), FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE)"
+  ).run();
+  await env.DB.prepare(
+    "CREATE INDEX IF NOT EXISTS idx_user_snapshot_history_user_id_version ON user_snapshot_history(user_id, version DESC)"
+  ).run();
+}
+
+async function archiveSnapshotVersion(env, userId, version, snapshotText, updatedAt, updatedBy) {
+  const now = nowTs();
+  await env.DB.prepare(
+    "INSERT OR IGNORE INTO user_snapshot_history (user_id, version, snapshot, updated_at, updated_by, archived_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)"
+  ).bind(userId, version, snapshotText, updatedAt || now, updatedBy || "", now).run();
+
+  const cutoff = Math.max(0, Number(version || 0) - SNAPSHOT_HISTORY_MAX);
+  if (cutoff > 0) {
+    await env.DB.prepare(
+      "DELETE FROM user_snapshot_history WHERE user_id = ?1 AND version <= ?2"
+    ).bind(userId, cutoff).run();
+  }
+}
+
 async function pushSnapshot(env, body) {
   const session = await loadSession(env, body.token);
   if (!session) return json({ error: "Unauthorized" }, 401);
+
+  await ensureSnapshotHistoryTable(env);
 
   const baseVersion = Math.max(0, Number(body.baseVersion || 0));
   const snapshotText = safeSnapshot(body.snapshot);
   if (!snapshotText) return json({ error: "Invalid snapshot payload." }, 400);
 
-  const existing = await env.DB.prepare("SELECT version FROM user_snapshots WHERE user_id = ?1")
+  const existing = await env.DB.prepare("SELECT version, snapshot, updated_at, updated_by FROM user_snapshots WHERE user_id = ?1")
     .bind(session.userId)
     .first();
 
@@ -455,10 +495,77 @@ async function pushSnapshot(env, body) {
     return json({ error: "Version conflict", conflict: true, version: currentVersion }, 409);
   }
 
+  await archiveSnapshotVersion(
+    env,
+    session.userId,
+    currentVersion,
+    String(existing.snapshot || "{}"),
+    Number(existing.updated_at || now),
+    String(existing.updated_by || "")
+  );
+
   const nextVersion = currentVersion + 1;
   await env.DB.prepare(
     "UPDATE user_snapshots SET version = ?1, snapshot = ?2, updated_at = ?3, updated_by = ?4 WHERE user_id = ?5"
   ).bind(nextVersion, snapshotText, now, device, session.userId).run();
 
   return json({ ok: true, version: nextVersion });
+}
+
+async function restoreLastSnapshot(env, body) {
+  const session = await loadSession(env, body.token);
+  if (!session) return json({ error: "Unauthorized" }, 401);
+
+  await ensureSnapshotHistoryTable(env);
+
+  const current = await env.DB.prepare(
+    "SELECT version, snapshot, updated_at, updated_by FROM user_snapshots WHERE user_id = ?1"
+  ).bind(session.userId).first();
+  if (!current) return json({ error: "No cloud snapshot found for this account." }, 404);
+
+  const previous = await env.DB.prepare(
+    "SELECT version, snapshot, updated_at, updated_by FROM user_snapshot_history WHERE user_id = ?1 ORDER BY version DESC LIMIT 1"
+  ).bind(session.userId).first();
+  if (!previous) {
+    return json({ error: "No previous cloud save is available yet." }, 409);
+  }
+
+  const now = nowTs();
+  const device = String(body.deviceId || "").slice(0, 128);
+  const currentVersion = Number(current.version || 0);
+  const nextVersion = currentVersion + 1;
+
+  await archiveSnapshotVersion(
+    env,
+    session.userId,
+    currentVersion,
+    String(current.snapshot || "{}"),
+    Number(current.updated_at || now),
+    String(current.updated_by || "")
+  );
+
+  await env.DB.prepare(
+    "UPDATE user_snapshots SET version = ?1, snapshot = ?2, updated_at = ?3, updated_by = ?4 WHERE user_id = ?5"
+  ).bind(nextVersion, String(previous.snapshot || "{}"), now, (device ? device + ":restore-last" : "restore-last"), session.userId).run();
+
+  return json({
+    ok: true,
+    version: nextVersion,
+    restoredFromVersion: Number(previous.version || 0),
+    previousCurrentVersion: currentVersion
+  });
+}
+
+async function getHistoryDepth(env, body) {
+  const session = await loadSession(env, body.token);
+  if (!session) return json({ error: "Unauthorized" }, 401);
+
+  await ensureSnapshotHistoryTable(env);
+
+  const row = await env.DB.prepare(
+    "SELECT COUNT(*) as count FROM user_snapshot_history WHERE user_id = ?1"
+  ).bind(session.userId).first();
+
+  const depth = Number(row && row.count ? row.count : 0);
+  return json({ ok: true, historyDepth: depth });
 }
