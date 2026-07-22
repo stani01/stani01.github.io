@@ -62,6 +62,7 @@
         currentUser: '',
         currentEmail: '',
         modalShowId: '',
+        modalRequestId: 0,
         modalEpisodes: [],
         modalOpenSeasons: null,
         upcomingTab: '',
@@ -82,17 +83,21 @@
         // Watch Next/Up-to-date/Paused expanded; the long lists start collapsed.
         collapsedSections: { watchnext: false, uptodate: false, history: true, stale: true, paused: false, completed: true },
         mobileGreetingDone: false,
+        brokenPosters: {},
         cloud: {
             inFlight: false,
             timer: null,
             stuckDetectorTimer: null,
             pendingLocalChanges: false,
             forceFullPullOnce: false,
+            startupRefreshDone: false,
             version: 0,
             token: '',
             retryAt: 0,
             lastErrorAt: 0,
             lastActivityAt: 0,
+            lastRefreshSyncAt: 0,
+            syncStartedAt: 0,
             applyingRemote: false
         }
     };
@@ -111,6 +116,85 @@
         db: null,
         cache: {}
     };
+
+    function openStorageDb() {
+        return new Promise(function (resolve, reject) {
+            try {
+                var req = indexedDB.open(STORAGE_DB_NAME, 1);
+                req.onupgradeneeded = function (event) {
+                    var db = event && event.target ? event.target.result : null;
+                    if (!db) return;
+                    if (!db.objectStoreNames.contains(STORAGE_STORE_NAME)) {
+                        db.createObjectStore(STORAGE_STORE_NAME);
+                    }
+                };
+                req.onsuccess = function () { resolve(req.result); };
+                req.onerror = function () { reject(req.error || new Error('Failed to open IndexedDB')); };
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    function storageReadAllIdb() {
+        if (!storageState.db) return Promise.resolve({});
+        return new Promise(function (resolve, reject) {
+            var out = {};
+            try {
+                var tx = storageState.db.transaction(STORAGE_STORE_NAME, 'readonly');
+                var store = tx.objectStore(STORAGE_STORE_NAME);
+                var req = store.openCursor();
+
+                req.onsuccess = function (event) {
+                    var cursor = event && event.target ? event.target.result : null;
+                    if (!cursor) return;
+                    var raw = cursor.value;
+                    var val = (raw && typeof raw === 'object' && Object.prototype.hasOwnProperty.call(raw, 'value'))
+                        ? raw.value
+                        : raw;
+                    out[String(cursor.key)] = String(val == null ? '' : val);
+                    cursor.continue();
+                };
+                req.onerror = function () { reject(req.error || new Error('Failed to read IndexedDB')); };
+                tx.oncomplete = function () { resolve(out); };
+                tx.onerror = function () { reject(tx.error || new Error('IndexedDB transaction failed')); };
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    function storageWriteIdb(mode, key, value) {
+        if (!storageState.db) return Promise.resolve();
+        return new Promise(function (resolve, reject) {
+            try {
+                var tx = storageState.db.transaction(STORAGE_STORE_NAME, 'readwrite');
+                var store = tx.objectStore(STORAGE_STORE_NAME);
+                if (mode === 'delete') store.delete(key);
+                else {
+                    var keyPath = store.keyPath;
+                    if (typeof keyPath === 'string' && keyPath) {
+                        var row = {};
+                        row[keyPath] = key;
+                        row.value = String(value);
+                        store.put(row);
+                    } else {
+                        store.put(String(value), key);
+                    }
+                }
+                tx.oncomplete = function () { resolve(); };
+                tx.onerror = function () { reject(tx.error || new Error('IndexedDB write failed')); };
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    function initSiteFooter() {
+        // Footer/header injection lives in assets/js/site-common.js. Keep this
+        // as a safe no-op so TV still boots if that script is unavailable.
+        return;
+    }
 
     var pwaUpdateUi = {
         reg: null,
@@ -480,10 +564,38 @@
         state.currentEmail = '';
     }
 
+    function isScriptMimeType(contentType) {
+        var t = String(contentType || '').toLowerCase();
+        return t.indexOf('javascript') !== -1 || t.indexOf('ecmascript') !== -1;
+    }
+
+    async function preflightServiceWorkerScript(swPath) {
+        try {
+            var resp = await fetch(swPath, { method: 'GET', cache: 'no-store' });
+            if (!resp.ok) {
+                console.log('[PWA] Skipping service worker registration; fetch failed with HTTP ' + resp.status + '.');
+                return false;
+            }
+            var ct = resp.headers ? (resp.headers.get('content-type') || '') : '';
+            if (!isScriptMimeType(ct)) {
+                console.log('[PWA] Skipping service worker registration; unsupported MIME type: ' + (ct || 'unknown'));
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.log('[PWA] Skipping service worker registration; script preflight failed.', error);
+            return false;
+        }
+    }
+
     function setupPWA() {
         // Register service worker for offline support and caching
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(function (reg) {
+            preflightServiceWorkerScript('sw.js').then(function (ok) {
+                if (!ok) return null;
+                return navigator.serviceWorker.register('sw.js');
+            }).then(function (reg) {
+                if (!reg) return;
                 pwaUpdateUi.reg = reg;
                 if (reg.waiting && navigator.serviceWorker.controller) {
                     showPwaUpdateBanner(reg.waiting);
@@ -991,17 +1103,13 @@
         // Close all open modals
         closeAllModals();
 
-        // Force a full cloud pull on next sync
-        state.cloud.forceFullPullOnce = true;
-        state.cloud.pendingLocalChanges = false;
-
         // Reload the UI from storage and sync from cloud
         setStatus('Refreshing from cloud...');
         showLoadingOverlay('Syncing from cloud\u2026', 'Loading your tracker data');
         
         try {
             refreshForCurrentUser();
-            cloudRunSyncWithTimeout(false).finally(function () {
+            runLifecycleCloudRefresh('manual-refresh', true).finally(function () {
                 if (!state.cloud.applyingRemote) hideLoadingOverlay();
                 setStatus('Refreshed from cloud.', false, true);
             });
@@ -1013,7 +1121,6 @@
     }
 
     function closeAllModals() {
-        if (els.authModal) els.authModal.hidden = true;
         if (els.accountModal) els.accountModal.hidden = true;
         if (els.addShowModal) els.addShowModal.hidden = true;
         if (els.showModal) els.showModal.hidden = true;
@@ -1341,6 +1448,7 @@
         showLoadingOverlay('Refreshing metadata…', '0 / ' + state.refreshTotal + ' shows');
 
         state.metadataCache = {};
+        state.episodeCache = {};
         persistUserScopedJson(STORE_KEYS.metadataCache, state.metadataCache);
         state.shows.forEach(function (show) {
             var manual = state.manualLinks[show.id];
@@ -1691,7 +1799,10 @@
     // Central choke point: whenever synced user data changes, keep the settings
     // clock current and schedule a cloud sync push.
     function afterUserScopedWrite(baseKey) {
-        if (state.cloud && state.cloud.applyingRemote) return;
+        if (state.cloud && state.cloud.applyingRemote) {
+            if (!CLOUD_SYNC_READONLY) state.cloud.pendingLocalChanges = true;
+            return;
+        }
         if (baseKey === STORE_KEYS.profileSettings || baseKey === STORE_KEYS.omdbApiKey) {
             bumpSyncSettingsAt();
         }
@@ -1712,16 +1823,44 @@
         if (!cloudSyncAvailable()) return;
         if (state.currentUser) {
             initCloudSyncForUser();
-            if (state.cloud.forceFullPullOnce) {
-                showLoadingOverlay('Syncing from cloud\u2026', 'Loading your tracker data');
-            }
-            // Run one immediate sync on startup so reopening the PWA restores
-            // data without requiring a manual refresh button tap.
-            cloudRunSyncWithTimeout(false).finally(function () {
+            // Run one immediate forced pull so page refresh/reopen always
+            // restores from cloud first.
+            runLifecycleCloudRefresh('startup', true).finally(function () {
                 if (!state.cloud.applyingRemote) hideLoadingOverlay();
             });
             scheduleStartupRecoverySync();
         }
+    }
+
+    function runLifecycleCloudRefresh(reason, bypassThrottle) {
+        if (!state.currentUser || !state.cloud.token || !cloudSyncAvailable()) {
+            return Promise.resolve();
+        }
+        if (state.cloud.inFlight || state.cloud.applyingRemote) {
+            return Promise.resolve();
+        }
+
+        if (reason === 'startup') {
+            if (state.cloud.startupRefreshDone) return Promise.resolve();
+            state.cloud.startupRefreshDone = true;
+        }
+
+        var now = Date.now();
+        var throttleMs = 2500;
+        if (!bypassThrottle && (now - (state.cloud.lastRefreshSyncAt || 0) < throttleMs)) {
+            return Promise.resolve();
+        }
+
+        state.cloud.lastRefreshSyncAt = now;
+        state.cloud.forceFullPullOnce = true;
+
+        if (!state.shows || !state.shows.length || bypassThrottle) {
+            showLoadingOverlay('Syncing from cloud\u2026', 'Loading your tracker data');
+        }
+
+        return cloudRunSyncWithTimeout(false).catch(function (error) {
+            console.warn('[CLOUD-SYNC] lifecycle refresh failed:', reason, error);
+        });
     }
 
     function scheduleStartupRecoverySync() {
@@ -1772,14 +1911,18 @@
 
     function detectStuckCloudSync() {
         if (!state.cloud.inFlight && !state.cloud.applyingRemote) return;
+        if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
         var now = Date.now();
+        var startedAt = state.cloud.syncStartedAt || 0;
         var lastActivityAt = state.cloud.lastActivityAt || 0;
         var stuckDuration = now - lastActivityAt;
-        if (stuckDuration > CLOUD_SYNC_TIMEOUT_MS * 2) {
+        var totalSyncDuration = startedAt ? (now - startedAt) : stuckDuration;
+        if (stuckDuration > CLOUD_SYNC_TIMEOUT_MS * 2 && totalSyncDuration > CLOUD_SYNC_TIMEOUT_MS * 4) {
             console.warn('[CLOUD-SYNC] Detected stuck sync state for ' + stuckDuration + 'ms, resetting');
             state.cloud.inFlight = false;
             state.cloud.applyingRemote = false;
             state.cloud.lastActivityAt = now;
+            state.cloud.syncStartedAt = 0;
         }
     }
 
@@ -1796,11 +1939,14 @@
         state.cloud.applyingRemote = false;
         state.cloud.pendingLocalChanges = false;
         state.cloud.forceFullPullOnce = false;
+        state.cloud.startupRefreshDone = false;
         state.cloud.version = 0;
         state.cloud.token = '';
         state.cloud.retryAt = 0;
         state.cloud.lastErrorAt = 0;
         state.cloud.lastActivityAt = 0;
+        state.cloud.lastRefreshSyncAt = 0;
+        state.cloud.syncStartedAt = 0;
     }
 
     function cloudScheduleSync(delayMs) {
@@ -1910,6 +2056,7 @@
         if (!auth) return;
 
         state.cloud.inFlight = true;
+        state.cloud.syncStartedAt = Date.now();
         try {
             var knownVersion = state.cloud.forceFullPullOnce ? 0 : state.cloud.version;
             var pull = await cloudFetch('/v1/pull', {
@@ -1978,6 +2125,7 @@
             cloudScheduleSync(CLOUD_SYNC_RETRY_MS);
         } finally {
             state.cloud.inFlight = false;
+            state.cloud.syncStartedAt = 0;
         }
     }
 
@@ -2556,6 +2704,7 @@
                 openShowModal(item.getAttribute('data-show-id'));
             });
         });
+        wirePosterFallbackHandlers(els.upcomingBoard);
     }
 
     function formatUpcomingDate(value) {
@@ -2736,7 +2885,7 @@
             var meta = show.meta || {};
             var posterSrc = meta.poster || FALLBACK_POSTER;
             var hasPoster = !!meta.poster && posterSrc !== FALLBACK_POSTER;
-            poster.src = posterSrc;
+            applyPosterSrc(poster, posterSrc);
             poster.alt = show.title + ' poster';
             if (newBadge) newBadge.hidden = !hasNewEpisode(show);
             if (premiereBadge) premiereBadge.hidden = !hasUpcomingPremiere(show);
@@ -3156,6 +3305,8 @@
     async function openShowModal(showId) {
         var show = state.shows.find(function (item) { return item.id === showId; });
         if (!show) return;
+        state.modalRequestId = (state.modalRequestId || 0) + 1;
+        var requestId = state.modalRequestId;
         state.modalShowId = showId;
         state.modalOpenSeasons = null;
         if (els.showModalMenu) els.showModalMenu.open = false;
@@ -3169,7 +3320,7 @@
         els.modalSeasons.innerHTML = '<div class="empty">Loading episode list…</div>';
 
         var episodes = await loadEpisodeCatalog(show);
-        if (state.modalShowId !== showId) return; // modal changed/closed while loading
+        if (state.modalShowId !== showId || state.modalRequestId !== requestId || !els.showModal || els.showModal.hidden) return;
         // Opening details should not modify watch state or list placement.
         var current = state.shows.find(function (item) { return item.id === showId; }) || show;
         renderShowModal(current, episodes);
@@ -3728,7 +3879,7 @@
         var meta = (show && show.meta) || {};
         var hasPoster = !!meta.poster;
         var title = (show && show.title) ? show.title : 'Show';
-        els.modalPoster.src = meta.poster || FALLBACK_POSTER;
+        applyPosterSrc(els.modalPoster, meta.poster || FALLBACK_POSTER);
         els.modalPoster.alt = title + ' poster';
         if (els.posterBtn) {
             els.posterBtn.classList.toggle('has-poster', hasPoster);
@@ -3757,6 +3908,48 @@
         if (!els.posterLightbox || els.posterLightbox.hidden) return;
         els.posterLightbox.hidden = true;
         if (els.posterLightboxImg) els.posterLightboxImg.src = '';
+    }
+
+    function applyPosterSrc(imgEl, src) {
+        if (!imgEl) return;
+        var desired = src || FALLBACK_POSTER;
+        if (desired !== FALLBACK_POSTER && state.brokenPosters[desired]) {
+            desired = FALLBACK_POSTER;
+        }
+        imgEl.removeAttribute('data-poster-src');
+        if (desired === FALLBACK_POSTER) {
+            imgEl.onerror = null;
+            imgEl.src = FALLBACK_POSTER;
+            return;
+        }
+        imgEl.setAttribute('data-poster-src', desired);
+        imgEl.onerror = function () {
+            var failed = this.getAttribute('data-poster-src') || '';
+            if (failed) state.brokenPosters[failed] = true;
+            this.onerror = null;
+            this.src = FALLBACK_POSTER;
+        };
+        imgEl.src = desired;
+    }
+
+    function wirePosterFallbackHandlers(container) {
+        if (!container) return;
+        container.querySelectorAll('img').forEach(function (img) {
+            var src = img.getAttribute('src') || '';
+            if (!src || src === FALLBACK_POSTER || img.getAttribute('data-poster-fallback-bound') === '1') return;
+            if (state.brokenPosters[src]) {
+                img.src = FALLBACK_POSTER;
+                return;
+            }
+            img.setAttribute('data-poster-fallback-bound', '1');
+            img.setAttribute('data-poster-src', src);
+            img.onerror = function () {
+                var failed = this.getAttribute('data-poster-src') || '';
+                if (failed) state.brokenPosters[failed] = true;
+                this.onerror = null;
+                this.src = FALLBACK_POSTER;
+            };
+        });
     }
 
     function saveModalNotes() {
@@ -4282,7 +4475,7 @@
             var poster = document.createElement('img');
             poster.className = 'addshow-poster';
             poster.loading = 'lazy';
-            poster.src = posterSrc;
+            applyPosterSrc(poster, posterSrc);
             poster.alt = (show.name || 'Show') + ' poster';
 
             // With real art the poster becomes a zoom-in button (same full-size
