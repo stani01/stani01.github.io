@@ -550,7 +550,7 @@
         on(els.importButton, 'click', triggerImport);
         on(els.refreshMetaButton, 'click', startMetadataRefresh);
         on(els.pageRefreshButton, 'click', function () {
-            window.location.reload();
+            softPageRefresh();
         });
         on(els.setOmdbKeyButton, 'click', openOmdbModal);
         on(els.helpBtn, 'click', openHelpModal);
@@ -889,8 +889,52 @@
         }
     }
 
+    function softPageRefresh() {
+        if (!state.currentUser) {
+            setStatus('Log in first to refresh your data.', true);
+            return;
+        }
+        if (!cloudSyncAvailable() || !state.cloud.token) {
+            setStatus('Cloud sync is not configured.', true);
+            return;
+        }
+
+        // Close all open modals
+        closeAllModals();
+
+        // Force a full cloud pull on next sync
+        state.cloud.forceFullPullOnce = true;
+        state.cloud.pendingLocalChanges = false;
+
+        // Reload the UI from storage and sync from cloud
+        setStatus('Refreshing from cloud...');
+        showLoadingOverlay('Syncing from cloud\u2026', 'Loading your tracker data');
+        
+        try {
+            refreshForCurrentUser();
+            cloudRunSyncWithTimeout(false).finally(function () {
+                if (!state.cloud.applyingRemote) hideLoadingOverlay();
+                setStatus('Refreshed from cloud.', false, true);
+            });
+        } catch (error) {
+            hideLoadingOverlay();
+            console.error('[REFRESH] Error during soft refresh:', error);
+            setStatus('Could not refresh from cloud. Please try again.', true);
+        }
+    }
+
+    function closeAllModals() {
+        if (els.authModal) els.authModal.hidden = true;
+        if (els.accountModal) els.accountModal.hidden = true;
+        if (els.addShowModal) els.addShowModal.hidden = true;
+        if (els.showModal) els.showModal.hidden = true;
+        if (els.omdbModal) els.omdbModal.hidden = true;
+        if (els.helpModal) els.helpModal.hidden = true;
+        if (els.recoverModal) els.recoverModal.hidden = true;
+    }
+
     function closeAccountModal() {
-        els.accountModal.hidden = true;
+        if (els.accountModal) els.accountModal.hidden = true;
     }
 
     function openOmdbModal() {
@@ -2635,7 +2679,7 @@
                 var markBtn = document.createElement('button');
                 markBtn.type = 'button';
                 markBtn.className = 'btn btn-primary btn-sm watchnext-mark-btn';
-                markBtn.textContent = 'Mark watched';
+                markBtn.textContent = 'Mark as watched';
                 markBtn.addEventListener('click', function (event) {
                     event.stopPropagation();
                     if (markBtn.disabled) return;
@@ -4415,7 +4459,7 @@
         openConfirm(
             'Catch up on ' + show.title + '?',
             'Mark ' + episodesToWatch.length + ' already-aired episode' + (episodesToWatch.length === 1 ? '' : 's') + ' as watched?',
-            'Mark watched',
+            'Mark as watched',
             function () {
                 applyWatchedChange(show, episodesToWatch, true, catalog);
                 setStatus('Marked ' + episodesToWatch.length + ' episodes as watched for ' + show.title + '.');

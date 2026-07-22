@@ -1088,6 +1088,7 @@ textarea {
 
 .modal-menu {
     position: relative;
+    z-index: 100;
 }
 
 .modal-menu > summary {
@@ -1106,7 +1107,7 @@ textarea {
     position: absolute;
     right: 0;
     top: calc(100% + 0.35rem);
-    z-index: 10;
+    z-index: 1000;
     min-width: 180px;
     padding: 0.4rem;
     border-radius: 0.7rem;
@@ -2390,15 +2391,21 @@ body.tv-busy .shape {
 
     .hero-inline-actions {
         width: 100%;
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        display: flex;
+        flex-wrap: wrap;
         gap: 0.35rem;
     }
 
     .hero-inline-actions .btn,
     .hero-inline-actions .hero-tools-menu {
-        width: 100%;
+        flex: 1 1 calc(50% - 0.18rem);
         min-width: 0;
+    }
+
+    .hero-refresh-btn {
+        flex: 0 0 auto;
+        width: 36px;
+        min-width: 36px;
     }
 
     .hero-inline-actions .btn {
@@ -2607,12 +2614,20 @@ body.tv-busy .shape {
 
     .show-modal-actions {
         width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
         justify-content: flex-start;
     }
 
-    .show-modal-actions .btn,
+    .show-modal-actions .btn {
+        flex: 1 1 auto;
+        min-width: 60px;
+    }
+
     .show-modal-actions .modal-menu {
         flex: 0 0 auto;
+        min-width: 42px;
     }
 
     .modal-list {
