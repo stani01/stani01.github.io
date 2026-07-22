@@ -2630,6 +2630,16 @@ body.tv-busy .shape {
         min-width: 42px;
     }
 
+    .show-modal-actions .modal-menu[open] .modal-menu-dropdown {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        right: auto;
+        transform: translate(-50%, -50%);
+        width: min(260px, calc(100vw - 2rem));
+        max-width: calc(100vw - 2rem);
+    }
+
     .modal-list {
         max-height: 300px;
     }

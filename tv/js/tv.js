@@ -78,7 +78,7 @@
         search: '',
         sortBy: 'recent',
         filterBy: 'all',
-        controlsCollapsed: false,
+        controlsCollapsed: true,
         // Watch Next/Up-to-date/Paused expanded; the long lists start collapsed.
         collapsedSections: { watchnext: false, uptodate: false, history: true, stale: true, paused: false, completed: true },
         mobileGreetingDone: false,
@@ -1485,7 +1485,8 @@
 
     function loadControlsCollapsedPreference() {
         var saved = loadJson(STORE_KEYS.controlsCollapsed, null);
-        state.controlsCollapsed = !!saved;
+        // Default to collapsed when user has no saved preference yet.
+        state.controlsCollapsed = saved == null ? true : !!saved;
     }
 
     function setControlsCollapsed(collapsed, persist) {
