@@ -112,6 +112,13 @@
         cache: {}
     };
 
+    var pwaUpdateUi = {
+        reg: null,
+        waiting: null,
+        banner: null,
+        reloadOnControllerChange: false
+    };
+
     function isLocalHost() {
         var host = String(window.location.hostname || '').toLowerCase();
         return host === 'localhost' || host === '127.0.0.1' || host === '::1';
@@ -477,9 +484,27 @@
         // Register service worker for offline support and caching
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').then(function (reg) {
+                pwaUpdateUi.reg = reg;
+                if (reg.waiting && navigator.serviceWorker.controller) {
+                    showPwaUpdateBanner(reg.waiting);
+                }
+                reg.addEventListener('updatefound', function () {
+                    var installing = reg.installing;
+                    if (!installing) return;
+                    installing.addEventListener('statechange', function () {
+                        if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+                            showPwaUpdateBanner(installing);
+                        }
+                    });
+                });
                 console.log('[PWA] Service worker registered:', reg);
             }).catch(function (err) {
                 console.log('[PWA] Service worker registration failed:', err);
+            });
+
+            navigator.serviceWorker.addEventListener('controllerchange', function () {
+                if (!pwaUpdateUi.reloadOnControllerChange) return;
+                window.location.reload();
             });
         }
 
@@ -518,6 +543,70 @@
         if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
             navigator.serviceWorker.controller.postMessage({ type: 'CLIENTS_CLAIM' });
         }
+    }
+
+    function ensurePwaUpdateBanner() {
+        if (pwaUpdateUi.banner) return pwaUpdateUi.banner;
+        var banner = document.createElement('section');
+        banner.className = 'pwa-update-banner';
+        banner.hidden = true;
+
+        var text = document.createElement('p');
+        text.className = 'pwa-update-text';
+        text.textContent = 'Update ready: a newer TV Tracker version is available.';
+
+        var actions = document.createElement('div');
+        actions.className = 'pwa-update-actions';
+
+        var updateBtn = document.createElement('button');
+        updateBtn.type = 'button';
+        updateBtn.className = 'btn btn-primary btn-sm';
+        updateBtn.textContent = 'Update now';
+        updateBtn.addEventListener('click', requestPwaUpdateNow);
+
+        var laterBtn = document.createElement('button');
+        laterBtn.type = 'button';
+        laterBtn.className = 'btn btn-sm';
+        laterBtn.textContent = 'Later';
+        laterBtn.addEventListener('click', hidePwaUpdateBanner);
+
+        actions.appendChild(updateBtn);
+        actions.appendChild(laterBtn);
+        banner.appendChild(text);
+        banner.appendChild(actions);
+        document.body.appendChild(banner);
+        pwaUpdateUi.banner = banner;
+        return banner;
+    }
+
+    function showPwaUpdateBanner(waitingWorker) {
+        var banner = ensurePwaUpdateBanner();
+        pwaUpdateUi.waiting = waitingWorker || (pwaUpdateUi.reg && pwaUpdateUi.reg.waiting) || null;
+        banner.hidden = false;
+    }
+
+    function hidePwaUpdateBanner() {
+        if (pwaUpdateUi.banner) pwaUpdateUi.banner.hidden = true;
+    }
+
+    function requestPwaUpdateNow() {
+        var worker = pwaUpdateUi.waiting || (pwaUpdateUi.reg && pwaUpdateUi.reg.waiting) || null;
+        pwaUpdateUi.reloadOnControllerChange = true;
+        hidePwaUpdateBanner();
+
+        if (worker) {
+            try {
+                worker.postMessage({ type: 'SKIP_WAITING' });
+                window.setTimeout(function () {
+                    if (pwaUpdateUi.reloadOnControllerChange) window.location.reload();
+                }, 1800);
+                return;
+            } catch (error) {
+                console.warn('[PWA] Could not activate waiting worker:', error);
+            }
+        }
+
+        window.location.reload();
     }
 
     function bindEvents() {
@@ -1625,10 +1714,12 @@
             initCloudSyncForUser();
             if (state.cloud.forceFullPullOnce) {
                 showLoadingOverlay('Syncing from cloud\u2026', 'Loading your tracker data');
-                cloudRunSyncWithTimeout(false).finally(function () {
-                    if (!state.cloud.applyingRemote) hideLoadingOverlay();
-                });
             }
+            // Run one immediate sync on startup so reopening the PWA restores
+            // data without requiring a manual refresh button tap.
+            cloudRunSyncWithTimeout(false).finally(function () {
+                if (!state.cloud.applyingRemote) hideLoadingOverlay();
+            });
         }
     }
 
@@ -1808,7 +1899,8 @@
             });
             state.cloud.forceFullPullOnce = false;
 
-            if (pull && pull.version > state.cloud.version && pull.snapshot) {
+            var mustApplyFullPull = knownVersion === 0;
+            if (pull && pull.snapshot && (pull.version > state.cloud.version || mustApplyFullPull)) {
                 state.cloud.applyingRemote = true;
                 var merged = mergeSyncSnapshot(pull.snapshot);
                 if (merged.changed) applyMergeAndRebuild();
@@ -3059,8 +3151,7 @@
 
         var episodes = await loadEpisodeCatalog(show);
         if (state.modalShowId !== showId) return; // modal changed/closed while loading
-        maybeSeedProgressFromCount(show, episodes);
-        maybeAutoCompleteFromCatalog(show, episodes);
+        // Opening details should not modify watch state or list placement.
         var current = state.shows.find(function (item) { return item.id === showId; }) || show;
         renderShowModal(current, episodes);
     }
