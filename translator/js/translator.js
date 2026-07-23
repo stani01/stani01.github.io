@@ -72,49 +72,72 @@
         return faction === 'elyos' ? {subs: ELYOS_SUBS, next: ELYOS_NEXT} : {subs: ASMO_SUBS, next: ASMO_NEXT};
     }
 
+    function reapplyCasePattern(text, sourceText) {
+        const encodedLetters = Array.from(text).filter(ch => /[a-z]/i.test(ch));
+        let letterIndex = 0;
+        let out = '';
+
+        for (const ch of sourceText) {
+            const lower = ch.toLowerCase();
+            const isLetter = /[a-z]/i.test(ch);
+
+            if (!isLetter) {
+                out += ch;
+                continue;
+            }
+
+            const transformed = encodedLetters[letterIndex++] || lower;
+            out += ch === ch.toUpperCase() ? transformed.toUpperCase() : transformed;
+        }
+
+        return out;
+    }
+
     function encodeText(text, subs, nexts) {
         let out = '';
         let row = 0;
-        for (let ch of text) {
-            const isUpper = ch === ch.toUpperCase();
-            const lower = ch.toLowerCase();
-            const idx = ALPHABET.indexOf(lower);
+        const normalizedText = text.toLowerCase();
+
+        for (const ch of normalizedText) {
+            const idx = ALPHABET.indexOf(ch);
             if (idx === -1) {
                 out += ch;
                 row = 0;
                 continue;
             }
-            const mapped = subs[row].charAt(idx) || lower;
-            out += isUpper ? mapped.toUpperCase() : mapped;
+            const mapped = subs[row].charAt(idx) || ch;
+            out += mapped;
             const nextChar = nexts[row].charAt(idx) || '1';
             row = Math.min(3, Math.max(0, parseInt(nextChar,10)));
         }
-        return out;
+
+        return reapplyCasePattern(out, text);
     }
 
     function decodeText(text, subs, nexts) {
         let out = '';
         let row = 0;
-        for (let ch of text) {
-            const isUpper = ch === ch.toUpperCase();
-            const lower = ch.toLowerCase();
-            if (!/[a-z]/.test(lower)) {
+        const normalizedText = text.toLowerCase();
+
+        for (const ch of normalizedText) {
+            if (!/[a-z]/.test(ch)) {
                 out += ch;
                 row = 0;
                 continue;
             }
-            const idx = subs[row].indexOf(lower);
+            const idx = subs[row].indexOf(ch);
             if (idx === -1) {
                 out += ch;
                 row = 0;
                 continue;
             }
             const decoded = ALPHABET.charAt(idx);
-            out += isUpper ? decoded.toUpperCase() : decoded;
+            out += decoded;
             const nextChar = nexts[row].charAt(idx) || '1';
             row = Math.min(3, Math.max(0, parseInt(nextChar,10)));
         }
-        return out;
+
+        return reapplyCasePattern(out, text);
     }
 
     function translateUsing(text) {
