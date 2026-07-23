@@ -31,6 +31,20 @@ CREATE TABLE IF NOT EXISTS user_snapshots (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS user_snapshot_history (
+  user_id INTEGER NOT NULL,
+  version INTEGER NOT NULL,
+  snapshot TEXT NOT NULL,
+  updated_at INTEGER NOT NULL,
+  updated_by TEXT,
+  archived_at INTEGER NOT NULL,
+  PRIMARY KEY (user_id, version),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_snapshot_history_user_id_version
+ON user_snapshot_history(user_id, version DESC);
+
 CREATE TABLE IF NOT EXISTS rate_limits (
   scope_key TEXT PRIMARY KEY,
   window_start INTEGER NOT NULL,

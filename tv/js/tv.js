@@ -23,19 +23,13 @@
         cloudSession: 'tvTrackerCloudSessionV1',
         sortPreference: 'tvTrackerSortPreference',
         filterPreference: 'tvTrackerFilterPreference',
+        controlsCollapsed: 'tvTrackerControlsCollapsedV1',
         sectionCollapse: 'tvTrackerSectionCollapseV1',
         cloudSyncMeta: 'tvTrackerCloudSyncMetaV1',
-        // Cross-device sync: per-user partner link + settings clock (scoped),
-        // and a device-level stable peer id (NOT user-scoped).
-        syncPartner: 'tvTrackerSyncPartnerV1',
+        // Settings clock (scoped) + device-level stable id for cloud sync push.
         syncMeta: 'tvTrackerSyncMetaV1',
         syncDeviceId: 'tvTrackerSyncDeviceIdV1'
     };
-
-    // Base keys whose changes should trigger a device-to-device sync push.
-    // (metadataCache is intentionally excluded: it is large and regenerable,
-    // so it rides along in the snapshot but never triggers a push by itself.)
-    var SYNC_PUSH_KEYS = ['tvTrackerLocalOverridesV1', 'tvTrackerWatchHistoryV1', 'tvTrackerCustomShowsV1', 'tvTrackerImportedDataV1', 'tvTrackerProfileSettingsV1', 'tvTrackerManualLinksV1', 'tvTrackerUnfixableShowsV1'];
 
     // Fallback per-episode length (minutes) used for the "Hours watched" estimate
     // when a show's metadata has no runtime yet.
@@ -61,13 +55,14 @@
         unfixableShows: {},
         customShows: [],
         importedData: null,
-        profileSettings: { useImportedData: true },
+        profileSettings: { useImportedData: true, debugMessages: false },
         metadataFetchQueue: [],
         episodeCache: {},
         activeFetches: 0,
         currentUser: '',
         currentEmail: '',
         modalShowId: '',
+        modalRequestId: 0,
         modalEpisodes: [],
         modalOpenSeasons: null,
         upcomingTab: '',
@@ -80,40 +75,29 @@
         importMode: false,
         refreshTotal: 0,
         refreshDone: 0,
+        loginInFlight: false,
         search: '',
         sortBy: 'recent',
         filterBy: 'all',
+        controlsCollapsed: true,
         // Watch Next/Up-to-date/Paused expanded; the long lists start collapsed.
         collapsedSections: { watchnext: false, uptodate: false, history: true, stale: true, paused: false, completed: true },
         mobileGreetingDone: false,
-        // Cross-device sync runtime state (see the sync module near the bottom).
-        sync: {
-            selfId: '',
-            peer: null,
-            conn: null,
-            partner: null,
-            connected: false,
-            applying: false,
-            pendingPairCode: '',
-            pairSecret: '',
-            lastSentSig: '',
-            pushTimer: null,
-            hourlyTimer: null,
-            retryTimer: null,
-            lastSyncAt: 0,
-            lastResumeAt: 0,
-            statusText: 'Not connected'
-        },
+        brokenPosters: {},
         cloud: {
             inFlight: false,
             timer: null,
             stuckDetectorTimer: null,
             pendingLocalChanges: false,
+            forceFullPullOnce: false,
+            startupRefreshDone: false,
             version: 0,
             token: '',
             retryAt: 0,
             lastErrorAt: 0,
             lastActivityAt: 0,
+            lastRefreshSyncAt: 0,
+            syncStartedAt: 0,
             applyingRemote: false
         }
     };
@@ -123,14 +107,138 @@
     // background; first run imports existing localStorage keys.
     var STORAGE_DB_NAME = 'tvTrackerStorageV1';
     var STORAGE_STORE_NAME = 'kv';
-    var CLOUD_SYNC_BASE_PATH = '/tv-sync';
+    var CLOUD_SYNC_BASE_PATH = resolveCloudSyncBasePath();
+    var CLOUD_SYNC_READONLY = isLocalCloudReadOnlyMode();
     var CLOUD_SYNC_TIMEOUT_MS = 12000;
-    var CLOUD_SYNC_RETRY_MS = 30000;
+    var CLOUD_SYNC_RETRY_MS = 15000;
     var storageState = {
         mode: 'local', // 'idb' | 'local'
         db: null,
         cache: {}
     };
+
+    function openStorageDb() {
+        return new Promise(function (resolve, reject) {
+            try {
+                var req = indexedDB.open(STORAGE_DB_NAME, 1);
+                req.onupgradeneeded = function (event) {
+                    var db = event && event.target ? event.target.result : null;
+                    if (!db) return;
+                    if (!db.objectStoreNames.contains(STORAGE_STORE_NAME)) {
+                        db.createObjectStore(STORAGE_STORE_NAME);
+                    }
+                };
+                req.onsuccess = function () { resolve(req.result); };
+                req.onerror = function () { reject(req.error || new Error('Failed to open IndexedDB')); };
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    function storageReadAllIdb() {
+        if (!storageState.db) return Promise.resolve({});
+        return new Promise(function (resolve, reject) {
+            var out = {};
+            try {
+                var tx = storageState.db.transaction(STORAGE_STORE_NAME, 'readonly');
+                var store = tx.objectStore(STORAGE_STORE_NAME);
+                var req = store.openCursor();
+
+                req.onsuccess = function (event) {
+                    var cursor = event && event.target ? event.target.result : null;
+                    if (!cursor) return;
+                    var raw = cursor.value;
+                    var val = (raw && typeof raw === 'object' && Object.prototype.hasOwnProperty.call(raw, 'value'))
+                        ? raw.value
+                        : raw;
+                    out[String(cursor.key)] = String(val == null ? '' : val);
+                    cursor.continue();
+                };
+                req.onerror = function () { reject(req.error || new Error('Failed to read IndexedDB')); };
+                tx.oncomplete = function () { resolve(out); };
+                tx.onerror = function () { reject(tx.error || new Error('IndexedDB transaction failed')); };
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    function storageWriteIdb(mode, key, value) {
+        if (!storageState.db) return Promise.resolve();
+        return new Promise(function (resolve, reject) {
+            try {
+                var tx = storageState.db.transaction(STORAGE_STORE_NAME, 'readwrite');
+                var store = tx.objectStore(STORAGE_STORE_NAME);
+                if (mode === 'delete') store.delete(key);
+                else {
+                    var keyPath = store.keyPath;
+                    if (typeof keyPath === 'string' && keyPath) {
+                        var row = {};
+                        row[keyPath] = key;
+                        row.value = String(value);
+                        store.put(row);
+                    } else {
+                        store.put(String(value), key);
+                    }
+                }
+                tx.oncomplete = function () { resolve(); };
+                tx.onerror = function () { reject(tx.error || new Error('IndexedDB write failed')); };
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    function initSiteFooter() {
+        // Footer/header injection lives in assets/js/site-common.js. Keep this
+        // as a safe no-op so TV still boots if that script is unavailable.
+        return;
+    }
+
+    var pwaUpdateUi = {
+        reg: null,
+        waiting: null,
+        banner: null,
+        reloadOnControllerChange: false
+    };
+
+    function isLocalHost() {
+        var host = String(window.location.hostname || '').toLowerCase();
+        return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+    }
+
+    function isLocalCloudReadOnlyMode() {
+        // On localhost we use cloud auth + pull for realistic testing, but we
+        // never push test edits back to production cloud data.
+        return isLocalHost();
+    }
+
+    function resolveCloudSyncBasePath() {
+        if (isLocalHost()) {
+            // Use local worker on localhost to avoid browser CORS limits.
+            // Run it with `wrangler dev --remote` to use cloud accounts/data.
+            return 'http://127.0.0.1:8787/tv-sync';
+        }
+        return '/tv-sync';
+    }
+
+    function randomHex(nBytes) {
+        var arr = new Uint8Array(nBytes);
+        crypto.getRandomValues(arr);
+        var s = '';
+        for (var i = 0; i < arr.length; i++) s += ('0' + arr[i].toString(16)).slice(-2);
+        return s;
+    }
+
+    function getDeviceId() {
+        var id = storageGetItem(STORE_KEYS.syncDeviceId);
+        if (!id) {
+            id = 'tvcloud-' + randomHex(16);
+            try { storageSetItem(STORE_KEYS.syncDeviceId, id); } catch (e) { /* ignore */ }
+        }
+        return id;
+    }
 
     var els = {
         statusText: document.getElementById('status-text'),
@@ -149,6 +257,9 @@
         staleCount: document.getElementById('stale-shows-count'),
         watchNextSection: document.getElementById('section-watchnext'),
         sectionToggles: Array.prototype.slice.call(document.querySelectorAll('.section-toggle')),
+        controlsSection: document.querySelector('.controls'),
+        controlsBody: document.getElementById('controls-body'),
+        controlsToggle: document.getElementById('controls-toggle'),
         searchInput: document.getElementById('search-input'),
         sortSelect: document.getElementById('sort-select'),
         filterSelect: document.getElementById('filter-select'),
@@ -173,6 +284,8 @@
         showModal: document.getElementById('show-modal'),
         showModalBackdrop: document.getElementById('show-modal-backdrop'),
         showModalClose: document.getElementById('show-modal-close'),
+        showModalMenu: document.getElementById('show-modal-menu'),
+        pushWatchLaterBtn: document.getElementById('push-watch-later-btn'),
         removeShowBtn: document.getElementById('remove-show-btn'),
         showModalTitle: document.getElementById('show-modal-title'),
         showModalSubtitle: document.getElementById('show-modal-subtitle'),
@@ -216,6 +329,8 @@
         accountModalClose: document.getElementById('account-modal-close'),
         accountUsernameDisplay: document.getElementById('account-username-display'),
         accountEmailDisplay: document.getElementById('account-email-display'),
+        debugMessagesToggle: document.getElementById('debug-messages-toggle'),
+        debugMessagesHint: document.getElementById('debug-messages-hint'),
         editEmailBtn: document.getElementById('edit-email-btn'),
         emailEditForm: document.getElementById('email-edit-form'),
         newEmail: document.getElementById('new-email'),
@@ -276,28 +391,9 @@
         recoverMessage: document.getElementById('recover-message'),
         exportDataBtn: document.getElementById('export-data-btn'),
         restoreDataBtn: document.getElementById('restore-data-btn'),
+        restoreCloudPrevBtn: document.getElementById('restore-cloud-prev-btn'),
         backupMessage: document.getElementById('backup-message'),
-        syncDeviceBtn: document.getElementById('sync-device-btn'),
-        syncDeviceBtnMain: document.getElementById('sync-device-btn-main'),
-        syncDeviceStatus: document.getElementById('sync-device-status'),
-        syncModal: document.getElementById('sync-modal'),
-        syncModalBackdrop: document.getElementById('sync-modal-backdrop'),
-        syncModalClose: document.getElementById('sync-modal-close'),
-        syncStatus: document.getElementById('sync-status'),
-        syncDeviceLabel: document.getElementById('sync-device-label'),
-        syncUnpaired: document.getElementById('sync-unpaired'),
-        syncPaired: document.getElementById('sync-paired'),
-        syncQrWrap: document.getElementById('sync-qr-wrap'),
-        syncQr: document.getElementById('sync-qr'),
-        syncCode: document.getElementById('sync-code'),
-        syncCopyBtn: document.getElementById('sync-copy-btn'),
-        syncInviteBtn: document.getElementById('sync-invite-btn'),
-        syncCodeInput: document.getElementById('sync-code-input'),
-        syncConnectBtn: document.getElementById('sync-connect-btn'),
-        syncPartnerLabel: document.getElementById('sync-partner-label'),
-        syncLast: document.getElementById('sync-last'),
-        syncNowBtn: document.getElementById('sync-now-btn'),
-        syncUnpairBtn: document.getElementById('sync-unpair-btn')
+        backToTopBtn: document.getElementById('tv-back-to-top')
     };
 
     startApp();
@@ -311,6 +407,7 @@
             console.error('[AUTH] Error binding events:', error);
         }
         initSiteFooter();
+        initControlsCollapseUi();
         refreshForCurrentUser();
         setupCloudSync();
         setupPWA();
@@ -320,9 +417,16 @@
         key = String(key || '');
         if (!key) return null;
         if (storageState.mode === 'idb') {
-            return Object.prototype.hasOwnProperty.call(storageState.cache, key)
-                ? storageState.cache[key]
-                : null;
+            if (Object.prototype.hasOwnProperty.call(storageState.cache, key)) {
+                return storageState.cache[key];
+            }
+            // Resilience fallback: if cache missed a key (e.g. interrupted IDB
+            // startup/write), read direct localStorage so auth/settings survive.
+            try {
+                var lsVal = localStorage.getItem(key);
+                if (lsVal != null) return lsVal;
+            } catch (error) { /* ignore */ }
+            return null;
         }
         try { return localStorage.getItem(key); } catch (error) { return null; }
     }
@@ -336,6 +440,7 @@
             storageWriteIdb('put', key, text).catch(function (error) {
                 console.warn('Could not persist IndexedDB key', key, error);
             });
+            try { localStorage.setItem(key, text); } catch (error) { /* ignore */ }
             return;
         }
         try { localStorage.setItem(key, text); } catch (error) { /* ignore */ }
@@ -349,6 +454,7 @@
             storageWriteIdb('delete', key, '').catch(function (error) {
                 console.warn('Could not delete IndexedDB key', key, error);
             });
+            try { localStorage.removeItem(key); } catch (error) { /* ignore */ }
             return;
         }
         try { localStorage.removeItem(key); } catch (error) { /* ignore */ }
@@ -404,532 +510,28 @@
         }
     }
 
-    function openStorageDb() {
-        return new Promise(function (resolve, reject) {
-            var req = indexedDB.open(STORAGE_DB_NAME, 1);
-            req.onupgradeneeded = function (event) {
-                var db = event.target.result;
-                if (!db.objectStoreNames.contains(STORAGE_STORE_NAME)) {
-                    db.createObjectStore(STORAGE_STORE_NAME, { keyPath: 'k' });
-                }
-            };
-            req.onsuccess = function () { resolve(req.result); };
-            req.onerror = function () { reject(req.error || new Error('IndexedDB open failed')); };
-        });
-    }
-
-    function storageReadAllIdb() {
-        return new Promise(function (resolve, reject) {
-            if (!storageState.db) {
-                resolve({});
-                return;
-            }
-            var tx = storageState.db.transaction(STORAGE_STORE_NAME, 'readonly');
-            var store = tx.objectStore(STORAGE_STORE_NAME);
-            var req = store.getAll();
-            req.onsuccess = function () {
-                var out = {};
-                (req.result || []).forEach(function (row) {
-                    if (!row || !row.k) return;
-                    out[String(row.k)] = String(row.v == null ? '' : row.v);
-                });
-                resolve(out);
-            };
-            req.onerror = function () { reject(req.error || new Error('IndexedDB read failed')); };
-        });
-    }
-
-    function storageWriteIdb(kind, key, value) {
-        return new Promise(function (resolve, reject) {
-            if (!storageState.db) {
-                resolve();
-                return;
-            }
-            var tx = storageState.db.transaction(STORAGE_STORE_NAME, 'readwrite');
-            var store = tx.objectStore(STORAGE_STORE_NAME);
-            var req = kind === 'delete'
-                ? store.delete(key)
-                : store.put({ k: key, v: String(value) });
-            req.onsuccess = function () { resolve(); };
-            req.onerror = function () { reject(req.error || new Error('IndexedDB write failed')); };
-        });
-    }
-
-    function bindEvents() {
-        els.authLogin.addEventListener('click', function () {
-            loginUser();
-        });
-
-        els.authLogout.addEventListener('click', function () {
-            logoutUser();
-        });
-
-        els.authSettings.addEventListener('click', function () {
-            openAccountModal();
-        });
-
-        if (els.accountModalClose) els.accountModalClose.addEventListener('click', function () {
-            closeAccountModal();
-        });
-
-        if (els.accountModalBackdrop) els.accountModalBackdrop.addEventListener('click', function () {
-            closeAccountModal();
-        });
-
-        window.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && !els.accountModal.hidden) {
-                closeAccountModal();
-            }
-        });
-
-        if (els.editEmailBtn) els.editEmailBtn.addEventListener('click', function () {
-            els.emailEditForm.hidden = false;
-            els.newEmail.focus();
-        });
-
-        if (els.cancelEmailBtn) els.cancelEmailBtn.addEventListener('click', function () {
-            els.emailEditForm.hidden = true;
-            els.newEmail.value = '';
-        });
-
-        if (els.saveEmailBtn) els.saveEmailBtn.addEventListener('click', function () {
-            updateEmail();
-        });
-
-        if (els.changePasswordBtn) els.changePasswordBtn.addEventListener('click', function () {
-            changePassword();
-        });
-
-        if (els.deleteAccountBtn) els.deleteAccountBtn.addEventListener('click', function () {
-            requestDeleteAccount();
-        });
-
-        els.authPassword.addEventListener('keydown', function (event) {
-            if (event.key === 'Enter') loginUser();
-        });
-
-        els.searchInput.addEventListener('input', function (event) {
-            state.search = String(event.target.value || '').trim().toLowerCase();
-            applyFilters();
-            render();
-        });
-
-        els.sortSelect.addEventListener('change', function (event) {
-            state.sortBy = event.target.value || 'recent';
-            persistJson(STORE_KEYS.sortPreference, state.sortBy);
-            applyFilters();
-            render();
-        });
-
-        els.filterSelect.addEventListener('change', function (event) {
-            state.filterBy = event.target.value || 'all';
-            persistJson(STORE_KEYS.filterPreference, state.filterBy);
-            applyFilters();
-            render();
-        });
-
-        els.importButton.addEventListener('click', function () {
-            triggerImport();
-        });
-
-        els.importInput.addEventListener('change', function (event) {
-            importTvTimeExport(event.target.files);
-            // Reset so selecting the same file again still fires 'change'.
-            event.target.value = '';
-        });
-
-        els.refreshMetaButton.addEventListener('click', function () {
-            if (!state.currentUser) {
-                setStatus('Please log in first.');
-                return;
-            }
-            if (!state.shows.length) {
-                setStatus('Import your shows first, then refresh metadata.');
-                return;
-            }
-            openConfirm(
-                'Refresh all metadata?',
-                'This re-fetches posters, descriptions and next-episode air dates for every show from the metadata providers. It can take a little while. The page will reload automatically when it finishes.',
-                'Refresh',
-                function () { startMetadataRefresh(); }
-            );
-        });
-
-        if (els.pageRefreshButton) els.pageRefreshButton.addEventListener('click', function () {
-            setStatus('Refreshing page…');
-            window.location.reload();
-        });
-
-        els.setOmdbKeyButton.addEventListener('click', function () {
-            openOmdbModal();
-        });
-
-        if (els.omdbModalClose) els.omdbModalClose.addEventListener('click', function () {
-            closeOmdbModal();
-        });
-
-        if (els.omdbModalBackdrop) els.omdbModalBackdrop.addEventListener('click', function () {
-            closeOmdbModal();
-        });
-
-        if (els.omdbSaveBtn) els.omdbSaveBtn.addEventListener('click', function () {
-            saveOmdbKey();
-        });
-
-        if (els.omdbRemoveBtn) els.omdbRemoveBtn.addEventListener('click', function () {
-            removeOmdbKey();
-        });
-
-        window.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && els.omdbModal && !els.omdbModal.hidden) {
-                closeOmdbModal();
-            }
-        });
-
-        if (els.helpBtn) els.helpBtn.addEventListener('click', function () {
-            openHelpModal();
-        });
-
-        if (els.helpModalClose) els.helpModalClose.addEventListener('click', function () {
-            closeHelpModal();
-        });
-
-        if (els.helpModalBackdrop) els.helpModalBackdrop.addEventListener('click', function () {
-            closeHelpModal();
-        });
-
-        if (els.confirmCancel) els.confirmCancel.addEventListener('click', function () {
-            closeConfirm();
-        });
-
-        if (els.confirmModalBackdrop) els.confirmModalBackdrop.addEventListener('click', function () {
-            closeConfirm();
-        });
-
-        if (els.confirmOk) els.confirmOk.addEventListener('click', function () {
-            var action = state.pendingConfirm;
-            closeConfirm();
-            if (typeof action === 'function') action();
-        });
-
-        window.addEventListener('keydown', function (event) {
-            if (event.key !== 'Escape') return;
-            if (els.helpModal && !els.helpModal.hidden) closeHelpModal();
-            if (els.confirmModal && !els.confirmModal.hidden) closeConfirm();
-            if (els.recoverModal && !els.recoverModal.hidden) closeRecoverModal();
-        });
-
-        if (els.authForgot) els.authForgot.addEventListener('click', function () {
-            openRecoverModal();
-        });
-
-        if (els.recoverModalClose) els.recoverModalClose.addEventListener('click', function () {
-            closeRecoverModal();
-        });
-
-        if (els.recoverModalBackdrop) els.recoverModalBackdrop.addEventListener('click', function () {
-            closeRecoverModal();
-        });
-
-        if (els.recoverSubmit) els.recoverSubmit.addEventListener('click', function () {
-            resetPasswordViaRecovery();
-        });
-
-        if (els.authRestore) els.authRestore.addEventListener('click', function () {
-            if (els.restoreFile) els.restoreFile.click();
-        });
-
-        if (els.restoreDataBtn) els.restoreDataBtn.addEventListener('click', function () {
-            if (els.restoreFile) els.restoreFile.click();
-        });
-
-        if (els.restoreFile) els.restoreFile.addEventListener('change', function (event) {
-            var file = event.target.files && event.target.files[0];
-            if (file) importUserData(file);
-            event.target.value = '';
-        });
-
-        if (els.exportDataBtn) els.exportDataBtn.addEventListener('click', function () {
-            exportUserData();
-        });
-
-        if (els.syncDeviceBtn) els.syncDeviceBtn.addEventListener('click', function () {
-            openSyncModal();
-        });
-
-        if (els.syncDeviceBtnMain) els.syncDeviceBtnMain.addEventListener('click', function () {
-            openSyncModal();
-        });
-
-        if (els.syncModalClose) els.syncModalClose.addEventListener('click', function () {
-            closeSyncModal();
-        });
-
-        if (els.syncModalBackdrop) els.syncModalBackdrop.addEventListener('click', function () {
-            closeSyncModal();
-        });
-
-        if (els.syncInviteBtn) els.syncInviteBtn.addEventListener('click', function () {
-            startPairingInvite();
-        });
-
-        if (els.syncCopyBtn) els.syncCopyBtn.addEventListener('click', function () {
-            copyPairCode();
-        });
-
-        if (els.syncConnectBtn) els.syncConnectBtn.addEventListener('click', function () {
-            var code = els.syncCodeInput ? String(els.syncCodeInput.value || '').trim() : '';
-            connectWithCode(code);
-        });
-
-        if (els.syncCodeInput) els.syncCodeInput.addEventListener('keydown', function (event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                connectWithCode(String(els.syncCodeInput.value || '').trim());
-            }
-        });
-
-        if (els.syncNowBtn) els.syncNowBtn.addEventListener('click', function () {
-            syncNow();
-        });
-
-        if (els.syncUnpairBtn) els.syncUnpairBtn.addEventListener('click', function () {
-            requestUnpair();
-        });
-
-        window.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && els.syncModal && !els.syncModal.hidden) {
-                closeSyncModal();
-            }
-        });
-
-        els.addShowButton.addEventListener('click', function () {
-            openAddShowModal();
-        });
-
-        if (els.addShowModalClose) els.addShowModalClose.addEventListener('click', function () {
-            closeAddShowModal();
-        });
-
-        if (els.addShowModalBackdrop) els.addShowModalBackdrop.addEventListener('click', function () {
-            closeAddShowModal();
-        });
-
-        if (els.unresolvedToggle) els.unresolvedToggle.addEventListener('click', function () {
-            toggleUnresolvedPanel();
-        });
-
-        if (els.addShowInput) els.addShowInput.addEventListener('input', function () {
-            scheduleAddShowSearch();
-        });
-
-        if (els.addShowInput) els.addShowInput.addEventListener('keydown', function (event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                // Skip the debounce and search right away on Enter.
-                if (state.addShowTimer) { clearTimeout(state.addShowTimer); state.addShowTimer = null; }
-                runAddShowSearch();
-            }
-        });
-
-        window.addEventListener('keydown', function (event) {
-            if (event.key !== 'Escape') return;
-            if (!els.addShowModal || els.addShowModal.hidden) return;
-            // If the full-size poster is open over the results, Escape closes
-            // that first (handled by the lightbox listener), not the modal.
-            if (els.posterLightbox && !els.posterLightbox.hidden) return;
-            closeAddShowModal();
-        });
-
-        (els.sectionToggles || []).forEach(function (toggle) {
-            toggle.addEventListener('click', function () {
-                toggleSection(toggle.getAttribute('data-section'));
-            });
-        });
-        // Reflect default collapse state on first paint (before any login).
-        applySectionCollapseUi();
-
-        els.showModalClose.addEventListener('click', function () {
-            closeShowModal();
-        });
-
-        els.showModalBackdrop.addEventListener('click', function () {
-            closeShowModal();
-        });
-
-        if (els.posterBtn) els.posterBtn.addEventListener('click', function () {
-            openPosterLightbox();
-        });
-
-        if (els.modalNotes) els.modalNotes.addEventListener('change', function () {
-            saveModalNotes();
-        });
-
-        if (els.removeShowBtn) els.removeShowBtn.addEventListener('click', function () {
-            requestRemoveShow();
-        });
-
-        if (els.fixLinkToggle) els.fixLinkToggle.addEventListener('click', function () {
-            if (els.fixLinkForm) els.fixLinkForm.hidden = false;
-            els.fixLinkToggle.hidden = true;
-            showFixLinkMsg('');
-            switchFixLinkMode('paste');
-            if (els.fixLinkInput) els.fixLinkInput.focus();
-        });
-
-        if (els.markUnfixableBtn) els.markUnfixableBtn.addEventListener('click', function () {
-            toggleUnfixable();
-        });
-
-        if (els.fixLinkCancel) els.fixLinkCancel.addEventListener('click', function () {
-            if (els.fixLinkForm) els.fixLinkForm.hidden = true;
-            if (els.fixLinkToggle) els.fixLinkToggle.hidden = false;
-            showFixLinkMsg('');
-            if (els.fixLinkInput) els.fixLinkInput.value = '';
-            if (els.fixLinkSearchInput) els.fixLinkSearchInput.value = '';
-        });
-
-        if (els.fixLinkSearchCancel) els.fixLinkSearchCancel.addEventListener('click', function () {
-            if (els.fixLinkForm) els.fixLinkForm.hidden = true;
-            if (els.fixLinkToggle) els.fixLinkToggle.hidden = false;
-            showFixLinkMsg('');
-            if (els.fixLinkSearchInput) els.fixLinkSearchInput.value = '';
-            if (els.fixLinkSearchResults) els.fixLinkSearchResults.innerHTML = '';
-        });
-
-        if (els.fixLinkPasteTab) els.fixLinkPasteTab.addEventListener('click', function () {
-            switchFixLinkMode('paste');
-        });
-
-        if (els.fixLinkSearchTab) els.fixLinkSearchTab.addEventListener('click', function () {
-            switchFixLinkMode('search');
-        });
-
-        if (els.fixLinkForm) els.fixLinkForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            submitFixLink();
-        });
-
-        if (els.fixLinkSearchInput) els.fixLinkSearchInput.addEventListener('input', function () {
-            scheduleFixLinkSearch();
-        });
-
-        if (els.posterLightboxClose) els.posterLightboxClose.addEventListener('click', function () {
-            closePosterLightbox();
-        });
-
-        if (els.posterLightboxBackdrop) els.posterLightboxBackdrop.addEventListener('click', function () {
-            closePosterLightbox();
-        });
-
-        if (els.posterLightboxImg) els.posterLightboxImg.addEventListener('click', function () {
-            closePosterLightbox();
-        });
-
-        window.addEventListener('keydown', function (event) {
-            if (event.key !== 'Escape') return;
-            // The poster lightbox sits above the show modal, so close it first.
-            if (els.posterLightbox && !els.posterLightbox.hidden) {
-                closePosterLightbox();
-                return;
-            }
-            if (!els.showModal.hidden) {
-                closeShowModal();
-            }
-        });
-
-        // PWA Install button handler
-        els.installAppButton.addEventListener('click', function () {
-            if (window.deferredPrompt) {
-                window.deferredPrompt.prompt();
-                window.deferredPrompt.userChoice.then(function (choiceResult) {
-                    if (choiceResult.outcome === 'accepted') {
-                        setStatus('✅ App installed! You can now access it from your home screen.');
-                        els.installAppButton.hidden = true;
-                        els.installPrompt.style.display = 'none';
-                    }
-                    window.deferredPrompt = null;
-                });
-                return;
-            }
-
-            // iOS Safari has no beforeinstallprompt; keep a fallback CTA visible.
-            els.installPrompt.style.display = 'block';
-            if (isIosInstallDevice()) {
-                setStatus('On iPhone/iPad, tap Share in Safari, then "Add to Home Screen".');
-            } else {
-                setStatus('Install is not ready yet. Use your browser menu for "Install app" or "Add to Home Screen".');
-            }
-        });
-    }
-
-    function initSiteFooter() {
-        var year = document.getElementById('tv-footer-year');
-        if (year) year.textContent = String(new Date().getFullYear());
-
-        var shareBtn = document.getElementById('tv-share-btn');
-        if (shareBtn) {
-            shareBtn.addEventListener('click', function () {
-                var original = shareBtn.textContent;
-                function onDone() {
-                    shareBtn.textContent = '✅ Link Copied!';
-                    window.setTimeout(function () {
-                        shareBtn.textContent = original;
-                    }, 1800);
-                }
-                var url = window.location.href;
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(url).then(onDone, function () {
-                        shareBtn.textContent = 'Copy failed';
-                    });
-                    return;
-                }
-                try {
-                    var tmp = document.createElement('input');
-                    tmp.value = url;
-                    document.body.appendChild(tmp);
-                    tmp.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(tmp);
-                    onDone();
-                } catch (e) {
-                    shareBtn.textContent = 'Copy failed';
-                }
-            });
-        }
-
-        var topBtn = document.getElementById('tv-back-to-top');
-        if (topBtn) {
-            topBtn.addEventListener('click', function () {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-            window.addEventListener('scroll', function () {
-                var y = window.pageYOffset || document.documentElement.scrollTop || 0;
-                topBtn.style.display = y > 320 ? 'block' : 'none';
-            });
-        }
-    }
-
     function initAuth() {
+        loadCloudSession();
+        updateAuthUi();
+    }
+
+    function loadCloudSession() {
         var lastUser = '';
         var lastEmail = '';
         var token = '';
         try {
-            var rawSession = storageGetItem(STORE_KEYS.cloudSession);
-            if (rawSession) {
-                var parsedSession = JSON.parse(rawSession);
-                if (parsedSession && typeof parsedSession === 'object') {
-                    if (typeof parsedSession.username === 'string') lastUser = normalizeUsername(parsedSession.username);
-                    if (typeof parsedSession.email === 'string') lastEmail = parsedSession.email;
-                    if (typeof parsedSession.token === 'string') token = parsedSession.token;
-                }
+            var session = loadJson(STORE_KEYS.cloudSession, null);
+            if (session && typeof session === 'object') {
+                lastUser = normalizeUsername(session.username || '');
+                lastEmail = String(session.email || '');
+                token = String(session.token || '');
             }
+
             if (!lastUser) {
-                // Legacy fallback for older local-only session storage.
                 var raw = storageGetItem(STORE_KEYS.sessionUser);
                 if (raw) {
                     var parsed = JSON.parse(raw);
-                    if (typeof parsed === 'string') lastUser = parsed;
+                    if (typeof parsed === 'string') lastUser = normalizeUsername(parsed);
                 }
             }
         } catch (error) {
@@ -937,6 +539,7 @@
             lastEmail = '';
             token = '';
         }
+
         if (lastUser && token) {
             state.currentUser = String(lastUser);
             state.currentEmail = String(lastEmail || '');
@@ -944,7 +547,6 @@
         } else if (lastUser && !token) {
             clearCloudSession();
         }
-        updateAuthUi();
     }
 
     function persistCloudSession() {
@@ -964,13 +566,59 @@
         state.currentEmail = '';
     }
 
+    function isScriptMimeType(contentType) {
+        var t = String(contentType || '').toLowerCase();
+        return t.indexOf('javascript') !== -1 || t.indexOf('ecmascript') !== -1;
+    }
+
+    async function preflightServiceWorkerScript(swPath) {
+        try {
+            var resp = await fetch(swPath, { method: 'GET', cache: 'no-store' });
+            if (!resp.ok) {
+                console.log('[PWA] Skipping service worker registration; fetch failed with HTTP ' + resp.status + '.');
+                return false;
+            }
+            var ct = resp.headers ? (resp.headers.get('content-type') || '') : '';
+            if (!isScriptMimeType(ct)) {
+                console.log('[PWA] Skipping service worker registration; unsupported MIME type: ' + (ct || 'unknown'));
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.log('[PWA] Skipping service worker registration; script preflight failed.', error);
+            return false;
+        }
+    }
+
     function setupPWA() {
         // Register service worker for offline support and caching
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(function (reg) {
+            preflightServiceWorkerScript('sw.js').then(function (ok) {
+                if (!ok) return null;
+                return navigator.serviceWorker.register('sw.js');
+            }).then(function (reg) {
+                if (!reg) return;
+                pwaUpdateUi.reg = reg;
+                if (reg.waiting && navigator.serviceWorker.controller) {
+                    showPwaUpdateBanner(reg.waiting);
+                }
+                reg.addEventListener('updatefound', function () {
+                    var installing = reg.installing;
+                    if (!installing) return;
+                    installing.addEventListener('statechange', function () {
+                        if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+                            showPwaUpdateBanner(installing);
+                        }
+                    });
+                });
                 console.log('[PWA] Service worker registered:', reg);
             }).catch(function (err) {
                 console.log('[PWA] Service worker registration failed:', err);
+            });
+
+            navigator.serviceWorker.addEventListener('controllerchange', function () {
+                if (!pwaUpdateUi.reloadOnControllerChange) return;
+                window.location.reload();
             });
         }
 
@@ -1011,6 +659,285 @@
         }
     }
 
+    function ensurePwaUpdateBanner() {
+        if (pwaUpdateUi.banner) return pwaUpdateUi.banner;
+        var banner = document.createElement('section');
+        banner.className = 'pwa-update-banner';
+        banner.hidden = true;
+
+        var text = document.createElement('p');
+        text.className = 'pwa-update-text';
+        text.textContent = 'Update ready: a newer TV Tracker version is available.';
+
+        var actions = document.createElement('div');
+        actions.className = 'pwa-update-actions';
+
+        var updateBtn = document.createElement('button');
+        updateBtn.type = 'button';
+        updateBtn.className = 'btn btn-primary btn-sm';
+        updateBtn.textContent = 'Update now';
+        updateBtn.addEventListener('click', requestPwaUpdateNow);
+
+        var laterBtn = document.createElement('button');
+        laterBtn.type = 'button';
+        laterBtn.className = 'btn btn-sm';
+        laterBtn.textContent = 'Later';
+        laterBtn.addEventListener('click', hidePwaUpdateBanner);
+
+        actions.appendChild(updateBtn);
+        actions.appendChild(laterBtn);
+        banner.appendChild(text);
+        banner.appendChild(actions);
+        document.body.appendChild(banner);
+        pwaUpdateUi.banner = banner;
+        return banner;
+    }
+
+    function showPwaUpdateBanner(waitingWorker) {
+        var banner = ensurePwaUpdateBanner();
+        pwaUpdateUi.waiting = waitingWorker || (pwaUpdateUi.reg && pwaUpdateUi.reg.waiting) || null;
+        banner.hidden = false;
+    }
+
+    function hidePwaUpdateBanner() {
+        if (pwaUpdateUi.banner) pwaUpdateUi.banner.hidden = true;
+    }
+
+    function requestPwaUpdateNow() {
+        var worker = pwaUpdateUi.waiting || (pwaUpdateUi.reg && pwaUpdateUi.reg.waiting) || null;
+        pwaUpdateUi.reloadOnControllerChange = true;
+        hidePwaUpdateBanner();
+
+        if (worker) {
+            try {
+                worker.postMessage({ type: 'SKIP_WAITING' });
+                window.setTimeout(function () {
+                    if (pwaUpdateUi.reloadOnControllerChange) window.location.reload();
+                }, 1800);
+                return;
+            } catch (error) {
+                console.warn('[PWA] Could not activate waiting worker:', error);
+            }
+        }
+
+        window.location.reload();
+    }
+
+    function bindEvents() {
+        function on(el, eventName, handler) {
+            if (el) el.addEventListener(eventName, handler);
+        }
+
+        // Header / auth actions
+        on(els.authLogin, 'click', loginUser);
+        on(els.authPassword, 'keydown', function (event) {
+            if (event.key === 'Enter') loginUser();
+        });
+        on(els.authUsername, 'keydown', function (event) {
+            if (event.key === 'Enter') loginUser();
+        });
+        on(els.authLogout, 'click', logoutUser);
+        on(els.authSettings, 'click', openAccountModal);
+        on(els.authForgot, 'click', openRecoverModal);
+        on(els.authRestore, 'click', function () {
+            if (els.restoreFile) els.restoreFile.click();
+        });
+        on(els.restoreFile, 'change', function (event) {
+            var file = event && event.target && event.target.files ? event.target.files[0] : null;
+            if (file) importUserData(file);
+            if (els.restoreFile) els.restoreFile.value = '';
+        });
+
+        // Header tools
+        on(els.addShowButton, 'click', openAddShowModal);
+        on(els.importButton, 'click', triggerImport);
+        on(els.refreshMetaButton, 'click', startMetadataRefresh);
+        on(els.pageRefreshButton, 'click', function () {
+            softPageRefresh();
+        });
+        on(els.setOmdbKeyButton, 'click', openOmdbModal);
+        on(els.helpBtn, 'click', openHelpModal);
+        on(els.installAppButton, 'click', function () {
+            var prompt = window.deferredPrompt;
+            if (!prompt) {
+                setStatus('Use your browser menu to install this app on your device.');
+                return;
+            }
+            prompt.prompt();
+            prompt.userChoice.then(function () {
+                window.deferredPrompt = null;
+            });
+        });
+        on(els.backToTopBtn, 'click', scrollToTop);
+
+        // Core list controls
+        on(els.searchInput, 'input', function () {
+            state.search = String(els.searchInput ? els.searchInput.value : '');
+            applyFilters();
+            render();
+        });
+        on(els.sortSelect, 'change', function () {
+            state.sortBy = String(els.sortSelect ? els.sortSelect.value : 'recent') || 'recent';
+            persistJson(STORE_KEYS.sortPreference, state.sortBy);
+            applyFilters();
+            render();
+        });
+        on(els.filterSelect, 'change', function () {
+            state.filterBy = String(els.filterSelect ? els.filterSelect.value : 'all') || 'all';
+            persistJson(STORE_KEYS.filterPreference, state.filterBy);
+            applyFilters();
+            render();
+        });
+        on(els.controlsToggle, 'click', function () {
+            setControlsCollapsed(!state.controlsCollapsed, true);
+        });
+        (els.sectionToggles || []).forEach(function (toggle) {
+            on(toggle, 'click', function () {
+                var key = toggle.getAttribute('data-section');
+                if (key) toggleSection(key);
+            });
+        });
+
+        // Main modal close controls
+        on(els.showModalClose, 'click', closeShowModal);
+        on(els.showModalBackdrop, 'click', closeShowModal);
+        on(els.pushWatchLaterBtn, 'click', togglePushToWatchLater);
+        on(els.removeShowBtn, 'click', requestRemoveShow);
+        on(els.posterBtn, 'click', function () {
+            if (!els.modalPoster || !els.modalPoster.src) return;
+            openPosterLightbox(els.modalPoster.src, els.modalPoster.alt || 'Poster');
+        });
+        on(els.posterLightboxClose, 'click', closePosterLightbox);
+        on(els.posterLightboxBackdrop, 'click', closePosterLightbox);
+        on(els.modalNotes, 'blur', saveModalNotes);
+        on(els.modalNotes, 'change', saveModalNotes);
+
+        // Fix-link / unresolved helpers
+        on(els.fixLinkToggle, 'click', function () {
+            if (!els.fixLinkForm) return;
+            var opening = !!els.fixLinkForm.hidden;
+            els.fixLinkForm.hidden = !opening;
+            if (els.fixLinkToggle) els.fixLinkToggle.hidden = opening;
+            if (opening) switchFixLinkMode('paste');
+        });
+        on(els.fixLinkForm, 'submit', function (event) {
+            event.preventDefault();
+            submitFixLink();
+        });
+        on(els.fixLinkCancel, 'click', function () {
+            if (els.fixLinkForm) els.fixLinkForm.hidden = true;
+            if (els.fixLinkToggle) els.fixLinkToggle.hidden = false;
+        });
+        on(els.fixLinkPasteTab, 'click', function () { switchFixLinkMode('paste'); });
+        on(els.fixLinkSearchTab, 'click', function () { switchFixLinkMode('search'); });
+        on(els.fixLinkSearchCancel, 'click', function () {
+            if (els.fixLinkForm) els.fixLinkForm.hidden = true;
+            if (els.fixLinkToggle) els.fixLinkToggle.hidden = false;
+        });
+        on(els.fixLinkSearchInput, 'input', runFixLinkSearch);
+        on(els.fixLinkSearchInput, 'keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                runFixLinkSearch();
+            }
+        });
+        on(els.markUnfixableBtn, 'click', toggleUnfixable);
+        on(els.unresolvedToggle, 'click', toggleUnresolvedPanel);
+
+        // Add-show modal
+        on(els.addShowModalClose, 'click', closeAddShowModal);
+        on(els.addShowModalBackdrop, 'click', closeAddShowModal);
+        on(els.addShowInput, 'input', scheduleAddShowSearch);
+        on(els.addShowInput, 'keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                runAddShowSearch();
+            }
+            if (event.key === 'Escape') closeAddShowModal();
+        });
+
+        // Account + confirm + info modals
+        on(els.accountModalClose, 'click', closeAccountModal);
+        on(els.accountModalBackdrop, 'click', closeAccountModal);
+        on(els.editEmailBtn, 'click', function () {
+            if (!els.emailEditForm) return;
+            els.emailEditForm.hidden = false;
+            if (els.newEmail) {
+                els.newEmail.value = state.currentEmail || '';
+                try { els.newEmail.focus(); } catch (e) { /* ignore */ }
+            }
+        });
+        on(els.cancelEmailBtn, 'click', function () {
+            if (els.emailEditForm) els.emailEditForm.hidden = true;
+            if (els.newEmail) els.newEmail.value = '';
+        });
+        on(els.saveEmailBtn, 'click', updateEmail);
+        on(els.debugMessagesToggle, 'change', function () {
+            setDebugMessagesEnabled(!!(els.debugMessagesToggle && els.debugMessagesToggle.checked));
+        });
+        on(els.changePasswordBtn, 'click', changePassword);
+        on(els.deleteAccountBtn, 'click', requestDeleteAccount);
+        on(els.exportDataBtn, 'click', exportUserData);
+        on(els.restoreDataBtn, 'click', function () {
+            if (els.restoreFile) els.restoreFile.click();
+        });
+        on(els.restoreCloudPrevBtn, 'click', requestRestorePreviousCloudSave);
+
+        on(els.omdbModalClose, 'click', closeOmdbModal);
+        on(els.omdbModalBackdrop, 'click', closeOmdbModal);
+        on(els.omdbSaveBtn, 'click', saveOmdbKey);
+        on(els.omdbRemoveBtn, 'click', removeOmdbKey);
+
+        on(els.helpModalClose, 'click', closeHelpModal);
+        on(els.helpModalBackdrop, 'click', closeHelpModal);
+
+        on(els.recoverModalClose, 'click', closeRecoverModal);
+        on(els.recoverModalBackdrop, 'click', closeRecoverModal);
+        on(els.recoverSubmit, 'click', resetPasswordViaRecovery);
+
+        on(els.confirmCancel, 'click', closeConfirm);
+        on(els.confirmModalBackdrop, 'click', closeConfirm);
+        on(els.confirmOk, 'click', function () {
+            var fn = state.pendingConfirm;
+            closeConfirm();
+            if (typeof fn === 'function') fn();
+        });
+
+        on(els.importInput, 'change', function (event) {
+            var files = event && event.target ? event.target.files : null;
+            if (files && files.length) importTvTimeExport(files);
+            if (els.importInput) els.importInput.value = '';
+        });
+
+        window.addEventListener('resize', applyControlsCollapseUi);
+        window.addEventListener('scroll', updateBackToTopVisibility, { passive: true });
+        window.addEventListener('keydown', function (event) {
+            if (document.body && document.body.classList.contains('tv-busy')) return;
+            if (event.key !== 'Escape') return;
+            if (els.posterLightbox && !els.posterLightbox.hidden) { closePosterLightbox(); return; }
+            if (els.confirmModal && !els.confirmModal.hidden) { closeConfirm(); return; }
+            if (els.showModal && !els.showModal.hidden) { closeShowModal(); return; }
+            if (els.addShowModal && !els.addShowModal.hidden) { closeAddShowModal(); return; }
+            if (els.omdbModal && !els.omdbModal.hidden) { closeOmdbModal(); return; }
+            if (els.recoverModal && !els.recoverModal.hidden) { closeRecoverModal(); return; }
+            if (els.accountModal && !els.accountModal.hidden) { closeAccountModal(); return; }
+            if (els.helpModal && !els.helpModal.hidden) { closeHelpModal(); }
+        });
+
+        updateBackToTopVisibility();
+    }
+
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateBackToTopVisibility() {
+        if (!els.backToTopBtn) return;
+        var isVisible = (window.scrollY || window.pageYOffset || 0) > 360;
+        els.backToTopBtn.classList.toggle('is-visible', isVisible);
+        els.backToTopBtn.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
+    }
+
     function updateAuthUi() {
         var signedIn = !!state.currentUser;
         els.authUser.textContent = signedIn ? ('Signed in as ' + state.currentUser) : 'Not signed in';
@@ -1018,8 +945,6 @@
         if (els.authSignedIn) els.authSignedIn.hidden = !signedIn;
         if (els.authSettings) els.authSettings.hidden = !signedIn;
         if (els.authLogout) els.authLogout.hidden = !signedIn;
-        if (els.syncDeviceBtn) els.syncDeviceBtn.hidden = true;
-        if (els.syncDeviceBtnMain) els.syncDeviceBtnMain.hidden = true;
     }
 
     function refreshForCurrentUser() {
@@ -1028,6 +953,7 @@
             setStatus('Log in or register to use your own TV tracker data.');
             return;
         }
+        setStatus('Loading your tracker data...');
         try {
             // Load user-scoped data from localStorage
             state.overrides = loadUserScopedJson(STORE_KEYS.localOverrides, {});
@@ -1037,10 +963,12 @@
             state.unfixableShows = loadUserScopedJson(STORE_KEYS.unfixableShows, {});
             state.customShows = loadUserScopedJson(STORE_KEYS.customShows, []);
             state.importedData = loadUserScopedJson(STORE_KEYS.importedData, null);
-            state.profileSettings = loadUserScopedJson(STORE_KEYS.profileSettings, { useImportedData: true });
+            state.profileSettings = normalizeProfileSettings(loadUserScopedJson(STORE_KEYS.profileSettings, { useImportedData: true, debugMessages: false }));
             state.episodeCache = {};
             state.modalShowId = '';
             loadPreferences();
+            loadControlsCollapsedPreference();
+            applyControlsCollapseUi();
 
             // Build the shows model from this user's own imported export + custom shows
             bootstrap();
@@ -1051,6 +979,8 @@
 
 
     async function loginUser() {
+        if (state.loginInFlight) return;
+
         var username = normalizeUsername(els.authUsername.value);
         var password = String(els.authPassword.value || '');
         if (!username || !password) {
@@ -1062,6 +992,10 @@
             return;
         }
 
+        state.loginInFlight = true;
+        setAuthLoginBusy(true);
+        setStatus('Signing in...');
+
         var payload;
         try {
             payload = await cloudFetch('/v1/login', {
@@ -1070,6 +1004,8 @@
             });
         } catch (error) {
             setStatus(error && error.message ? error.message : 'Could not log in right now.', true);
+            state.loginInFlight = false;
+            setAuthLoginBusy(false);
             return;
         }
         
@@ -1080,8 +1016,27 @@
         els.authPassword.value = '';
         updateAuthUi();
         refreshForCurrentUser();
-        setStatus('Logged in as ' + username + '.');
         initCloudSyncForUser();
+        showLoadingOverlay('Syncing from cloud\u2026', 'Loading your tracker data');
+        try {
+            await cloudRunSyncWithTimeout(false);
+        } finally {
+            if (!state.cloud.applyingRemote) hideLoadingOverlay();
+        }
+        setStatus('Logged in as ' + username + '.', false, true);
+        state.loginInFlight = false;
+        setAuthLoginBusy(false);
+    }
+
+    function setAuthLoginBusy(isBusy) {
+        var busy = !!isBusy;
+        if (els.authLogin) {
+            els.authLogin.disabled = busy;
+            els.authLogin.textContent = busy ? 'Logging in...' : 'Login';
+            els.authLogin.setAttribute('aria-busy', busy ? 'true' : 'false');
+        }
+        if (els.authUsername) els.authUsername.disabled = busy;
+        if (els.authPassword) els.authPassword.disabled = busy;
     }
 
     function logoutUser() {
@@ -1111,12 +1066,89 @@
         els.confirmPasswordInput.value = '';
         els.passwordMessage.textContent = '';
         els.deleteMessage.textContent = '';
+        if (els.debugMessagesToggle) els.debugMessagesToggle.checked = !!(state.profileSettings && state.profileSettings.debugMessages);
+        
+        if (els.cloudHistoryDepth) els.cloudHistoryDepth.textContent = 'Checking cloud history...';
+        fetchCloudHistoryDepth();
         
         els.accountModal.hidden = false;
     }
 
+    function fetchCloudHistoryDepth() {
+        if (!state.currentUser || !state.cloud.token) return;
+        cloudFetch('/v1/history-depth', { token: state.cloud.token }).then(function (result) {
+            var depth = result && typeof result.historyDepth === 'number' ? result.historyDepth : 0;
+            if (els.cloudHistoryDepth) {
+                els.cloudHistoryDepth.textContent = depth > 0
+                    ? 'Previous saves available: ' + depth
+                    : 'No previous saves yet (first restore point will be created on next change).';
+            }
+        }).catch(function () {
+            if (els.cloudHistoryDepth) els.cloudHistoryDepth.textContent = '';
+        });
+    }
+
+    function normalizeProfileSettings(raw) {
+        var src = (raw && typeof raw === 'object') ? raw : {};
+        return {
+            useImportedData: src.useImportedData !== false,
+            debugMessages: !!src.debugMessages
+        };
+    }
+
+    function setDebugMessagesEnabled(enabled) {
+        state.profileSettings = normalizeProfileSettings(state.profileSettings);
+        state.profileSettings.debugMessages = !!enabled;
+        persistUserScopedJson(STORE_KEYS.profileSettings, state.profileSettings);
+        if (els.debugMessagesToggle) els.debugMessagesToggle.checked = !!enabled;
+        if (enabled) {
+            setStatus('Debug messages enabled.', false, true);
+        } else {
+            setStatus('', false, true);
+        }
+    }
+
+    function softPageRefresh() {
+        if (!state.currentUser) {
+            setStatus('Log in first to refresh your data.', true);
+            return;
+        }
+        if (!cloudSyncAvailable() || !state.cloud.token) {
+            setStatus('Cloud sync is not configured.', true);
+            return;
+        }
+
+        // Close all open modals
+        closeAllModals();
+
+        // Reload the UI from storage and sync from cloud
+        setStatus('Refreshing from cloud...');
+        showLoadingOverlay('Syncing from cloud\u2026', 'Loading your tracker data');
+        
+        try {
+            refreshForCurrentUser();
+            runLifecycleCloudRefresh('manual-refresh', true).finally(function () {
+                if (!state.cloud.applyingRemote) hideLoadingOverlay();
+                setStatus('Refreshed from cloud.', false, true);
+            });
+        } catch (error) {
+            hideLoadingOverlay();
+            console.error('[REFRESH] Error during soft refresh:', error);
+            setStatus('Could not refresh from cloud. Please try again.', true);
+        }
+    }
+
+    function closeAllModals() {
+        if (els.accountModal) els.accountModal.hidden = true;
+        if (els.addShowModal) els.addShowModal.hidden = true;
+        if (els.showModal) els.showModal.hidden = true;
+        if (els.omdbModal) els.omdbModal.hidden = true;
+        if (els.helpModal) els.helpModal.hidden = true;
+        if (els.recoverModal) els.recoverModal.hidden = true;
+    }
+
     function closeAccountModal() {
-        els.accountModal.hidden = true;
+        if (els.accountModal) els.accountModal.hidden = true;
     }
 
     function openOmdbModal() {
@@ -1322,6 +1354,63 @@
         reader.readAsText(file);
     }
 
+    function requestRestorePreviousCloudSave() {
+        if (!state.currentUser || !state.cloud.token) {
+            if (els.backupMessage) els.backupMessage.textContent = 'Log in first to restore a cloud save.';
+            return;
+        }
+        openConfirm(
+            'Restore previous cloud save?',
+            'This reverts your account cloud snapshot to the previous saved version, then reloads this device from cloud. Current cloud state will be preserved in history as a fail-safe.',
+            'Restore previous save',
+            function () { restorePreviousCloudSave(); }
+        );
+    }
+
+    async function restorePreviousCloudSave() {
+        if (!state.currentUser || !state.cloud.token) {
+            if (els.backupMessage) els.backupMessage.textContent = 'Log in first to restore a cloud save.';
+            return;
+        }
+
+        if (els.restoreCloudPrevBtn) {
+            els.restoreCloudPrevBtn.disabled = true;
+            els.restoreCloudPrevBtn.textContent = 'Restoring...';
+        }
+
+        showLoadingOverlay('Restoring cloud save\u2026', 'Rolling back to previous cloud snapshot');
+        try {
+            var restore = await cloudFetch('/v1/restore-last', {
+                token: state.cloud.token,
+                deviceId: getDeviceId()
+            });
+
+            state.cloud.pendingLocalChanges = false;
+            state.cloud.forceFullPullOnce = true;
+            await cloudRunSyncWithTimeout(false);
+
+            var fromVersion = restore && typeof restore.restoredFromVersion === 'number'
+                ? restore.restoredFromVersion
+                : null;
+            if (els.backupMessage) {
+                els.backupMessage.textContent = fromVersion != null
+                    ? ('Cloud save restored from version ' + fromVersion + '.')
+                    : 'Cloud save restored.';
+            }
+            setStatus('Restored the previous cloud save and synced this device.', false, true);
+        } catch (error) {
+            var message = error && error.message ? error.message : 'Could not restore previous cloud save.';
+            if (els.backupMessage) els.backupMessage.textContent = message;
+            setStatus(message, true, true);
+        } finally {
+            hideLoadingOverlay();
+            if (els.restoreCloudPrevBtn) {
+                els.restoreCloudPrevBtn.disabled = false;
+                els.restoreCloudPrevBtn.textContent = '⏮️ Restore previous cloud save';
+            }
+        }
+    }
+
     // --- Generic confirm modal, help modal, loading overlay ---------------
 
     function openConfirm(title, message, confirmLabel, onConfirm) {
@@ -1348,6 +1437,10 @@
     function showLoadingOverlay(message, sub) {
         if (els.loadingMessage) els.loadingMessage.textContent = message || 'Working…';
         if (els.loadingSub) els.loadingSub.textContent = sub || '';
+        try {
+            document.documentElement.classList.add('tv-busy');
+            document.body.classList.add('tv-busy');
+        } catch (e) { /* ignore */ }
         if (els.loadingOverlay) els.loadingOverlay.hidden = false;
     }
 
@@ -1356,6 +1449,10 @@
     }
 
     function hideLoadingOverlay() {
+        try {
+            document.documentElement.classList.remove('tv-busy');
+            document.body.classList.remove('tv-busy');
+        } catch (e) { /* ignore */ }
         if (els.loadingOverlay) els.loadingOverlay.hidden = true;
     }
 
@@ -1369,6 +1466,7 @@
         showLoadingOverlay('Refreshing metadata…', '0 / ' + state.refreshTotal + ' shows');
 
         state.metadataCache = {};
+        state.episodeCache = {};
         persistUserScopedJson(STORE_KEYS.metadataCache, state.metadataCache);
         state.shows.forEach(function (show) {
             var manual = state.manualLinks[show.id];
@@ -1596,6 +1694,39 @@
         });
     }
 
+    function isCompactMobileViewport() {
+        return window.matchMedia('(max-width: 680px)').matches;
+    }
+
+    function loadControlsCollapsedPreference() {
+        var saved = loadJson(STORE_KEYS.controlsCollapsed, null);
+        // Default to collapsed when user has no saved preference yet.
+        state.controlsCollapsed = saved == null ? true : !!saved;
+    }
+
+    function setControlsCollapsed(collapsed, persist) {
+        state.controlsCollapsed = !!collapsed;
+        if (persist) persistJson(STORE_KEYS.controlsCollapsed, state.controlsCollapsed);
+        applyControlsCollapseUi();
+    }
+
+    function applyControlsCollapseUi() {
+        if (!els.controlsSection || !els.controlsBody) return;
+        var collapsed = !!state.controlsCollapsed && isCompactMobileViewport();
+        els.controlsSection.classList.toggle('is-collapsed', collapsed);
+        els.controlsBody.hidden = collapsed;
+        if (els.controlsToggle) {
+            els.controlsToggle.hidden = !isCompactMobileViewport();
+            els.controlsToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            els.controlsToggle.textContent = collapsed ? 'Show filters' : 'Hide filters';
+        }
+    }
+
+    function initControlsCollapseUi() {
+        loadControlsCollapsedPreference();
+        applyControlsCollapseUi();
+    }
+
     function toggleSection(key) {
         state.collapsedSections[key] = !state.collapsedSections[key];
         persistJson(STORE_KEYS.sectionCollapse, state.collapsedSections);
@@ -1684,18 +1815,21 @@
     }
 
     // Central choke point: whenever synced user data changes, keep the settings
-    // clock current and schedule a device-to-device sync push. Skipped while we
-    // are applying an incoming snapshot (that path pushes explicitly to converge).
+    // clock current and schedule a cloud sync push.
     function afterUserScopedWrite(baseKey) {
-        if (state.sync && state.sync.applying) return;
+        if (state.cloud && state.cloud.applyingRemote) {
+            if (!CLOUD_SYNC_READONLY) state.cloud.pendingLocalChanges = true;
+            return;
+        }
         if (baseKey === STORE_KEYS.profileSettings || baseKey === STORE_KEYS.omdbApiKey) {
             bumpSyncSettingsAt();
         }
+        if (CLOUD_SYNC_READONLY) {
+            state.cloud.pendingLocalChanges = false;
+            return;
+        }
         state.cloud.pendingLocalChanges = true;
         cloudScheduleSync(1500);
-        if (SYNC_PUSH_KEYS.indexOf(baseKey) !== -1 || baseKey === STORE_KEYS.omdbApiKey) {
-            syncSchedulePush();
-        }
     }
 
     // --- Cloud sync (Cloudflare Worker + D1) -----------------------------
@@ -1705,29 +1839,108 @@
 
     function setupCloudSync() {
         if (!cloudSyncAvailable()) return;
-        if (state.currentUser) initCloudSyncForUser();
+        if (state.currentUser) {
+            initCloudSyncForUser();
+            // Run one immediate forced pull so page refresh/reopen always
+            // restores from cloud first.
+            runLifecycleCloudRefresh('startup', true).finally(function () {
+                if (!state.cloud.applyingRemote) hideLoadingOverlay();
+            });
+            scheduleStartupRecoverySync();
+        }
+    }
+
+    function runLifecycleCloudRefresh(reason, bypassThrottle) {
+        if (!state.currentUser || !state.cloud.token || !cloudSyncAvailable()) {
+            return Promise.resolve();
+        }
+        if (state.cloud.inFlight || state.cloud.applyingRemote) {
+            return Promise.resolve();
+        }
+
+        if (reason === 'startup') {
+            if (state.cloud.startupRefreshDone) return Promise.resolve();
+            state.cloud.startupRefreshDone = true;
+        }
+
+        var now = Date.now();
+        var throttleMs = 2500;
+        if (!bypassThrottle && (now - (state.cloud.lastRefreshSyncAt || 0) < throttleMs)) {
+            return Promise.resolve();
+        }
+
+        state.cloud.lastRefreshSyncAt = now;
+        state.cloud.forceFullPullOnce = true;
+
+        if (!state.shows || !state.shows.length || bypassThrottle) {
+            showLoadingOverlay('Syncing from cloud\u2026', 'Loading your tracker data');
+        }
+
+        return cloudRunSyncWithTimeout(false).catch(function (error) {
+            console.warn('[CLOUD-SYNC] lifecycle refresh failed:', reason, error);
+        });
+    }
+
+    function scheduleStartupRecoverySync() {
+        // Mobile PWA resumes can occasionally miss the first startup pull
+        // (network wake/timeout). If the UI is still empty shortly after
+        // startup, auto-run a force pull so users do not need to tap Refresh.
+        window.setTimeout(function () {
+            if (!state.currentUser || !state.cloud.token) return;
+            if (!cloudSyncAvailable()) return;
+            if (state.shows && state.shows.length) return;
+            if (state.cloud.inFlight || state.cloud.applyingRemote) return;
+
+            state.cloud.forceFullPullOnce = true;
+            showLoadingOverlay('Syncing from cloud\u2026', 'Restoring your tracker data');
+            cloudRunSyncWithTimeout(false).finally(function () {
+                if (!state.cloud.applyingRemote) hideLoadingOverlay();
+            });
+        }, 1800);
+    }
+
+    function hasLocalTrackerCache() {
+        // Show list can only be rebuilt from importedData/custom shows.
+        if (state.importedData && typeof state.importedData === 'object') {
+            var hasImportedRows = (state.importedData.userShows && state.importedData.userShows.length)
+                || (state.importedData.followed && state.importedData.followed.length);
+            if (hasImportedRows) return true;
+        }
+        if (state.customShows && state.customShows.length) return true;
+        return false;
     }
 
     function initCloudSyncForUser() {
         if (!cloudSyncAvailable() || !state.currentUser) return;
         if (!state.cloud.token) return;
+        if (state.cloud.stuckDetectorTimer) {
+            clearInterval(state.cloud.stuckDetectorTimer);
+            state.cloud.stuckDetectorTimer = null;
+        }
         var meta = loadUserScopedJson(STORE_KEYS.cloudSyncMeta, null);
         state.cloud.version = meta && typeof meta.version === 'number' ? meta.version : 0;
         state.cloud.pendingLocalChanges = false;
+        // If local cache is missing on startup (for example after a hard reload
+        // plus storage quirks), force one full pull regardless of knownVersion.
+        state.cloud.forceFullPullOnce = !hasLocalTrackerCache();
         state.cloud.stuckDetectorTimer = window.setInterval(detectStuckCloudSync, 30000);
         cloudScheduleSync(800);
     }
 
     function detectStuckCloudSync() {
         if (!state.cloud.inFlight && !state.cloud.applyingRemote) return;
+        if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
         var now = Date.now();
+        var startedAt = state.cloud.syncStartedAt || 0;
         var lastActivityAt = state.cloud.lastActivityAt || 0;
         var stuckDuration = now - lastActivityAt;
-        if (stuckDuration > CLOUD_SYNC_TIMEOUT_MS * 2) {
+        var totalSyncDuration = startedAt ? (now - startedAt) : stuckDuration;
+        if (stuckDuration > CLOUD_SYNC_TIMEOUT_MS * 2 && totalSyncDuration > CLOUD_SYNC_TIMEOUT_MS * 4) {
             console.warn('[CLOUD-SYNC] Detected stuck sync state for ' + stuckDuration + 'ms, resetting');
             state.cloud.inFlight = false;
             state.cloud.applyingRemote = false;
             state.cloud.lastActivityAt = now;
+            state.cloud.syncStartedAt = 0;
         }
     }
 
@@ -1743,11 +1956,15 @@
         state.cloud.inFlight = false;
         state.cloud.applyingRemote = false;
         state.cloud.pendingLocalChanges = false;
+        state.cloud.forceFullPullOnce = false;
+        state.cloud.startupRefreshDone = false;
         state.cloud.version = 0;
         state.cloud.token = '';
         state.cloud.retryAt = 0;
         state.cloud.lastErrorAt = 0;
         state.cloud.lastActivityAt = 0;
+        state.cloud.lastRefreshSyncAt = 0;
+        state.cloud.syncStartedAt = 0;
     }
 
     function cloudScheduleSync(delayMs) {
@@ -1816,12 +2033,20 @@
         var ctrl = new AbortController();
         var timeout = window.setTimeout(function () { ctrl.abort(); }, CLOUD_SYNC_TIMEOUT_MS);
         try {
-            var resp = await fetch(CLOUD_SYNC_BASE_PATH + path, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload || {}),
-                signal: ctrl.signal
-            });
+            var resp;
+            try {
+                resp = await fetch(CLOUD_SYNC_BASE_PATH + path, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload || {}),
+                    signal: ctrl.signal
+                });
+            } catch (networkError) {
+                if (isLocalHost()) {
+                    throw new Error('Local sync worker is offline. Start `wrangler dev --remote --config tv-sync-worker/wrangler.toml`.');
+                }
+                throw networkError;
+            }
             var json = await resp.json().catch(function () { return {}; });
             if (!resp.ok) {
                 var msg = (json && json.error) ? json.error : ('HTTP ' + resp.status);
@@ -1839,7 +2064,7 @@
     async function cloudRunSync(forcePush) {
         if (!cloudSyncAvailable() || !state.currentUser) return;
         if (state.cloud.inFlight) return;
-        if (state.sync && state.sync.applying) return;
+        if (state.cloud.applyingRemote) return;
         if (state.cloud.retryAt && Date.now() < state.cloud.retryAt) {
             cloudScheduleSync(Math.max(1000, state.cloud.retryAt - Date.now()));
             return;
@@ -1849,18 +2074,30 @@
         if (!auth) return;
 
         state.cloud.inFlight = true;
+        state.cloud.syncStartedAt = Date.now();
         try {
+            var knownVersion = state.cloud.forceFullPullOnce ? 0 : state.cloud.version;
             var pull = await cloudFetch('/v1/pull', {
                 token: auth.token,
-                knownVersion: state.cloud.version
+                knownVersion: knownVersion
             });
+            state.cloud.forceFullPullOnce = false;
 
-            if (pull && pull.version > state.cloud.version && pull.snapshot) {
+            var mustApplyFullPull = knownVersion === 0;
+            if (pull && pull.snapshot && (pull.version > state.cloud.version || mustApplyFullPull)) {
                 state.cloud.applyingRemote = true;
                 var merged = mergeSyncSnapshot(pull.snapshot);
                 if (merged.changed) applyMergeAndRebuild();
                 persistCloudVersion(pull.version);
                 state.cloud.applyingRemote = false;
+            } else if (isLocalHost() && !hasLocalTrackerCache() && pull && Number(pull.version || 0) === 0) {
+                setStatus('Local worker has no cloud snapshot. Start `wrangler dev --remote --config tv-sync-worker/wrangler.toml` to access your real cloud account data.', true);
+            }
+
+            if (CLOUD_SYNC_READONLY) {
+                state.cloud.pendingLocalChanges = false;
+                state.cloud.retryAt = 0;
+                return;
             }
 
             var shouldBootstrapPush = !forcePush
@@ -1906,6 +2143,7 @@
             cloudScheduleSync(CLOUD_SYNC_RETRY_MS);
         } finally {
             state.cloud.inFlight = false;
+            state.cloud.syncStartedAt = 0;
         }
     }
 
@@ -1926,7 +2164,7 @@
             applyFilters();
             render();
             if (state.cloud && state.cloud.applyingRemote) hideLoadingOverlay();
-            setStatus('No data yet. Click "Import TV Time Export" and pick the .zip you downloaded from TV Time (Settings \u2192 Export your data).');
+            setStatus('No data yet. Add shows manually, or use More -> Import legacy TV Time data if you already have an old export file.');
             return;
         }
 
@@ -1936,31 +2174,14 @@
             applyFilters();
             render();
             var when = imported.importedAt ? new Date(imported.importedAt).toLocaleDateString() : '';
-            var loadedMsg = 'Loaded ' + state.shows.length + ' shows from your TV Time export' + (when ? ' (imported ' + when + ')' : '') + '.';
-            setStatus(loadedMsg + ' Verifying completed shows…');
-            // The fast pass above depends on lastSeen and can miss some ended
-            // fully-watched shows from imported counts. Run the accurate catalog
-            // check in the background so users don't need to open each modal.
-            reconcileEndedShowCompletionFromCatalog().then(function (changed) {
-                if (state.cloud && state.cloud.applyingRemote) hideLoadingOverlay();
-                if (changed) {
-                    applyFilters();
-                    render();
-                    setStatus(loadedMsg + ' Verified completed shows: ' + changed + ' updated.');
-                    return;
-                }
-                setStatus(loadedMsg + ' Completed-show verification finished.');
-            }).catch(function (error) {
-                if (state.cloud && state.cloud.applyingRemote) hideLoadingOverlay();
-                console.warn('Background completion reconcile failed', error);
-                setStatus(loadedMsg + ' Completed-show verification could not finish (you can still use the tracker).');
-            });
-            queueMetadataFetches(state.shows, false);
+            var loadedMsg = 'Loaded ' + state.shows.length + ' shows from legacy import' + (when ? ' (imported ' + when + ')' : '') + '.';
+            if (state.cloud && state.cloud.applyingRemote) hideLoadingOverlay();
+            setStatus(loadedMsg + ' Metadata is not auto-refreshed in the background; use "Refresh Metadata" when you want to update posters and episode data.');
         } catch (error) {
             if (state.cloud && state.cloud.applyingRemote) hideLoadingOverlay();
             console.error(error);
             setStatus('Could not build your show list from the imported data.', true);
-            els.watchNextGrid.innerHTML = '<div class="error">Failed to read imported data. Try re-importing your TV Time export.</div>';
+            els.watchNextGrid.innerHTML = '<div class="error">Failed to read imported data. Try importing a different legacy export file.</div>';
             if (els.historyGrid) els.historyGrid.innerHTML = '';
             els.staleGrid.innerHTML = '';
         }
@@ -2011,7 +2232,7 @@
             datasets.importedAt = new Date().toISOString();
             state.importedData = datasets;
             try {
-                persistUserScopedValue(STORE_KEYS.importedData, JSON.stringify(datasets));
+                persistUserScopedJson(STORE_KEYS.importedData, datasets);
             } catch (quotaError) {
                 console.error(quotaError);
                 hideLoadingOverlay();
@@ -2275,6 +2496,8 @@
     }
 
     function applyFilters() {
+        cleanupExpiredManualWatchLaterOverrides();
+
         var filtered = state.shows.filter(function (show) {
             if (!matchesFilter(show)) return false;
             if (!state.search) return true;
@@ -2501,6 +2724,7 @@
                 openShowModal(item.getAttribute('data-show-id'));
             });
         });
+        wirePosterFallbackHandlers(els.upcomingBoard);
     }
 
     function formatUpcomingDate(value) {
@@ -2595,11 +2819,11 @@
         els.pausedShowsCount.textContent = pausedShows.length + ' shown';
         els.completedShowsCount.textContent = completedShows.length + ' shown';
 
-        renderShowList(els.watchNextGrid, watchNext, 'No active shows need watching right now.');
-        if (els.upToDateGrid) renderShowList(els.upToDateGrid, upToDateShows, 'No up-to-date active shows right now.');
-        renderShowList(els.staleGrid, staleShows, 'No inactive catch-up shows right now.');
-        renderShowList(els.pausedShowsGrid, pausedShows, 'No paused/backlog shows right now.');
-        renderShowList(els.completedShowsGrid, completedShows, 'No completed shows yet.');
+        renderShowList(els.watchNextGrid, watchNext, 'No active shows need watching right now.', 'watchnext');
+        if (els.upToDateGrid) renderShowList(els.upToDateGrid, upToDateShows, 'No up-to-date active shows right now.', 'default');
+        renderShowList(els.staleGrid, staleShows, 'No inactive catch-up shows right now.', 'default');
+        renderShowList(els.pausedShowsGrid, pausedShows, 'No paused/backlog shows right now.', 'default');
+        renderShowList(els.completedShowsGrid, completedShows, 'No completed shows yet.', 'default');
     }
 
     function getLatestAiredEpisode(show) {
@@ -2646,7 +2870,13 @@
         return 'uptodate';
     }
 
-    function isNotWatchedForAWhile(show) {
+    function isManuallyPushedToWatchLater(show) {
+        if (!show || !show.id) return false;
+        var entry = state.overrides && state.overrides[show.id];
+        return !!(entry && entry.forceWatchLater);
+    }
+
+    function isNaturallyStaleShow(show) {
         if (!hasNewEpisode(show)) return false;
         var last = asTime(show && show.lastSeen && show.lastSeen.updated_at);
         if (!last) return true;
@@ -2654,11 +2884,41 @@
         return (Date.now() - last) >= thresholdMs;
     }
 
+    function cleanupExpiredManualWatchLaterOverrides() {
+        if (!state.shows || !state.shows.length || !state.overrides) return;
+
+        var changed = false;
+        state.shows.forEach(function (show) {
+            if (!isManuallyPushedToWatchLater(show)) return;
+            if (!isNaturallyStaleShow(show)) return;
+
+            var entry = state.overrides[show.id];
+            if (!entry) return;
+            delete entry.forceWatchLater;
+            if (!Object.keys(entry).length) {
+                delete state.overrides[show.id];
+            }
+            changed = true;
+        });
+
+        if (changed) {
+            persistUserScopedJson(STORE_KEYS.localOverrides, state.overrides);
+        }
+    }
+
+    function isNotWatchedForAWhile(show) {
+        if (isNaturallyStaleShow(show)) return true;
+        if (!hasNewEpisode(show)) return false;
+        return isManuallyPushedToWatchLater(show);
+    }
+
     function renderShowList(container, shows, emptyText, listType) {
         if (!shows.length) {
             container.innerHTML = '<div class="empty">' + escapeHtml(emptyText) + '</div>';
             return;
         }
+
+        var isWatchNextList = listType === 'watchnext';
 
         var fragment = document.createDocumentFragment();
 
@@ -2679,7 +2939,7 @@
             var meta = show.meta || {};
             var posterSrc = meta.poster || FALLBACK_POSTER;
             var hasPoster = !!meta.poster && posterSrc !== FALLBACK_POSTER;
-            poster.src = posterSrc;
+            applyPosterSrc(poster, posterSrc);
             poster.alt = show.title + ' poster';
             if (newBadge) newBadge.hidden = !hasNewEpisode(show);
             if (premiereBadge) premiereBadge.hidden = !hasUpcomingPremiere(show);
@@ -2718,24 +2978,80 @@
                 }
             }
 
-            metaRow.textContent = buildMetaRow(show);
-            description.textContent = stripHtml(meta.summary || 'No external description available yet.');
+            if (isWatchNextList) {
+                card.classList.add('watchnext-card');
+                if (statusPill) statusPill.hidden = true;
+                if (seriesBadge) seriesBadge.hidden = true;
+                if (metaRow) metaRow.hidden = true;
+                if (description) description.hidden = true;
+                if (tags) tags.hidden = true;
 
-            watchRow.textContent = 'Watched episodes: ' + show.watchedCount + buildLastSeenSuffix(show);
-            nextRow.textContent = buildNextRow(show);
+                watchRow.textContent = buildWatchNextFocusRow(show);
+                nextRow.textContent = buildWatchNextSecondaryRow(show);
 
-            (meta.genres || []).slice(0, 4).forEach(function (genre) {
-                var tag = document.createElement('span');
-                tag.className = 'tag';
-                tag.textContent = genre;
-                tags.appendChild(tag);
-            });
+                var actions = document.createElement('div');
+                actions.className = 'watchnext-actions';
+                var markBtn = document.createElement('button');
+                markBtn.type = 'button';
+                markBtn.className = 'btn btn-primary btn-sm watchnext-mark-btn';
+                markBtn.textContent = 'Mark as watched';
+                markBtn.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    if (markBtn.disabled) return;
+                    markBtn.disabled = true;
+                    var success = false;
+                    var previousText = markBtn.textContent;
+                    markBtn.textContent = 'Marking...';
+                    Promise.resolve(markNextEpisodeAsWatched(show)).then(function () {
+                        success = true;
+                        markBtn.classList.add('is-success');
+                        markBtn.textContent = 'Watched ✓';
+                    }).catch(function (error) {
+                        console.warn('Could not mark next episode as watched for', show.title, error);
+                        setStatus('Could not mark next episode for ' + show.title + '.', true);
+                    }).finally(function () {
+                        if (!success) {
+                            markBtn.disabled = false;
+                            markBtn.textContent = previousText;
+                            return;
+                        }
+                        window.setTimeout(function () {
+                            markBtn.disabled = false;
+                            markBtn.classList.remove('is-success');
+                            markBtn.textContent = previousText;
+                        }, 420);
+                    });
+                });
+                actions.appendChild(markBtn);
+                var cardContent = cardNode.querySelector('.card-content');
+                if (cardContent) cardContent.appendChild(actions);
+            } else {
+                metaRow.textContent = buildMetaRow(show);
+                description.textContent = stripHtml(meta.summary || 'No external description available yet.');
 
-            if (meta.imdbRating) {
-                var rating = document.createElement('span');
-                rating.className = 'tag tag-rating';
-                rating.textContent = '\u2b50 ' + meta.imdbRating;
-                tags.appendChild(rating);
+                watchRow.textContent = 'Watched episodes: ' + show.watchedCount + buildLastSeenSuffix(show);
+                nextRow.textContent = buildNextRow(show);
+
+                if (isManuallyPushedToWatchLater(show)) {
+                    var watchLaterTag = document.createElement('span');
+                    watchLaterTag.className = 'tag tag-watchlater';
+                    watchLaterTag.textContent = 'Watch later';
+                    tags.appendChild(watchLaterTag);
+                }
+
+                (meta.genres || []).slice(0, 4).forEach(function (genre) {
+                    var tag = document.createElement('span');
+                    tag.className = 'tag';
+                    tag.textContent = genre;
+                    tags.appendChild(tag);
+                });
+
+                if (meta.imdbRating) {
+                    var rating = document.createElement('span');
+                    rating.className = 'tag tag-rating';
+                    rating.textContent = '\u2b50 ' + meta.imdbRating;
+                    tags.appendChild(rating);
+                }
             }
 
             card.dataset.showId = show.id;
@@ -2762,6 +3078,46 @@
     function buildLastSeenSuffix(show) {
         if (!show.lastSeen || !show.lastSeen.season) return '';
         return ' · Last seen S' + show.lastSeen.season + 'E' + show.lastSeen.episode;
+    }
+
+    function getNextEpisodeToWatchFromKnownData(show) {
+        if (!show || !show.id) return null;
+
+        var cached = state.episodeCache && state.episodeCache[show.id];
+        if (Array.isArray(cached) && cached.length) {
+            var nextFromCatalog = cached.slice().sort(byEpOrder).find(function (ep) {
+                return !isEpisodeWatched(show, ep) && !isEpisodeUnaired(ep);
+            });
+            if (nextFromCatalog) return nextFromCatalog;
+        }
+
+        var meta = show.meta || {};
+        if (meta.lastAired && !isEpisodeWatched(show, meta.lastAired) && !isEpisodeUnaired(meta.lastAired)) {
+            return meta.lastAired;
+        }
+        if (meta.nextEpisode && !isEpisodeWatched(show, meta.nextEpisode) && !isEpisodeUnaired(meta.nextEpisode)) {
+            return meta.nextEpisode;
+        }
+
+        return null;
+    }
+
+    function buildWatchNextFocusRow(show) {
+        var next = getNextEpisodeToWatchFromKnownData(show);
+        if (next && toInt(next.season) > 0 && toInt(next.number) > 0) {
+            var epName = next.name ? (' - ' + stripHtml(next.name)) : '';
+            return 'Watch now: S' + next.season + 'E' + next.number + epName;
+        }
+        if (hasNewEpisode(show)) return 'Watch now: next aired episode';
+        return 'No aired episode pending right now';
+    }
+
+    function buildWatchNextSecondaryRow(show) {
+        var next = getNextEpisodeToWatchFromKnownData(show);
+        if (next && next.airdate) {
+            return 'Aired ' + formatDate(next.airdate) + buildLastSeenSuffix(show);
+        }
+        return buildNextRow(show) + buildLastSeenSuffix(show);
     }
 
     function buildNextRow(show) {
@@ -2885,7 +3241,8 @@
             watchedCount: nextCount,
             episodeStates: show.episodeStates,
             lastSeen: computeLastSeen(show, catalog),
-            status: nextStatus
+            status: nextStatus,
+            clearForceWatchLater: watched === true
         });
 
         if (markedWatched.length) appendWatchHistory(show, markedWatched);
@@ -3010,8 +3367,11 @@
     async function openShowModal(showId) {
         var show = state.shows.find(function (item) { return item.id === showId; });
         if (!show) return;
+        state.modalRequestId = (state.modalRequestId || 0) + 1;
+        var requestId = state.modalRequestId;
         state.modalShowId = showId;
         state.modalOpenSeasons = null;
+        if (els.showModalMenu) els.showModalMenu.open = false;
         els.showModal.hidden = false;
         els.showModalTitle.textContent = show.title;
         els.showModalSubtitle.textContent = 'Loading episodes…';
@@ -3022,9 +3382,8 @@
         els.modalSeasons.innerHTML = '<div class="empty">Loading episode list…</div>';
 
         var episodes = await loadEpisodeCatalog(show);
-        if (state.modalShowId !== showId) return; // modal changed/closed while loading
-        maybeSeedProgressFromCount(show, episodes);
-        maybeAutoCompleteFromCatalog(show, episodes);
+        if (state.modalShowId !== showId || state.modalRequestId !== requestId || !els.showModal || els.showModal.hidden) return;
+        // Opening details should not modify watch state or list placement.
         var current = state.shows.find(function (item) { return item.id === showId; }) || show;
         renderShowModal(current, episodes);
     }
@@ -3133,6 +3492,7 @@
         state.modalShowId = '';
         state.modalEpisodes = [];
         closePosterLightbox();
+        if (els.showModalMenu) els.showModalMenu.open = false;
         if (els.showModal) els.showModal.hidden = true;
     }
 
@@ -3581,7 +3941,7 @@
         var meta = (show && show.meta) || {};
         var hasPoster = !!meta.poster;
         var title = (show && show.title) ? show.title : 'Show';
-        els.modalPoster.src = meta.poster || FALLBACK_POSTER;
+        applyPosterSrc(els.modalPoster, meta.poster || FALLBACK_POSTER);
         els.modalPoster.alt = title + ' poster';
         if (els.posterBtn) {
             els.posterBtn.classList.toggle('has-poster', hasPoster);
@@ -3612,6 +3972,48 @@
         if (els.posterLightboxImg) els.posterLightboxImg.src = '';
     }
 
+    function applyPosterSrc(imgEl, src) {
+        if (!imgEl) return;
+        var desired = src || FALLBACK_POSTER;
+        if (desired !== FALLBACK_POSTER && state.brokenPosters[desired]) {
+            desired = FALLBACK_POSTER;
+        }
+        imgEl.removeAttribute('data-poster-src');
+        if (desired === FALLBACK_POSTER) {
+            imgEl.onerror = null;
+            imgEl.src = FALLBACK_POSTER;
+            return;
+        }
+        imgEl.setAttribute('data-poster-src', desired);
+        imgEl.onerror = function () {
+            var failed = this.getAttribute('data-poster-src') || '';
+            if (failed) state.brokenPosters[failed] = true;
+            this.onerror = null;
+            this.src = FALLBACK_POSTER;
+        };
+        imgEl.src = desired;
+    }
+
+    function wirePosterFallbackHandlers(container) {
+        if (!container) return;
+        container.querySelectorAll('img').forEach(function (img) {
+            var src = img.getAttribute('src') || '';
+            if (!src || src === FALLBACK_POSTER || img.getAttribute('data-poster-fallback-bound') === '1') return;
+            if (state.brokenPosters[src]) {
+                img.src = FALLBACK_POSTER;
+                return;
+            }
+            img.setAttribute('data-poster-fallback-bound', '1');
+            img.setAttribute('data-poster-src', src);
+            img.onerror = function () {
+                var failed = this.getAttribute('data-poster-src') || '';
+                if (failed) state.brokenPosters[failed] = true;
+                this.onerror = null;
+                this.src = FALLBACK_POSTER;
+            };
+        });
+    }
+
     function saveModalNotes() {
         var showId = state.modalShowId;
         if (!showId || !els.modalNotes) return;
@@ -3638,6 +4040,40 @@
                 removeShowFromTracker(show);
             }
         );
+    }
+
+    function togglePushToWatchLater() {
+        var showId = state.modalShowId;
+        if (!showId) return;
+
+        var show = state.shows.find(function (item) { return item.id === showId; });
+        if (!show) return;
+        var currentlyPushed = isManuallyPushedToWatchLater(show);
+
+        if (els.showModalMenu) els.showModalMenu.open = false;
+
+        if (!hasNewEpisode(show) && !currentlyPushed) {
+            setStatus('This show has no pending aired episode to move right now.');
+            return;
+        }
+
+        updateShowOverride(show.id, {
+            forceWatchLater: !currentlyPushed
+        });
+
+        applyFilters();
+        render();
+
+        var updated = state.shows.find(function (item) { return item.id === show.id; }) || show;
+        if (state.modalShowId === show.id && !els.showModal.hidden) {
+            renderShowModal(updated, state.modalEpisodes || []);
+        }
+
+        if (currentlyPushed) {
+            setStatus('Moved ' + show.title + ' back to Watch Next.');
+        } else {
+            setStatus('Pushed ' + show.title + ' to Haven\'t Watched in a While.');
+        }
     }
 
     function removeShowFromTracker(show) {
@@ -3766,6 +4202,17 @@
                 patchShow(show.id, { status: isPausedLike ? 'active' : 'paused' });
                 setStatus((isPausedLike ? 'Resumed ' : 'Paused ') + show.title + '.');
             };
+        }
+
+        if (els.pushWatchLaterBtn) {
+            var hasPendingEpisode = hasNewEpisode(show);
+            var pushed = isManuallyPushedToWatchLater(show);
+            var canToggle = hasPendingEpisode || pushed;
+            els.pushWatchLaterBtn.textContent = pushed ? 'Return to Watch Next' : 'Push to Watch Later';
+            els.pushWatchLaterBtn.disabled = !canToggle;
+            els.pushWatchLaterBtn.title = canToggle
+                ? (pushed ? 'Move this show back to Watch Next logic' : 'Manually place this show in Haven\'t Watched in a While')
+                : 'No pending episode right now';
         }
 
         var totalEps = episodes.length;
@@ -4135,7 +4582,7 @@
             var poster = document.createElement('img');
             poster.className = 'addshow-poster';
             poster.loading = 'lazy';
-            poster.src = posterSrc;
+            applyPosterSrc(poster, posterSrc);
             poster.alt = (show.name || 'Show') + ' poster';
 
             // With real art the poster becomes a zoom-in button (same full-size
@@ -4423,7 +4870,7 @@
         openConfirm(
             'Catch up on ' + show.title + '?',
             'Mark ' + episodesToWatch.length + ' already-aired episode' + (episodesToWatch.length === 1 ? '' : 's') + ' as watched?',
-            'Mark watched',
+            'Mark as watched',
             function () {
                 applyWatchedChange(show, episodesToWatch, true, catalog);
                 setStatus('Marked ' + episodesToWatch.length + ' episodes as watched for ' + show.title + '.');
@@ -4479,12 +4926,14 @@
             };
         }
 
-        updateShowOverride(showId, {
+        var overridePatch = {
             watchedCount: show.watchedCount,
             status: show.localStatus || show.status,
             lastSeen: show.lastSeen || null,
             episodeStates: show.episodeStates || {}
-        });
+        };
+        if (patch.clearForceWatchLater) overridePatch.forceWatchLater = false;
+        updateShowOverride(showId, overridePatch);
 
         applyFilters();
         render();
@@ -5288,9 +5737,16 @@
         return showId + '::' + normalizeName(title);
     }
 
-    function setStatus(message, isError) {
+    function setStatus(message, isError, forceShow) {
+        var error = !!isError;
+        var allowInfo = !!forceShow || !!(state.profileSettings && state.profileSettings.debugMessages);
+        if (!error && !allowInfo) {
+            els.statusText.textContent = '';
+            els.statusText.className = 'status-text';
+            return;
+        }
         els.statusText.textContent = message;
-        els.statusText.className = isError ? 'status-text error' : 'status-text';
+        els.statusText.className = error ? 'status-text error' : 'status-text';
     }
 
     function loadJson(key, fallback) {
@@ -5298,6 +5754,14 @@
             var raw = storageGetItem(key);
             if (!raw) return fallback;
             var parsed = JSON.parse(raw);
+            // Backward compatibility: some older writes stored JSON as a string
+            // payload; parse one extra level so existing user data is recovered.
+            if (typeof parsed === 'string') {
+                try {
+                    var reparsed = JSON.parse(parsed);
+                    if (reparsed && typeof reparsed === 'object') return reparsed;
+                } catch (nestedError) { /* ignore */ }
+            }
             return parsed && typeof parsed === 'object' ? parsed : fallback;
         } catch (error) {
             return fallback;
@@ -5372,97 +5836,7 @@
         return String(hash >>> 0);
     }
 
-    /* =====================================================================
-     * Cross-device sync (WebRTC peer-to-peer, PeerJS for signalling only)
-     * ---------------------------------------------------------------------
-     * Two devices signed into the SAME account pair once (QR / short code).
-     * After that, whenever both have the tracker open they auto-connect and
-     * exchange snapshots directly device-to-device (on the same Wi-Fi the
-     * data never leaves the network). A tiny public broker only introduces
-     * the peers (random IDs, never your data); the transfer itself is
-     * end-to-end encrypted by WebRTC. Merge is "newest wins" per show so
-     * edits made on both devices all survive.
-     * ===================================================================== */
-
-    function syncAvailable() {
-        return typeof Peer !== 'undefined';
-    }
-
-    // --- small helpers -----------------------------------------------------
-    function randomHex(nBytes) {
-        var arr = new Uint8Array(nBytes);
-        crypto.getRandomValues(arr);
-        var s = '';
-        for (var i = 0; i < arr.length; i++) s += ('0' + arr[i].toString(16)).slice(-2);
-        return s;
-    }
-
-    function randomSecret() { return randomHex(16); } // 128-bit shared secret
-
-    function getDeviceId() {
-        var id = storageGetItem(STORE_KEYS.syncDeviceId);
-        if (!id) {
-            id = 'tvsync-' + randomHex(16);
-            try { storageSetItem(STORE_KEYS.syncDeviceId, id); } catch (e) { /* ignore */ }
-        }
-        return id;
-    }
-
-    function deviceLabel() {
-        var ua = navigator.userAgent || '';
-        var os = /Android/i.test(ua) ? 'Android'
-            : /iPhone|iPad|iPod/i.test(ua) ? 'iOS'
-            : /Windows/i.test(ua) ? 'Windows'
-            : /Macintosh|Mac OS/i.test(ua) ? 'Mac'
-            : /Linux/i.test(ua) ? 'Linux' : 'device';
-        var kind = /Mobi|Android|iPhone|iPad|iPod/i.test(ua) ? 'phone' : 'computer';
-        return os + ' ' + kind;
-    }
-
-    function btoaUrl(str) {
-        return btoa(unescape(encodeURIComponent(str)))
-            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    }
-
-    function atobUrl(str) {
-        var s = String(str || '').replace(/-/g, '+').replace(/_/g, '/');
-        while (s.length % 4) s += '=';
-        return decodeURIComponent(escape(atob(s)));
-    }
-
-    function encodePairCode(id, secret) {
-        return btoaUrl(JSON.stringify({ i: id, s: secret }));
-    }
-
-    function decodePairCode(code) {
-        try {
-            var raw = String(code || '').trim();
-            var idx = raw.indexOf('sync=');
-            if (idx !== -1) raw = raw.slice(idx + 5);
-            raw = raw.split('&')[0].replace(/[^A-Za-z0-9\-_]/g, '');
-            if (!raw) return null;
-            var obj = JSON.parse(atobUrl(raw));
-            if (obj && obj.i && obj.s) return { id: String(obj.i), secret: String(obj.s) };
-        } catch (e) { /* ignore */ }
-        return null;
-    }
-
-    function timeAgo(ms) {
-        if (!ms) return 'never';
-        var s = Math.max(0, Math.floor((Date.now() - ms) / 1000));
-        if (s < 60) return 'just now';
-        var mnt = Math.floor(s / 60); if (mnt < 60) return mnt + ' min ago';
-        var h = Math.floor(mnt / 60); if (h < 24) return h + ' h ago';
-        return Math.floor(h / 24) + ' d ago';
-    }
-
-    // --- persisted partner + settings clock -------------------------------
-    function getSyncPartner() { return loadJson(scopedKey(STORE_KEYS.syncPartner), null); }
-    function setSyncPartner(p) { persistJson(scopedKey(STORE_KEYS.syncPartner), p); }
-    function clearSyncPartner() {
-        try { storageRemoveItem(scopedKey(STORE_KEYS.syncPartner)); } catch (e) { /* ignore */ }
-    }
-
+    // Cloud sync metadata clock for settings bundle conflict resolution.
     function getSyncSettingsAt() {
         var m = loadJson(scopedKey(STORE_KEYS.syncMeta), null);
         return (m && m.settingsAt) || 0;
@@ -5472,11 +5846,7 @@
     }
     function bumpSyncSettingsAt() { setSyncSettingsAt(Date.now()); }
 
-    function amInitiatorFor(partner) {
-        return !!(partner && partner.id && state.sync.selfId && state.sync.selfId < partner.id);
-    }
-
-    // --- snapshot build / signature / merge -------------------------------
+    // --- snapshot build / merge -------------------------------------------
     function buildSyncSnapshot() {
         return {
             t: 'push',
@@ -5497,25 +5867,12 @@
         };
     }
 
-    function snapshotSignature(snap) {
-        var ov = snap.overrides || {};
-        var oCount = 0, oSum = 0;
-        Object.keys(ov).forEach(function (k) { oCount++; oSum += (ov[k] && ov[k].updatedAt) || 0; });
-        var cs = snap.customShows || [];
-        var csSum = 0;
-        cs.forEach(function (s) { csSum += (s && s.updatedAt) || 0; });
-        var wh = snap.watchHistory || [];
-        var whLast = wh.length ? asTime(wh[wh.length - 1] && wh[wh.length - 1].loggedAt) : 0;
-        var imp = (snap.importedData && snap.importedData.importedAt) ? (Date.parse(snap.importedData.importedAt) || 0) : 0;
-        var setAt = (snap.settings && snap.settings.settingsAt) || 0;
-        var mc = snap.metadataCache ? Object.keys(snap.metadataCache).length : 0;
-        return [oCount, oSum, wh.length, whLast, cs.length, csSum, imp, setAt, mc].join('|');
-    }
-
     function mergeSyncSnapshot(remote) {
-        if (!remote || remote.t !== 'push') return { changed: false };
+        if (!remote || typeof remote !== 'object') return { changed: false };
         if (!state.currentUser) return { changed: false, rejected: true, reason: 'not-signed-in' };
-        if (normalizeUsername(remote.user || '') !== state.currentUser) {
+        // Backward compatibility: older snapshots may not include `user`.
+        var remoteUser = normalizeUsername(remote.user || '');
+        if (remoteUser && remoteUser !== state.currentUser) {
             return { changed: false, rejected: true, reason: 'user' };
         }
 
@@ -5528,7 +5885,7 @@
         var pendingOmdb = null;
         var pendingSettingsAt = 0;
 
-        state.sync.applying = true;
+        state.cloud.applyingRemote = true;
         try {
             // overrides: per-show newest wins (never delete local shows)
             var rov = remote.overrides || {};
@@ -5640,7 +5997,7 @@
                 }
             }
         } finally {
-            state.sync.applying = false;
+            state.cloud.applyingRemote = false;
         }
         return { changed: changed };
     }
@@ -5657,494 +6014,4 @@
         }
     }
 
-    // --- connection plumbing ----------------------------------------------
-    function sendMsg(conn, obj) {
-        try { if (conn && conn.open) conn.send(obj); } catch (e) { console.warn('[SYNC] send failed', e); }
-    }
-
-    function onConnData(msg) {
-        if (!msg || typeof msg !== 'object') return;
-        if (msg.t === 'hello') { handleHello(msg); return; }
-        if (msg.t === 'hello-ack') { handleHelloAck(msg); return; }
-        if (msg.t === 'deny') {
-            setSyncStatus('Other device declined: ' + (msg.reason === 'user' ? 'different account' : 'wrong code') + '.');
-            closeConn();
-            return;
-        }
-        if (msg.t === 'push') { handlePush(msg); return; }
-    }
-
-    function handleHello(msg) {
-        // An active invite (pairSecret) takes precedence over a previously
-        // stored partner, so re-pairing to a new device uses the fresh secret.
-        var expected = state.sync.pairSecret || (state.sync.partner && state.sync.partner.secret) || '';
-        if (!expected || msg.secret !== expected) {
-            sendMsg(state.sync.conn, { t: 'deny', reason: 'secret' });
-            setSyncStatus('A device tried to connect with the wrong code.');
-            closeConn();
-            return;
-        }
-        if (normalizeUsername(msg.user || '') !== state.currentUser) {
-            sendMsg(state.sync.conn, { t: 'deny', reason: 'user' });
-            setSyncStatus('Other device is signed in as a different account — log in with the same account on both.');
-            closeConn();
-            return;
-        }
-        var partner = {
-            id: msg.selfId, secret: expected, user: normalizeUsername(msg.user),
-            label: msg.label || 'other device', pairedAt: Date.now()
-        };
-        setSyncPartner(partner);
-        state.sync.partner = partner;
-        state.sync.pairSecret = '';
-        state.sync.connected = true;
-        sendMsg(state.sync.conn, {
-            t: 'hello-ack', secret: expected, selfId: state.sync.selfId,
-            user: state.currentUser, label: deviceLabel()
-        });
-        setSyncStatus('Connected to ' + partner.label + '.');
-        startHourlyTimer();
-        renderSyncModal();
-        syncPushNow(true);
-    }
-
-    function handleHelloAck(msg) {
-        var expected = state.sync._connectSecret || (state.sync.partner && state.sync.partner.secret) || '';
-        if (!expected || msg.secret !== expected) {
-            setSyncStatus('Pairing failed (wrong code).');
-            closeConn();
-            return;
-        }
-        if (normalizeUsername(msg.user || '') !== state.currentUser) {
-            setSyncStatus('Other device uses a different account.');
-            closeConn();
-            return;
-        }
-        var partner = {
-            id: msg.selfId, secret: expected, user: normalizeUsername(msg.user),
-            label: msg.label || 'other device', pairedAt: Date.now()
-        };
-        setSyncPartner(partner);
-        state.sync.partner = partner;
-        state.sync._connectSecret = '';
-        state.sync.connected = true;
-        setSyncStatus('Connected to ' + partner.label + '.');
-        startHourlyTimer();
-        renderSyncModal();
-        syncPushNow(true);
-    }
-
-    function handlePush(snap) {
-        var res = mergeSyncSnapshot(snap);
-        state.sync.lastSyncAt = Date.now();
-        persistSyncLast();
-        if (res.rejected) {
-            if (res.reason === 'user') setSyncStatus('Different account on the other device — sync skipped.');
-            renderSyncModal();
-            return;
-        }
-        if (res.changed) {
-            setSyncStatus('Synced \u2014 updated from your other device.');
-            applyMergeAndRebuild();
-            syncSchedulePush();
-        } else {
-            setSyncStatus('Up to date.');
-        }
-        renderSyncModal();
-    }
-
-    function wireConn(conn, isInitiator) {
-        conn.on('open', function () {
-            if (isInitiator) {
-                var secret = state.sync._connectSecret || (state.sync.partner && state.sync.partner.secret) || '';
-                sendMsg(conn, {
-                    t: 'hello', secret: secret, selfId: state.sync.selfId,
-                    user: state.currentUser, label: deviceLabel()
-                });
-                setSyncStatus('Handshaking\u2026');
-            }
-        });
-        conn.on('data', function (data) {
-            try { onConnData(data); } catch (e) { console.warn('[SYNC] data error', e); }
-        });
-        conn.on('close', function () { onConnClose(); });
-        conn.on('error', function (err) { console.warn('[SYNC] conn error', err); });
-    }
-
-    function handleConn(conn) {
-        // Accept the newest incoming connection (replaces any stale one).
-        if (state.sync.conn && state.sync.conn !== conn) {
-            try { state.sync.conn.close(); } catch (e) { /* ignore */ }
-        }
-        state.sync.conn = conn;
-        wireConn(conn, false);
-    }
-
-    function connectTo(peerId, secret) {
-        if (!state.sync.peer) return;
-        state.sync._connectSecret = secret || (state.sync.partner && state.sync.partner.secret) || '';
-        var conn;
-        try { conn = state.sync.peer.connect(peerId, { reliable: true }); } catch (e) { conn = null; }
-        if (!conn) { setSyncStatus('Could not start the connection.'); scheduleRetry(); return; }
-        state.sync.conn = conn;
-        wireConn(conn, true);
-    }
-
-    function onConnClose() {
-        state.sync.connected = false;
-        state.sync.conn = null;
-        setSyncStatus('Disconnected.');
-        renderSyncModal();
-        scheduleRetry();
-    }
-
-    function closeConn() {
-        if (state.sync.conn) { try { state.sync.conn.close(); } catch (e) { /* ignore */ } state.sync.conn = null; }
-        state.sync.connected = false;
-        renderSyncModal();
-    }
-
-    function scheduleRetry() {
-        if (state.sync.retryTimer) return;
-        var partner = state.sync.partner;
-        if (!partner || !amInitiatorFor(partner)) return; // listener just waits for the peer
-        state.sync.retryTimer = window.setTimeout(function () {
-            state.sync.retryTimer = null;
-            if (!state.sync.connected && state.currentUser && state.sync.partner) {
-                connectTo(state.sync.partner.id, state.sync.partner.secret);
-            }
-        }, 15000);
-    }
-
-    // --- peer lifecycle ----------------------------------------------------
-    function ensurePeer(mode, onReady) {
-        if (!syncAvailable()) { setSyncStatus('Peer-to-peer library not loaded \u2014 reload the page.'); return; }
-        if (state.sync.peer && state.sync.peerMode === mode && !state.sync.peer.destroyed) {
-            if (state.sync.peer.open) { if (onReady) onReady(); }
-            else state.sync.peer.on('open', function () { if (onReady) onReady(); });
-            return;
-        }
-        teardownPeer();
-        var id = (mode === 'listener') ? state.sync.selfId : undefined;
-        var peer;
-        try { peer = id ? new Peer(id, { debug: 1 }) : new Peer({ debug: 1 }); }
-        catch (e) { setSyncStatus('Could not start the sync engine.'); return; }
-        state.sync.peer = peer;
-        state.sync.peerMode = mode;
-        peer.on('open', function () { if (onReady) onReady(); });
-        peer.on('connection', function (conn) { handleConn(conn); });
-        peer.on('disconnected', function () { try { peer.reconnect(); } catch (e) { /* ignore */ } });
-        peer.on('error', function (err) { onPeerError(err, mode, onReady); });
-    }
-
-    function onPeerError(err, mode, onReady) {
-        var type = err && err.type;
-        console.warn('[SYNC] peer error', type, err);
-        if (type === 'unavailable-id') {
-            setSyncStatus('Reconnecting\u2026');
-            window.setTimeout(function () { teardownPeer(); ensurePeer(mode, onReady); }, 4000);
-        } else if (type === 'peer-unavailable') {
-            setSyncStatus('Other device is offline. Will keep trying while both are open.');
-            scheduleRetry();
-        } else if (type === 'browser-incompatible') {
-            setSyncStatus('This browser does not support peer-to-peer sync.');
-        } else if (type === 'network' || type === 'server-error' || type === 'socket-error' || type === 'socket-closed') {
-            setSyncStatus('Network hiccup \u2014 retrying\u2026');
-            scheduleRetry();
-        } else {
-            setSyncStatus('Sync error: ' + (type || 'unknown') + '.');
-        }
-    }
-
-    function teardownPeer() {
-        if (state.sync.retryTimer) { clearTimeout(state.sync.retryTimer); state.sync.retryTimer = null; }
-        if (state.sync.conn) { try { state.sync.conn.close(); } catch (e) { /* ignore */ } state.sync.conn = null; }
-        if (state.sync.peer) { try { state.sync.peer.destroy(); } catch (e) { /* ignore */ } state.sync.peer = null; }
-        state.sync.peerMode = '';
-        state.sync.connected = false;
-    }
-
-    function teardownSync() {
-        teardownPeer();
-        if (state.sync.hourlyTimer) { clearInterval(state.sync.hourlyTimer); state.sync.hourlyTimer = null; }
-        if (state.sync.pushTimer) { clearTimeout(state.sync.pushTimer); state.sync.pushTimer = null; }
-        state.sync.partner = null;
-        state.sync.pairSecret = '';
-        state.sync.lastSentSig = '';
-        state.sync.lastSyncAt = 0;
-        setSyncStatus('Not connected');
-    }
-
-    // --- push scheduling ---------------------------------------------------
-    function syncSchedulePush() {
-        if (!state.sync.connected || !state.sync.conn) return;
-        if (state.sync.pushTimer) return;
-        state.sync.pushTimer = window.setTimeout(function () {
-            state.sync.pushTimer = null;
-            syncPushNow(false);
-        }, 4000);
-    }
-
-    function syncPushNow(force) {
-        if (!state.sync.connected || !state.sync.conn) return;
-        var snap = buildSyncSnapshot();
-        var sig = snapshotSignature(snap);
-        if (!force && sig === state.sync.lastSentSig) return;
-        state.sync.lastSentSig = sig;
-        sendMsg(state.sync.conn, snap);
-        state.sync.lastSyncAt = Date.now();
-        persistSyncLast();
-        renderSyncModal();
-    }
-
-    function syncNow() {
-        if (!state.sync.partner) { setSyncStatus('Pair a device first.'); return; }
-        if (!state.sync.connected) {
-            setSyncStatus('Not connected \u2014 trying to reconnect\u2026');
-            initSyncForUser();
-            return;
-        }
-        syncPushNow(true);
-        setSyncStatus('Sync sent.');
-    }
-
-    function startHourlyTimer() {
-        if (state.sync.hourlyTimer) return;
-        state.sync.hourlyTimer = window.setInterval(function () {
-            if (state.sync.connected) syncPushNow(false);
-        }, 60 * 60 * 1000);
-    }
-
-    function persistSyncLast() {
-        if (!state.sync.partner) return;
-        state.sync.partner.lastSyncAt = state.sync.lastSyncAt;
-        setSyncPartner(state.sync.partner);
-    }
-
-    // When the app regains focus (e.g. you unlock your phone back home), get the
-    // two devices talking again right away instead of waiting on the ~15s retry
-    // timer: revive the broker link if it dropped while backgrounded, then push
-    // our latest immediately if connected, or reconnect if the link was lost.
-    function syncOnResume() {
-        if (!syncAvailable() || !state.currentUser) return;
-        var partner = state.sync.partner || getSyncPartner();
-        if (!partner) return;
-
-        // Debounce the burst of visible/focus/pageshow events fired together.
-        var now = Date.now();
-        if (now - (state.sync.lastResumeAt || 0) < 1500) return;
-        state.sync.lastResumeAt = now;
-
-        // Mobile browsers often drop the signalling connection while the tab is
-        // frozen; reconnect it to the broker so a re-pair isn't needed.
-        if (state.sync.peer && state.sync.peer.disconnected && !state.sync.peer.destroyed) {
-            try { state.sync.peer.reconnect(); } catch (e) { /* ignore */ }
-        }
-
-        if (state.sync.connected && state.sync.conn && state.sync.conn.open) {
-            syncPushNow(true);
-        } else {
-            // Skip the retry delay and reconnect immediately.
-            if (state.sync.retryTimer) { clearTimeout(state.sync.retryTimer); state.sync.retryTimer = null; }
-            initSyncForUser();
-        }
-    }
-
-    // --- pairing -----------------------------------------------------------
-    function startPairingInvite() {
-        if (!state.currentUser) { setSyncStatus('Log in first.'); return; }
-        if (!syncAvailable()) { setSyncStatus('Sync library not loaded.'); return; }
-        state.sync.selfId = getDeviceId();
-        state.sync.pairSecret = randomSecret();
-        setSyncStatus('Starting\u2026');
-        ensurePeer('listener', function () {
-            var code = encodePairCode(state.sync.selfId, state.sync.pairSecret);
-            showPairCode(code);
-            setSyncStatus('Ready \u2014 scan the QR (or paste the link) on your other device.');
-        });
-    }
-
-    function connectWithCode(code) {
-        if (!state.currentUser) { setSyncStatus('Log in first, then connect.'); return; }
-        if (!syncAvailable()) { setSyncStatus('Sync library not loaded.'); return; }
-        var decoded = decodePairCode(code);
-        if (!decoded) { setSyncStatus('That code / link is not valid.'); return; }
-        state.sync.selfId = getDeviceId();
-        if (decoded.id === state.sync.selfId) { setSyncStatus('That code is from this same device.'); return; }
-        setSyncStatus('Connecting to the other device\u2026');
-        ensurePeer('initiator', function () { connectTo(decoded.id, decoded.secret); });
-    }
-
-    function showPairCode(code) {
-        var url = location.origin + '/tv/#sync=' + code;
-        if (els.syncCode) els.syncCode.value = url;
-        if (els.syncQr) {
-            els.syncQr.innerHTML = '';
-            try {
-                if (typeof qrcode !== 'undefined') {
-                    var qr = qrcode(0, 'M');
-                    qr.addData(url);
-                    qr.make();
-                    els.syncQr.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
-                } else {
-                    els.syncQr.textContent = 'QR unavailable \u2014 copy the link below.';
-                }
-            } catch (e) { els.syncQr.textContent = 'QR error \u2014 copy the link below.'; }
-        }
-        if (els.syncQrWrap) els.syncQrWrap.hidden = false;
-    }
-
-    function copyPairCode() {
-        if (!els.syncCode) return;
-        var text = els.syncCode.value || '';
-        var done = function () { setSyncStatus('Link copied. Open it on your other device.'); };
-        try {
-            els.syncCode.select();
-            document.execCommand('copy');
-            done();
-        } catch (e) {
-            if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () { /* ignore */ });
-        }
-    }
-
-    function requestUnpair() {
-        openConfirm(
-            'Unpair this device?',
-            'This stops automatic syncing with the other device. Your show data stays on both devices \u2014 you can pair again anytime.',
-            'Unpair',
-            function () {
-                teardownPeer();
-                clearSyncPartner();
-                state.sync.partner = null;
-                state.sync.lastSyncAt = 0;
-                setSyncStatus('Unpaired.');
-                renderSyncModal();
-            }
-        );
-    }
-
-    // --- UI ----------------------------------------------------------------
-    function setSyncStatus(text) {
-        state.sync.statusText = text;
-        if (els.syncStatus) els.syncStatus.textContent = text;
-        updateSyncButton();
-    }
-
-    function updateSyncButton() {
-        if (!els.syncDeviceStatus) return;
-        if (!syncAvailable()) { els.syncDeviceStatus.textContent = ''; return; }
-        var p = state.sync.partner;
-        if (!p) { els.syncDeviceStatus.textContent = 'Not paired with another device yet.'; return; }
-        els.syncDeviceStatus.textContent = (state.sync.connected ? '\uD83D\uDFE2 Connected to ' : 'Paired with ')
-            + (p.label || 'other device')
-            + (state.sync.lastSyncAt ? ' \u2022 last sync ' + timeAgo(state.sync.lastSyncAt) : '');
-    }
-
-    function renderSyncModal() {
-        if (!els.syncModal) return;
-        var p = state.sync.partner;
-        if (els.syncDeviceLabel) els.syncDeviceLabel.textContent = deviceLabel();
-        if (els.syncStatus) els.syncStatus.textContent = state.sync.statusText;
-        if (els.syncUnpaired) els.syncUnpaired.hidden = !!p;
-        if (els.syncPaired) els.syncPaired.hidden = !p;
-        if (p) {
-            if (els.syncPartnerLabel) els.syncPartnerLabel.textContent = p.label || 'other device';
-            if (els.syncLast) els.syncLast.textContent = state.sync.lastSyncAt ? ('Last sync: ' + timeAgo(state.sync.lastSyncAt)) : 'Not synced yet.';
-        }
-        updateSyncButton();
-    }
-
-    function openSyncModal() {
-        if (!state.currentUser) { setStatus('Log in first to set up device sync.'); return; }
-        if (!els.syncModal) return;
-        state.sync.selfId = getDeviceId();
-        state.sync.partner = getSyncPartner();
-        if (state.sync.partner && state.sync.partner.lastSyncAt) state.sync.lastSyncAt = state.sync.partner.lastSyncAt;
-        if (els.syncQrWrap) els.syncQrWrap.hidden = true;
-        if (els.syncCodeInput) els.syncCodeInput.value = '';
-        if (!syncAvailable()) {
-            setSyncStatus('Peer-to-peer library not loaded \u2014 reload the page.');
-        } else if (!state.sync.statusText || state.sync.statusText === 'Not connected') {
-            setSyncStatus(state.sync.partner
-                ? (state.sync.connected ? 'Connected.' : 'Paired. Trying to connect\u2026')
-                : 'Not paired yet.');
-        }
-        renderSyncModal();
-        els.syncModal.hidden = false;
-        if (syncAvailable() && state.sync.partner && !state.sync.connected) initSyncForUser();
-    }
-
-    function closeSyncModal() {
-        if (els.syncModal) els.syncModal.hidden = true;
-    }
-
-    // --- lifecycle ---------------------------------------------------------
-    function initSyncForUser() {
-        if (!syncAvailable()) { updateSyncButton(); return; }
-        if (!state.currentUser) return;
-        state.sync.selfId = getDeviceId();
-
-        // A pending deep-link code means this device just scanned the other's
-        // QR: act as the initiator/scanner and connect straight away.
-        if (state.sync.pendingPairCode) {
-            var code = state.sync.pendingPairCode;
-            state.sync.pendingPairCode = '';
-            openSyncModal();
-            connectWithCode(code);
-            return;
-        }
-
-        var partner = getSyncPartner();
-        state.sync.partner = partner;
-        if (partner && partner.lastSyncAt) state.sync.lastSyncAt = partner.lastSyncAt;
-
-        if (partner) {
-            if (amInitiatorFor(partner)) {
-                ensurePeer('initiator', function () { connectTo(partner.id, partner.secret); });
-            } else {
-                ensurePeer('listener', function () {
-                    setSyncStatus('Waiting for ' + (partner.label || 'your other device') + '\u2026');
-                });
-            }
-            startHourlyTimer();
-        } else {
-            setSyncStatus('Not paired yet.');
-        }
-        updateSyncButton();
-    }
-
-    function setupSync() {
-        // Deep-link pairing: the other device scans a QR that opens .../tv/#sync=CODE
-        var hash = location.hash || '';
-        var m = hash.match(/[#&]sync=([^&]+)/);
-        if (m && m[1]) {
-            state.sync.pendingPairCode = m[1];
-            try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ignore */ }
-        }
-
-        // Keep the two devices converged around app focus changes:
-        //  - hidden  -> flush our latest to the other device before we freeze.
-        //  - visible -> reconnect (if the link dropped while backgrounded) and
-        //    push immediately, so unlocking the phone back home syncs at once
-        //    instead of waiting on the ~15s retry timer.
-        document.addEventListener('visibilitychange', function () {
-            if (document.visibilityState === 'hidden') {
-                if (state.sync.connected) { try { syncPushNow(true); } catch (e) { /* ignore */ } }
-            } else if (document.visibilityState === 'visible') {
-                syncOnResume();
-            }
-        });
-        // Desktop tab refocus and mobile back-forward (bfcache) restores don't
-        // always fire visibilitychange, so cover those too.
-        window.addEventListener('focus', function () { syncOnResume(); });
-        window.addEventListener('pageshow', function () { syncOnResume(); });
-
-        if (!syncAvailable()) { updateSyncButton(); return; }
-        if (state.currentUser) {
-            initSyncForUser();
-        } else if (state.sync.pendingPairCode) {
-            setStatus('Log in with the same account to finish syncing with your other device.');
-        }
-        updateSyncButton();
-    }
 })();

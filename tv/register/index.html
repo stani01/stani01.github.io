@@ -71,7 +71,7 @@
                 sessionUser: 'tvTrackerSessionUserV1'
             };
 
-            var CLOUD_SYNC_BASE_PATH = '/tv-sync';
+            var CLOUD_SYNC_BASE_PATH = resolveCloudSyncBasePath();
 
             var els = {
                 username: document.getElementById('reg-username'),
@@ -104,12 +104,29 @@
                 }
             }
 
+            function resolveCloudSyncBasePath() {
+                var host = String(window.location.hostname || '').toLowerCase();
+                var isLocalHost = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+                if (isLocalHost) return 'http://127.0.0.1:8787/tv-sync';
+                return '/tv-sync';
+            }
+
             async function cloudFetch(path, payload) {
-                var resp = await fetch(CLOUD_SYNC_BASE_PATH + path, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload || {})
-                });
+                var resp;
+                try {
+                    resp = await fetch(CLOUD_SYNC_BASE_PATH + path, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload || {})
+                    });
+                } catch (networkError) {
+                    var host = String(window.location.hostname || '').toLowerCase();
+                    var isLocalHost = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+                    if (isLocalHost) {
+                        throw new Error('Local sync worker is offline. Start `wrangler dev --remote --config tv-sync-worker/wrangler.toml`.');
+                    }
+                    throw networkError;
+                }
                 var json = await resp.json().catch(function () { return {}; });
                 if (!resp.ok) {
                     throw new Error((json && json.error) ? json.error : ('HTTP ' + resp.status));
